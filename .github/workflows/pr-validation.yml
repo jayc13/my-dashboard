@@ -32,6 +32,17 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: npm
+      - name: Install commitlint
+        run: npm install -D @commitlint/cli @commitlint/config-conventional
+
+      - name: Validate PR commits with commitlint
+        run: npx commitlint --config="./scripts/commitlint.config.js" --from ${{ github.event.pull_request.base.sha }} --to ${{ github.event.pull_request.head.sha }} --verbose
+
       - name: Detect changes
         uses: dorny/paths-filter@v3
         id: changes
@@ -49,10 +60,16 @@ jobs:
             github:
               - '.github/**'
 
-      - name: Validate PR title and description
+      - name: Validate PR title with commitlint
         run: |
-          echo "TODO: Implement PR title validation (conventional commits format)"
-          echo "TODO: Implement PR description validation (required sections)"
+          echo "🔍 Validating PR title format..."
+          echo "${{ github.event.pull_request.title }}" | npx commitlint --config="./scripts/commitlint.config.js" --verbose
+          if [ $? -ne 0 ]; then
+              echo "❌ PR title does not conform to conventional commit standards."
+              exit 1
+          else
+              echo "✅ PR title is valid."
+          fi
 
       - name: Check for TODO and FIXME comments
         run: |
