@@ -65,11 +65,6 @@
 - [ ] All existing tests pass
 - [ ] Code coverage maintained/improved
 
-### 🔍 Test Coverage
-<!-- Describe test coverage for new code -->
-- New code coverage: __%
-- Overall coverage change: __% → __%
-
 ### 🧪 Manual Testing Steps
 <!-- Describe how to manually test the changes -->
 1. 
@@ -118,17 +113,7 @@
 - [ ] README updated (if needed)
 - [ ] API documentation updated (if needed)
 - [ ] Changelog updated (if needed)
-
-### 🔄 CI/CD
-- [ ] All CI checks pass
-- [ ] No merge conflicts
-- [ ] Branch is up to date with target
-- [ ] Commit messages follow conventions
-
-## 🤔 Questions for Reviewers
-<!-- Any specific questions or areas you'd like reviewers to focus on -->
-- 
-- 
+- [ ] Contribution guidelines followed
 
 ## 📝 Additional Notes
 <!-- Any additional context, concerns, or information for reviewers -->
