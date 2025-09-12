@@ -3,6 +3,14 @@
 
 echo "🔍 Running pre-commit checks..."
 
+# Install dependencies to avoid problems with dependencies
+echo "📦 Installing dependencies..."
+npm install --registry=https://registry.npmjs.org/ > /dev/null 2>&1
+npm install --registry=https://registry.npmjs.org/ --workspace=client > /dev/null 2>&1
+npm install --registry=https://registry.npmjs.org/ --workspace=cron > /dev/null 2>&1
+npm install --registry=https://registry.npmjs.org/ --workspace=scripts > /dev/null 2>&1
+npm install --registry=https://registry.npmjs.org/ --workspace=server > /dev/null 2>&1
+
 # Run linting across all workspaces
 echo "📝 Running linting..."
 npm run lint
