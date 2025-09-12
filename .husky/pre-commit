@@ -1,27 +1,26 @@
 #!/usr/bin/env sh
-. "$(dirname -- "$0")/_/husky.sh"
 
 echo "🔍 Running pre-commit checks..."
 
 # Install dependencies to avoid problems with dependencies
-echo "📦 Installing dependencies..."
-npm install --registry=https://registry.npmjs.org/ > /dev/null 2>&1
-npm install --registry=https://registry.npmjs.org/ --workspace=client > /dev/null 2>&1
-npm install --registry=https://registry.npmjs.org/ --workspace=cron > /dev/null 2>&1
-npm install --registry=https://registry.npmjs.org/ --workspace=scripts > /dev/null 2>&1
-npm install --registry=https://registry.npmjs.org/ --workspace=server > /dev/null 2>&1
 
-# Run linting across all workspaces
-echo "📝 Running linting..."
-npm run lint
+for dir in client server cron scripts; do
+  cd "$(git rev-parse --show-toplevel)" || exit
+  cd "./$dir" || exit
+  echo "📦 Installing dependencies in $dir..."
+  npm install --registry=https://registry.npmjs.org/
+  # Run linting
+  echo "📝 Running linting in $dir..."
+  npm run lint
 
-# If linting passes, run lint:fix to auto-fix issues
-if [ $? -eq 0 ]; then
-  echo "✅ Linting passed! Running auto-fix..."
-  npm run lint:fix
-else
-  echo "❌ Linting failed! Please fix the issues before committing."
-  exit 1
-fi
+  # If linting passes, run lint:fix to auto-fix issues
+  if [ $? -eq 0 ]; then
+    echo "✅ Linting passed in $dir! Running auto-fix..."
+    npm run lint-fix
+  else
+    echo "❌ Linting failed in $dir! Please fix the issues before committing."
+    exit 1
+  fi
+done
 
 echo "✅ Pre-commit checks completed successfully!"

@@ -1,10 +1,8 @@
 #!/usr/bin/env sh
-. "$(dirname -- "$0")/_/husky.sh"
 
 echo "📝 Validating commit message format..."
-
 # Run commitlint to validate the commit message
-npx --no-install commitlint --edit "$1"
+npx commitlint --config="./scripts/commitlint.config.js" --edit "$1"
 
 if [ $? -eq 0 ]; then
   echo "✅ Commit message format is valid!"

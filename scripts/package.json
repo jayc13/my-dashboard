@@ -4,9 +4,18 @@
   "description": "",
   "main": "inject-firebase-config.js",
   "scripts": {
-    "replace-env": "node inject-firebase-config.js"
+    "prepare": "husky",
+    "replace-env": "node inject-firebase-config.js",
+    "lint": "echo \"No linting configured\"",
+    "lint-fix": "echo \"No linting configured\""
   },
   "dependencies": {
     "dotenv": "^17.2.2"
+  },
+  "devDependencies": {
+    "husky": "^9.0.11",
+    "commitlint": "^19.8.1",
+    "@commitlint/cli": "^19.8.1",
+    "@commitlint/config-conventional": "^19.8.1"
   }
 }
