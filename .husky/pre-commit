@@ -1,0 +1,19 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+echo "🔍 Running pre-commit checks..."
+
+# Run linting across all workspaces
+echo "📝 Running linting..."
+npm run lint
+
+# If linting passes, run lint:fix to auto-fix issues
+if [ $? -eq 0 ]; then
+  echo "✅ Linting passed! Running auto-fix..."
+  npm run lint:fix
+else
+  echo "❌ Linting failed! Please fix the issues before committing."
+  exit 1
+fi
+
+echo "✅ Pre-commit checks completed successfully!"

@@ -1,0 +1,28 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+echo "🧪 Running pre-push checks..."
+
+# Run tests across all workspaces that have them
+echo "🔬 Running tests..."
+npm run test
+
+if [ $? -eq 0 ]; then
+  echo "✅ All tests passed!"
+else
+  echo "❌ Tests failed! Please fix failing tests before pushing."
+  exit 1
+fi
+
+# Optional: Run build to ensure everything compiles
+echo "🏗️  Running build check..."
+npm run build
+
+if [ $? -eq 0 ]; then
+  echo "✅ Build successful!"
+else
+  echo "❌ Build failed! Please fix build errors before pushing."
+  exit 1
+fi
+
+echo "✅ Pre-push checks completed successfully!"

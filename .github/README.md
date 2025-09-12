@@ -161,25 +161,18 @@ npm run test:watch
 ```
 
 ### Test Coverage
-- Maintain minimum 80% code coverage
+- Code coverage only goes up
 - Write unit tests for all new functions
 - Add integration tests for API endpoints
 - Include E2E tests for critical user flows
 
 ## 🔧 Development Tools
 
-### Recommended Extensions (VS Code)
-- ESLint
-- Prettier
-- GitLens
-- Thunder Client (API testing)
-- Auto Rename Tag
-
 ### Git Hooks
 The project uses Husky for git hooks:
 - **pre-commit**: Runs linting and formatting
 - **commit-msg**: Validates commit message format
-- **pre-push**: Runs tests before pushing
+- **pre-push**: Runs unit tests before pushing
 
 ### Code Quality Tools
 - **ESLint**: Code linting
@@ -187,22 +180,6 @@ The project uses Husky for git hooks:
 - **TypeScript**: Type checking
 - **Jest**: Unit testing
 - **Commitlint**: Commit message validation
-
-## 📊 Project Metrics
-
-### Key Performance Indicators
-- Code coverage percentage
-- Build success rate
-- Average PR review time
-- Deployment frequency
-- Mean time to recovery
-
-### Quality Gates
-- All tests must pass
-- Code coverage > 80%
-- No high-severity security vulnerabilities
-- No merge conflicts
-- At least one approval required
 
 ## 🆘 Getting Help
 

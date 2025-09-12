@@ -1,0 +1,30 @@
+{
+  "name": "my-dashboard",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "client",
+    "server",
+    "cron",
+    "scripts"
+  ],
+  "scripts": {
+    "prepare": "husky",
+    "lint": "npm run lint --workspaces --if-present",
+    "lint:fix": "npm run lint-fix --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "build": "npm run build --workspaces --if-present",
+    "dev:client": "npm run dev --workspace=client",
+    "dev:server": "npm run dev --workspace=server",
+    "dev:cron": "npm run dev --workspace=cron",
+    "commit-help": "node scripts/commit-help.js"
+  },
+  "devDependencies": {
+    "husky": "^9.0.11",
+    "@commitlint/cli": "^19.0.0",
+    "@commitlint/config-conventional": "^19.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
