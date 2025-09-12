@@ -1,0 +1,20 @@
+.idea
+.DS_Store
+
+/node_modules
+
+.vscode/*
+.env
+*/**/.env
+*/**/.DS_Store
+*/**/dist
+*/**/node_modules
+*/**/data
+*/**/reports
+
+/data
+/reports
+
+# MySQL backups
+*/**/mysql-backups
+/data/mysql-backups

@@ -1,0 +1,12 @@
+{
+  "name": "my-dashboard-scripts",
+  "version": "1.0.0",
+  "description": "",
+  "main": "inject-firebase-config.js",
+  "scripts": {
+    "replace-env": "node inject-firebase-config.js"
+  },
+  "dependencies": {
+    "dotenv": "^17.2.2"
+  }
+}

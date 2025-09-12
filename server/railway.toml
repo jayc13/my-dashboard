@@ -1,0 +1,21 @@
+[build]
+builder = "RAILPACK"
+buildCommand = "npm run build"
+watchPatterns = ["server/**"]
+
+[source]
+repo = "jayc13/my-dashboard"
+branch = "main"
+rootDirectory = "server"
+
+[deploy]
+runtime = "V2"
+numReplicas = 1
+startCommand = "npm start"
+healthcheckPath = "/health"
+preDeployCommand = ["npm run migrate"]
+sleepApplication = false
+useLegacyStacker = false
+restartPolicyType = "ON_FAILURE"
+healthcheckTimeout = 5000
+restartPolicyMaxRetries = 3

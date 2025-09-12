@@ -1,0 +1,316 @@
+name: Pull Request Validation
+
+on:
+  pull_request:
+    branches: [ main, develop ]
+    types: [ opened, synchronize, reopened, ready_for_review ]
+
+# Cancel in-progress runs for the same PR
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  # Job 1: Basic validation and setup
+  setup-and-validate:
+    name: Setup and Basic Validation
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.draft == false
+    outputs:
+      client-changed: ${{ steps.changes.outputs.client }}
+      server-changed: ${{ steps.changes.outputs.server }}
+      cron-changed: ${{ steps.changes.outputs.cron }}
+      scripts-changed: ${{ steps.changes.outputs.scripts }}
+      github-changed: ${{ steps.changes.outputs.github }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Detect changes
+        uses: dorny/paths-filter@v3
+        id: changes
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          filters: |
+            client:
+              - 'client/**'
+            server:
+              - 'server/**'
+            cron:
+              - 'cron/**'
+            scripts:
+              - 'scripts/**'
+            github:
+              - '.github/**'
+
+      - name: Validate PR title and description
+        run: |
+          echo "TODO: Implement PR title validation (conventional commits format)"
+          echo "TODO: Implement PR description validation (required sections)"
+
+      - name: Check for TODO and FIXME comments
+        run: |
+          echo "📝 Checking for TODO and FIXME comments..."
+          echo "TODO: Implement TODO/FIXME comment detection"
+          echo "TODO: Report new TODO comments added in this PR"
+          echo "TODO: Suggest creating issues for complex TODOs"
+
+      - name: Estimate PR complexity
+        run: |
+          echo "📊 Estimating PR complexity..."
+          
+          # Count changed files and lines
+          CHANGED_FILES=$(git diff --name-only origin/main...HEAD | wc -l)
+          ADDED_LINES=$(git diff --numstat origin/main...HEAD | awk '{sum += $1} END {print sum}')
+          DELETED_LINES=$(git diff --numstat origin/main...HEAD | awk '{sum += $2} END {print sum}')
+          
+          echo "Changed files: $CHANGED_FILES"
+          echo "Added lines: $ADDED_LINES"
+          echo "Deleted lines: $DELETED_LINES"
+          
+          # Provide complexity assessment
+          if [[ $CHANGED_FILES -gt 20 ]] || [[ $ADDED_LINES -gt 500 ]]; then
+            echo "⚠️ Large PR detected - consider breaking into smaller PRs"
+          elif [[ $CHANGED_FILES -gt 10 ]] || [[ $ADDED_LINES -gt 200 ]]; then
+            echo "📏 Medium-sized PR - ensure good test coverage"
+          else
+            echo "✅ Small PR - good size for review"
+          fi
+
+  # Job 2: Client validation
+  validate-client:
+    name: Validate Client
+    runs-on: ubuntu-latest
+    needs: setup-and-validate
+    if: needs.setup-and-validate.outputs.client-changed == 'true' || needs.setup-and-validate.outputs.github-changed == 'true'
+    defaults:
+      run:
+        working-directory: ./client
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: client/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run ESLint
+        run: npm run lint
+
+      - name: Type check
+        run: npx tsc --noEmit
+
+      - name: Build client
+        run: npm run build
+
+      - name: Run unit tests
+        run: |
+          echo "TODO: Implement client unit tests"
+          echo "TODO: Add Jest or Vitest configuration for React components"
+          echo "TODO: Add test coverage reporting"
+
+      - name: Run E2E tests
+        run: |
+          echo "TODO: Implement Cypress E2E tests"
+          echo "TODO: Add Cypress configuration and test files"
+          echo "TODO: Run tests against built application"
+
+      - name: Bundle size analysis
+        run: |
+          echo "TODO: Implement bundle size analysis"
+          echo "TODO: Compare bundle size with main branch"
+          echo "TODO: Fail if bundle size increases significantly"
+
+  # Job 3: Server validation
+  validate-server:
+    name: Validate Server
+    runs-on: ubuntu-latest
+    needs: setup-and-validate
+    if: needs.setup-and-validate.outputs.server-changed == 'true' || needs.setup-and-validate.outputs.github-changed == 'true'
+    defaults:
+      run:
+        working-directory: ./server
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: test_password
+          MYSQL_DATABASE: test_db
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: '22.16.0'
+          cache: 'npm'
+          cache-dependency-path: server/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Type check
+        run: npx tsc --noEmit
+
+      - name: Run linting
+        run: npm run lint
+
+      - name: Build server
+        run: npm run build
+
+      - name: Test database migrations
+        env:
+          NODE_ENV: test
+          DB_HOST: localhost
+          DB_PORT: 3306
+          DB_USER: root
+          DB_PASSWORD: test_password
+          DB_NAME: test_db
+        run: |
+          echo "TODO: Implement migration testing"
+          echo "TODO: Run migrations against test database"
+          echo "TODO: Verify schema changes"
+
+      - name: Run unit tests
+        env:
+          NODE_ENV: test
+          DB_HOST: localhost
+          DB_PORT: 3306
+          DB_USER: root
+          DB_PASSWORD: test_password
+          DB_NAME: test_db
+        run: npm test
+
+  # Job 4: Cron validation
+  validate-cron:
+    name: Validate Cron
+    runs-on: ubuntu-latest
+    needs: setup-and-validate
+    if: needs.setup-and-validate.outputs.cron-changed == 'true' || needs.setup-and-validate.outputs.github-changed == 'true'
+    defaults:
+      run:
+        working-directory: ./cron
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: cron/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Type check
+        run: npx tsc --noEmit
+
+      - name: Run linting
+        run: npm run lint
+
+      - name: Build cron
+        run: npm run build
+
+      - name: Run tests
+        run: |
+          echo "TODO: Implement cron job tests"
+          echo "TODO: Add unit tests for cron job logic"
+          echo "TODO: Test cron schedule validation"
+
+      - name: Validate cron configuration
+        run: |
+          echo "TODO: Implement cron configuration validation"
+          echo "TODO: Validate cron expressions"
+          echo "TODO: Check for proper error handling"
+
+  # Job 5: Scripts validation
+  validate-scripts:
+    name: Validate Scripts
+    runs-on: ubuntu-latest
+    needs: setup-and-validate
+    if: needs.setup-and-validate.outputs.scripts-changed == 'true' || needs.setup-and-validate.outputs.github-changed == 'true'
+    defaults:
+      run:
+        working-directory: ./scripts
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: scripts/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Validate scripts
+        run: |
+          echo "TODO: Implement script validation"
+          echo "TODO: Run shellcheck for shell scripts"
+          echo "TODO: Validate Node.js scripts syntax"
+
+      - name: Test scripts
+        run: |
+          echo "TODO: Implement script testing"
+          echo "TODO: Test script functionality in safe environment"
+          echo "TODO: Validate script outputs"
+
+  # Job 6: Final validation and summary
+  validation-summary:
+    name: Validation Summary
+    runs-on: ubuntu-latest
+    needs: [setup-and-validate, validate-client, validate-server, validate-cron, validate-scripts]
+    if: always()
+    steps:
+      - name: Check all validations
+        run: |
+          echo "=== Pull Request Validation Summary ==="
+          echo "Client validation: ${{ needs.validate-client.result }}"
+          echo "Server validation: ${{ needs.validate-server.result }}"
+          echo "Cron validation: ${{ needs.validate-cron.result }}"
+          echo "Scripts validation: ${{ needs.validate-scripts.result }}"
+          echo "Security scan: ${{ needs.security-scan.result }}"
+          
+          # Fail if any required job failed
+          if [[ "${{ needs.validate-client.result }}" == "failure" ]] || \
+             [[ "${{ needs.validate-server.result }}" == "failure" ]] || \
+             [[ "${{ needs.validate-cron.result }}" == "failure" ]] || \
+             [[ "${{ needs.validate-scripts.result }}" == "failure" ]] || \
+             [[ "${{ needs.security-scan.result }}" == "failure" ]]; then
+            echo "❌ One or more validations failed"
+            exit 1
+          else
+            echo "✅ All validations passed"
+          fi
+
+      - name: Comment on PR
+        if: always()
+        run: |
+          echo "TODO: Implement PR commenting"
+          echo "TODO: Post validation results as PR comment"
+          echo "TODO: Include links to failed checks and suggestions"

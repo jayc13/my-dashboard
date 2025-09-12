@@ -1,0 +1,126 @@
+import * as dotenv from 'dotenv';
+
+dotenv.config();
+
+export interface CircleCIPipelineResponse {
+    id: string;
+    state: string;
+    number: number;
+    created_at: string;
+}
+
+export interface CircleCIWorkflow {
+    pipeline_id: string;
+    id: string;
+    name: string;
+    project_slug: string;
+    status: string;
+    started_by: string;
+    pipeline_number: number;
+    created_at: string;
+    stopped_at?: string;
+}
+
+export interface CircleCIWorkflowResponse {
+    items: CircleCIWorkflow[];
+    next_page_token?: string;
+}
+
+export class CircleCIService {
+
+  /**
+     * Triggers E2E runs in Circle CI
+     * Makes an API call to trigger the pipeline with E2E test parameters
+     * @param requestBodyJson - JSON string containing the request body with branch and parameters
+     */
+  static async triggerE2ERuns(requestBodyJson: string): Promise<CircleCIPipelineResponse> {
+    const circleToken = process.env.CIRCLE_CI_TOKEN;
+
+    if (!circleToken) {
+      throw new Error('CIRCLE_CI_TOKEN environment variable is required');
+    }
+
+    const pipelineUrl = process.env.E2E_PIPELINE_URL;
+
+    if (!pipelineUrl) {
+      throw new Error('E2E_PIPELINE_URL environment variable is required');
+    }
+
+    // Validate and parse the JSON request body
+    try {
+      JSON.parse(requestBodyJson);
+    } catch {
+      throw new Error('Invalid JSON format in request body parameter');
+    }
+
+    try {
+      console.log('Triggering Circle CI E2E pipeline...');
+
+      const response = await fetch(pipelineUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'circle-token': circleToken,
+        },
+        body: requestBodyJson, // Use the original JSON string directly
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Circle CI API request failed: ${response.status} ${response.statusText} - ${errorText}`);
+      }
+
+      const result: CircleCIPipelineResponse = await response.json();
+
+      console.log(`Circle CI pipeline triggered successfully. Pipeline ID: ${result.id}, Number: ${result.number}`);
+
+      return result;
+    } catch (error) {
+      console.error('Failed to trigger Circle CI E2E runs:', error);
+      throw error;
+    }
+  }
+
+  static async getPipelineLatestWorkflow(pipelineId: string): Promise<CircleCIWorkflow> {
+    const circleToken = process.env.CIRCLE_CI_TOKEN;
+
+    if (!circleToken) {
+      throw new Error('CIRCLE_CI_TOKEN environment variable is required');
+    }
+
+    if (!pipelineId) {
+      throw new Error('Pipeline ID is required');
+    }
+
+    const apiUrl = `https://circleci.com/api/v2/pipeline/${pipelineId}/workflow`;
+
+    try {
+      console.log(`Getting Circle CI pipeline status for ID: ${pipelineId}`);
+
+      const response = await fetch(apiUrl, {
+        method: 'GET',
+        headers: {
+          'circle-token': circleToken,
+        },
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Circle CI API request failed: ${response.status} ${response.statusText} - ${errorText}`);
+      }
+
+      const result: CircleCIWorkflowResponse = await response.json();
+
+      const workflow = result.items && result.items.length > 0 ? result.items[0] : null;
+
+      if (!workflow) {
+        throw new Error('No workflow named "integration_tests" found in the pipeline');
+      }
+
+      return workflow;
+    } catch (error) {
+      console.error('Failed to get Circle CI pipeline status:', error);
+      throw error;
+    }
+  }
+}

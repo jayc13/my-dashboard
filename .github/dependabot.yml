@@ -1,0 +1,106 @@
+version: 2
+updates:
+  # Client dependencies
+  - package-ecosystem: "npm"
+    directory: "/client"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+    open-pull-requests-limit: 5
+    reviewers:
+      - "jayc13"
+    assignees:
+      - "jayc13"
+    commit-message:
+      prefix: "client"
+      include: "scope"
+    labels:
+      - "dependencies"
+      - "client"
+    ignore:
+      # Ignore major version updates for React (manual review needed)
+      - dependency-name: "react"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "react-dom"
+        update-types: ["version-update:semver-major"]
+
+  # Server dependencies
+  - package-ecosystem: "npm"
+    directory: "/server"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+    open-pull-requests-limit: 5
+    reviewers:
+      - "jayc13"
+    assignees:
+      - "jayc13"
+    commit-message:
+      prefix: "server"
+      include: "scope"
+    labels:
+      - "dependencies"
+      - "server"
+    ignore:
+      # Ignore major version updates for Node.js types (manual review needed)
+      - dependency-name: "@types/node"
+        update-types: ["version-update:semver-major"]
+
+  # Cron dependencies
+  - package-ecosystem: "npm"
+    directory: "/cron"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+    open-pull-requests-limit: 3
+    reviewers:
+      - "jayc13"
+    assignees:
+      - "jayc13"
+    commit-message:
+      prefix: "cron"
+      include: "scope"
+    labels:
+      - "dependencies"
+      - "cron"
+
+  # Scripts dependencies
+  - package-ecosystem: "npm"
+    directory: "/scripts"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+    open-pull-requests-limit: 3
+    reviewers:
+      - "jayc13"
+    assignees:
+      - "jayc13"
+    commit-message:
+      prefix: "scripts"
+      include: "scope"
+    labels:
+      - "dependencies"
+      - "scripts"
+
+  # GitHub Actions dependencies
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+      day: "monday"
+      time: "09:00"
+    open-pull-requests-limit: 2
+    reviewers:
+      - "jayc13"
+    assignees:
+      - "jayc13"
+    commit-message:
+      prefix: "ci"
+      include: "scope"
+    labels:
+      - "dependencies"
+      - "github-actions"
