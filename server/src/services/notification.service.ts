@@ -8,7 +8,10 @@ export class NotificationService {
   static async getAll(): Promise<Notification[]> {
     try {
       const rows = await db.all('SELECT * FROM notifications ORDER BY created_at DESC');
-      return rows as Notification[];
+      return rows.map((row) => ({
+        ...row,
+        is_read: Boolean(row.is_read),
+      }) as Notification);
     } catch (error) {
       console.error('Error fetching notifications:', error);
       throw error;
