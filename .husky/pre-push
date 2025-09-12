@@ -23,7 +23,6 @@ for dir in client server cron; do
   # If linting passes, run lint:fix to auto-fix issues
   if [ $? -eq 0 ]; then
     echo "✅ Build passed in $dir!"
-    npm run lint-fix
   else
     echo "❌ Build failed in $dir! Please fix the issues before pushing."
     exit 1
