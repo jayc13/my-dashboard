@@ -1,217 +1,240 @@
-# GitHub Actions CI/CD Documentation
+# Project Documentation
 
-This directory contains GitHub Actions workflows for automated testing, validation, and deployment of the Cypress Dashboard project.
+Welcome to the project documentation!
 
-## 🚀 Workflows Overview
+## 📚 Documentation Index
 
-### 1. Pull Request Validation (`pr-validation.yml`)
-**Triggers:** Pull requests to `main` or `develop` branches (when ready for review)
+### Development Standards
+- **[Conventional Commits Guide](./docs/conventional-commits.md)** - Standards for commit message formatting
+- **[Pull Request Guide](./docs/pull-request-guide.md)** - Complete guide for creating and reviewing PRs
 
-**Purpose:** Comprehensive validation of pull requests before merge
+### Quick Reference
 
-**Jobs:**
-- **Setup and Basic Validation**: Detects changes and validates PR structure
-- **Client Validation**: Lints, type-checks, builds, and tests the React frontend
-- **Server Validation**: Tests, builds, and validates the Node.js backend
-- **Cron Validation**: Validates the cron job service
-- **Scripts Validation**: Validates utility scripts
-- **Security Scan**: Performs security and compliance checks
-- **Performance Check**: Runs performance and accessibility audits
-- **Validation Summary**: Provides overall validation results
-
-### 2. Additional PR Checks (`pr-checks.yml`)
-**Triggers:** All pull requests to `main` or `develop` branches
-
-**Purpose:** Additional informational checks that don't block PR merge
-
-**Jobs:**
-- **Documentation Check**: Validates documentation updates
-- **Database Check**: Tests database migrations and schema changes
-- **API Compatibility**: Checks for breaking API changes
-- **Environment Check**: Validates configuration files
-- **Code Standards**: Enforces coding standards and conventions
-- **Performance Regression**: Detects performance regressions
-- **Accessibility Check**: Validates accessibility compliance
-
-### 3. Draft PR Feedback (`draft-pr-feedback.yml`)
-**Triggers:** Draft pull requests
-
-**Purpose:** Provides early feedback for work-in-progress PRs
-
-**Jobs:**
-- **Draft PR Feedback**: Quick syntax checks and improvement suggestions
-- **Quick Build Check**: Fast compilation checks for each component
-- **Quick Security Scan**: Basic security issue detection
-- **Draft Summary**: Provides guidance for completing the PR
-
-## 🔧 Configuration
-
-### Required Secrets
-The following secrets should be configured in your GitHub repository:
-
+#### Commit Message Format
 ```
-# Database (for testing)
-DB_HOST
-DB_USER
-DB_PASSWORD
-DB_NAME
+<type>[optional scope]: <description>
 
-# API Keys (if needed for testing)
-CYPRESS_RECORD_KEY
-FIREBASE_CONFIG
+[optional body]
 
-# Security scanning
-SNYK_TOKEN (optional)
-SONAR_TOKEN (optional)
+[optional footer(s)]
 ```
 
-### Environment Variables
-Each workflow uses appropriate environment variables for testing:
-- `NODE_ENV=test` for test environments
-- Database connection strings for integration tests
-- API endpoints for E2E testing
+**Common Types:**
+- `feat`: New feature
+- `fix`: Bug fix
+- `docs`: Documentation changes
+- `refactor`: Code refactoring
+- `test`: Adding or updating tests
+- `chore`: Maintenance tasks
 
-## 📋 Validation Checklist
-
-### Before Creating a PR
-- [ ] Code compiles without errors
-- [ ] All existing tests pass
-- [ ] New functionality has tests
-- [ ] Code follows project conventions
-- [ ] Documentation is updated
-- [ ] No hardcoded secrets or credentials
-
-### PR Requirements
-- [ ] Descriptive title following conventional commits
-- [ ] Clear description of changes
-- [ ] Breaking changes are documented
-- [ ] Tests cover new functionality
-- [ ] No security vulnerabilities introduced
-
-## 🛠️ Local Development
-
-### Running Checks Locally
-
-**Client:**
+**Example:**
 ```bash
-cd client
-npm ci
-npm run lint
-npm run build
-# TODO: npm test (when tests are implemented)
+feat(client): add user authentication modal
+
+Implement login/signup modal with form validation and error handling.
+Includes integration with authentication API and session management.
+
+Closes #123
 ```
 
-**Server:**
+#### Branch Naming Convention
+```
+<type>/<short-description>
+```
+
+**Examples:**
+- `feat/user-dashboard`
+- `fix/memory-leak`
+- `docs/api-guide`
+- `refactor/error-handling`
+
+#### PR Title Format
+Follow the same format as commit messages:
+```
+feat(server): implement rate limiting middleware
+fix(client): resolve hydration mismatch in SSR
+docs: update deployment guide
+```
+
+## 🏗️ Project Structure
+
+This project is organized into several main components:
+
+### `/client`
+React frontend application
+- TypeScript + Vite
+- Component-based architecture
+- Responsive design
+
+### `/server`
+Node.js backend API
+- Express.js framework
+- RESTful API design
+- Database integration
+
+### `/cron`
+Scheduled job services
+- Background task processing
+- Automated maintenance
+- Report generation
+
+### `/scripts`
+Utility and deployment scripts
+- Build automation
+- Database migrations
+- Deployment helpers
+
+## 🚀 Getting Started
+
+### Prerequisites
+- Node.js 18+ 
+- npm or yarn
+- Git
+
+### Development Workflow
+
+1. **Clone and Setup**
+   ```bash
+   git clone <repository-url>
+   cd cypress-dashboard
+   npm install
+   ```
+
+2. **Create Feature Branch**
+   ```bash
+   git checkout -b feat/your-feature-name
+   ```
+
+3. **Make Changes**
+   - Follow coding standards
+   - Add tests for new functionality
+   - Update documentation as needed
+
+4. **Commit Changes**
+   ```bash
+   git add .
+   git commit -m "feat(component): add new feature"
+   ```
+
+5. **Push and Create PR**
+   ```bash
+   git push origin feat/your-feature-name
+   ```
+   Then create a PR using the provided template.
+
+## 📋 Contribution Guidelines
+
+### Before Contributing
+- Read the [Conventional Commits Guide](./conventional-commits.md)
+- Review the [Pull Request Guide](./pull-request-guide.md)
+- Check existing issues and PRs to avoid duplicates
+- Discuss major changes in an issue first
+
+### Code Standards
+- Follow existing code style and conventions
+- Write meaningful commit messages
+- Include tests for new functionality
+- Update documentation for API changes
+- Ensure all CI checks pass
+
+### Review Process
+1. Self-review your changes
+2. Ensure all tests pass
+3. Create PR with detailed description
+4. Address reviewer feedback promptly
+5. Merge after approval and passing checks
+
+## 🧪 Testing
+
+### Running Tests
 ```bash
-cd server
-npm ci
+# Run all tests
 npm test
-npm run build
+
+# Run tests for specific component
+npm run test:client
+npm run test:server
+npm run test:cron
+
+# Run tests in watch mode
+npm run test:watch
 ```
 
-**Cron:**
-```bash
-cd cron
-npm ci
-npm run build
-# TODO: npm test (when tests are implemented)
-```
+### Test Coverage
+- Maintain minimum 80% code coverage
+- Write unit tests for all new functions
+- Add integration tests for API endpoints
+- Include E2E tests for critical user flows
 
-### Pre-commit Hooks
-Consider setting up pre-commit hooks to run basic checks:
+## 🔧 Development Tools
 
-```bash
-# TODO: Implement pre-commit hooks
-# - ESLint for code quality
-# - Prettier for formatting
-# - TypeScript compilation
-# - Basic tests
-```
+### Recommended Extensions (VS Code)
+- ESLint
+- Prettier
+- GitLens
+- Thunder Client (API testing)
+- Auto Rename Tag
 
-## 🚨 Troubleshooting
+### Git Hooks
+The project uses Husky for git hooks:
+- **pre-commit**: Runs linting and formatting
+- **commit-msg**: Validates commit message format
+- **pre-push**: Runs tests before pushing
 
-### Common Issues
+### Code Quality Tools
+- **ESLint**: Code linting
+- **Prettier**: Code formatting
+- **TypeScript**: Type checking
+- **Jest**: Unit testing
+- **Commitlint**: Commit message validation
 
-**Build Failures:**
-- Check Node.js version compatibility
-- Ensure all dependencies are installed
-- Verify TypeScript configuration
+## 📊 Project Metrics
 
-**Test Failures:**
-- Check database connection for server tests
-- Verify test environment setup
-- Review test data and mocks
+### Key Performance Indicators
+- Code coverage percentage
+- Build success rate
+- Average PR review time
+- Deployment frequency
+- Mean time to recovery
 
-**Security Scan Issues:**
-- Update vulnerable dependencies
-- Remove hardcoded secrets
-- Review security best practices
+### Quality Gates
+- All tests must pass
+- Code coverage > 80%
+- No high-severity security vulnerabilities
+- No merge conflicts
+- At least one approval required
 
-### Getting Help
-1. Check the workflow logs in GitHub Actions tab
-2. Review the specific job that failed
-3. Look for error messages and stack traces
-4. Consult the project documentation
-5. Ask for help in team channels
+## 🆘 Getting Help
 
-## 📈 Metrics and Reporting
+### Resources
+- Check existing documentation first
+- Search through issues and discussions
+- Review similar PRs for examples
+- Ask questions in team channels
 
-### Coverage Reports
-- **Server**: Jest generates coverage reports in `server/coverage/`
-- **Client**: TODO - Implement coverage reporting
-- **Overall**: TODO - Implement combined coverage reporting
+### Contact
+- Create an issue for bugs or feature requests
+- Use discussions for general questions
+- Tag relevant team members for urgent issues
 
-### Performance Metrics
-- **Bundle Size**: Tracked for client builds
-- **API Response Times**: Measured during testing
-- **Database Query Performance**: Monitored in integration tests
+## 📝 Documentation Standards
 
-### Security Reports
-- **Dependency Vulnerabilities**: Reported by npm audit
-- **Secret Scanning**: TODO - Implement comprehensive scanning
-- **Code Quality**: TODO - Implement SonarQube integration
+### Writing Guidelines
+- Use clear, concise language
+- Include code examples where helpful
+- Keep documentation up to date with code changes
+- Use consistent formatting and structure
+
+### Documentation Types
+- **API Documentation**: Generated from code comments
+- **User Guides**: Step-by-step instructions
+- **Developer Guides**: Technical implementation details
+- **Architecture Decisions**: Record important design choices
 
 ## 🔄 Continuous Improvement
 
-### TODO Items for Implementation
-The workflows contain many TODO items for future implementation:
-
-**High Priority:**
-- [ ] Implement comprehensive test suites
-- [ ] Add E2E testing with Cypress
-- [ ] Set up code coverage reporting
-- [ ] Implement security scanning tools
-- [ ] Add performance benchmarking
-
-**Medium Priority:**
-- [ ] Set up SonarQube for code quality
-- [ ] Implement API documentation generation
-- [ ] Add bundle size analysis
-- [ ] Set up Lighthouse CI for performance
-
-**Low Priority:**
-- [ ] Add accessibility testing automation
-- [ ] Implement license compliance checking
-- [ ] Set up automated dependency updates
-- [ ] Add deployment automation
-
-### Contributing to CI/CD
-When adding new workflows or modifying existing ones:
-
-1. Test changes in a fork first
-2. Use meaningful job and step names
-3. Add appropriate error handling
-4. Include helpful log messages
-5. Update this documentation
-6. Consider the impact on build times
-
-## 📚 Resources
-
-- [GitHub Actions Documentation](https://docs.github.com/en/actions)
-- [Workflow Syntax](https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions)
-- [Security Best Practices](https://docs.github.com/en/actions/security-guides)
-- [Marketplace Actions](https://github.com/marketplace?type=actions)
-
----
-
-*This documentation is maintained by the development team. Please keep it updated as workflows evolve.*
+This documentation is a living resource that should evolve with the project. Please:
+- Suggest improvements through issues or PRs
+- Update documentation when making code changes
+- Share feedback on clarity and usefulness
+- Contribute examples and best practices
