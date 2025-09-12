@@ -115,12 +115,7 @@ export const bruteForceProtection = new BruteForceProtection();
 export const authRateLimit = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 10, // Limit each IP to 10 requests per windowMs
-  message: {
-    valid: false,
-    error: 'Too many authentication requests. Please try again later.',
-  },
-  standardHeaders: true,
-  legacyHeaders: false,
+  message: 'Too many authentication requests. Please try again later.',
   // Skip successful requests
   skipSuccessfulRequests: true,
 });
