@@ -249,7 +249,7 @@ const NotificationCenter = (props: NotificationCenterProps) => {
                                         )}
                                     </Stack>
                                     <Typography variant="body2" color="text.secondary" sx={{fontSize: 12, mt: 0.5}}>
-                                        {(DateTime.fromSQL(n.created_at, { zone: 'utc' }).toLocal()).toFormat('dd/MM/yyyy HH:mm')}
+                                        {(DateTime.fromISO(n.created_at, { zone: 'utc' }).toLocal()).toFormat('dd/MM/yyyy HH:mm')}
                                     </Typography>
                                     <Typography variant="body1" color="text.primary" sx={{fontSize: 14, mt: 0.5}}>
                                         {n.message}
