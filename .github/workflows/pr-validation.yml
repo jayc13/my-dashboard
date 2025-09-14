@@ -73,9 +73,9 @@ jobs:
       - name: Check for TODO and FIXME comments
         run: |
           echo "📝 Checking for TODO and FIXME comments..."
-          echo "TODO: Implement TODO/FIXME comment detection"
-          echo "TODO: Report new TODO comments added in this PR"
-          echo "TODO: Suggest creating issues for complex TODOs"
+
+          # Run the TODO/FIXME detection script
+          ./scripts/check-todos.sh
 
       - name: Estimate PR complexity
         run: |
@@ -136,12 +136,6 @@ jobs:
           echo "TODO: Implement client unit tests"
           echo "TODO: Add Jest or Vitest configuration for React components"
           echo "TODO: Add test coverage reporting"
-
-      - name: Run E2E tests
-        run: |
-          echo "TODO: Implement Cypress E2E tests"
-          echo "TODO: Add Cypress configuration and test files"
-          echo "TODO: Run tests against built application"
 
       - name: Bundle size analysis
         run: |
