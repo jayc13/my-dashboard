@@ -6,6 +6,7 @@
   "scripts": {
     "prepare": "husky",
     "replace-env": "node inject-firebase-config.js",
+    "check-todos": "./check-todos.sh",
     "lint": "echo \"No linting configured\"",
     "lint-fix": "echo \"No linting configured\""
   },
