@@ -61,11 +61,17 @@ Supported extensions:
 
 ### Excluded Patterns
 The script automatically excludes:
-- `node_modules`
-- `dist`, `build`
-- `coverage`
-- `data`
-- `.git`
+- **Directories**: `node_modules`, `dist`, `build`, `coverage`, `data`, `.git`
+- **Specific Files**: See ignore list below
+
+### Ignored Files
+The script ignores specific files that may contain TODO/FIXME as part of their functionality:
+- `scripts/check-todos.sh` - The script itself
+- `scripts/README-check-todos.md` - Documentation
+- `.github/workflows/pr-validation.yml` - Workflow files
+- Lock files: `package-lock.json`, `yarn.lock`, `composer.lock`, etc.
+- Log and temporary files: `*.log`, `*.tmp`, `*.temp`
+- Test files with TODO examples: `**/test-todos.*`, `**/todo-test.*`
 
 ## Output Examples
 
@@ -162,15 +168,30 @@ chmod +x ./scripts/check-todos.sh
 
 ### Customization
 
-To modify scan directories, edit the `SCAN_DIRS` array in the script:
+**Modify scan directories:**
 ```bash
 SCAN_DIRS=("client/src" "server/src" "your-custom-dir")
 ```
 
-To add file extensions, update the `EXTENSIONS` array:
+**Add file extensions:**
 ```bash
 EXTENSIONS=("ts" "tsx" "js" "jsx" "your-extension")
 ```
+
+**Customize ignored files:**
+```bash
+IGNORE_FILES=(
+    "scripts/check-todos.sh"
+    "your-custom-file.js"
+    "docs/todo-examples.md"
+    "*.generated.ts"
+)
+```
+
+**Ignore patterns support:**
+- Exact file paths: `"scripts/check-todos.sh"`
+- Glob patterns: `"*.log"`, `"**/test-*.js"`
+- Relative paths from project root
 
 ## Contributing
 

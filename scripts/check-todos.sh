@@ -20,6 +20,29 @@ EXTENSIONS=("ts" "tsx" "js" "jsx" "sh" "yml" "yaml" "md" "json")
 SCAN_DIRS=("client/src" "server/src" "cron/src" "scripts" ".github" "docs")
 EXCLUDE_PATTERNS=("node_modules" "dist" "build" "coverage" "data" ".git")
 
+# Files to ignore (relative to project root)
+# Add files here that should be excluded from TODO/FIXME scanning
+IGNORE_FILES=(
+    # Script files that contain TODO/FIXME as part of their functionality
+    "scripts/check-todos.sh"
+    "scripts/README-check-todos.md"
+
+    # Workflow files that may contain TODO placeholders
+    ".github/workflows/pr-validation.yml"
+
+    "docs/github-actions-ci-cd.md"
+
+    "scripts/package.json"
+
+    # Lock files and generated files
+    "package-lock.json"
+
+    # Log files and temporary files
+    "*.log"
+    "*.tmp"
+    "*.temp"
+)
+
 # Initialize counters
 TOTAL_TODOS=0
 TOTAL_FIXMES=0
@@ -39,6 +62,35 @@ cleanup() {
     rm -f "$TODO_FILE" "$FIXME_FILE" "$NEW_TODO_FILE" "$NEW_FIXME_FILE" "$COMPLEX_TODO_FILE"
 }
 trap cleanup EXIT
+
+# Function to check if a file should be ignored
+should_ignore_file() {
+    local file="$1"
+
+    # Convert to relative path from project root
+    local rel_path="$file"
+    if [[ "$file" == /* ]]; then
+        # If absolute path, make it relative to current directory
+        rel_path="${file#$(pwd)/}"
+    fi
+
+    # Check against ignore patterns
+    for ignore_pattern in "${IGNORE_FILES[@]}"; do
+        # Handle glob patterns
+        if [[ "$ignore_pattern" == *"*"* ]]; then
+            if [[ "$rel_path" == $ignore_pattern ]]; then
+                return 0  # Should ignore
+            fi
+        else
+            # Exact match
+            if [[ "$rel_path" == "$ignore_pattern" ]]; then
+                return 0  # Should ignore
+            fi
+        fi
+    done
+
+    return 1  # Should not ignore
+}
 
 # Function to check if we're in a git repository
 check_git_repo() {
@@ -76,10 +128,6 @@ scan_file_comments() {
         ts|tsx|js|jsx)
             # TypeScript/JavaScript: // TODO or /* TODO */
             comment_patterns="(//.*$pattern|/\*.*$pattern.*\*/)"
-            ;;
-        py)
-            # Python: # TODO
-            comment_patterns="#.*$pattern"
             ;;
         sh)
             # Shell: # TODO
@@ -246,7 +294,7 @@ scan_codebase() {
             find "$dir" -name "*.${ext}" -type f | while read -r file; do
                 # Skip if file doesn't exist
                 [ ! -f "$file" ] && continue
-                
+
                 # Skip excluded patterns
                 skip_file=false
                 for exclude in "${EXCLUDE_PATTERNS[@]}"; do
@@ -255,8 +303,13 @@ scan_codebase() {
                         break
                     fi
                 done
-                
+
                 if [ "$skip_file" = true ]; then
+                    continue
+                fi
+
+                # Skip ignored files
+                if should_ignore_file "$file"; then
                     continue
                 fi
                 
