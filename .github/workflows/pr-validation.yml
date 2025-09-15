@@ -175,11 +175,11 @@ jobs:
           git fetch origin main:main
 
           # Checkout main branch in a temporary directory
-          mkdir -p ./tmp/main-build
-          git archive main | tar -x -C ./tmp/main-build
+          mkdir -p $GITHUB_WORKSPACE/tmp/main-build
+          git archive main | tar -x -C $GITHUB_WORKSPACE/tmp/main-build
 
           # Build main branch
-          cd /tmp/main-build/client
+          cd $GITHUB_WORKSPACE/tmp/main-build/client
           npm ci --silent
           npm run build --silent
 
