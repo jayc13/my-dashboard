@@ -47,7 +47,7 @@ The main workflow orchestrates all validation jobs:
 
 ## 🔧 Reusable Workflows
 
-All reusable workflow templates are located in `.github/workflows/jobs/`:
+All reusable workflow templates are located in `.github/workflows/`:
 
 ### jobs/basic-validation.yml
 Handles fundamental PR validation:
@@ -163,7 +163,7 @@ All complex bash logic has been moved to external scripts in `scripts/ci/`:
 ```yaml
 jobs:
   validate-client:
-    uses: ./.github/workflows/jobs/validate-client.yml
+    uses: ./.github/workflows/validate-client.yml
     with:
       working-directory: './frontend'
       node-version: 'v22.16.0'

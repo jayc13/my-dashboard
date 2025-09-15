@@ -31,7 +31,7 @@ The CI/CD system now uses a modular approach with:
 - Better error handling and reporting
 
 ### 2. Reusable Workflows
-Each validation type is now a separate, reusable workflow located in `.github/workflows/jobs/`:
+Each validation type is now a separate, reusable workflow located in `.github/workflows/`:
 
 #### `jobs/basic-validation.yml`
 - Commit message validation using commitlint
