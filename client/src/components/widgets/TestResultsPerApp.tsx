@@ -270,8 +270,7 @@ const TestResultsPerApp = (props: TestResultsPerAppProps) => {
         try {
             const response = await apiFetch(`${API_BASE_URL}/api/apps/code/${projectCode}`);
             return await response.json();
-        } catch (error) {
-            console.error('Failed to fetch app details:', error);
+        } catch {
             return null;
         }
     };
@@ -312,11 +311,7 @@ const TestResultsPerApp = (props: TestResultsPerAppProps) => {
 
     const handleCopyProjectName = async () => {
         if (contextMenu) {
-            try {
-                await navigator.clipboard.writeText(contextMenu.result.projectName);
-            } catch (err) {
-                console.error('Failed to copy project name:', err);
-            }
+            await navigator.clipboard.writeText(contextMenu.result.projectName);
             handleCloseContextMenu();
         }
     };
@@ -347,8 +342,7 @@ const TestResultsPerApp = (props: TestResultsPerAppProps) => {
                     const errorData = await response.json();
                     enqueueSnackbar(`Failed to trigger E2E runs: ${errorData.error || response.statusText}`, { variant: 'error' });
                 }
-            } catch (error) {
-                console.error('Failed to trigger E2E runs:', error);
+            } catch {
                 enqueueSnackbar('Failed to trigger E2E runs due to a network error.', { variant: 'error' });
             }
         }
@@ -356,11 +350,7 @@ const TestResultsPerApp = (props: TestResultsPerAppProps) => {
 
     const handleCopyProjectCode = async () => {
         if (contextMenu) {
-            try {
-                await navigator.clipboard.writeText(contextMenu.result.projectCode);
-            } catch (err) {
-                console.error('Failed to copy project code:', err);
-            }
+            await navigator.clipboard.writeText(contextMenu.result.projectCode);
             handleCloseContextMenu();
         }
     };

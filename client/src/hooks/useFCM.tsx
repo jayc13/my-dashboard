@@ -24,7 +24,6 @@ export const useFCM = (): FCMHookReturn => {
             isInitializedRef.current = true;
             setIsSupported(true);
             initializeFCM().catch(() => {
-                console.error('Failed to initialize FCM');
                 setError('Failed to initialize Firebase Cloud Messaging');
                 isInitializedRef.current = false; // Reset on error so it can be retried
             });
@@ -47,8 +46,6 @@ export const useFCM = (): FCMHookReturn => {
 
         // Listen for foreground messages
         onMessage(messaging, (payload) => {
-            console.log('Received foreground message:', payload);
-
             // Show notification manually for foreground messages
             if (payload.notification) {
                 new Notification(payload.notification.title || 'New Notification', {
@@ -83,31 +80,21 @@ export const useFCM = (): FCMHookReturn => {
                 // Register token with server
                 await registerTokenWithServer(currentToken);
             } else {
-                console.log('No registration token available.');
                 setError('Failed to generate FCM token');
             }
-        } catch (err) {
-            console.error('An error occurred while retrieving token:', err);
+        } catch {
             setError('Failed to generate FCM token');
         }
     };
 
     const registerTokenWithServer = async (fcmToken: string) => {
-        try {
-            const response = await apiFetch(`${API_BASE_URL}/api/fcm/register-token`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ token: fcmToken }),
-            });
-
-            if (!response.ok) {
-                console.error('Failed to register token with server');
-            }
-        } catch (err) {
-            console.error('Error registering token with server:', err);
-        }
+        await apiFetch(`${API_BASE_URL}/api/fcm/register-token`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ token: fcmToken }),
+        });
     };
 
     const requestPermission = async (): Promise<boolean> => {
@@ -124,8 +111,7 @@ export const useFCM = (): FCMHookReturn => {
                 setError('Notification permission denied');
                 return false;
             }
-        } catch (err) {
-            console.error('Error requesting permission:', err);
+        } catch {
             setError('Failed to request notification permission');
             return false;
         }

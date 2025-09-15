@@ -85,8 +85,7 @@ const AppsPage = () => {
             if (formData.e2e_trigger_configuration && formData.e2e_trigger_configuration.trim()) {
                 try {
                     JSON.parse(formData.e2e_trigger_configuration);
-                } catch (jsonErr: unknown) {
-                    console.error(jsonErr);
+                } catch {
                     enqueueSnackbar('E2E Trigger Configuration must be valid JSON', { variant: 'error' });
                     return;
                 }
@@ -118,8 +117,7 @@ const AppsPage = () => {
 
             mutate();
             handleCloseDialog();
-        } catch (err: unknown) {
-            console.log(err);
+        } catch {
             enqueueSnackbar('Failed to save app', { variant: 'error' });
         }
     };
@@ -141,8 +139,7 @@ const AppsPage = () => {
 
             enqueueSnackbar('App deleted successfully', { variant: 'success' });
             mutate();
-        } catch (err: unknown) {
-            console.log(err);
+        } catch {
             enqueueSnackbar('Failed to delete app', { variant: 'error' });
         }
     };

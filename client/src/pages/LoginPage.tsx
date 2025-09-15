@@ -38,8 +38,7 @@ const LoginPage: React.FC = () => {
         setError(result.error || 'Authentication failed');
       }
       // If successful, the AuthContext will handle the redirect
-    } catch (err) {
-      console.log(err);
+    } catch {
       setError('An unexpected error occurred. Please try again.');
     } finally {
       setIsSubmitting(false);

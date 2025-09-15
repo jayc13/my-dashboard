@@ -27,15 +27,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             localStorage.removeItem(API_KEY_STORAGE_KEY);
           }
         }
-      } catch (error) {
-        console.error('Error checking stored API key:', error);
+      } catch {
         localStorage.removeItem(API_KEY_STORAGE_KEY);
       } finally {
         setIsLoading(false);
       }
     };
 
-    checkStoredApiKey().catch(console.error);
+    checkStoredApiKey().then();
   }, []);
 
   const validateApiKeyWithServer = async (key: string): Promise<boolean> => {
@@ -50,8 +49,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
       const data = await response.json();
       return data.valid === true;
-    } catch (error) {
-      console.error('Error validating API key:', error);
+    } catch {
       return false;
     }
   };
@@ -69,8 +67,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       } else {
         return { success: false, error: 'Invalid API key' };
       }
-    } catch (error) {
-      console.error('Login error:', error);
+    } catch {
       return { success: false, error: 'Failed to validate API key. Please try again.' };
     } finally {
       setIsLoading(false);
