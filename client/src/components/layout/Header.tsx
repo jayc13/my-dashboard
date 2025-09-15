@@ -142,7 +142,7 @@ const Header: React.FC = () => {
                     <Typography variant="h6" component="div">
                         Menu
                     </Typography>
-                    <IconButton onClick={handleSidebarClose} size="small">
+                    <IconButton onClick={handleSidebarClose} size="small" data-testid="sidebar_close-btn">
                         <CloseIcon/>
                     </IconButton>
                 </Box>

@@ -99,7 +99,7 @@ describe('Header Component', () => {
     expect(screen.getByText('Logout')).toBeInTheDocument()
 
     // Close the sidebar
-    const closeButton = screen.getByRole('button', { name: /close/i })
+    const closeButton = screen.getByTestId('sidebar_close-btn');
     fireEvent.click(closeButton)
   })
 
