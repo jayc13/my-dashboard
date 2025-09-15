@@ -17,7 +17,7 @@ permissions:
 jobs:
   # Job 1: Basic validation and setup
   basic-validation:
-    name: Basic Validation
+    name: Init
     if: github.event.pull_request.draft == false
     uses: ./.github/workflows/basic-validation.yml
     with:
@@ -27,28 +27,28 @@ jobs:
 
   # Job 2: Client validation
   validate-client:
-    name: Validate Client
+    name: Client
     needs: basic-validation
     if: needs.basic-validation.outputs.client-changed == 'true' || needs.basic-validation.outputs.github-changed == 'true'
     uses: ./.github/workflows/validate-client.yml
 
   # Job 3: Server validation
   validate-server:
-    name: Validate Server
+    name: Server
     needs: basic-validation
     if: needs.basic-validation.outputs.server-changed == 'true' || needs.basic-validation.outputs.github-changed == 'true'
     uses: ./.github/workflows/validate-server.yml
 
   # Job 4: Cron validation
   validate-cron:
-    name: Validate Cron
+    name: Cron
     needs: basic-validation
     if: needs.basic-validation.outputs.cron-changed == 'true' || needs.basic-validation.outputs.github-changed == 'true'
     uses: ./.github/workflows/validate-cron.yml
 
   # Job 5: Scripts validation
   validate-scripts:
-    name: Validate Scripts
+    name: Scripts
     needs: basic-validation
     if: needs.basic-validation.outputs.scripts-changed == 'true' || needs.basic-validation.outputs.github-changed == 'true'
     uses: ./.github/workflows/validate-scripts.yml
