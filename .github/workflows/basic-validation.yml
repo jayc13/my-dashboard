@@ -1,5 +1,9 @@
 name: 'Basic Validation'
 
+permissions:
+  contents: read
+  pull-requests: write
+
 on:
   workflow_call:
     inputs:
@@ -15,6 +19,10 @@ on:
         description: 'Head SHA for commit validation'
         required: true
         type: string
+      pr-number:
+        description: 'PR number for commenting'
+        required: true
+        type: number
     outputs:
       client-changed:
         description: 'Whether client files changed'
@@ -86,5 +94,9 @@ jobs:
 
       - name: Estimate PR complexity
         shell: bash
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          PR_NUMBER: ${{ inputs.pr-number }}
         run: |
           ${{ github.workspace }}/scripts/ci/pr-complexity-analysis.sh
