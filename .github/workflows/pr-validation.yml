@@ -175,8 +175,8 @@ jobs:
           git fetch origin main:main
 
           # Checkout main branch in a temporary directory
-          mkdir -p /tmp/main-build
-          git archive main | tar -x -C /tmp/main-build
+          mkdir -p ./tmp/main-build
+          git archive main | tar -x -C ./tmp/main-build
 
           # Build main branch
           cd /tmp/main-build/client
@@ -209,10 +209,14 @@ jobs:
           fi
 
           echo "📊 Bundle size comparison with main branch:"
-          echo "Main branch sizes:"
-          echo "  JavaScript: $(numfmt --to=iec-i --suffix=B $MAIN_JS_SIZE)"
-          echo "  CSS: $(numfmt --to=iec-i --suffix=B $MAIN_CSS_SIZE)"
-          echo "  Total: $(numfmt --to=iec-i --suffix=B $MAIN_TOTAL_SIZE)"
+          if [ $MAIN_TOTAL_SIZE -eq 0 ]; then
+            echo "Main branch sizes: No client build found (new feature)"
+          else
+            echo "Main branch sizes:"
+            echo "  JavaScript: $(numfmt --to=iec-i --suffix=B $MAIN_JS_SIZE)"
+            echo "  CSS: $(numfmt --to=iec-i --suffix=B $MAIN_CSS_SIZE)"
+            echo "  Total: $(numfmt --to=iec-i --suffix=B $MAIN_TOTAL_SIZE)"
+          fi
           echo ""
           echo "Current PR sizes:"
           echo "  JavaScript: $(numfmt --to=iec-i --suffix=B $CURRENT_JS_SIZE)"
@@ -254,6 +258,7 @@ jobs:
 
           TOTAL_DIFF=$(cat bundle-size-diff.txt)
           TOTAL_PERCENT=$(cat bundle-size-percent.txt)
+          CURRENT_TOTAL_SIZE=$(cat current-bundle-size.txt)
 
           # Define thresholds
           MAX_SIZE_INCREASE=524288  # 512KB in bytes
@@ -287,6 +292,10 @@ jobs:
             echo "  • Using dynamic imports for large libraries"
             echo ""
             exit 1
+          elif [ "$TOTAL_PERCENT" = "N/A" ]; then
+            echo "ℹ️ No main branch comparison available (new client feature)"
+            echo "Current bundle size: $(numfmt --to=iec-i --suffix=B $CURRENT_TOTAL_SIZE)"
+            echo "Consider monitoring bundle size in future PRs"
           elif [ $TOTAL_DIFF -gt 0 ]; then
             echo "⚠️ Bundle size increased but within acceptable limits"
             echo "Consider monitoring this change and optimizing if possible"
