@@ -1,0 +1,54 @@
+name: 'Validate Cron'
+
+on:
+  workflow_call:
+    inputs:
+      working-directory:
+        description: 'Working directory for cron operations'
+        required: false
+        type: string
+        default: './cron'
+      node-version:
+        description: 'Node.js version to use'
+        required: false
+        type: string
+        default: '20'
+
+jobs:
+  validate-cron:
+    name: Validate Cron
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ inputs.working-directory }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Setup Node.js
+        uses: ./.github/actions/setup-node
+        with:
+          node-version: ${{ inputs.node-version }}
+          working-directory: ${{ inputs.working-directory }}
+          cache-dependency-path: ${{ inputs.working-directory }}/package-lock.json
+
+      - name: Type check
+        run: npx tsc --noEmit
+
+      - name: Run linting
+        run: npm run lint
+
+      - name: Build cron
+        run: npm run build
+
+      - name: Run tests
+        run: |
+          echo "TODO: Implement cron job tests"
+          echo "TODO: Add unit tests for cron job logic"
+          echo "TODO: Test cron schedule validation"
+
+      - name: Validate cron configuration
+        run: |
+          echo "TODO: Implement cron configuration validation"
+          echo "TODO: Validate cron expressions"
+          echo "TODO: Check for proper error handling"

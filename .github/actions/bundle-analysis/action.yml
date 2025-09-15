@@ -1,0 +1,33 @@
+name: 'Bundle Size Analysis'
+description: 'Analyze and compare bundle sizes'
+inputs:
+  working-directory:
+    description: 'Working directory for bundle analysis'
+    required: false
+    default: './client'
+  build-command:
+    description: 'Build command to run'
+    required: false
+    default: 'npm run build'
+  max-size-increase:
+    description: 'Maximum allowed size increase in bytes'
+    required: false
+    default: '524288'  # 512KB
+  max-percent-increase:
+    description: 'Maximum allowed percentage increase'
+    required: false
+    default: '10'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Run bundle analysis script
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      env:
+        MAX_SIZE_INCREASE: ${{ inputs.max-size-increase }}
+        MAX_PERCENT_INCREASE: ${{ inputs.max-percent-increase }}
+        BUILD_COMMAND: ${{ inputs.build-command }}
+      run: |
+        # Call the external bundle analysis script
+        ${{ github.workspace }}/scripts/ci/bundle-analysis.sh

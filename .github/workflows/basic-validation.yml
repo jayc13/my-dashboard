@@ -1,0 +1,85 @@
+name: 'Basic Validation'
+
+on:
+  workflow_call:
+    inputs:
+      pr-title:
+        description: 'PR title to validate'
+        required: true
+        type: string
+      base-sha:
+        description: 'Base SHA for commit validation'
+        required: true
+        type: string
+      head-sha:
+        description: 'Head SHA for commit validation'
+        required: true
+        type: string
+    outputs:
+      client-changed:
+        description: 'Whether client files changed'
+        value: ${{ jobs.basic-validation.outputs.client-changed }}
+      server-changed:
+        description: 'Whether server files changed'
+        value: ${{ jobs.basic-validation.outputs.server-changed }}
+      cron-changed:
+        description: 'Whether cron files changed'
+        value: ${{ jobs.basic-validation.outputs.cron-changed }}
+      scripts-changed:
+        description: 'Whether scripts files changed'
+        value: ${{ jobs.basic-validation.outputs.scripts-changed }}
+      github-changed:
+        description: 'Whether GitHub files changed'
+        value: ${{ jobs.basic-validation.outputs.github-changed }}
+
+jobs:
+  basic-validation:
+    name: Basic Validation
+    runs-on: ubuntu-latest
+    outputs:
+      client-changed: ${{ steps.changes.outputs.client }}
+      server-changed: ${{ steps.changes.outputs.server }}
+      cron-changed: ${{ steps.changes.outputs.cron }}
+      scripts-changed: ${{ steps.changes.outputs.scripts }}
+      github-changed: ${{ steps.changes.outputs.github }}
+    steps:
+      - name: Setup validation environment
+        uses: ./.github/actions/setup-validation
+
+      - name: Validate PR commits
+        shell: bash
+        run: |
+          ${{ github.workspace }}/scripts/ci/commit-validation.sh "${{ inputs.base-sha }}" "${{ inputs.head-sha }}"
+
+      - name: Detect changes
+        uses: dorny/paths-filter@v3
+        id: changes
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          filters: |
+            client:
+              - 'client/**'
+            server:
+              - 'server/**'
+            cron:
+              - 'cron/**'
+            scripts:
+              - 'scripts/**'
+            github:
+              - '.github/**'
+
+      - name: Validate PR title
+        shell: bash
+        run: |
+          ${{ github.workspace }}/scripts/ci/pr-title-validation.sh "${{ inputs.pr-title }}"
+
+      - name: Check for TODO and FIXME comments
+        shell: bash
+        run: |
+          echo "📝 Checking for TODO and FIXME comments..."
+          ${{ github.workspace }}/scripts/check-todos.sh
+
+      - name: Estimate PR complexity
+        shell: bash
+        run: |
+          ${{ github.workspace }}/scripts/ci/pr-complexity-analysis.sh
