@@ -43,6 +43,11 @@ jobs:
       scripts-changed: ${{ steps.changes.outputs.scripts }}
       github-changed: ${{ steps.changes.outputs.github }}
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
       - name: Setup validation environment
         uses: ./.github/actions/setup-validation
 

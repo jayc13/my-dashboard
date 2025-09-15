@@ -123,9 +123,9 @@ Standardized Node.js setup with caching:
 
 ### setup-validation
 Basic validation environment setup:
-- Checks out code with configurable fetch depth
-- Sets up Node.js for validation tools
-- Installs commitlint
+- Sets up Node.js for validation tools (v22.16.0)
+- Installs commitlint and conventional commit tools
+- Configurable commitlint installation
 
 ### bundle-analysis
 Comprehensive bundle size analysis:
