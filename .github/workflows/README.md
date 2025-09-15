@@ -14,12 +14,11 @@ The PR validation system is now built using a modular architecture:
 │   └── bundle-analysis/       # Bundle size analysis
 ├── workflows/                 # Workflow definitions
 │   ├── pr-validation.yml      # Main orchestrator workflow
-│   └── jobs/                  # Reusable workflow templates
-│       ├── basic-validation.yml   # Basic PR validation
-│       ├── validate-client.yml    # Client-specific validation
-│       ├── validate-server.yml    # Server-specific validation
-│       ├── validate-cron.yml      # Cron job validation
-│       └── validate-scripts.yml   # Scripts validation
+│   ├── basic-validation.yml   # Basic PR validation
+│   ├── validate-client.yml    # Client-specific validation
+│   ├── validate-server.yml    # Server-specific validation
+│   ├── validate-cron.yml      # Cron job validation
+│   └── validate-scripts.yml   # Scripts validation
 └── scripts/ci/                # External validation scripts
     ├── bundle-analysis.sh     # Bundle size analysis
     ├── bundle-comparison.sh   # Bundle size comparison
