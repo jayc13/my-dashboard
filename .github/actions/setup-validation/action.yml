@@ -1,0 +1,21 @@
+name: 'Setup Validation Environment'
+description: 'Setup common validation tools and environment'
+inputs:
+  install-commitlint:
+    description: 'Whether to install commitlint'
+    required: false
+    default: 'true'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Setup Node.js for validation tools
+      if: inputs.install-commitlint == 'true'
+      uses: actions/setup-node@v4
+      with:
+        node-version: v22.16.0
+
+    - name: Install commitlint
+      if: inputs.install-commitlint == 'true'
+      shell: bash
+      run: npm install -D @commitlint/cli @commitlint/config-conventional

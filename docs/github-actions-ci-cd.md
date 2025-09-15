@@ -1,48 +1,111 @@
 # GitHub Actions CI/CD Documentation
 
-This directory contains GitHub Actions workflows for automated testing, validation, and deployment of the Cypress Dashboard project.
+This directory contains GitHub Actions workflows for automated testing, validation, and deployment of the Cypress Dashboard project. The workflows have been refactored into a modular architecture for better maintainability and reusability.
+
+## 🏗️ Architecture Overview
+
+The CI/CD system now uses a modular approach with:
+- **Reusable Workflows**: Separate workflow files for each validation type
+- **Composite Actions**: Reusable action components for common tasks
+- **External Scripts**: Complex logic moved to testable shell scripts
 
 ## 🚀 Workflows Overview
 
 ### 1. Pull Request Validation (`pr-validation.yml`)
 **Triggers:** Pull requests to `main` or `develop` branches (when ready for review)
 
-**Purpose:** Comprehensive validation of pull requests before merge
+**Purpose:** Main orchestrator workflow that coordinates all validation jobs
 
-**Jobs:**
-- **Setup and Basic Validation**: Detects changes and validates PR structure
-- **Client Validation**: Lints, type-checks, builds, and tests the React frontend
-- **Server Validation**: Tests, builds, and validates the Node.js backend
-- **Cron Validation**: Validates the cron job service
-- **Scripts Validation**: Validates utility scripts
-- **Security Scan**: Performs security and compliance checks
-- **Performance Check**: Runs performance and accessibility audits
-- **Validation Summary**: Provides overall validation results
+**Architecture:** Now uses reusable workflows and composite actions:
+- **Basic Validation** (`basic-validation.yml`): Validates commits, PR title, detects changes
+- **Client Validation** (`validate-client.yml`): React frontend validation with bundle analysis
+- **Server Validation** (`validate-server.yml`): Node.js backend validation with database tests
+- **Cron Validation** (`validate-cron.yml`): Cron job service validation
+- **Scripts Validation** (`validate-scripts.yml`): Utility scripts validation
+- **Validation Summary**: Aggregates all results and provides final status
 
-### 2. Additional PR Checks (`pr-checks.yml`)
-**Triggers:** All pull requests to `main` or `develop` branches
+**Key Improvements:**
+- Reduced from 502 lines to 90 lines
+- Modular, reusable components
+- External scripts for complex logic
+- Better error handling and reporting
 
-**Purpose:** Additional informational checks that don't block PR merge
+### 2. Reusable Workflows
+Each validation type is now a separate, reusable workflow:
 
-**Jobs:**
-- **Documentation Check**: Validates documentation updates
-- **Database Check**: Tests database migrations and schema changes
-- **API Compatibility**: Checks for breaking API changes
-- **Environment Check**: Validates configuration files
-- **Code Standards**: Enforces coding standards and conventions
-- **Performance Regression**: Detects performance regressions
-- **Accessibility Check**: Validates accessibility compliance
+#### `basic-validation.yml`
+- Commit message validation using commitlint
+- PR title format validation
+- Change detection for conditional job execution
+- TODO/FIXME comment analysis
+- PR complexity analysis
 
-### 3. Draft PR Feedback (`draft-pr-feedback.yml`)
-**Triggers:** Draft pull requests
+#### `validate-client.yml`
+- ESLint linting and TypeScript type checking
+- Build verification and unit tests
+- Comprehensive bundle size analysis
+- Bundle size comparison with main branch
+- Bundle size validation against thresholds
 
-**Purpose:** Provides early feedback for work-in-progress PRs
+#### `validate-server.yml`
+- TypeScript type checking and ESLint linting
+- Build verification with MySQL service
+- Database migration testing
+- Unit tests with test database
 
-**Jobs:**
-- **Draft PR Feedback**: Quick syntax checks and improvement suggestions
-- **Quick Build Check**: Fast compilation checks for each component
-- **Quick Security Scan**: Basic security issue detection
-- **Draft Summary**: Provides guidance for completing the PR
+#### `validate-cron.yml` & `validate-scripts.yml`
+- Component-specific validation
+- Build and test verification
+- Configuration validation
+
+### 3. Composite Actions
+Reusable action components in `.github/actions/`:
+
+#### `setup-node/`
+- Standardized Node.js setup with caching
+- Configurable version and registry
+- Optional dependency installation
+
+#### `setup-validation/`
+- Basic validation environment setup
+- Commitlint installation
+- Git configuration
+
+#### `bundle-analysis/`
+- Bundle size analysis orchestration
+- Calls external analysis scripts
+- Configurable thresholds
+
+### 4. External Scripts
+Complex validation logic moved to `scripts/ci/` for better testability:
+
+#### Bundle Analysis Scripts
+- `bundle-analysis.sh`: Analyzes current bundle size and composition
+- `bundle-comparison.sh`: Compares bundle size with main branch
+- `bundle-validation.sh`: Validates size changes against thresholds
+
+#### PR Validation Scripts
+- `pr-title-validation.sh`: Validates PR title format using commitlint
+- `pr-complexity-analysis.sh`: Analyzes PR complexity (files, lines changed)
+- `commit-validation.sh`: Validates all commit messages in PR
+
+**Benefits:**
+- Scripts can be tested independently
+- Logic is version controlled and reviewable
+- Easier debugging and maintenance
+- Consistent error handling and output formatting
+
+## 🔄 Migration Benefits
+
+The refactoring provides several key improvements:
+
+1. **Maintainability**: Logic separated into focused, single-purpose files
+2. **Reusability**: Workflows and actions can be reused across projects
+3. **Testability**: External scripts can be unit tested
+4. **Readability**: Main workflow reduced from 502 to 90 lines
+5. **Modularity**: Easy to add/remove/modify validation steps
+6. **Performance**: Conditional execution based on file changes
+7. **Debugging**: Easier to identify and fix issues in specific components
 
 ## 🔧 Configuration
 

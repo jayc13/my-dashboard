@@ -1,0 +1,78 @@
+name: 'Validate Server'
+
+on:
+  workflow_call:
+    inputs:
+      working-directory:
+        description: 'Working directory for server operations'
+        required: false
+        type: string
+        default: './server'
+      node-version:
+        description: 'Node.js version to use'
+        required: false
+        type: string
+        default: 'v22.16.0'
+
+jobs:
+  validate-server:
+    name: Validate Server
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ inputs.working-directory }}
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: test_password
+          MYSQL_DATABASE: test_db
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Setup Node.js
+        uses: ./.github/actions/setup-node
+        with:
+          node-version: ${{ inputs.node-version }}
+          working-directory: ${{ inputs.working-directory }}
+          cache-dependency-path: ${{ inputs.working-directory }}/package-lock.json
+
+      - name: Type check
+        run: npx tsc --noEmit
+
+      - name: Run linting
+        run: npm run lint
+
+      - name: Build server
+        run: npm run build
+
+      - name: Test database migrations
+        env:
+          NODE_ENV: test
+          DB_HOST: localhost
+          DB_PORT: 3306
+          DB_USER: root
+          DB_PASSWORD: test_password
+          DB_NAME: test_db
+        run: |
+          echo "TODO: Implement migration testing"
+          echo "TODO: Run migrations against test database"
+          echo "TODO: Verify schema changes"
+
+      - name: Run unit tests
+        env:
+          NODE_ENV: test
+          DB_HOST: localhost
+          DB_PORT: 3306
+          DB_USER: root
+          DB_PASSWORD: test_password
+          DB_NAME: test_db
+        run: npm test

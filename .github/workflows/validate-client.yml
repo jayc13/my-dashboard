@@ -1,0 +1,68 @@
+name: 'Validate Client'
+
+on:
+  workflow_call:
+    inputs:
+      working-directory:
+        description: 'Working directory for client operations'
+        required: false
+        type: string
+        default: './client'
+      node-version:
+        description: 'Node.js version to use'
+        required: false
+        type: string
+        default: 'v22.16.0'
+      run-bundle-analysis:
+        description: 'Whether to run bundle size analysis'
+        required: false
+        type: boolean
+        default: true
+
+jobs:
+  validate-client:
+    name: Validate Client
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ inputs.working-directory }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Setup Node.js
+        uses: ./.github/actions/setup-node
+        with:
+          node-version: ${{ inputs.node-version }}
+          working-directory: ${{ inputs.working-directory }}
+          cache-dependency-path: ${{ inputs.working-directory }}/package-lock.json
+
+      - name: Run ESLint
+        run: npm run lint
+
+      - name: Type check
+        run: npx tsc --noEmit
+
+      - name: Build client
+        run: npm run build
+
+      - name: Run unit tests
+        run: npm run test
+
+      - name: Bundle size analysis
+        if: inputs.run-bundle-analysis
+        uses: ./.github/actions/bundle-analysis
+        with:
+          working-directory: ${{ inputs.working-directory }}
+
+      - name: Compare with main branch
+        if: inputs.run-bundle-analysis
+        shell: bash
+        working-directory: ${{ inputs.working-directory }}
+        run: ${{ github.workspace }}/scripts/ci/bundle-comparison.sh
+
+      - name: Bundle size validation
+        if: inputs.run-bundle-analysis
+        shell: bash
+        working-directory: ${{ inputs.working-directory }}
+        run: ${{ github.workspace }}/scripts/ci/bundle-validation.sh

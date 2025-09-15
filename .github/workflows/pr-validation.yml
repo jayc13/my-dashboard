@@ -16,474 +16,62 @@ permissions:
 
 jobs:
   # Job 1: Basic validation and setup
-  setup-and-validate:
-    name: Setup and Basic Validation
-    runs-on: ubuntu-latest
+  basic-validation:
+    name: Init
     if: github.event.pull_request.draft == false
-    outputs:
-      client-changed: ${{ steps.changes.outputs.client }}
-      server-changed: ${{ steps.changes.outputs.server }}
-      cron-changed: ${{ steps.changes.outputs.cron }}
-      scripts-changed: ${{ steps.changes.outputs.scripts }}
-      github-changed: ${{ steps.changes.outputs.github }}
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v5
-        with:
-          fetch-depth: 0
-
-      - name: Setup node
-        uses: actions/setup-node@v4
-        with:
-          node-version: lts/*
-      - name: Install commitlint
-        run: npm install -D @commitlint/cli @commitlint/config-conventional
-
-      - name: Validate PR commits with commitlint
-        run: npx commitlint --config="./scripts/commitlint.config.js" --from ${{ github.event.pull_request.base.sha }} --to ${{ github.event.pull_request.head.sha }} --verbose
-
-      - name: Detect changes
-        uses: dorny/paths-filter@v3
-        id: changes
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          filters: |
-            client:
-              - 'client/**'
-            server:
-              - 'server/**'
-            cron:
-              - 'cron/**'
-            scripts:
-              - 'scripts/**'
-            github:
-              - '.github/**'
-
-      - name: Validate PR title with commitlint
-        run: |
-          echo "🔍 Validating PR title format..."
-          echo "${{ github.event.pull_request.title }}" | npx commitlint --config="./scripts/commitlint.config.js" --verbose
-          if [ $? -ne 0 ]; then
-              echo "❌ PR title does not conform to conventional commit standards."
-              exit 1
-          else
-              echo "✅ PR title is valid."
-          fi
-
-      - name: Check for TODO and FIXME comments
-        run: |
-          echo "📝 Checking for TODO and FIXME comments..."
-
-          # Run the TODO/FIXME detection script
-          ./scripts/check-todos.sh
-
-      - name: Estimate PR complexity
-        run: |
-          echo "📊 Estimating PR complexity..."
-          
-          # Count changed files and lines
-          CHANGED_FILES=$(git diff --name-only origin/main...HEAD | wc -l)
-          ADDED_LINES=$(git diff --numstat origin/main...HEAD | awk '{sum += $1} END {print sum}')
-          DELETED_LINES=$(git diff --numstat origin/main...HEAD | awk '{sum += $2} END {print sum}')
-          
-          echo "Changed files: $CHANGED_FILES"
-          echo "Added lines: $ADDED_LINES"
-          echo "Deleted lines: $DELETED_LINES"
-          
-          # Provide complexity assessment
-          if [[ $CHANGED_FILES -gt 20 ]] || [[ $ADDED_LINES -gt 500 ]]; then
-            echo "⚠️ Large PR detected - consider breaking into smaller PRs"
-          elif [[ $CHANGED_FILES -gt 10 ]] || [[ $ADDED_LINES -gt 200 ]]; then
-            echo "📏 Medium-sized PR - ensure good test coverage"
-          else
-            echo "✅ Small PR - good size for review"
-          fi
+    uses: ./.github/workflows/basic-validation.yml
+    with:
+      pr-title: ${{ github.event.pull_request.title }}
+      base-sha: ${{ github.event.pull_request.base.sha }}
+      head-sha: ${{ github.event.pull_request.head.sha }}
 
   # Job 2: Client validation
   validate-client:
-    name: Validate Client
-    runs-on: ubuntu-latest
-    needs: setup-and-validate
-    if: needs.setup-and-validate.outputs.client-changed == 'true' || needs.setup-and-validate.outputs.github-changed == 'true'
-    defaults:
-      run:
-        working-directory: ./client
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v5
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v5
-        with:
-          node-version: '20'
-          cache: 'npm'
-          cache-dependency-path: client/package-lock.json
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Run ESLint
-        run: npm run lint
-
-      - name: Type check
-        run: npx tsc --noEmit
-
-      - name: Build client
-        run: npm run build
-
-      - name: Run unit tests
-        run: npm run test
-
-      - name: Bundle size analysis
-        run: |
-          echo "📦 Analyzing bundle size..."
-
-          # Install bundle analyzer
-          npm install --save-dev rollup-plugin-visualizer
-
-          # Build with bundle analysis
-          npm run build
-
-          # Generate bundle stats
-          echo "📊 Generating bundle statistics..."
-
-          # Get current bundle sizes
-          CURRENT_JS_SIZE=$(find dist/assets -name "*.js" -type f -exec wc -c {} + | tail -1 | awk '{print $1}')
-          CURRENT_CSS_SIZE=$(find dist/assets -name "*.css" -type f -exec wc -c {} + | tail -1 | awk '{print $1}' || echo "0")
-          CURRENT_TOTAL_SIZE=$((CURRENT_JS_SIZE + CURRENT_CSS_SIZE))
-
-          echo "Current bundle sizes:"
-          echo "  JavaScript: $(numfmt --to=iec-i --suffix=B $CURRENT_JS_SIZE)"
-          echo "  CSS: $(numfmt --to=iec-i --suffix=B $CURRENT_CSS_SIZE)"
-          echo "  Total: $(numfmt --to=iec-i --suffix=B $CURRENT_TOTAL_SIZE)"
-
-          # Store current sizes for comparison
-          echo "$CURRENT_TOTAL_SIZE" > current-bundle-size.txt
-          echo "$CURRENT_JS_SIZE" > current-js-size.txt
-          echo "$CURRENT_CSS_SIZE" > current-css-size.txt
-
-          # Create detailed bundle report
-          echo "📋 Bundle composition:"
-          find dist/assets -type f \( -name "*.js" -o -name "*.css" \) -exec ls -lh {} \; | \
-            awk '{print "  " $9 ": " $5}'
-
-      - name: Compare with main branch
-        run: |
-          echo "🔍 Comparing bundle size with main branch..."
-          
-          # Fetch main branch for comparison
-          git fetch origin main:main
-          
-          cd ../
-          
-          # Check if client directory exists in main branch
-          if git ls-tree --name-only main | grep -q '^client$'; then
-            echo "client directory found in main branch. Proceeding with extraction."
-            mkdir -p $GITHUB_WORKSPACE/tmp/main-build
-            echo "Attempting to archive and extract client directory from main branch..."
-            git archive main client | tar -x -C $GITHUB_WORKSPACE/tmp/main-build
-            echo "Files in tmp/main-build after extraction:"
-            ls -l $GITHUB_WORKSPACE/tmp/main-build
-            echo "Files in tmp/main-build/client after extraction:"
-            ls -l $GITHUB_WORKSPACE/tmp/main-build/client || echo "client directory not found"
-            cd $GITHUB_WORKSPACE/tmp/main-build/client
-            npm ci --silent
-            npm run build --silent
-            MAIN_JS_SIZE=$(find dist/assets -name "*.js" -type f -exec wc -c {} + | tail -1 | awk '{print $1}')
-            MAIN_CSS_SIZE=$(find dist/assets -name "*.css" -type f -exec wc -c {} + | tail -1 | awk '{print $1}' || echo "0")
-            MAIN_TOTAL_SIZE=$((MAIN_JS_SIZE + MAIN_CSS_SIZE))
-          else
-            echo "client directory not found in main branch. Skipping main branch bundle size comparison."
-            MAIN_JS_SIZE=0
-            MAIN_CSS_SIZE=0
-            MAIN_TOTAL_SIZE=0
-          fi
-
-          # Return to PR branch directory
-          cd $GITHUB_WORKSPACE/client
-
-          # Read current sizes
-          CURRENT_TOTAL_SIZE=$(cat current-bundle-size.txt)
-          CURRENT_JS_SIZE=$(cat current-js-size.txt)
-          CURRENT_CSS_SIZE=$(cat current-css-size.txt)
-
-          # Calculate differences
-          TOTAL_DIFF=$((CURRENT_TOTAL_SIZE - MAIN_TOTAL_SIZE))
-          JS_DIFF=$((CURRENT_JS_SIZE - MAIN_JS_SIZE))
-          CSS_DIFF=$((CURRENT_CSS_SIZE - MAIN_CSS_SIZE))
-
-          # Calculate percentage changes
-          if [ $MAIN_TOTAL_SIZE -gt 0 ]; then
-          TOTAL_PERCENT=$(echo "scale=2; $TOTAL_DIFF * 100 / $MAIN_TOTAL_SIZE" | bc -l)
-          else
-          TOTAL_PERCENT="N/A"
-          fi
-          
-          echo "📊 Bundle size comparison with main branch:"
-          if [ $MAIN_TOTAL_SIZE -eq 0 ]; then
-          echo "Main branch sizes: No client build found (new feature)"
-          else
-          echo "Main branch sizes:"
-          echo "  JavaScript: $(numfmt --to=iec-i --suffix=B $MAIN_JS_SIZE)"
-          echo "  CSS: $(numfmt --to=iec-i --suffix=B $MAIN_CSS_SIZE)"
-          echo "  Total: $(numfmt --to=iec-i --suffix=B $MAIN_TOTAL_SIZE)"
-          fi
-          echo ""
-          echo "Current PR sizes:"
-          echo "  JavaScript: $(numfmt --to=iec-i --suffix=B $CURRENT_JS_SIZE)"
-          echo "  CSS: $(numfmt --to=iec-i --suffix=B $CURRENT_CSS_SIZE)"
-          echo "  Total: $(numfmt --to=iec-i --suffix=B $CURRENT_TOTAL_SIZE)"
-          echo ""
-          echo "Size changes:"
-          if [ $TOTAL_DIFF -gt 0 ]; then
-          echo "  Total: +$(numfmt --to=iec-i --suffix=B $TOTAL_DIFF) (+${TOTAL_PERCENT}%)"
-          elif [ $TOTAL_DIFF -lt 0 ]; then
-          echo "  Total: $(numfmt --to=iec-i --suffix=B $TOTAL_DIFF) (${TOTAL_PERCENT}%)"
-          else
-          echo "  Total: No change"
-          fi
-          
-          if [ $JS_DIFF -gt 0 ]; then
-          echo "  JavaScript: +$(numfmt --to=iec-i --suffix=B $JS_DIFF)"
-          elif [ $JS_DIFF -lt 0 ]; then
-          echo "  JavaScript: $(numfmt --to=iec-i --suffix=B $JS_DIFF)"
-          else
-          echo "  JavaScript: No change"
-          fi
-          
-          if [ $CSS_DIFF -gt 0 ]; then
-          echo "  CSS: +$(numfmt --to=iec-i --suffix=B $CSS_DIFF)"
-          elif [ $CSS_DIFF -lt 0 ]; then
-          echo "  CSS: $(numfmt --to=iec-i --suffix=B $CSS_DIFF)"
-          else
-          echo "  CSS: No change"
-          fi
-
-          # Store comparison results for next step
-          echo "$TOTAL_DIFF" > bundle-size-diff.txt
-          echo "$TOTAL_PERCENT" > bundle-size-percent.txt
-
-      - name: Bundle size validation
-        run: |
-          echo "⚖️ Validating bundle size changes..."
-
-          TOTAL_DIFF=$(cat bundle-size-diff.txt)
-          TOTAL_PERCENT=$(cat bundle-size-percent.txt)
-          CURRENT_TOTAL_SIZE=$(cat current-bundle-size.txt)
-
-          # Define thresholds
-          MAX_SIZE_INCREASE=524288  # 512KB in bytes
-          MAX_PERCENT_INCREASE=10   # 10% increase
-
-          # Check if bundle size increased significantly
-          SHOULD_FAIL=false
-
-          if [ $TOTAL_DIFF -gt $MAX_SIZE_INCREASE ]; then
-            echo "❌ Bundle size increased by more than $(numfmt --to=iec-i --suffix=B $MAX_SIZE_INCREASE)"
-            SHOULD_FAIL=true
-          fi
-
-          # Check percentage increase (only if we have a valid percentage)
-          if [ "$TOTAL_PERCENT" != "N/A" ]; then
-            PERCENT_INT=$(echo "$TOTAL_PERCENT" | cut -d'.' -f1)
-            if [ "$PERCENT_INT" -gt $MAX_PERCENT_INCREASE ]; then
-              echo "❌ Bundle size increased by more than ${MAX_PERCENT_INCREASE}% (${TOTAL_PERCENT}%)"
-              SHOULD_FAIL=true
-            fi
-          fi
-
-          if [ "$SHOULD_FAIL" = true ]; then
-            echo ""
-            echo "🚨 Bundle size increase is too large!"
-            echo "Please consider:"
-            echo "  • Code splitting to reduce initial bundle size"
-            echo "  • Lazy loading of components and routes"
-            echo "  • Tree shaking to remove unused code"
-            echo "  • Analyzing dependencies with 'npm run build -- --analyze'"
-            echo "  • Using dynamic imports for large libraries"
-            echo ""
-            exit 1
-          elif [ "$TOTAL_PERCENT" = "N/A" ]; then
-            echo "ℹ️ No main branch comparison available (new client feature)"
-            echo "Current bundle size: $(numfmt --to=iec-i --suffix=B $CURRENT_TOTAL_SIZE)"
-            echo "Consider monitoring bundle size in future PRs"
-          elif [ $TOTAL_DIFF -gt 0 ]; then
-            echo "⚠️ Bundle size increased but within acceptable limits"
-            echo "Consider monitoring this change and optimizing if possible"
-          elif [ $TOTAL_DIFF -lt 0 ]; then
-            echo "✅ Bundle size decreased - great optimization!"
-          else
-            echo "✅ Bundle size unchanged"
-          fi
-
-          # Clean up temporary files
-          rm -f current-bundle-size.txt current-js-size.txt current-css-size.txt
-          rm -f bundle-size-diff.txt bundle-size-percent.txt
+    name: Client
+    needs: basic-validation
+    if: needs.basic-validation.outputs.client-changed == 'true' || needs.basic-validation.outputs.github-changed == 'true'
+    uses: ./.github/workflows/validate-client.yml
 
   # Job 3: Server validation
   validate-server:
-    name: Validate Server
-    runs-on: ubuntu-latest
-    needs: setup-and-validate
-    if: needs.setup-and-validate.outputs.server-changed == 'true' || needs.setup-and-validate.outputs.github-changed == 'true'
-    defaults:
-      run:
-        working-directory: ./server
-    services:
-      mysql:
-        image: mysql:8.0
-        env:
-          MYSQL_ROOT_PASSWORD: test_password
-          MYSQL_DATABASE: test_db
-        ports:
-          - 3306:3306
-        options: >-
-          --health-cmd="mysqladmin ping"
-          --health-interval=10s
-          --health-timeout=5s
-          --health-retries=3
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v5
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v5
-        with:
-          node-version: '22.16.0'
-          cache: 'npm'
-          cache-dependency-path: server/package-lock.json
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Type check
-        run: npx tsc --noEmit
-
-      - name: Run linting
-        run: npm run lint
-
-      - name: Build server
-        run: npm run build
-
-      - name: Test database migrations
-        env:
-          NODE_ENV: test
-          DB_HOST: localhost
-          DB_PORT: 3306
-          DB_USER: root
-          DB_PASSWORD: test_password
-          DB_NAME: test_db
-        run: |
-          echo "TODO: Implement migration testing"
-          echo "TODO: Run migrations against test database"
-          echo "TODO: Verify schema changes"
-
-      - name: Run unit tests
-        env:
-          NODE_ENV: test
-          DB_HOST: localhost
-          DB_PORT: 3306
-          DB_USER: root
-          DB_PASSWORD: test_password
-          DB_NAME: test_db
-        run: npm test
+    name: Server
+    needs: basic-validation
+    if: needs.basic-validation.outputs.server-changed == 'true' || needs.basic-validation.outputs.github-changed == 'true'
+    uses: ./.github/workflows/validate-server.yml
 
   # Job 4: Cron validation
   validate-cron:
-    name: Validate Cron
-    runs-on: ubuntu-latest
-    needs: setup-and-validate
-    if: needs.setup-and-validate.outputs.cron-changed == 'true' || needs.setup-and-validate.outputs.github-changed == 'true'
-    defaults:
-      run:
-        working-directory: ./cron
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v5
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v5
-        with:
-          node-version: '20'
-          cache: 'npm'
-          cache-dependency-path: cron/package-lock.json
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Type check
-        run: npx tsc --noEmit
-
-      - name: Run linting
-        run: npm run lint
-
-      - name: Build cron
-        run: npm run build
-
-      - name: Run tests
-        run: |
-          echo "TODO: Implement cron job tests"
-          echo "TODO: Add unit tests for cron job logic"
-          echo "TODO: Test cron schedule validation"
-
-      - name: Validate cron configuration
-        run: |
-          echo "TODO: Implement cron configuration validation"
-          echo "TODO: Validate cron expressions"
-          echo "TODO: Check for proper error handling"
+    name: Cron
+    needs: basic-validation
+    if: needs.basic-validation.outputs.cron-changed == 'true' || needs.basic-validation.outputs.github-changed == 'true'
+    uses: ./.github/workflows/validate-cron.yml
 
   # Job 5: Scripts validation
   validate-scripts:
-    name: Validate Scripts
-    runs-on: ubuntu-latest
-    needs: setup-and-validate
-    if: needs.setup-and-validate.outputs.scripts-changed == 'true' || needs.setup-and-validate.outputs.github-changed == 'true'
-    defaults:
-      run:
-        working-directory: ./scripts
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v5
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v5
-        with:
-          node-version: '20'
-          cache: 'npm'
-          cache-dependency-path: scripts/package-lock.json
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Validate scripts
-        run: |
-          echo "TODO: Implement script validation"
-          echo "TODO: Run shellcheck for shell scripts"
-          echo "TODO: Validate Node.js scripts syntax"
-
-      - name: Test scripts
-        run: |
-          echo "TODO: Implement script testing"
-          echo "TODO: Test script functionality in safe environment"
-          echo "TODO: Validate script outputs"
+    name: Scripts
+    needs: basic-validation
+    if: needs.basic-validation.outputs.scripts-changed == 'true' || needs.basic-validation.outputs.github-changed == 'true'
+    uses: ./.github/workflows/validate-scripts.yml
 
   # Job 6: Final validation and summary
   validation-summary:
     name: Validation Summary
     runs-on: ubuntu-latest
-    needs: [ setup-and-validate, validate-client, validate-server, validate-cron, validate-scripts ]
+    needs: [ basic-validation, validate-client, validate-server, validate-cron, validate-scripts ]
     if: always()
     steps:
       - name: Check all validations
         run: |
           echo "=== Pull Request Validation Summary ==="
+          echo "Basic validation: ${{ needs.basic-validation.result }}"
           echo "Client validation: ${{ needs.validate-client.result }}"
           echo "Server validation: ${{ needs.validate-server.result }}"
           echo "Cron validation: ${{ needs.validate-cron.result }}"
           echo "Scripts validation: ${{ needs.validate-scripts.result }}"
-          
+
           # Fail if any required job failed
-          if [[ "${{ needs.validate-client.result }}" == "failure" ]] || \
+          if [[ "${{ needs.basic-validation.result }}" == "failure" ]] || \
+             [[ "${{ needs.validate-client.result }}" == "failure" ]] || \
              [[ "${{ needs.validate-server.result }}" == "failure" ]] || \
              [[ "${{ needs.validate-cron.result }}" == "failure" ]] || \
              [[ "${{ needs.validate-scripts.result }}" == "failure" ]]; then

@@ -1,0 +1,45 @@
+name: 'Validate Scripts'
+
+on:
+  workflow_call:
+    inputs:
+      working-directory:
+        description: 'Working directory for scripts operations'
+        required: false
+        type: string
+        default: './scripts'
+      node-version:
+        description: 'Node.js version to use'
+        required: false
+        type: string
+        default: 'v22.16.0'
+
+jobs:
+  validate-scripts:
+    name: Validate Scripts
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ inputs.working-directory }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Setup Node.js
+        uses: ./.github/actions/setup-node
+        with:
+          node-version: ${{ inputs.node-version }}
+          working-directory: ${{ inputs.working-directory }}
+          cache-dependency-path: ${{ inputs.working-directory }}/package-lock.json
+
+      - name: Validate scripts
+        run: |
+          echo "TODO: Implement script validation"
+          echo "TODO: Run shellcheck for shell scripts"
+          echo "TODO: Validate Node.js scripts syntax"
+
+      - name: Test scripts
+        run: |
+          echo "TODO: Implement script testing"
+          echo "TODO: Test script functionality in safe environment"
+          echo "TODO: Validate script outputs"
