@@ -171,22 +171,40 @@ jobs:
         run: |
           echo "🔍 Comparing bundle size with main branch..."
           
+          # Debug: Show current directory and files
+          echo "Current working directory: $(pwd)"
+          echo "Listing files in workspace root:"
+          ls -l $GITHUB_WORKSPACE
+          
           # Fetch main branch for comparison
           git fetch origin main:main
           
-          # Checkout main branch in a temporary directory
-          mkdir -p $GITHUB_WORKSPACE/tmp/main-build
-          git archive main client | tar -x -C $GITHUB_WORKSPACE/tmp/main-build
+          # Debug: List files in main branch
+          echo "Files in main branch root:" 
+          git ls-tree --name-only main
           
-          # Build main branch
-          cd $GITHUB_WORKSPACE/tmp/main-build/client
-          npm ci --silent
-          npm run build --silent
-
-          # Get main branch bundle sizes
-          MAIN_JS_SIZE=$(find dist/assets -name "*.js" -type f -exec wc -c {} + | tail -1 | awk '{print $1}')
-          MAIN_CSS_SIZE=$(find dist/assets -name "*.css" -type f -exec wc -c {} + | tail -1 | awk '{print $1}' || echo "0")
-          MAIN_TOTAL_SIZE=$((MAIN_JS_SIZE + MAIN_CSS_SIZE))
+          # Check if client directory exists in main branch
+          if git ls-tree --name-only main | grep -q '^client$'; then
+            echo "client directory found in main branch. Proceeding with extraction."
+            mkdir -p $GITHUB_WORKSPACE/tmp/main-build
+            echo "Attempting to archive and extract client directory from main branch..."
+            git archive main client | tar -x -C $GITHUB_WORKSPACE/tmp/main-build
+            echo "Files in tmp/main-build after extraction:"
+            ls -l $GITHUB_WORKSPACE/tmp/main-build
+            echo "Files in tmp/main-build/client after extraction:"
+            ls -l $GITHUB_WORKSPACE/tmp/main-build/client || echo "client directory not found"
+            cd $GITHUB_WORKSPACE/tmp/main-build/client
+            npm ci --silent
+            npm run build --silent
+            MAIN_JS_SIZE=$(find dist/assets -name "*.js" -type f -exec wc -c {} + | tail -1 | awk '{print $1}')
+            MAIN_CSS_SIZE=$(find dist/assets -name "*.css" -type f -exec wc -c {} + | tail -1 | awk '{print $1}' || echo "0")
+            MAIN_TOTAL_SIZE=$((MAIN_JS_SIZE + MAIN_CSS_SIZE))
+          else
+            echo "client directory not found in main branch. Skipping main branch bundle size comparison."
+            MAIN_JS_SIZE=0
+            MAIN_CSS_SIZE=0
+            MAIN_TOTAL_SIZE=0
+          fi
 
           # Return to PR branch directory
           cd $GITHUB_WORKSPACE/client
