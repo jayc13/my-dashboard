@@ -1,5 +1,5 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
-import { vi } from 'vitest'
+import { vi, expect } from 'vitest'
 import Header from '../Header'
 import { ThemeProvider, createTheme } from '@mui/material/styles'
 
@@ -22,7 +22,7 @@ vi.mock('../ThemeSwitcher', () => ({
 }))
 
 vi.mock('../NotificationCenter', () => ({
-  default: ({ notifications }) => (
+  default: ({ notifications }: { notifications: Notification[] }) => (
     <div data-testid="notification-center">
       Notification Center ({notifications?.length || 0})
     </div>

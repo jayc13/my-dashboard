@@ -1,4 +1,5 @@
 import '@testing-library/jest-dom'
+import { vi } from 'vitest'
 
 // Mock Firebase to avoid initialization issues in tests
 vi.mock('../firebase-config', () => ({

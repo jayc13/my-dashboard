@@ -14,7 +14,8 @@ Object.defineProperty(window, 'localStorage', {
 })
 
 // Mock fetch
-global.fetch = vi.fn()
+const mockFetch = vi.fn()
+global.fetch = mockFetch;
 
 describe('helpers', () => {
   beforeEach(() => {
@@ -28,12 +29,12 @@ describe('helpers', () => {
       const mockResponse = { ok: true, json: () => Promise.resolve({ data: 'test' }) }
 
       mockLocalStorage.getItem.mockReturnValue(mockApiKey)
-      ;(global.fetch).mockResolvedValue(mockResponse)
+      mockFetch.mockResolvedValue(mockResponse)
 
       await apiFetch(mockUrl)
 
       expect(mockLocalStorage.getItem).toHaveBeenCalledWith('dashboard_api_key')
-      expect(global.fetch).toHaveBeenCalledWith(mockUrl, {
+      expect(mockFetch).toHaveBeenCalledWith(mockUrl, {
         headers: {
           'x-api-key': mockApiKey,
         },
@@ -45,12 +46,12 @@ describe('helpers', () => {
       const mockResponse = { ok: true, json: () => Promise.resolve({ data: 'test' }) }
 
       mockLocalStorage.getItem.mockReturnValue(null)
-      ;(global.fetch ).mockResolvedValue(mockResponse)
+      mockFetch.mockResolvedValue(mockResponse)
 
       await apiFetch(mockUrl)
 
       expect(mockLocalStorage.getItem).toHaveBeenCalledWith('dashboard_api_key')
-      expect(global.fetch).toHaveBeenCalledWith(mockUrl, {
+      expect(mockFetch).toHaveBeenCalledWith(mockUrl, {
         headers: {
           'x-api-key': '',
         },
