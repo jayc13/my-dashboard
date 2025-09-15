@@ -171,19 +171,10 @@ jobs:
         run: |
           echo "🔍 Comparing bundle size with main branch..."
           
-          # Debug: Show current directory and files
-          echo "Current working directory: $(pwd)"
-          echo "Listing files in workspace root:"
-          ls -l $GITHUB_WORKSPACE
-          
           # Fetch main branch for comparison
           git fetch origin main:main
           
           cd ../
-          
-          # Debug: List files in main branch
-          echo "Files in main branch root:" 
-          git ls-tree --name-only main
           
           # Check if client directory exists in main branch
           if git ls-tree --name-only main | grep -q '^client$'; then
