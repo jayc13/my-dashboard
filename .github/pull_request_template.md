@@ -3,11 +3,6 @@
 ### 🎯 What does this PR do?
 <!-- Provide a clear and concise description of what this PR accomplishes -->
 
-### 🔗 Related Issues
-<!-- Link related issues using keywords: Fixes #123, Closes #456, Relates to #789 -->
-- Fixes #
-- Relates to #
-
 ### 🧩 Type of Change
 <!-- Mark the type of change with an [x] -->
 - [ ] 🐛 Bug fix (non-breaking change which fixes an issue)
@@ -31,12 +26,6 @@
 - [ ] Database (schema/migrations)
 - [ ] Documentation
 - [ ] CI/CD workflows
-
-### 📝 Detailed Changes
-<!-- List the specific changes made -->
-- 
-- 
-- 
 
 ### 🗄️ Database Changes
 <!-- If applicable, describe database changes -->
@@ -66,7 +55,7 @@
 - [ ] Code coverage maintained/improved
 
 ### 🧪 Manual Testing Steps
-<!-- Describe how to manually test the changes -->
+<!-- If applicable, Describe how to manually test the changes -->
 1. 
 2. 
 3. 
@@ -114,11 +103,6 @@
 - [ ] API documentation updated (if needed)
 - [ ] Changelog updated (if needed)
 - [ ] Contribution guidelines followed
-
-## 📝 Additional Notes
-<!-- Any additional context, concerns, or information for reviewers -->
-
----
 
 **For reviewers:**
 - [ ] Code review completed
