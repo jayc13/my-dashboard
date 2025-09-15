@@ -68,7 +68,6 @@ fi
 # Function to find existing comment by comment key
 find_existing_comment() {
     local comment_key="$1"
-    echo -e "${BLUE}Searching for existing comment with key: ${comment_key}...${NC}"
 
     # Get all comments for the PR
     local comments_response=$(curl -s \
