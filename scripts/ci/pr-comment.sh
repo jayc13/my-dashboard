@@ -80,7 +80,8 @@ FINAL_COMMENT_BODY="<!-- comment-id: ${COMMENT_ID} -->
 ${COMMENT_BODY}"
 
 # Check if comment already exists
-EXISTING_COMMENT_ID=$(find_existing_comment "$COMMENT_ID")
+# TODO: Explore solution to update existing comment instead of creating new one
+EXISTING_COMMENT_ID="null" # $(find_existing_comment "$COMMENT_ID")
 
 # Determine if we're creating or updating
 if [[ -n "$EXISTING_COMMENT_ID" && "$EXISTING_COMMENT_ID" != "null" ]]; then
