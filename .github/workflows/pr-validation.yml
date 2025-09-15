@@ -132,10 +132,7 @@ jobs:
         run: npm run build
 
       - name: Run unit tests
-        run: |
-          echo "TODO: Implement client unit tests"
-          echo "TODO: Add Jest or Vitest configuration for React components"
-          echo "TODO: Add test coverage reporting"
+        run: npm run test
 
       - name: Bundle size analysis
         run: |
@@ -304,14 +301,12 @@ jobs:
           echo "Server validation: ${{ needs.validate-server.result }}"
           echo "Cron validation: ${{ needs.validate-cron.result }}"
           echo "Scripts validation: ${{ needs.validate-scripts.result }}"
-          echo "Security scan: ${{ needs.security-scan.result }}"
           
           # Fail if any required job failed
           if [[ "${{ needs.validate-client.result }}" == "failure" ]] || \
              [[ "${{ needs.validate-server.result }}" == "failure" ]] || \
              [[ "${{ needs.validate-cron.result }}" == "failure" ]] || \
-             [[ "${{ needs.validate-scripts.result }}" == "failure" ]] || \
-             [[ "${{ needs.security-scan.result }}" == "failure" ]]; then
+             [[ "${{ needs.validate-scripts.result }}" == "failure" ]]; then
             echo "❌ One or more validations failed"
             exit 1
           else

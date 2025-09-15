@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { messaging, vapidKey, getToken, onMessage } from '../firebase-config';
 import { apiFetch } from '../utils/helpers';
 import { API_BASE_URL } from '../utils/constants';
@@ -18,46 +18,17 @@ export const useFCM = (): FCMHookReturn => {
     const [error, setError] = useState<string | null>(null);
     const isInitializedRef = useRef<boolean>(false);
 
-    useEffect(() => {
-        // Check if FCM is supported and not already initialized
-        if (!isInitializedRef.current && typeof window !== 'undefined' && 'serviceWorker' in navigator && messaging) {
-            isInitializedRef.current = true;
-            setIsSupported(true);
-            initializeFCM().catch(() => {
-                setError('Failed to initialize Firebase Cloud Messaging');
-                isInitializedRef.current = false; // Reset on error so it can be retried
-            });
-        } else if (!messaging) {
-            setError('Firebase Cloud Messaging is not supported in this browser');
-        }
-    }, []); // Empty dependency array to run only once
-
-    const initializeFCM = async (): Promise<void> => {
-        // Wait for service worker to be ready
-        await navigator.serviceWorker.ready;
-
-        // Check current permission status
-        const permission = Notification.permission;
-        setIsPermissionGranted(permission === 'granted');
-
-        if (permission === 'granted') {
-            await generateToken();
-        }
-
-        // Listen for foreground messages
-        onMessage(messaging, (payload) => {
-            // Show notification manually for foreground messages
-            if (payload.notification) {
-                new Notification(payload.notification.title || 'New Notification', {
-                    body: payload.notification.body,
-                    icon: payload.notification.icon || '/logo.png',
-                    data: payload.data,
-                });
-            }
+    const registerTokenWithServer = async (fcmToken: string) => {
+        await apiFetch(`${API_BASE_URL}/api/fcm/register-token`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ token: fcmToken }),
         });
     };
 
-    const generateToken = async () => {
+    const generateToken = useCallback(async () => {
         try {
             if (!vapidKey) {
                 throw new Error('VAPID key is not configured');
@@ -85,17 +56,46 @@ export const useFCM = (): FCMHookReturn => {
         } catch {
             setError('Failed to generate FCM token');
         }
-    };
+    }, [token]);
 
-    const registerTokenWithServer = async (fcmToken: string) => {
-        await apiFetch(`${API_BASE_URL}/api/fcm/register-token`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ token: fcmToken }),
-        });
-    };
+    useEffect(() => {
+        const initializeFCM = async (): Promise<void> => {
+            // Wait for service worker to be ready
+            await navigator.serviceWorker.ready;
+
+            // Check current permission status
+            const permission = Notification.permission;
+            setIsPermissionGranted(permission === 'granted');
+
+            if (permission === 'granted') {
+                await generateToken();
+            }
+
+            // Listen for foreground messages
+            onMessage(messaging, (payload) => {
+                // Show notification manually for foreground messages
+                if (payload.notification) {
+                    new Notification(payload.notification.title || 'New Notification', {
+                        body: payload.notification.body,
+                        icon: payload.notification.icon || '/logo.png',
+                        data: payload.data,
+                    });
+                }
+            });
+        };
+
+        // Check if FCM is supported and not already initialized
+        if (!isInitializedRef.current && typeof window !== 'undefined' && 'serviceWorker' in navigator && messaging) {
+            isInitializedRef.current = true;
+            setIsSupported(true);
+            initializeFCM().catch(() => {
+                setError('Failed to initialize Firebase Cloud Messaging');
+                isInitializedRef.current = false; // Reset on error so it can be retried
+            });
+        } else if (!messaging) {
+            setError('Firebase Cloud Messaging is not supported in this browser');
+        }
+    }, [generateToken]); // Include generateToken in dependency array
 
     const requestPermission = async (): Promise<boolean> => {
         try {
