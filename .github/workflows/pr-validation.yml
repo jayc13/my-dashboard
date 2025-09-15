@@ -12,7 +12,7 @@ concurrency:
 
 permissions:
   contents: read
-  pull-requests: read
+  pull-requests: write
 
 jobs:
   # Job 1: Basic validation and setup
@@ -111,9 +111,31 @@ jobs:
             echo "✅ All validations passed"
           fi
 
+      - name: Checkout repository
+        if: always()
+        uses: actions/checkout@v4
+
       - name: Comment on PR
         if: always()
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          GITHUB_SERVER_URL: ${{ github.server_url }}
+          GITHUB_RUN_ID: ${{ github.run_id }}
         run: |
-          echo "TODO: Implement PR commenting"
-          echo "TODO: Post validation results as PR comment"
-          echo "TODO: Include links to failed checks and suggestions"
+          # Generate the summary message
+          echo "=== Generating PR Summary ==="
+          SUMMARY_MESSAGE=$(bash ${{ github.workspace }}/scripts/ci/generate-pr-summary.sh \
+            "${{ needs.basic-validation.result }}" \
+            "${{ needs.validate-client.result }}" \
+            "${{ needs.validate-server.result }}" \
+            "${{ needs.validate-cron.result }}" \
+            "${{ needs.validate-scripts.result }}" \
+            "${{ needs.integration-testing.result }}" \
+            "${{ needs.e2e-testing.result }}")
+
+          # Post/update the comment
+          echo "=== Posting PR Comment ==="
+          COMMENT_ID="pull-request-validation-summary"
+          bash ${{ github.workspace }}/scripts/ci/pr-comment.sh "$COMMENT_ID" "$SUMMARY_MESSAGE"
