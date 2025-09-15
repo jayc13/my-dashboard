@@ -76,7 +76,7 @@ Validates the React frontend:
 
 **Inputs:**
 - `working-directory`: Client directory (default: `./client`)
-- `node-version`: Node.js version (default: `20`)
+- `node-version`: Node.js version (default: `v22.16.0`)
 - `run-bundle-analysis`: Enable bundle analysis (default: `true`)
 
 ### validate-server.yml
@@ -89,7 +89,7 @@ Validates the Node.js backend:
 
 **Inputs:**
 - `working-directory`: Server directory (default: `./server`)
-- `node-version`: Node.js version (default: `22.16.0`)
+- `node-version`: Node.js version (default: `v22.16.0`)
 
 ### validate-cron.yml
 Validates cron job services:
@@ -100,7 +100,7 @@ Validates cron job services:
 
 **Inputs:**
 - `working-directory`: Cron directory (default: `./cron`)
-- `node-version`: Node.js version (default: `20`)
+- `node-version`: Node.js version (default: `v22.16.0`)
 
 ### validate-scripts.yml
 Validates utility scripts:
@@ -110,7 +110,7 @@ Validates utility scripts:
 
 **Inputs:**
 - `working-directory`: Scripts directory (default: `./scripts`)
-- `node-version`: Node.js version (default: `20`)
+- `node-version`: Node.js version (default: `v22.16.0`)
 
 ## 🎭 Composite Actions
 
@@ -163,7 +163,7 @@ jobs:
     uses: ./.github/workflows/validate-client.yml
     with:
       working-directory: './frontend'
-      node-version: '18'
+      node-version: 'v22.16.0'
       run-bundle-analysis: false
 ```
 
