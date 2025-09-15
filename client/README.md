@@ -274,6 +274,24 @@ npm run build
 - Asset optimization and compression
 - Bundle analysis and size monitoring
 
+### Bundle Size Analysis
+```bash
+# Analyze current bundle size
+npm run bundle-size
+
+# Build with detailed bundle analysis
+npm run build:analyze
+
+# This will generate dist/bundle-analysis.html with interactive visualization
+```
+
+### CI/CD Bundle Size Monitoring
+The GitHub Actions workflow automatically:
+- Analyzes bundle size on every PR
+- Compares with the main branch
+- Fails if bundle size increases by more than 512KB or 10%
+- Provides detailed size breakdown and optimization suggestions
+
 ### Runtime Optimizations
 - SWR caching for API responses
 - React.memo for component memoization

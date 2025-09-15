@@ -136,9 +136,169 @@ jobs:
 
       - name: Bundle size analysis
         run: |
-          echo "TODO: Implement bundle size analysis"
-          echo "TODO: Compare bundle size with main branch"
-          echo "TODO: Fail if bundle size increases significantly"
+          echo "📦 Analyzing bundle size..."
+
+          # Install bundle analyzer
+          npm install --save-dev rollup-plugin-visualizer
+
+          # Build with bundle analysis
+          npm run build
+
+          # Generate bundle stats
+          echo "📊 Generating bundle statistics..."
+
+          # Get current bundle sizes
+          CURRENT_JS_SIZE=$(find dist/assets -name "*.js" -type f -exec wc -c {} + | tail -1 | awk '{print $1}')
+          CURRENT_CSS_SIZE=$(find dist/assets -name "*.css" -type f -exec wc -c {} + | tail -1 | awk '{print $1}' || echo "0")
+          CURRENT_TOTAL_SIZE=$((CURRENT_JS_SIZE + CURRENT_CSS_SIZE))
+
+          echo "Current bundle sizes:"
+          echo "  JavaScript: $(numfmt --to=iec-i --suffix=B $CURRENT_JS_SIZE)"
+          echo "  CSS: $(numfmt --to=iec-i --suffix=B $CURRENT_CSS_SIZE)"
+          echo "  Total: $(numfmt --to=iec-i --suffix=B $CURRENT_TOTAL_SIZE)"
+
+          # Store current sizes for comparison
+          echo "$CURRENT_TOTAL_SIZE" > current-bundle-size.txt
+          echo "$CURRENT_JS_SIZE" > current-js-size.txt
+          echo "$CURRENT_CSS_SIZE" > current-css-size.txt
+
+          # Create detailed bundle report
+          echo "📋 Bundle composition:"
+          find dist/assets -type f \( -name "*.js" -o -name "*.css" \) -exec ls -lh {} \; | \
+            awk '{print "  " $9 ": " $5}'
+
+      - name: Compare with main branch
+        run: |
+          echo "🔍 Comparing bundle size with main branch..."
+
+          # Fetch main branch for comparison
+          git fetch origin main:main
+
+          # Checkout main branch in a temporary directory
+          mkdir -p /tmp/main-build
+          git archive main | tar -x -C /tmp/main-build
+
+          # Build main branch
+          cd /tmp/main-build/client
+          npm ci --silent
+          npm run build --silent
+
+          # Get main branch bundle sizes
+          MAIN_JS_SIZE=$(find dist/assets -name "*.js" -type f -exec wc -c {} + | tail -1 | awk '{print $1}')
+          MAIN_CSS_SIZE=$(find dist/assets -name "*.css" -type f -exec wc -c {} + | tail -1 | awk '{print $1}' || echo "0")
+          MAIN_TOTAL_SIZE=$((MAIN_JS_SIZE + MAIN_CSS_SIZE))
+
+          # Return to PR branch directory
+          cd $GITHUB_WORKSPACE/client
+
+          # Read current sizes
+          CURRENT_TOTAL_SIZE=$(cat current-bundle-size.txt)
+          CURRENT_JS_SIZE=$(cat current-js-size.txt)
+          CURRENT_CSS_SIZE=$(cat current-css-size.txt)
+
+          # Calculate differences
+          TOTAL_DIFF=$((CURRENT_TOTAL_SIZE - MAIN_TOTAL_SIZE))
+          JS_DIFF=$((CURRENT_JS_SIZE - MAIN_JS_SIZE))
+          CSS_DIFF=$((CURRENT_CSS_SIZE - MAIN_CSS_SIZE))
+
+          # Calculate percentage changes
+          if [ $MAIN_TOTAL_SIZE -gt 0 ]; then
+            TOTAL_PERCENT=$(echo "scale=2; $TOTAL_DIFF * 100 / $MAIN_TOTAL_SIZE" | bc -l)
+          else
+            TOTAL_PERCENT="N/A"
+          fi
+
+          echo "📊 Bundle size comparison with main branch:"
+          echo "Main branch sizes:"
+          echo "  JavaScript: $(numfmt --to=iec-i --suffix=B $MAIN_JS_SIZE)"
+          echo "  CSS: $(numfmt --to=iec-i --suffix=B $MAIN_CSS_SIZE)"
+          echo "  Total: $(numfmt --to=iec-i --suffix=B $MAIN_TOTAL_SIZE)"
+          echo ""
+          echo "Current PR sizes:"
+          echo "  JavaScript: $(numfmt --to=iec-i --suffix=B $CURRENT_JS_SIZE)"
+          echo "  CSS: $(numfmt --to=iec-i --suffix=B $CURRENT_CSS_SIZE)"
+          echo "  Total: $(numfmt --to=iec-i --suffix=B $CURRENT_TOTAL_SIZE)"
+          echo ""
+          echo "Size changes:"
+          if [ $TOTAL_DIFF -gt 0 ]; then
+            echo "  Total: +$(numfmt --to=iec-i --suffix=B $TOTAL_DIFF) (+${TOTAL_PERCENT}%)"
+          elif [ $TOTAL_DIFF -lt 0 ]; then
+            echo "  Total: $(numfmt --to=iec-i --suffix=B $TOTAL_DIFF) (${TOTAL_PERCENT}%)"
+          else
+            echo "  Total: No change"
+          fi
+
+          if [ $JS_DIFF -gt 0 ]; then
+            echo "  JavaScript: +$(numfmt --to=iec-i --suffix=B $JS_DIFF)"
+          elif [ $JS_DIFF -lt 0 ]; then
+            echo "  JavaScript: $(numfmt --to=iec-i --suffix=B $JS_DIFF)"
+          else
+            echo "  JavaScript: No change"
+          fi
+
+          if [ $CSS_DIFF -gt 0 ]; then
+            echo "  CSS: +$(numfmt --to=iec-i --suffix=B $CSS_DIFF)"
+          elif [ $CSS_DIFF -lt 0 ]; then
+            echo "  CSS: $(numfmt --to=iec-i --suffix=B $CSS_DIFF)"
+          else
+            echo "  CSS: No change"
+          fi
+
+          # Store comparison results for next step
+          echo "$TOTAL_DIFF" > bundle-size-diff.txt
+          echo "$TOTAL_PERCENT" > bundle-size-percent.txt
+
+      - name: Bundle size validation
+        run: |
+          echo "⚖️ Validating bundle size changes..."
+
+          TOTAL_DIFF=$(cat bundle-size-diff.txt)
+          TOTAL_PERCENT=$(cat bundle-size-percent.txt)
+
+          # Define thresholds
+          MAX_SIZE_INCREASE=524288  # 512KB in bytes
+          MAX_PERCENT_INCREASE=10   # 10% increase
+
+          # Check if bundle size increased significantly
+          SHOULD_FAIL=false
+
+          if [ $TOTAL_DIFF -gt $MAX_SIZE_INCREASE ]; then
+            echo "❌ Bundle size increased by more than $(numfmt --to=iec-i --suffix=B $MAX_SIZE_INCREASE)"
+            SHOULD_FAIL=true
+          fi
+
+          # Check percentage increase (only if we have a valid percentage)
+          if [ "$TOTAL_PERCENT" != "N/A" ]; then
+            PERCENT_INT=$(echo "$TOTAL_PERCENT" | cut -d'.' -f1)
+            if [ "$PERCENT_INT" -gt $MAX_PERCENT_INCREASE ]; then
+              echo "❌ Bundle size increased by more than ${MAX_PERCENT_INCREASE}% (${TOTAL_PERCENT}%)"
+              SHOULD_FAIL=true
+            fi
+          fi
+
+          if [ "$SHOULD_FAIL" = true ]; then
+            echo ""
+            echo "🚨 Bundle size increase is too large!"
+            echo "Please consider:"
+            echo "  • Code splitting to reduce initial bundle size"
+            echo "  • Lazy loading of components and routes"
+            echo "  • Tree shaking to remove unused code"
+            echo "  • Analyzing dependencies with 'npm run build -- --analyze'"
+            echo "  • Using dynamic imports for large libraries"
+            echo ""
+            exit 1
+          elif [ $TOTAL_DIFF -gt 0 ]; then
+            echo "⚠️ Bundle size increased but within acceptable limits"
+            echo "Consider monitoring this change and optimizing if possible"
+          elif [ $TOTAL_DIFF -lt 0 ]; then
+            echo "✅ Bundle size decreased - great optimization!"
+          else
+            echo "✅ Bundle size unchanged"
+          fi
+
+          # Clean up temporary files
+          rm -f current-bundle-size.txt current-js-size.txt current-css-size.txt
+          rm -f bundle-size-diff.txt bundle-size-percent.txt
 
   # Job 3: Server validation
   validate-server:

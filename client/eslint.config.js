@@ -136,6 +136,19 @@ export default tseslint.config([
     },
   },
   {
+    files: ['scripts/**/*.js'],
+    languageOptions: {
+      ecmaVersion: 'latest',
+      sourceType: 'module',
+      globals: {
+        ...globals.node,
+      },
+    },
+    rules: {
+      'no-console': 'off', // Allow console.log in scripts
+    },
+  },
+  {
     ignores: ['dist/**', 'node_modules/**', 'build/**', 'coverage/**'],
   },
 ]);
