@@ -15,12 +15,12 @@ module.exports = {
         'build',    // Changes that affect the build system or external dependencies
         'ci',       // Changes to our CI configuration files and scripts
         'chore',    // Other changes that don't modify src or test files
-        'revert'    // Reverts a previous commit
-      ]
+        'revert',    // Reverts a previous commit
+      ],
     ],
     'subject-case': [2, 'never', ['pascal-case', 'upper-case']],
     'subject-max-length': [2, 'always', 100],
     'body-max-line-length': [2, 'always', 100],
-    'footer-max-line-length': [2, 'always', 100]
-  }
+    'footer-max-line-length': [2, 'always', 100],
+  },
 };

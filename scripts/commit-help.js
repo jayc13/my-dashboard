@@ -20,7 +20,7 @@ const types = [
   { type: 'build', desc: 'Build system or dependency changes', example: 'build: update webpack configuration' },
   { type: 'ci', desc: 'CI configuration changes', example: 'ci: add GitHub Actions workflow' },
   { type: 'chore', desc: 'Other changes (maintenance, etc.)', example: 'chore: update dependencies' },
-  { type: 'revert', desc: 'Revert a previous commit', example: 'revert: revert commit abc123' }
+  { type: 'revert', desc: 'Revert a previous commit', example: 'revert: revert commit abc123' },
 ];
 
 types.forEach(({ type, desc, example }) => {
