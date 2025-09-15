@@ -2,8 +2,8 @@
 
 # PR Comment Script
 # Posts or updates comments on pull requests
-# Usage: pr-comment.sh <comment-id> <comment-body>
-#   comment-id: Unique identifier for the comment (used to update existing comments)
+# Usage: pr-comment.sh [comment-key] <comment-body>
+#   comment-key: Optional unique identifier for the comment (used to update existing comments)
 #   comment-body: The actual comment content to post/update
 
 set -e
@@ -21,20 +21,25 @@ GITHUB_TOKEN="${GITHUB_TOKEN}"
 GITHUB_REPOSITORY="${GITHUB_REPOSITORY}"
 PR_NUMBER="${PR_NUMBER}"
 
-# Parameters
-COMMENT_ID="${1}"
-COMMENT_BODY="${2}"
-
-# Check required parameters
-if [[ -z "$COMMENT_ID" ]]; then
-    echo -e "${RED}❌ comment-id parameter is required${NC}"
-    echo -e "${YELLOW}Usage: $0 <comment-id> <comment-body>${NC}"
+# Parameters - handle optional comment key
+if [[ $# -eq 1 ]]; then
+    # Only one parameter provided - treat as comment body
+    COMMENT_KEY=""
+    COMMENT_BODY="${1}"
+elif [[ $# -eq 2 ]]; then
+    # Two parameters provided - first is comment key, second is comment body
+    COMMENT_KEY="${1}"
+    COMMENT_BODY="${2}"
+else
+    # Invalid number of parameters
+    echo -e "${RED}❌ Invalid number of parameters${NC}"
+    echo -e "${YELLOW}Usage: $0 [comment-key] <comment-body>${NC}"
     exit 1
 fi
 
 if [[ -z "$COMMENT_BODY" ]]; then
     echo -e "${RED}❌ comment-body parameter is required${NC}"
-    echo -e "${YELLOW}Usage: $0 <comment-id> <comment-body>${NC}"
+    echo -e "${YELLOW}Usage: $0 [comment-key] <comment-body>${NC}"
     exit 1
 fi
 
@@ -54,12 +59,16 @@ if [[ -z "$PR_NUMBER" ]]; then
     exit 1
 fi
 
-echo -e "${CYAN}💬 Processing comment for PR #${PR_NUMBER} with ID: ${COMMENT_ID}...${NC}"
+if [[ -n "$COMMENT_KEY" ]]; then
+    echo -e "${CYAN}💬 Processing comment for PR #${PR_NUMBER} with key: ${COMMENT_KEY}...${NC}"
+else
+    echo -e "${CYAN}💬 Processing comment for PR #${PR_NUMBER}...${NC}"
+fi
 
-# Function to find existing comment by comment ID
+# Function to find existing comment by comment key
 find_existing_comment() {
-    local comment_id="$1"
-    echo -e "${BLUE}Searching for existing comment with ID: ${comment_id}...${NC}"
+    local comment_key="$1"
+    echo -e "${BLUE}Searching for existing comment with key: ${comment_key}...${NC}"
 
     # Get all comments for the PR
     local comments_response=$(curl -s \
@@ -67,21 +76,28 @@ find_existing_comment() {
         -H "Accept: application/vnd.github.v3+json" \
         "https://api.github.com/repos/$GITHUB_REPOSITORY/issues/$PR_NUMBER/comments")
 
-    # Search for comment containing the comment ID
-    local existing_comment_id=$(echo "$comments_response" | jq -r --arg id "$comment_id" '
-        .[] | select(.body | contains("<!-- comment-id: " + $id + " -->")) | .id
+    # Search for comment containing the comment key
+    local existing_comment_id=$(echo "$comments_response" | jq -r --arg key "$comment_key" '
+        .[] | select(.body | contains("<!-- comment-key: " + $key + " -->")) | .id
     ')
 
     echo "$existing_comment_id"
 }
 
-# Prepare the final comment body with comment ID marker
-FINAL_COMMENT_BODY="<!-- comment-id: ${COMMENT_ID} -->
+# Prepare the final comment body with comment key marker (if provided)
+if [[ -n "$COMMENT_KEY" ]]; then
+    FINAL_COMMENT_BODY="<!-- comment-key: ${COMMENT_KEY} -->
 ${COMMENT_BODY}"
+else
+    FINAL_COMMENT_BODY="${COMMENT_BODY}"
+fi
 
-# Check if comment already exists
-# TODO: Explore solution to update existing comment instead of creating new one
-EXISTING_COMMENT_ID="null" # $(find_existing_comment "$COMMENT_ID")
+# Check if comment already exists (only if COMMENT_KEY is provided)
+if [[ -n "$COMMENT_KEY" ]]; then
+    EXISTING_COMMENT_ID=$(find_existing_comment "$COMMENT_KEY")
+else
+    EXISTING_COMMENT_ID="null"
+fi
 
 # Determine if we're creating or updating
 if [[ -n "$EXISTING_COMMENT_ID" && "$EXISTING_COMMENT_ID" != "null" ]]; then

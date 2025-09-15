@@ -32,8 +32,6 @@ GITHUB_REPOSITORY="${GITHUB_REPOSITORY}"
 GITHUB_RUN_ID="${GITHUB_RUN_ID}"
 PR_NUMBER="${PR_NUMBER}"
 
-echo -e "${CYAN}🔍 Generating PR validation summary...${NC}"
-
 # Function to get status emoji and text
 get_status_display() {
     local status="$1"
