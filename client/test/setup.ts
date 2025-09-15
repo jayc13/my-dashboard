@@ -1,12 +1,13 @@
-import '@testing-library/jest-dom'
-import { vi } from 'vitest'
+import '@testing-library/jest-dom';
+import { vi } from 'vitest';
+import type { ReactNode } from 'react';
 
 // Mock Firebase to avoid initialization issues in tests
 vi.mock('../firebase-config', () => ({
   auth: {},
   db: {},
   messaging: {},
-}))
+}));
 
 // Mock SWR to avoid network requests in tests
 vi.mock('swr', () => ({
@@ -17,7 +18,7 @@ vi.mock('swr', () => ({
     mutate: vi.fn(),
   })),
   mutate: vi.fn(),
-}))
+}));
 
 // Mock react-router-dom
 vi.mock('react-router-dom', () => ({
@@ -25,7 +26,7 @@ vi.mock('react-router-dom', () => ({
   useLocation: () => ({ pathname: '/' }),
   Link: vi.fn(({ children }) => children),
   NavLink: vi.fn(({ children }) => children),
-}))
+}));
 
 // Mock notistack for notifications
 vi.mock('notistack', () => ({
@@ -33,22 +34,22 @@ vi.mock('notistack', () => ({
     enqueueSnackbar: vi.fn(),
     closeSnackbar: vi.fn(),
   }),
-  SnackbarProvider: ({ children }) => children,
-}))
+  SnackbarProvider: ({ children }: { children: ReactNode }) => children,
+}));
 
 // Global test utilities
 global.ResizeObserver = vi.fn().mockImplementation(() => ({
   observe: vi.fn(),
   unobserve: vi.fn(),
   disconnect: vi.fn(),
-}))
+}));
 
 // Mock IntersectionObserver
 global.IntersectionObserver = vi.fn().mockImplementation(() => ({
   observe: vi.fn(),
   unobserve: vi.fn(),
   disconnect: vi.fn(),
-}))
+}));
 
 // Mock matchMedia
 Object.defineProperty(window, 'matchMedia', {
@@ -63,4 +64,4 @@ Object.defineProperty(window, 'matchMedia', {
     removeEventListener: vi.fn(),
     dispatchEvent: vi.fn(),
   })),
-})
+});

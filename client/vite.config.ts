@@ -27,6 +27,6 @@ export default defineConfig(({ mode }) => ({
     setupFiles: ['test/setup.ts'],
     css: true,
     include: ['src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
-    exclude: ['node_modules', 'dist', '.idea', '.git', '.cache']
+    exclude: ['node_modules', 'dist', '.idea', '.git', '.cache'],
   },
 }));
