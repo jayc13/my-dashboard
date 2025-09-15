@@ -1,4 +1,4 @@
-import {useState} from 'react';
+import { useState } from 'react';
 import useSWR from 'swr';
 import {
     Alert,
@@ -18,12 +18,12 @@ import {
     FormControlLabel,
     InputAdornment,
 } from '@mui/material';
-import {Add, Edit, Delete, Link as LinkIcon, Visibility, VisibilityOff, Search} from '@mui/icons-material';
-import {DataGrid, type GridColDef, GridActionsCellItem} from '@mui/x-data-grid';
-import {API_BASE_URL} from '../utils/constants';
-import {apiFetch} from '../utils/helpers';
-import type {Application} from '../types';
-import {enqueueSnackbar} from 'notistack';
+import { Add, Edit, Delete, Link as LinkIcon, Visibility, VisibilityOff, Search } from '@mui/icons-material';
+import { DataGrid, type GridColDef, GridActionsCellItem } from '@mui/x-data-grid';
+import { API_BASE_URL } from '../utils/constants';
+import { apiFetch } from '../utils/helpers';
+import type { Application } from '../types';
+import { enqueueSnackbar } from 'notistack';
 
 const AppsPage = () => {
     const [openDialog, setOpenDialog] = useState(false);
@@ -77,7 +77,7 @@ const AppsPage = () => {
     const handleSubmit = async () => {
         try {
             if (!formData.name || !formData.code) {
-                enqueueSnackbar('Name and code are required', {variant: 'error'});
+                enqueueSnackbar('Name and code are required', { variant: 'error' });
                 return;
             }
 
@@ -87,7 +87,7 @@ const AppsPage = () => {
                     JSON.parse(formData.e2e_trigger_configuration);
                 } catch (jsonErr: unknown) {
                     console.error(jsonErr);
-                    enqueueSnackbar('E2E Trigger Configuration must be valid JSON', {variant: 'error'});
+                    enqueueSnackbar('E2E Trigger Configuration must be valid JSON', { variant: 'error' });
                     return;
                 }
             }
@@ -113,14 +113,14 @@ const AppsPage = () => {
 
             enqueueSnackbar(
                 editingApp ? 'App updated successfully' : 'App created successfully',
-                {variant: 'success'}
+                { variant: 'success' },
             );
 
             mutate();
             handleCloseDialog();
         } catch (err: unknown) {
             console.log(err);
-            enqueueSnackbar('Failed to save app', {variant: 'error'});
+            enqueueSnackbar('Failed to save app', { variant: 'error' });
         }
     };
 
@@ -139,18 +139,18 @@ const AppsPage = () => {
                 throw new Error(errorData.error || 'Failed to delete app');
             }
 
-            enqueueSnackbar('App deleted successfully', {variant: 'success'});
+            enqueueSnackbar('App deleted successfully', { variant: 'success' });
             mutate();
         } catch (err: unknown) {
             console.log(err);
-            enqueueSnackbar('Failed to delete app', {variant: 'error'});
+            enqueueSnackbar('Failed to delete app', { variant: 'error' });
         }
     };
 
     const columns: GridColDef[] = [
-        {field: 'id', headerName: 'ID', width: 70, minWidth: 70},
-        {field: 'name', headerName: 'Name', flex: 1, minWidth: 150},
-        {field: 'code', headerName: 'Code', flex: 0.8, minWidth: 120},
+        { field: 'id', headerName: 'ID', width: 70, minWidth: 70 },
+        { field: 'name', headerName: 'Name', flex: 1, minWidth: 150 },
+        { field: 'code', headerName: 'Code', flex: 0.8, minWidth: 120 },
         {
             field: 'pipeline_url',
             headerName: 'Pipeline URL',
@@ -159,12 +159,12 @@ const AppsPage = () => {
             renderCell: (params) => (
                 params.value ? (
                     <Box display="flex" alignItems="center">
-                        <LinkIcon fontSize="small" sx={{mr: 1}}/>
+                        <LinkIcon fontSize="small" sx={{ mr: 1 }}/>
                         <a
                             href={params.value}
                             target="_blank"
                             rel="noopener noreferrer"
-                            style={{textDecoration: 'none', color: 'inherit'}}
+                            style={{ textDecoration: 'none', color: 'inherit' }}
                         >
                             View in Pipelines
                         </a>
@@ -191,7 +191,7 @@ const AppsPage = () => {
             width: 100,
             minWidth: 100,
             renderCell: (params) => (
-                <Box display="flex" alignItems="center" sx={{height: '100%'}}>
+                <Box display="flex" alignItems="center" sx={{ height: '100%' }}>
                     {
                         params.value ? (
                             <Visibility color="primary"/>
@@ -200,7 +200,7 @@ const AppsPage = () => {
                         )
                     }
                 </Box>
-            )
+            ),
         },
         {
             field: 'actions',
@@ -225,7 +225,7 @@ const AppsPage = () => {
 
     if (error) {
         return (
-            <Card style={{padding: 24, marginTop: 16}}>
+            <Card style={{ padding: 24, marginTop: 16 }}>
                 <Alert severity="error">Error fetching apps</Alert>
             </Card>
         );
@@ -237,11 +237,11 @@ const AppsPage = () => {
         .filter(app =>
             searchQuery === '' ||
             app.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            app.code.toLowerCase().includes(searchQuery.toLowerCase())
+            app.code.toLowerCase().includes(searchQuery.toLowerCase()),
         );
 
     return (
-        <Box sx={{p: 3}}>
+        <Box sx={{ p: 3 }}>
             <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
                 <Typography variant="h4" component="h1">
                     Apps Management
@@ -269,7 +269,7 @@ const AppsPage = () => {
                             </InputAdornment>
                         ),
                     }}
-                    sx={{width: 300}}
+                    sx={{ width: 300 }}
                     size="small"
                 />
                 <FormControlLabel
@@ -292,7 +292,7 @@ const AppsPage = () => {
                         columns={columns}
                         initialState={{
                             pagination: {
-                                paginationModel: {page: 0, pageSize: 10},
+                                paginationModel: { page: 0, pageSize: 10 },
                             },
                         }}
                         pageSizeOptions={[5, 10, 25]}
@@ -306,53 +306,53 @@ const AppsPage = () => {
                     {editingApp ? 'Edit App' : 'Add New App'}
                 </DialogTitle>
                 <DialogContent>
-                    <Grid container spacing={2} sx={{mt: 1}}>
-                        <Grid size={{xs: 12, sm: 6}}>
+                    <Grid container spacing={2} sx={{ mt: 1 }}>
+                        <Grid size={{ xs: 12, sm: 6 }}>
                             <TextField
                                 fullWidth
                                 label="Name"
                                 value={formData.name || ''}
-                                onChange={(e) => setFormData({...formData, name: e.target.value})}
+                                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                                 required
                             />
                         </Grid>
-                        <Grid size={{xs: 12, sm: 6}}>
+                        <Grid size={{ xs: 12, sm: 6 }}>
                             <TextField
                                 fullWidth
                                 label="Code"
                                 value={formData.code || ''}
-                                onChange={(e) => setFormData({...formData, code: e.target.value})}
+                                onChange={(e) => setFormData({ ...formData, code: e.target.value })}
                                 required
                                 helperText="Unique identifier for the app"
                             />
                         </Grid>
-                        <Grid size={{xs: 12}}>
+                        <Grid size={{ xs: 12 }}>
                             <TextField
                                 fullWidth
                                 label="Pipeline URL"
                                 value={formData.pipeline_url || ''}
-                                onChange={(e) => setFormData({...formData, pipeline_url: e.target.value})}
+                                onChange={(e) => setFormData({ ...formData, pipeline_url: e.target.value })}
                                 helperText="Optional URL to the CI/CD pipeline"
                             />
                         </Grid>
-                        <Grid size={{xs: 12}}>
+                        <Grid size={{ xs: 12 }}>
                             <TextField
                                 fullWidth
                                 label="E2E Trigger Configuration"
                                 value={formData.e2e_trigger_configuration || ''}
-                                onChange={(e) => setFormData({...formData, e2e_trigger_configuration: e.target.value})}
+                                onChange={(e) => setFormData({ ...formData, e2e_trigger_configuration: e.target.value })}
                                 multiline
                                 rows={10}
                                 helperText="Optional JSON configuration for E2E test triggers"
                                 placeholder='{"environment": "staging", "browser": "chrome"}'
                             />
                         </Grid>
-                        <Grid size={{xs: 12}}>
+                        <Grid size={{ xs: 12 }}>
                             <FormControlLabel
                                 control={
                                     <Switch
                                         checked={formData.watching || false}
-                                        onChange={(e) => setFormData({...formData, watching: e.target.checked})}
+                                        onChange={(e) => setFormData({ ...formData, watching: e.target.checked })}
                                         color="primary"
                                     />
                                 }

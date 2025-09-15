@@ -1,7 +1,7 @@
-import {useEffect, useRef, useState} from 'react';
-import {messaging, vapidKey, getToken, onMessage} from '../firebase-config';
-import {apiFetch} from '../utils/helpers';
-import {API_BASE_URL} from '../utils/constants';
+import { useEffect, useRef, useState } from 'react';
+import { messaging, vapidKey, getToken, onMessage } from '../firebase-config';
+import { apiFetch } from '../utils/helpers';
+import { API_BASE_URL } from '../utils/constants';
 
 interface FCMHookReturn {
     token: string | null;
@@ -54,7 +54,7 @@ export const useFCM = (): FCMHookReturn => {
                 new Notification(payload.notification.title || 'New Notification', {
                     body: payload.notification.body,
                     icon: payload.notification.icon || '/logo.png',
-                    data: payload.data
+                    data: payload.data,
                 });
             }
         });
@@ -74,7 +74,7 @@ export const useFCM = (): FCMHookReturn => {
 
             const currentToken = await getToken(messaging, {
                 vapidKey,
-                serviceWorkerRegistration: registration
+                serviceWorkerRegistration: registration,
             });
 
             if (currentToken && !token) {
@@ -99,7 +99,7 @@ export const useFCM = (): FCMHookReturn => {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({token: fcmToken}),
+                body: JSON.stringify({ token: fcmToken }),
             });
 
             if (!response.ok) {

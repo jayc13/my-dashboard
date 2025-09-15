@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { DateTime } from 'luxon';
-import useSWR from "swr";
-import {API_BASE_URL} from '../../utils/constants';
+import useSWR from 'swr';
+import { API_BASE_URL } from '../../utils/constants';
 import { apiFetch } from '../../utils/helpers';
 import {
     Alert,
@@ -124,7 +124,9 @@ const ToDoListWidget = () => {
 
     const handleQuickAdd = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!quickTitle.trim()) return;
+        if (!quickTitle.trim()) {
+return;
+}
         await apiFetch(`${API_BASE_URL}/api/to_do_list`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -160,7 +162,7 @@ const ToDoListWidget = () => {
 
     return (
         <Box>
-            <List sx={{padding: 0}}>
+            <List sx={{ padding: 0 }}>
                 {isLoadingList &&
                     <Stack direction="column" spacing={2}>
                         <Skeleton variant="rectangular" height={50}/>

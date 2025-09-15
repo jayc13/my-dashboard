@@ -5,10 +5,10 @@ import {
     Skeleton,
     Stack,
     Tooltip,
-} from "@mui/material";
-import JiraCard from "../common/JiraCard";
-import RefreshIcon from "@mui/icons-material/Refresh";
-import type {JiraTicket} from "../../types";
+} from '@mui/material';
+import JiraCard from '../common/JiraCard';
+import RefreshIcon from '@mui/icons-material/Refresh';
+import type { JiraTicket } from '../../types';
 
 
 interface ManualTestingProps {
@@ -22,7 +22,7 @@ interface ManualTestingProps {
 const JiraList = (props: ManualTestingProps) => {
     const {
         data = [],
-        title = "Jira Tickets",
+        title = 'Jira Tickets',
         isLoading = true,
         hasError = false,
         refresh = () => Promise.resolve(),
@@ -30,30 +30,30 @@ const JiraList = (props: ManualTestingProps) => {
 
     const JiraListHeader = (props: { size?: number }) => {
         const {
-            size = 0
+            size = 0,
         } = props;
         return <Grid
             container
             direction="row"
             sx={{
-                justifyContent: "space-between",
-                alignItems: "center",
+                justifyContent: 'space-between',
+                alignItems: 'center',
             }}
         >
             <h2>{title} {
-                size > 0 ? `(${size})` : ""
+                size > 0 ? `(${size})` : ''
             } </h2>
             <Tooltip title="Refresh">
                 <IconButton
                     size="small"
-                    sx={{ml: 1}}
+                    sx={{ ml: 1 }}
                     onClick={() => refresh()}
                 >
                     <RefreshIcon/>
                 </IconButton>
             </Tooltip>
-        </Grid>
-    }
+        </Grid>;
+    };
 
     if (isLoading) {
         return <div>
@@ -87,7 +87,7 @@ const JiraList = (props: ManualTestingProps) => {
     return (
         <div>
             <JiraListHeader size={data.length}/>
-            <div style={{maxHeight: "800px", overflowY: "auto"}}>
+            <div style={{ maxHeight: '800px', overflowY: 'auto' }}>
                 <Stack direction="column" spacing={2}>
                     {data.map(ticket => (
                         <JiraCard ticket={ticket} key={ticket.key}/>
@@ -96,6 +96,6 @@ const JiraList = (props: ManualTestingProps) => {
             </div>
         </div>
     );
-}
+};
 
 export default JiraList;

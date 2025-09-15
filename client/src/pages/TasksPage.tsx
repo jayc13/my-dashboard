@@ -1,20 +1,20 @@
-import useSWR from "swr";
-import { API_BASE_URL } from "../utils/constants";
-import ToDoListWidget from "../components/widgets/ToDoList";
-import JiraList from "../components/widgets/JiraList";
+import useSWR from 'swr';
+import { API_BASE_URL } from '../utils/constants';
+import ToDoListWidget from '../components/widgets/ToDoList';
+import JiraList from '../components/widgets/JiraList';
 import {
     Alert,
     Card,
     Grid,
-} from "@mui/material";
-import type {JiraTicket} from "../types";
+} from '@mui/material';
+import type { JiraTicket } from '../types';
 
 const sortTicketsByStatus = (tickets: JiraTicket[]) => {
     const statusOrder: Record<string, number> = Object.freeze({
-        "In Progress": 1,
-        "In Review": 2,
-        "To Do": 3,
-        "Done": 4,
+        'In Progress': 1,
+        'In Review': 2,
+        'To Do': 3,
+        'Done': 4,
     });
 
     return tickets.sort((a: JiraTicket, b: JiraTicket) => {
@@ -23,7 +23,7 @@ const sortTicketsByStatus = (tickets: JiraTicket[]) => {
 
         return (statusOrder[statusA] || 99) - (statusOrder[statusB] || 99);
     });
-}
+};
 
 const TasksPage = () => {
     const {
@@ -42,7 +42,7 @@ const TasksPage = () => {
 
     if (errorMyTickets || errorManualTesting) {
         return (
-            <Card style={{padding: 24, marginTop: 16}}>
+            <Card style={{ padding: 24, marginTop: 16 }}>
                 <Alert severity="error">Error fetching information</Alert>
             </Card>
         );
@@ -50,11 +50,11 @@ const TasksPage = () => {
 
     return (
         <Grid container spacing={2}>
-            <Grid size={{xs: 12, sm: 6, md: 4}}>
+            <Grid size={{ xs: 12, sm: 6, md: 4 }}>
                 <h2>To-Do List</h2>
                 <ToDoListWidget/>
             </Grid>
-            <Grid size={{xs: 12, sm: 6, md: 4}}>
+            <Grid size={{ xs: 12, sm: 6, md: 4 }}>
                 <JiraList
                     title="Manual Testing"
                     refresh={mutateManualTesting}
@@ -63,7 +63,7 @@ const TasksPage = () => {
                     hasError={errorManualTesting || !!manualTestingData?.error}
                 />
             </Grid>
-            <Grid size={{xs: 12, sm: 6, md: 4}}>
+            <Grid size={{ xs: 12, sm: 6, md: 4 }}>
                 <JiraList
                     title="My Tickets"
                     refresh={mutateMyTickets}
@@ -74,6 +74,6 @@ const TasksPage = () => {
             </Grid>
         </Grid>
     );
-}
+};
 
 export default TasksPage;

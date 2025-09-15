@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import {
     Alert,
     Button,
@@ -8,10 +8,10 @@ import {
     DialogContent,
     DialogContentText,
     DialogTitle,
-    Snackbar
+    Snackbar,
 } from '@mui/material';
-import {NotificationsOff} from '@mui/icons-material';
-import {useFCM} from '../hooks/useFCM';
+import { NotificationsOff } from '@mui/icons-material';
+import { useFCM } from '../hooks/useFCM';
 
 interface NotificationPermissionProps {
     onPermissionGranted?: () => void;
@@ -20,9 +20,9 @@ interface NotificationPermissionProps {
 
 const NotificationPermission: React.FC<NotificationPermissionProps> = ({
                                                                            onPermissionGranted,
-                                                                           onPermissionDenied
+                                                                           onPermissionDenied,
                                                                        }) => {
-    const {isSupported, isPermissionGranted, requestPermission, error} = useFCM();
+    const { isSupported, isPermissionGranted, requestPermission, error } = useFCM();
     const [showDialog, setShowDialog] = useState(false);
     const [showSnackbar, setShowSnackbar] = useState(false);
     const [snackbarMessage, setSnackbarMessage] = useState('');
@@ -64,8 +64,8 @@ const NotificationPermission: React.FC<NotificationPermissionProps> = ({
 
     if (!isSupported) {
         return (
-            <Container maxWidth="xl" sx={{py: 2}}>
-                <Alert severity="warning" sx={{mb: 2}}>
+            <Container maxWidth="xl" sx={{ py: 2 }}>
+                <Alert severity="warning" sx={{ mb: 2 }}>
                     Push notifications are not supported in this browser.
                 </Alert>
             </Container>
@@ -74,8 +74,8 @@ const NotificationPermission: React.FC<NotificationPermissionProps> = ({
 
     if (error) {
         return (
-            <Container maxWidth="xl" sx={{py: 2}}>
-                <Alert severity="error" sx={{mb: 2}}>
+            <Container maxWidth="xl" sx={{ py: 2 }}>
+                <Alert severity="error" sx={{ mb: 2 }}>
                     Error with notifications: {error}
                 </Alert>
             </Container>
@@ -83,7 +83,7 @@ const NotificationPermission: React.FC<NotificationPermissionProps> = ({
     }
 
     return (
-        <Container maxWidth="xl" sx={{py: 2}}>
+        <Container maxWidth="xl" sx={{ py: 2 }}>
             <Alert
                 severity="info"
                 icon={<NotificationsOff/>}
@@ -92,7 +92,7 @@ const NotificationPermission: React.FC<NotificationPermissionProps> = ({
                         Enable
                     </Button>
                 }
-                sx={{mb: 2}}
+                sx={{ mb: 2 }}
             >
                 Enable push notifications to receive real-time updates about your dashboard.
             </Alert>
@@ -124,7 +124,7 @@ const NotificationPermission: React.FC<NotificationPermissionProps> = ({
                 <Alert
                     onClose={handleCloseSnackbar}
                     severity={snackbarSeverity}
-                    sx={{width: '100%'}}
+                    sx={{ width: '100%' }}
                 >
                     {snackbarMessage}
                 </Alert>

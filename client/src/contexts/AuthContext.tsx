@@ -1,4 +1,4 @@
-import React, {useState, useEffect, type ReactNode} from 'react';
+import React, { useState, useEffect, type ReactNode } from 'react';
 import { API_BASE_URL, API_KEY_STORAGE_KEY } from '../utils/constants';
 import { AuthContext, type AuthContextType } from './AuthContextDefinition';
 
@@ -35,7 +35,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       }
     };
 
-    checkStoredApiKey().catch(console.error)
+    checkStoredApiKey().catch(console.error);
   }, []);
 
   const validateApiKeyWithServer = async (key: string): Promise<boolean> => {

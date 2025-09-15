@@ -1,11 +1,11 @@
-import {Box} from '@mui/material';
+import { Box } from '@mui/material';
 import Header from './Header';
 
 interface DashboardProps {
     children: React.ReactNode;
 }
 
-const Layout = ({children}: DashboardProps) => {
+const Layout = ({ children }: DashboardProps) => {
     return (
         <Box sx={{
             display: 'flex',
