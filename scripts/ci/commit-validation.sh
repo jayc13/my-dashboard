@@ -17,6 +17,8 @@ NC='\033[0m' # No Color
 BASE_SHA="$1"
 HEAD_SHA="$2"
 COMMITLINT_CONFIG="${COMMITLINT_CONFIG:-./scripts/commitlint.config.js}"
+COMMENT_KEY="commit-validation"
+PR_COMMENT_SCRIPT="$(dirname "$0")/pr-comment.sh"
 
 if [ -z "$BASE_SHA" ] || [ -z "$HEAD_SHA" ]; then
   echo -e "${RED}❌ Base SHA and Head SHA must be provided${NC}"
@@ -31,15 +33,39 @@ echo -e "${BLUE}Head SHA: $HEAD_SHA${NC}"
 # Validate commits with commitlint
 if npx commitlint --config="$COMMITLINT_CONFIG" --from "$BASE_SHA" --to "$HEAD_SHA" --verbose; then
   echo -e "${GREEN}✅ All commits are valid.${NC}"
+
+  # Remove any existing commit validation comment by posting empty comment
+  if [ -f "$PR_COMMENT_SCRIPT" ] && [ -n "$PR_NUMBER" ]; then
+    echo -e "${BLUE}Removing commit validation comment...${NC}"
+    "$PR_COMMENT_SCRIPT" "$COMMENT_KEY" "" 2>/dev/null || true
+  fi
 else
   echo -e "${RED}❌ One or more commits do not conform to conventional commit standards.${NC}"
-  echo ""
-  echo -e "${YELLOW}💡 Commit messages should follow the format: type(scope): description${NC}"
-  echo "Examples:"
-  echo "  feat(auth): add OAuth2 integration"
-  echo "  fix: resolve memory leak in data processing"
-  echo "  docs(api): update endpoint documentation"
-  echo ""
-  echo "Run 'npm run commit-help' for more examples."
+
+  # Create failure comment body
+  FAILURE_COMMENT="## ❌ Commit Validation Failed
+
+One or more commits do not conform to conventional commit standards.
+
+### 💡 How to fix this:
+
+Commit messages should follow the format: \`type(scope): description\`
+
+**Examples:**
+- \`feat(auth): add OAuth2 integration\`
+- \`fix: resolve memory leak in data processing\`
+- \`docs(api): update endpoint documentation\`
+
+Run \`npm run commit-help\` for more examples.
+
+---
+*This comment will be automatically removed when all commits pass validation.*"
+
+  # Post failure comment to PR
+  if [ -f "$PR_COMMENT_SCRIPT" ] && [ -n "$PR_NUMBER" ]; then
+    echo -e "${BLUE}Adding commit validation failure comment to PR...${NC}"
+    "$PR_COMMENT_SCRIPT" "$COMMENT_KEY" "$FAILURE_COMMENT" || echo -e "${YELLOW}⚠️ Failed to post PR comment${NC}"
+  fi
+
   exit 1
 fi

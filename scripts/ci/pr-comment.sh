@@ -37,9 +37,11 @@ else
     exit 1
 fi
 
-if [[ -z "$COMMENT_BODY" ]]; then
-    echo -e "${RED}❌ comment-body parameter is required${NC}"
+# Comment body can be empty for deletion, but we need at least one parameter
+if [[ $# -eq 0 ]]; then
+    echo -e "${RED}❌ At least one parameter is required${NC}"
     echo -e "${YELLOW}Usage: $0 [comment-key] <comment-body>${NC}"
+    echo -e "${YELLOW}Note: Empty comment-body will delete existing comment if comment-key is provided${NC}"
     exit 1
 fi
 
@@ -98,8 +100,20 @@ else
     EXISTING_COMMENT_ID="null"
 fi
 
+# Handle empty comment body as deletion request
+if [[ -z "$COMMENT_BODY" || "$COMMENT_BODY" == "" ]]; then
+    if [[ -n "$EXISTING_COMMENT_ID" && "$EXISTING_COMMENT_ID" != "null" ]]; then
+        echo -e "${YELLOW}Empty comment body provided. Deleting existing comment with ID ${EXISTING_COMMENT_ID}...${NC}"
+        ACTION="delete"
+        API_URL="https://api.github.com/repos/$GITHUB_REPOSITORY/issues/comments/$EXISTING_COMMENT_ID"
+        HTTP_METHOD="DELETE"
+        SUCCESS_STATUS="204"
+    else
+        echo -e "${BLUE}Empty comment body and no existing comment found. Nothing to do.${NC}"
+        exit 0
+    fi
 # Determine if we're creating or updating
-if [[ -n "$EXISTING_COMMENT_ID" && "$EXISTING_COMMENT_ID" != "null" ]]; then
+elif [[ -n "$EXISTING_COMMENT_ID" && "$EXISTING_COMMENT_ID" != "null" ]]; then
     echo -e "${YELLOW}Found existing comment with ID ${EXISTING_COMMENT_ID}. Updating...${NC}"
     ACTION="update"
     API_URL="https://api.github.com/repos/$GITHUB_REPOSITORY/issues/comments/$EXISTING_COMMENT_ID"
@@ -113,27 +127,34 @@ else
     SUCCESS_STATUS="201"
 fi
 
-# Escape the comment body for JSON
-ESCAPED_COMMENT_BODY=$(echo "$FINAL_COMMENT_BODY" | jq -Rs .)
+# Make the API call
+echo -e "${BLUE}${ACTION^}ing comment via GitHub API...${NC}"
 
-# Create the comment payload
-COMMENT_PAYLOAD=$(cat <<EOF
+if [[ "$ACTION" == "delete" ]]; then
+    # For DELETE, no payload is needed
+    RESPONSE=$(curl -s -w "%{http_code}" \
+      -X "$HTTP_METHOD" \
+      -H "Authorization: Bearer $GITHUB_TOKEN" \
+      -H "Accept: application/vnd.github.v3+json" \
+      "$API_URL")
+else
+    # For CREATE/UPDATE, prepare the comment payload
+    ESCAPED_COMMENT_BODY=$(echo "$FINAL_COMMENT_BODY" | jq -Rs .)
+    COMMENT_PAYLOAD=$(cat <<EOF
 {
   "body": $ESCAPED_COMMENT_BODY
 }
 EOF
 )
 
-# Make the API call
-echo -e "${BLUE}${ACTION^}ing comment via GitHub API...${NC}"
-
-RESPONSE=$(curl -s -w "%{http_code}" \
-  -X "$HTTP_METHOD" \
-  -H "Authorization: Bearer $GITHUB_TOKEN" \
-  -H "Accept: application/vnd.github.v3+json" \
-  -H "Content-Type: application/json" \
-  -d "$COMMENT_PAYLOAD" \
-  "$API_URL")
+    RESPONSE=$(curl -s -w "%{http_code}" \
+      -X "$HTTP_METHOD" \
+      -H "Authorization: Bearer $GITHUB_TOKEN" \
+      -H "Accept: application/vnd.github.v3+json" \
+      -H "Content-Type: application/json" \
+      -d "$COMMENT_PAYLOAD" \
+      "$API_URL")
+fi
 
 # Extract HTTP status code (last 3 characters)
 HTTP_STATUS="${RESPONSE: -3}"
@@ -142,14 +163,18 @@ RESPONSE_BODY="${RESPONSE%???}"
 if [[ "$HTTP_STATUS" == "$SUCCESS_STATUS" ]]; then
     if [[ "$ACTION" == "create" ]]; then
         echo -e "${GREEN}✅ Successfully created comment on PR #${PR_NUMBER}${NC}"
+    elif [[ "$ACTION" == "delete" ]]; then
+        echo -e "${GREEN}✅ Successfully deleted comment on PR #${PR_NUMBER}${NC}"
     else
         echo -e "${GREEN}✅ Successfully updated comment on PR #${PR_NUMBER}${NC}"
     fi
 
-    # Extract comment URL from response
-    COMMENT_URL=$(echo "$RESPONSE_BODY" | jq -r '.html_url // empty')
-    if [[ -n "$COMMENT_URL" ]]; then
-        echo -e "${BLUE}Comment URL: $COMMENT_URL${NC}"
+    # Extract comment URL from response (not available for delete)
+    if [[ "$ACTION" != "delete" ]]; then
+        COMMENT_URL=$(echo "$RESPONSE_BODY" | jq -r '.html_url // empty')
+        if [[ -n "$COMMENT_URL" ]]; then
+            echo -e "${BLUE}Comment URL: $COMMENT_URL${NC}"
+        fi
     fi
 else
     echo -e "${RED}❌ Failed to ${ACTION} comment. HTTP Status: $HTTP_STATUS${NC}"
