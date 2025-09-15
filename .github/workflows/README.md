@@ -173,7 +173,7 @@ steps:
   - name: Setup Node.js
     uses: ./.github/actions/setup-node
     with:
-      node-version: '20'
+      node-version: 'v22.16.0'
       working-directory: './my-app'
 ```
 
