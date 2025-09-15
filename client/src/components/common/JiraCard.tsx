@@ -1,8 +1,8 @@
-import {Avatar, Card, CardContent, CardHeader, Stack, Typography} from "@mui/material";
+import { Avatar, Card, CardContent, CardHeader, Stack, Typography } from '@mui/material';
 import WarningIcon from '@mui/icons-material/Warning';
 import PriorityHighIcon from '@mui/icons-material/PriorityHigh';
 import LowPriorityIcon from '@mui/icons-material/LowPriority';
-import type {JiraTicket} from "../../types";
+import type { JiraTicket } from '../../types';
 
 interface JiraCardProps {
     ticket: JiraTicket;
@@ -11,11 +11,11 @@ interface JiraCardProps {
 function getAvatarByPriority(priority: string) {
     switch (priority.toLowerCase()) {
         case 'high':
-            return <WarningIcon/>
+            return <WarningIcon/>;
         case 'medium':
-            return <PriorityHighIcon/>
+            return <PriorityHighIcon/>;
         default:
-            return <LowPriorityIcon/>
+            return <LowPriorityIcon/>;
     }
 }
 
@@ -34,7 +34,7 @@ function getColorByPriority(priority: string): string {
 
 
 const JiraCard = (props: JiraCardProps) => {
-    const {ticket} = props;
+    const { ticket } = props;
     return (<Card
         onClick={() => window.open(ticket.url, '_blank')} sx={{ cursor: 'pointer' }}
         variant="outlined"
@@ -48,14 +48,14 @@ const JiraCard = (props: JiraCardProps) => {
             title={<strong>{ticket.key}</strong>}
             subheader={<small>{ticket.status}</small>}
         />
-        <CardContent style={{paddingTop: 0}}>
+        <CardContent style={{ paddingTop: 0 }}>
             <Stack direction="column">
                 <Typography variant="body2">
                     {ticket.summary}
                 </Typography>
             </Stack>
         </CardContent>
-    </Card>)
-}
+    </Card>);
+};
 
 export default JiraCard;

@@ -1,14 +1,14 @@
-import {SWRConfig} from "swr";
-import {BrowserRouter, Routes, Route} from 'react-router-dom';
+import { SWRConfig } from 'swr';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Layout from './components/layout/Layout';
 import E2EPage from './pages/E2EPage.tsx';
-import PullRequestsPage from "./pages/PullRequestsPage.tsx";
-import TasksPage from "./pages/TasksPage.tsx";
-import LoginPage from "./pages/LoginPage.tsx";
-import AppsPage from "./pages/AppsPage.tsx";
+import PullRequestsPage from './pages/PullRequestsPage.tsx';
+import TasksPage from './pages/TasksPage.tsx';
+import LoginPage from './pages/LoginPage.tsx';
+import AppsPage from './pages/AppsPage.tsx';
 import NotificationPermission from './components/NotificationPermission';
 import { apiFetch } from './utils/helpers';
-import {SnackbarProvider} from "notistack";
+import { SnackbarProvider } from 'notistack';
 import { CircularProgress, Box } from '@mui/material';
 import { AuthProvider } from './contexts/AuthContext';
 import { useAuth } from './contexts/useAuth';
@@ -44,7 +44,7 @@ const ProtectedApp: React.FC = () => {
                         throw new Error(`HTTP error! status: ${res.status}`);
                     }
                     return res.json();
-                })
+                }),
             }}
         >
             <Layout>
@@ -56,7 +56,7 @@ const ProtectedApp: React.FC = () => {
                     <Route path="/apps" element={<AppsPage/>}/>
                 </Routes>
                 <SnackbarProvider
-                    anchorOrigin={{vertical: 'top', horizontal: 'center'}}
+                    anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
                     autoHideDuration={2000}
                 />
             </Layout>

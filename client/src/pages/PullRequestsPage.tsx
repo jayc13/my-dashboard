@@ -1,7 +1,7 @@
-import {useState} from "react";
-import {API_BASE_URL} from "../utils/constants";
-import {DateTime} from 'luxon';
-import useSWR from "swr";
+import { useState } from 'react';
+import { API_BASE_URL } from '../utils/constants';
+import { DateTime } from 'luxon';
+import useSWR from 'swr';
 import {
     Card,
     CardContent,
@@ -17,18 +17,18 @@ import {
     TextField,
     IconButton,
     Skeleton, Chip,
-} from "@mui/material";
+} from '@mui/material';
 import TroubleshootIcon from '@mui/icons-material/Troubleshoot';
-import DeleteIcon from "@mui/icons-material/Delete";
-import ContentCopyIcon from "@mui/icons-material/ContentCopy";
-import {LuGitPullRequestClosed, LuGitPullRequestArrow} from "react-icons/lu";
-import {FaCodeMerge} from "react-icons/fa6";
-import {apiFetch} from '../utils/helpers';
-import type {GithubPullRequestDetails, PullRequest} from "../types";
-import {enqueueSnackbar} from "notistack";
+import DeleteIcon from '@mui/icons-material/Delete';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import { LuGitPullRequestClosed, LuGitPullRequestArrow } from 'react-icons/lu';
+import { FaCodeMerge } from 'react-icons/fa6';
+import { apiFetch } from '../utils/helpers';
+import type { GithubPullRequestDetails, PullRequest } from '../types';
+import { enqueueSnackbar } from 'notistack';
 
 
-const PRAuthor = ({author}: { author: GithubPullRequestDetails['author'] }) => {
+const PRAuthor = ({ author }: { author: GithubPullRequestDetails['author'] }) => {
     if (!author || !author.username || !author.htmlUrl) {
         return null;
     }
@@ -49,15 +49,15 @@ const PRAuthor = ({author}: { author: GithubPullRequestDetails['author'] }) => {
                 <img
                     src={author.avatarUrl}
                     alt={author.username}
-                    style={{width: 20, height: 20, borderRadius: '50%', marginRight: 8}}
+                    style={{ width: 20, height: 20, borderRadius: '50%', marginRight: 8 }}
                 />
             )}
             {author.username} •
         </Typography>
     );
-}
+};
 
-const PullRequestCard = ({pr, onDelete}: { pr: PullRequest; onDelete: (id: string) => void }) => {
+const PullRequestCard = ({ pr, onDelete }: { pr: PullRequest; onDelete: (id: string) => void }) => {
     function isPullRequestApproved(details: GithubPullRequestDetails): boolean {
         return ['clean', 'unstable', 'dirty'].includes(details.mergeableState);
     }
@@ -68,7 +68,7 @@ const PullRequestCard = ({pr, onDelete}: { pr: PullRequest; onDelete: (id: strin
         } else if (details.state === 'open' && isPullRequestApproved(details)) {
             return <LuGitPullRequestArrow color="green"/>;
         } else if (details.state === 'open' && !isPullRequestApproved(details)) {
-            return <LuGitPullRequestArrow color="orange"/>
+            return <LuGitPullRequestArrow color="orange"/>;
         } else if (details.state === 'closed' && !details.merged) {
             return <LuGitPullRequestClosed color="red"/>;
         } else {
@@ -84,7 +84,7 @@ const PullRequestCard = ({pr, onDelete}: { pr: PullRequest; onDelete: (id: strin
     if (isLoading) {
         return (
             <Skeleton variant="rectangular" width="100%">
-                <div style={{paddingTop: 40, paddingBottom: 40}}/>
+                <div style={{ paddingTop: 40, paddingBottom: 40 }}/>
             </Skeleton>
         );
     }
@@ -107,35 +107,35 @@ const PullRequestCard = ({pr, onDelete}: { pr: PullRequest; onDelete: (id: strin
             return `${owner}/${repo}`;
         }
         return '';
-    }
+    };
 
     return (
         <Card
             variant="outlined"
-            sx={{width: "100%", p: 0, borderRadius: 2}}
+            sx={{ width: '100%', p: 0, borderRadius: 2 }}
         >
-            <CardContent style={{paddingBottom: 8, paddingTop: 8}}>
+            <CardContent style={{ paddingBottom: 8, paddingTop: 8 }}>
                 <Box display="flex" justifyContent="space-between" alignItems="center">
                     <Box
                         display="flex"
                         flexDirection="column"
-                        sx={{cursor: 'pointer'}}
+                        sx={{ cursor: 'pointer' }}
                         onClick={() => window.open(details.url, '_blank')}
                     >
-                        <Typography variant="body2" sx={{cursor: 'pointer'}}><small>{getRepoPath()}</small></Typography>
-                        <Typography variant="body1" sx={{cursor: 'pointer', mt: 1}}>
+                        <Typography variant="body2" sx={{ cursor: 'pointer' }}><small>{getRepoPath()}</small></Typography>
+                        <Typography variant="body1" sx={{ cursor: 'pointer', mt: 1 }}>
                             {getIcon(details)} <strong>{details.title}</strong>
                         </Typography>
-                        <Box sx={{my: 1}}>
-                            {details.labels.map(({name}: { name: string }) => (
-                                <Chip label={name} variant="outlined" size="small" sx={{mr: 0.5, fontSize: 10}}
+                        <Box sx={{ my: 1 }}>
+                            {details.labels.map(({ name }: { name: string }) => (
+                                <Chip label={name} variant="outlined" size="small" sx={{ mr: 0.5, fontSize: 10 }}
                                       key={name}/>
                             ))}
                         </Box>
                         <Box display="flex" alignItems="center">
                             <PRAuthor author={details.author}/>
                             <Typography color="textSecondary" variant="subtitle2"
-                                        sx={{cursor: 'pointer', fontSize: 10}}>
+                                        sx={{ cursor: 'pointer', fontSize: 10 }}>
                                 Opened on {DateTime.fromISO(details.createdAt).toLocaleString(DateTime.DATE_MED)} •
                                 #{details.number}
                             </Typography>
@@ -150,11 +150,11 @@ const PullRequestCard = ({pr, onDelete}: { pr: PullRequest; onDelete: (id: strin
                                 enqueueSnackbar('Pull Request URL copied!', {
                                     variant: 'success',
                                     preventDuplicate: false,
-                                })
+                                });
                             }}
                             color="primary"
                             size="small"
-                            sx={{mr: 1}}
+                            sx={{ mr: 1 }}
                         >
                             <ContentCopyIcon/>
                         </IconButton>
@@ -186,7 +186,7 @@ const PullRequestsPage = () => {
         const [submitting, setSubmitting] = useState(false);
         const [confirmOpen, setConfirmOpen] = useState(false);
         const [deleteId, setDeleteId] = useState<string | null>(null);
-        const [url, setUrl] = useState("");
+        const [url, setUrl] = useState('');
         const [urlError, setUrlError] = useState<string | null>(null);
 
         const {
@@ -196,7 +196,7 @@ const PullRequestsPage = () => {
         } = useSWR(`${API_BASE_URL}/api/pull_requests`);
 
         const handleOpen = () => {
-            setUrl("");
+            setUrl('');
             setUrlError(null);
             setOpen(true);
         };
@@ -211,10 +211,10 @@ const PullRequestsPage = () => {
 
             // Regex to match GitHub PR URL and extract repo and PR number
             const match = url.match(
-                /^https:\/\/github\.com\/([^/]+\/[^/]+)\/pull\/(\d+)$/
+                /^https:\/\/github\.com\/([^/]+\/[^/]+)\/pull\/(\d+)$/,
             );
             if (!match) {
-                setUrlError("Invalid GitHub Pull Request URL format.");
+                setUrlError('Invalid GitHub Pull Request URL format.');
                 setSubmitting(false);
                 return;
             }
@@ -222,8 +222,8 @@ const PullRequestsPage = () => {
             const pull_request_number = Number(match[2]);
 
             await apiFetch(`${API_BASE_URL}/api/pull_requests`, {
-                method: "POST",
-                headers: {"Content-Type": "application/json"},
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     pull_request_number,
                     repository,
@@ -242,7 +242,7 @@ const PullRequestsPage = () => {
         const handleConfirmDelete = async () => {
             if (deleteId) {
                 await apiFetch(`${API_BASE_URL}/api/pull_requests/${deleteId}`, {
-                    method: "DELETE",
+                    method: 'DELETE',
                 });
                 await mutatePullRequests();
             }
@@ -279,7 +279,7 @@ const PullRequestsPage = () => {
                 </Box>
                 <Grid container spacing={2}>
                     {pullRequestsData.map((pr: PullRequest) => (
-                        <Grid key={pr.id} size={{xs: 12}}>
+                        <Grid key={pr.id} size={{ xs: 12 }}>
                             <PullRequestCard pr={pr} onDelete={handleDeleteClick}/>
                         </Grid>
                     ))}
@@ -290,15 +290,15 @@ const PullRequestsPage = () => {
                             alignItems="center"
                             justifyContent="center"
                             py={6}
-                            sx={{opacity: 0.7, width: '100%'}}
+                            sx={{ opacity: 0.7, width: '100%' }}
                         >
                             <Box mb={2}>
-                                <TroubleshootIcon sx={{fontSize: 60, color: 'action.disabled'}}/>
+                                <TroubleshootIcon sx={{ fontSize: 60, color: 'action.disabled' }}/>
                             </Box>
                             <Typography variant="h6" gutterBottom>
                                 No pull requests found
                             </Typography>
-                            <Typography color="textSecondary" align="center" sx={{mb: 2}}>
+                            <Typography color="textSecondary" align="center" sx={{ mb: 2 }}>
                                 Add a GitHub pull request to get started.
                             </Typography>
                             <Button variant="outlined" color="primary" onClick={handleOpen}>
@@ -321,7 +321,7 @@ const PullRequestsPage = () => {
                             margin="normal"
                             disabled={submitting}
                             error={!!urlError}
-                            helperText={urlError || "Example: https://github.com/org/repo/pull/123"}
+                            helperText={urlError || 'Example: https://github.com/org/repo/pull/123'}
                         />
                     </DialogContent>
                     <DialogActions>

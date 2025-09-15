@@ -1,9 +1,9 @@
-import {StrictMode} from 'react'
-import {createRoot} from 'react-dom/client'
-import App from './App.tsx'
-import {ThemeProvider, createTheme} from '@mui/material/styles';
+import { StrictMode } from 'react';
+import { createRoot } from 'react-dom/client';
+import App from './App.tsx';
+import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
-import './index.css'
+import './index.css';
 
 const theme = createTheme({
     palette: {
@@ -19,7 +19,7 @@ const theme = createTheme({
                     default: '#e9e9e9',
                     paper: '#ffffff',
                 },
-            }
+            },
         },
         dark: {
             palette: {
@@ -27,9 +27,9 @@ const theme = createTheme({
                     default: '#3f3f3f',
                     paper: '#1d1d1d',
                 },
-            }
+            },
         },
-    }
+    },
 });
 
 if ('serviceWorker' in navigator) {
@@ -47,5 +47,5 @@ root.render(
             <CssBaseline/>
             <App/>
         </ThemeProvider>
-    </StrictMode>
+    </StrictMode>,
 );

@@ -1,4 +1,4 @@
-import {useEffect, useState} from "react";
+import { useEffect, useState } from 'react';
 import {
     Alert,
     IconButton,
@@ -18,8 +18,8 @@ import {
     Divider,
     Skeleton,
     Paper,
-} from "@mui/material";
-import Tooltip from "@mui/material/Tooltip";
+} from '@mui/material';
+import Tooltip from '@mui/material/Tooltip';
 import InfoOutlineIcon from '@mui/icons-material/InfoOutline';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CancelIcon from '@mui/icons-material/Cancel';
@@ -30,9 +30,9 @@ import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import RocketLaunchIcon from '@mui/icons-material/RocketLaunch';
 import CheckIcon from '@mui/icons-material/Check';
 import CloseIcon from '@mui/icons-material/Close';
-import {enqueueSnackbar} from 'notistack';
-import {API_BASE_URL} from "../../utils/constants";
-import {apiFetch} from "../../utils/helpers";
+import { enqueueSnackbar } from 'notistack';
+import { API_BASE_URL } from '../../utils/constants';
+import { apiFetch } from '../../utils/helpers';
 
 
 interface TestResult {
@@ -70,10 +70,14 @@ interface TestResultsPerAppProps {
 }
 
 const getColorByPassingRate = (rate: number) => {
-    if (rate >= 0.8) return "green";
-    if (rate >= 0.5) return "orange";
-    return "red";
+    if (rate >= 0.8) {
+return 'green';
 }
+    if (rate >= 0.5) {
+return 'orange';
+}
+    return 'red';
+};
 
 function wantedQuantity(targetRate: number, passedRuns: number, totalRuns: number): number {
     return Math.ceil(((totalRuns * targetRate) - passedRuns) / (1 - targetRate));
@@ -81,7 +85,7 @@ function wantedQuantity(targetRate: number, passedRuns: number, totalRuns: numbe
 
 const getTooltipByPassingRate = (passedRuns: number, totalRuns: number, passingRate: number) => {
     if (passingRate >= 0.9) {
-        return <InfoOutlineIcon sx={{fontSize: 15, visibility: 'hidden'}}/>
+        return <InfoOutlineIcon sx={{ fontSize: 15, visibility: 'hidden' }}/>;
     }
 
     const runsFor80Percent = wantedQuantity(0.8, passedRuns, totalRuns);
@@ -98,17 +102,17 @@ const getTooltipByPassingRate = (passedRuns: number, totalRuns: number, passingR
             </span>;
     }
 
-    return <Tooltip title={tooltipText} style={{marginLeft: '4px', cursor: 'pointer'}} placement="left" arrow>
-        <InfoOutlineIcon sx={{fontSize: 15}}/>
-    </Tooltip>
-}
+    return <Tooltip title={tooltipText} style={{ marginLeft: '4px', cursor: 'pointer' }} placement="left" arrow>
+        <InfoOutlineIcon sx={{ fontSize: 15 }}/>
+    </Tooltip>;
+};
 
 const getLastRunStatusIcon = (status: 'passed' | 'failed') => {
     if (status === 'passed') {
-        return <FiberManualRecordIcon sx={{color: 'green', fontSize: 28}}/>;
+        return <FiberManualRecordIcon sx={{ color: 'green', fontSize: 28 }}/>;
     }
-    return <FiberManualRecordIcon sx={{color: 'red', fontSize: 28}}/>;
-}
+    return <FiberManualRecordIcon sx={{ color: 'red', fontSize: 28 }}/>;
+};
 
 const PAGE_SIZE = 10;
 
@@ -118,7 +122,7 @@ const ProjectCard = (props: {
     onUpdate: (projectName: string) => Promise<void>,
     onContextMenu: (event: React.MouseEvent, result: TestResult) => void
 }) => {
-    const {result, onUpdate, onContextMenu} = props;
+    const { result, onUpdate, onContextMenu } = props;
     const [updating, setUpdating] = useState(false);
 
     const rate = (result.successRate * 100).toFixed(2) + '%';
@@ -128,18 +132,18 @@ const ProjectCard = (props: {
     };
 
     return (
-        <Grid size={{xs: 12}}>
+        <Grid size={{ xs: 12 }}>
             <Card
                 variant="outlined"
-                sx={{width: '100%', borderRadius: 4}}
+                sx={{ width: '100%', borderRadius: 4 }}
                 onContextMenu={handleContextMenuClick}
                 data-project-card={result.projectName}
             >
-                <CardContent style={{padding: 8}}>
+                <CardContent style={{ padding: 8 }}>
                     <Grid container alignItems="center" justifyContent="space-between">
-                        <Grid size={{xs: 12, sm: 6}}>
+                        <Grid size={{ xs: 12, sm: 6 }}>
                             <Stack direction="row" alignItems="center" spacing={1}
-                                   sx={{mb: {xs: 1, sm: 0}}}>
+                                   sx={{ mb: { xs: 1, sm: 0 } }}>
                                 <Tooltip
                                     title={`Last updated at ${new Date(result.lastUpdated).toLocaleString()}`}
                                     placement="right"
@@ -154,19 +158,19 @@ const ProjectCard = (props: {
                                     sx={{
                                         lineHeight: '28px',
                                         color: 'text.primary',
-                                        textDecoration: 'none'
+                                        textDecoration: 'none',
                                     }}
                                 >
                                     <strong>{result.projectName}</strong>
                                 </Link>
-                                <Typography variant="body2" sx={{fontSize: 12}} color="textSecondary">
+                                <Typography variant="body2" sx={{ fontSize: 12 }} color="textSecondary">
                                     {updating ? 'Updating...' : `Last run: ${new Date(result.lastUpdated).toLocaleString()}`}
                                 </Typography>
                                 <IconButton
                                     size="small"
                                     disabled={updating}
                                     loading={updating}
-                                    sx={{width: 16, height: 16, ml: 1, fontSize: 16}}
+                                    sx={{ width: 16, height: 16, ml: 1, fontSize: 16 }}
                                     title="Refresh last run status"
                                     onClick={async () => {
                                         setUpdating(true);
@@ -174,21 +178,21 @@ const ProjectCard = (props: {
                                         setUpdating(false);
                                     }}
                                 >
-                                    <RefreshIcon sx={{fontSize: 16}}/>
+                                    <RefreshIcon sx={{ fontSize: 16 }}/>
                                 </IconButton>
                             </Stack>
                         </Grid>
                         <Grid
-                            size={{xs: 12, sm: 6}}
+                            size={{ xs: 12, sm: 6 }}
                             sx={{
                                 display: 'flex',
-                                justifyContent: {xs: 'space-around', sm: 'space-around'},
+                                justifyContent: { xs: 'space-around', sm: 'space-around' },
                                 alignItems: 'center',
                                 backgroundColor: 'background.default',
                                 borderRadius: 2,
-                                width: {sx: '100%', sm: 'auto'},
-                                minWidth: {sx: '100%', sm: '260px'},
-                                gap: 0
+                                width: { sx: '100%', sm: 'auto' },
+                                minWidth: { sx: '100%', sm: '260px' },
+                                gap: 0,
                             }}
                             style={{
                                 padding: '0 8px',
@@ -200,10 +204,10 @@ const ProjectCard = (props: {
                                 justifyContent="start"
                                 spacing={2}
                             >
-                                <CheckCircleIcon sx={{color: 'success.main', fontSize: 20}}/>
+                                <CheckCircleIcon sx={{ color: 'success.main', fontSize: 20 }}/>
                                 <Typography variant="subtitle1"
                                             color="success.main">{result.passedRuns}</Typography>
-                                <CancelIcon sx={{color: 'error.main', fontSize: 20}}/>
+                                <CancelIcon sx={{ color: 'error.main', fontSize: 20 }}/>
                                 <Typography variant="subtitle1"
                                             color="error.main">{result.failedRuns}</Typography>
                             </Stack>
@@ -212,13 +216,13 @@ const ProjectCard = (props: {
                                 alignItems="center"
                                 justifyContent="flex-end"
                                 spacing={0.5}
-                                style={{width: '80px'}}
+                                style={{ width: '80px' }}
                             >
                                 <Typography
                                     variant="subtitle1"
                                     sx={{
                                         color: getColorByPassingRate(result.successRate),
-                                        fontWeight: 600
+                                        fontWeight: 600,
                                     }}
                                 >
                                     {rate}
@@ -231,10 +235,10 @@ const ProjectCard = (props: {
             </Card>
         </Grid>
     );
-}
+};
 
 function LastRunStatus(props: { status: string }) {
-    const badgeStyle = {fontSize: '12px', lineHeight: '16px', height: '18px', marginLeft: '8px'};
+    const badgeStyle = { fontSize: '12px', lineHeight: '16px', height: '18px', marginLeft: '8px' };
     switch (props.status) {
         case 'success':
             return <Chip color="success" label="Passed" size="small" sx={badgeStyle}/>;
@@ -249,7 +253,7 @@ const TestResultsPerApp = (props: TestResultsPerAppProps) => {
     const {
         data = [],
         isLoading = false,
-        refetchData
+        refetchData,
     } = props;
 
 
@@ -266,8 +270,7 @@ const TestResultsPerApp = (props: TestResultsPerAppProps) => {
         try {
             const response = await apiFetch(`${API_BASE_URL}/api/apps/code/${projectCode}`);
             return await response.json();
-        } catch (error) {
-            console.error('Failed to fetch app details:', error);
+        } catch {
             return null;
         }
     };
@@ -281,7 +284,7 @@ const TestResultsPerApp = (props: TestResultsPerAppProps) => {
             mouseY: event.clientY - 6,
             result,
             appDetails: null,
-            loadingAppDetails: true
+            loadingAppDetails: true,
         });
 
         // Fetch app details
@@ -291,7 +294,7 @@ const TestResultsPerApp = (props: TestResultsPerAppProps) => {
         setContextMenu(prev => prev ? {
             ...prev,
             appDetails,
-            loadingAppDetails: false
+            loadingAppDetails: false,
         } : null);
     };
 
@@ -308,11 +311,7 @@ const TestResultsPerApp = (props: TestResultsPerAppProps) => {
 
     const handleCopyProjectName = async () => {
         if (contextMenu) {
-            try {
-                await navigator.clipboard.writeText(contextMenu.result.projectName);
-            } catch (err) {
-                console.error('Failed to copy project name:', err);
-            }
+            await navigator.clipboard.writeText(contextMenu.result.projectName);
             handleCloseContextMenu();
         }
     };
@@ -321,7 +320,7 @@ const TestResultsPerApp = (props: TestResultsPerAppProps) => {
         if (contextMenu) {
             const app_id = contextMenu.appDetails?.id;
             if (!app_id) {
-                enqueueSnackbar('App ID is missing. Cannot trigger E2E runs.', {variant: 'error'});
+                enqueueSnackbar('App ID is missing. Cannot trigger E2E runs.', { variant: 'error' });
                 return;
             }
             handleCloseContextMenu();
@@ -329,34 +328,29 @@ const TestResultsPerApp = (props: TestResultsPerAppProps) => {
                 const response = await apiFetch(`${API_BASE_URL}/api/e2e_manual_runs`, {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
                     },
                     body: JSON.stringify({
-                        app_id
-                    })
+                        app_id,
+                    }),
                 });
 
                 if (response.ok) {
                     const appName = contextMenu.result.projectName;
-                    enqueueSnackbar(`E2E run for ${appName} were triggered successfully!`, {variant: 'success', autoHideDuration: 10 * 1000});
+                    enqueueSnackbar(`E2E run for ${appName} were triggered successfully!`, { variant: 'success', autoHideDuration: 10 * 1000 });
                 } else {
                     const errorData = await response.json();
-                    enqueueSnackbar(`Failed to trigger E2E runs: ${errorData.error || response.statusText}`, {variant: 'error'});
+                    enqueueSnackbar(`Failed to trigger E2E runs: ${errorData.error || response.statusText}`, { variant: 'error' });
                 }
-            } catch (error) {
-                console.error('Failed to trigger E2E runs:', error);
-                enqueueSnackbar('Failed to trigger E2E runs due to a network error.', {variant: 'error'});
+            } catch {
+                enqueueSnackbar('Failed to trigger E2E runs due to a network error.', { variant: 'error' });
             }
         }
-    }
+    };
 
     const handleCopyProjectCode = async () => {
         if (contextMenu) {
-            try {
-                await navigator.clipboard.writeText(contextMenu.result.projectCode);
-            } catch (err) {
-                console.error('Failed to copy project code:', err);
-            }
+            await navigator.clipboard.writeText(contextMenu.result.projectCode);
             handleCloseContextMenu();
         }
     };
@@ -389,12 +383,12 @@ const TestResultsPerApp = (props: TestResultsPerAppProps) => {
 
     if (isLoading) {
         return (
-            <Box sx={{marginTop: 2}}>
+            <Box sx={{ marginTop: 2 }}>
                 <Grid container spacing={1.5}>
                     {[...Array(PAGE_SIZE)].map((_, idx) =>
-                        <Grid size={{xs: 12}} key={idx}>
+                        <Grid size={{ xs: 12 }} key={idx}>
                             <Skeleton key={idx} variant="rounded" height={44}/>
-                        </Grid>
+                        </Grid>,
                     )}
                 </Grid>
             </Box>
@@ -405,21 +399,21 @@ const TestResultsPerApp = (props: TestResultsPerAppProps) => {
     const appsWithFailures = data.filter(app => app.failedRuns > 0);
 
     if (data.length === 0) {
-        return <Card style={{padding: 24, marginTop: 16}}>
+        return <Card style={{ padding: 24, marginTop: 16 }}>
             <Alert severity="info">No test results available.</Alert>
-        </Card>
+        </Card>;
     }
 
     if (appsWithFailures.length === 0) {
-        return <Card style={{padding: 24, marginTop: 16}}>
+        return <Card style={{ padding: 24, marginTop: 16 }}>
             <Alert severity="success">All apps are passing! No failures to display.</Alert>
-        </Card>
+        </Card>;
     }
 
     const updateLastRunStatus = async (projectName: string) => {
-        await apiFetch(`${API_BASE_URL}/api/e2e_reports/project_status/${projectName}`)
+        await apiFetch(`${API_BASE_URL}/api/e2e_reports/project_status/${projectName}`);
         await refetchData();
-    }
+    };
 
     // Pagination logic
     const pageCount = Math.ceil(appsWithFailures.length / PAGE_SIZE);
@@ -428,7 +422,7 @@ const TestResultsPerApp = (props: TestResultsPerAppProps) => {
     const paginatedData = sortedData.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
     return (
-        <Box sx={{marginTop: 2}}>
+        <Box sx={{ marginTop: 2 }}>
             <Grid container spacing={1.5}>
                 {paginatedData.map((result, idx) => {
                     const globalIdx = (page - 1) * PAGE_SIZE + idx;
@@ -439,7 +433,7 @@ const TestResultsPerApp = (props: TestResultsPerAppProps) => {
                         previousValue={previousValue}
                         onUpdate={() => updateLastRunStatus(result.projectName)}
                         onContextMenu={handleContextMenu}
-                    />
+                    />;
                 })}
             </Grid>
             {pageCount > 1 && (
@@ -474,7 +468,7 @@ const TestResultsPerApp = (props: TestResultsPerAppProps) => {
                                 fontSize: '0.875rem',
                                 lineHeight: '1.5',
                                 py: 1,
-                                m: 0
+                                m: 0,
                             }}>
                                 {contextMenu?.result?.projectName}
                             </ListSubheader>
@@ -488,7 +482,7 @@ const TestResultsPerApp = (props: TestResultsPerAppProps) => {
                                     </Box>
                                 ) : contextMenu.appDetails ? (
                                     <Box>
-                                        <Box sx={{p: 2, bgcolor: 'background.default'}}>
+                                        <Box sx={{ p: 2, bgcolor: 'background.default' }}>
                                             <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                                                 <strong>E2E Config: </strong>
                                                 {contextMenu.appDetails.e2e_trigger_configuration ? (
@@ -512,42 +506,42 @@ const TestResultsPerApp = (props: TestResultsPerAppProps) => {
                                                     status={contextMenu.appDetails.lastRun?.status}
                                                 />
                                                 <IconButton onClick={() => handleOpenUrlInNewTab(contextMenu.appDetails!.lastRun!.url)}>
-                                                    <OpenInNewIcon sx={{fontSize: 18}}/>
+                                                    <OpenInNewIcon sx={{ fontSize: 18 }}/>
                                                 </IconButton>
                                             </Typography>}
                                         </Box>
                                         <MenuList dense>
                                             <MenuItem
                                                 onClick={() => handleOpenUrlInNewTab(`https://cloud.cypress.io/projects/${contextMenu.result.projectCode}/runs`)}>
-                                                <OpenInNewIcon sx={{mr: 1, fontSize: 20}}/>
+                                                <OpenInNewIcon sx={{ mr: 1, fontSize: 20 }}/>
                                                 Open in Cypress Cloud
                                             </MenuItem>
                                             {contextMenu.appDetails.pipeline_url && (
                                                 <MenuItem
                                                     onClick={() => handleOpenUrlInNewTab(contextMenu.appDetails!.pipeline_url!)}>
-                                                    <OpenInNewIcon sx={{mr: 1, fontSize: 20}}/>
+                                                    <OpenInNewIcon sx={{ mr: 1, fontSize: 20 }}/>
                                                     Open in Pipelines
                                                 </MenuItem>
                                             )}
                                             <Divider/>
                                             <MenuItem onClick={handleTriggerE2ERuns}
                                                       disabled={!contextMenu.appDetails.e2e_trigger_configuration}>
-                                                <RocketLaunchIcon sx={{mr: 1, fontSize: 20}}/>
+                                                <RocketLaunchIcon sx={{ mr: 1, fontSize: 20 }}/>
                                                 Trigger E2E Runs
                                             </MenuItem>
                                             <Divider/>
                                             <MenuItem onClick={handleCopyProjectName}>
-                                                <ContentCopyIcon sx={{mr: 1, fontSize: 20}}/>
+                                                <ContentCopyIcon sx={{ mr: 1, fontSize: 20 }}/>
                                                 Copy Project Name
                                             </MenuItem>
                                             <MenuItem onClick={handleCopyProjectCode}>
-                                                <ContentCopyIcon sx={{mr: 1, fontSize: 20}}/>
+                                                <ContentCopyIcon sx={{ mr: 1, fontSize: 20 }}/>
                                                 Copy Project Code
                                             </MenuItem>
                                         </MenuList>
                                     </Box>
                                 ) : (
-                                    <Alert severity="error" variant="outlined" style={{border: 'none'}}>
+                                    <Alert severity="error" variant="outlined" style={{ border: 'none' }}>
                                         Failed to load app details
                                     </Alert>
                                 )}
@@ -558,6 +552,6 @@ const TestResultsPerApp = (props: TestResultsPerAppProps) => {
             }
         </Box>
     );
-}
+};
 
 export default TestResultsPerApp;

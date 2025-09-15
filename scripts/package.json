@@ -7,8 +7,8 @@
     "prepare": "husky",
     "replace-env": "node inject-firebase-config.js",
     "check-todos": "./check-todos.sh",
-    "lint": "echo \"No linting configured\"",
-    "lint-fix": "echo \"No linting configured\""
+    "lint": "eslint .",
+    "lint-fix": "eslint . --fix"
   },
   "dependencies": {
     "dotenv": "^17.2.2"
@@ -17,6 +17,9 @@
     "husky": "^9.0.11",
     "commitlint": "^19.8.1",
     "@commitlint/cli": "^19.8.1",
-    "@commitlint/config-conventional": "^19.8.1"
+    "@commitlint/config-conventional": "^19.8.1",
+    "@eslint/js": "^9.35.0",
+    "eslint": "^9.35.0",
+    "globals": "^16.4.0"
   }
 }

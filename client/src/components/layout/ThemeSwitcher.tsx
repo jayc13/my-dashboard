@@ -1,12 +1,12 @@
-import {useCallback} from "react";
-import {useColorScheme} from '@mui/material';
+import { useCallback } from 'react';
+import { useColorScheme } from '@mui/material';
 import Tooltip from '@mui/material/Tooltip';
 import IconButton from '@mui/material/IconButton';
 import DarkModeIcon from '@mui/icons-material/DarkMode';
 import LightModeIcon from '@mui/icons-material/LightMode';
 import SystemModeIcon from '@mui/icons-material/Computer';
 
-const getIcon = (mode: "light" | "dark" | "system" | undefined) => {
+const getIcon = (mode: 'light' | 'dark' | 'system' | undefined) => {
     switch (mode) {
         case 'dark':
             return <DarkModeIcon />;
@@ -15,10 +15,10 @@ const getIcon = (mode: "light" | "dark" | "system" | undefined) => {
         default:
             return <SystemModeIcon />;
     }
-}
+};
 
 
-function getTitle(mode: "light" | "dark" | "system" | undefined) {
+function getTitle(mode: 'light' | 'dark' | 'system' | undefined) {
     switch (mode) {
         case 'dark':
             return 'Dark mode';
@@ -50,7 +50,7 @@ function ThemeSwitcher() {
                 {getIcon(mode)}
             </IconButton>
         </div>
-    </Tooltip>
+    </Tooltip>;
 }
 
 export { ThemeSwitcher };

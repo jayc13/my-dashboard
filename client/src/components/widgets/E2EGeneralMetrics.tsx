@@ -1,6 +1,6 @@
-import {Card, CardContent, Chip, Divider, Grid, Skeleton, Stack, Typography} from "@mui/material";
-import TrendDownIcon from "@mui/icons-material/TrendingDown";
-import TrendUpIcon from "@mui/icons-material/TrendingUp";
+import { Card, CardContent, Chip, Divider, Grid, Skeleton, Stack, Typography } from '@mui/material';
+import TrendDownIcon from '@mui/icons-material/TrendingDown';
+import TrendUpIcon from '@mui/icons-material/TrendingUp';
 
 interface TestResult {
     projectName: string;
@@ -26,27 +26,27 @@ const parseTestResult = (results: TestResult[]) => {
         passedRuns,
         failedRuns,
         passingRate,
-    }
-}
+    };
+};
 
 const getLabelsColors = (trend: string, inverseTrend: boolean = false): 'success' | 'error' | 'default' | 'primary' | 'secondary' | 'info' | 'warning' => {
     switch (trend) {
         case 'up':
-            return inverseTrend ? 'error' : 'success'
+            return inverseTrend ? 'error' : 'success';
         case 'down':
-            return inverseTrend ? 'success' : 'error'
+            return inverseTrend ? 'success' : 'error';
         default:
-            return 'default'
+            return 'default';
     }
-}
+};
 
 const getTrendIcon = (trend: string) => {
     if (trend === 'up') {
-        return <TrendUpIcon/>
+        return <TrendUpIcon/>;
     } else {
-        return <TrendDownIcon/>
+        return <TrendDownIcon/>;
     }
-}
+};
 
 const E2EGeneralMetrics = (props: E2EGeneralMetricsProps) => {
     const {
@@ -60,26 +60,26 @@ const E2EGeneralMetrics = (props: E2EGeneralMetricsProps) => {
 
     const stats = [
         {
-            label: "Total Runs",
+            label: 'Total Runs',
             value: actualParsedResults.totalRuns,
             prevValue: prevParsedResults.totalRuns,
             hasTrend: false,
         },
         {
-            label: "Passed",
+            label: 'Passed',
             value: actualParsedResults.passedRuns,
             prevValue: prevParsedResults.passedRuns,
             hasTrend: false,
         },
         {
-            label: "Failed",
+            label: 'Failed',
             value: actualParsedResults.failedRuns,
             prevValue: prevParsedResults.failedRuns,
             hasTrend: false,
             inverseTrend: true,
         },
         {
-            label: "Passing Rate",
+            label: 'Passing Rate',
             value: actualParsedResults.passingRate,
             prevValue: prevParsedResults.passingRate,
             hasTrend: true,
@@ -94,24 +94,24 @@ const E2EGeneralMetrics = (props: E2EGeneralMetricsProps) => {
                 direction="row"
                 spacing={2}
                 sx={{
-                    justifyContent: "center",
-                    alignItems: "center",
+                    justifyContent: 'center',
+                    alignItems: 'center',
                 }}
             >
-                <Grid size={{xs: 12, sm: 6, md: 6, lg: 3}}>
+                <Grid size={{ xs: 12, sm: 6, md: 6, lg: 3 }}>
                     <Skeleton variant="rounded" height={180}/>
                 </Grid>
-                <Grid size={{xs: 12, sm: 6, md: 6, lg: 3}}>
+                <Grid size={{ xs: 12, sm: 6, md: 6, lg: 3 }}>
                     <Skeleton variant="rounded" height={180}/>
                 </Grid>
-                <Grid size={{xs: 12, sm: 6, md: 6, lg: 3}}>
+                <Grid size={{ xs: 12, sm: 6, md: 6, lg: 3 }}>
                     <Skeleton variant="rounded" height={180}/>
                 </Grid>
-                <Grid size={{xs: 12, sm: 6, md: 6, lg: 3}}>
+                <Grid size={{ xs: 12, sm: 6, md: 6, lg: 3 }}>
                     <Skeleton variant="rounded" height={180}/>
                 </Grid>
             </Grid>
-        )
+        );
     }
 
     return (<Grid
@@ -119,8 +119,8 @@ const E2EGeneralMetrics = (props: E2EGeneralMetricsProps) => {
         direction="row"
         spacing={2}
         sx={{
-            justifyContent: "center",
-            alignItems: "center",
+            justifyContent: 'center',
+            alignItems: 'center',
         }}
     >
         {stats.map((s) => {
@@ -130,16 +130,16 @@ const E2EGeneralMetrics = (props: E2EGeneralMetricsProps) => {
 
             const trendLabel = `${trend === 'up' ? '+' : '-'}${s.formattedValue ? s.formattedValue(trendValue) : Math.abs(trendValue)}`;
 
-            return <Grid key={s.label} size={{xs: 12, sm: 6, md: 6, lg: 3}}>
-                <Card variant="outlined" sx={{height: '100%', flexGrow: 1, borderRadius: 4}}>
-                    <CardContent sx={{padding: 4}}>
+            return <Grid key={s.label} size={{ xs: 12, sm: 6, md: 6, lg: 3 }}>
+                <Card variant="outlined" sx={{ height: '100%', flexGrow: 1, borderRadius: 4 }}>
+                    <CardContent sx={{ padding: 4 }}>
                         <Stack
                             direction="column"
-                            sx={{justifyContent: 'space-between', flexGrow: '1', gap: 0}}
+                            sx={{ justifyContent: 'space-between', flexGrow: '1', gap: 0 }}
                         >
                             <Stack
                                 direction="row"
-                                sx={{justifyContent: 'space-between', alignItems: 'center'}}
+                                sx={{ justifyContent: 'space-between', alignItems: 'center' }}
                             >
                                 <Typography component="h2" variant="h6" color="text.secondary">
                                     <strong>{s.label}</strong>
@@ -151,7 +151,7 @@ const E2EGeneralMetrics = (props: E2EGeneralMetricsProps) => {
                                         color={getLabelsColors(trend, s.inverseTrend)}
                                         size="small"
                                         variant="outlined"
-                                        sx={{marginBottom: 1}}
+                                        sx={{ marginBottom: 1 }}
                                     />
                                 }
                             </Stack>
@@ -159,23 +159,23 @@ const E2EGeneralMetrics = (props: E2EGeneralMetricsProps) => {
                                 {s.formattedValue ? s.formattedValue(s.value) : s.value}
                             </Typography>
                         </Stack>
-                        <Divider sx={{my: 2}}/>
+                        <Divider sx={{ my: 2 }}/>
                         <Stack
                             direction="row"
-                            sx={{justifyContent: 'space-between', alignItems: 'center'}}
+                            sx={{ justifyContent: 'space-between', alignItems: 'center' }}
                         >
-                            <Typography variant="caption" sx={{color: 'text.secondary'}}>
+                            <Typography variant="caption" sx={{ color: 'text.secondary' }}>
                                 vs last 14 days
                             </Typography>
-                            <Typography variant="caption" sx={{color: 'text.secondary'}}>
+                            <Typography variant="caption" sx={{ color: 'text.secondary' }}>
                                 <strong>{s.formattedValue ? s.formattedValue(s.prevValue) : s.prevValue}</strong>
                             </Typography>
                         </Stack>
                     </CardContent>
                 </Card>
-            </Grid>
+            </Grid>;
         })}
     </Grid>);
-}
+};
 
 export default E2EGeneralMetrics;
