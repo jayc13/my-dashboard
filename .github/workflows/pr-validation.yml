@@ -19,7 +19,7 @@ jobs:
   basic-validation:
     name: Init
     if: github.event.pull_request.draft == false
-    uses: ./.github/workflows/basic-validation.yml
+    uses: ./.github/workflows/jobs/basic-validation.yml
     with:
       pr-title: ${{ github.event.pull_request.title }}
       base-sha: ${{ github.event.pull_request.base.sha }}
@@ -30,28 +30,28 @@ jobs:
     name: Client
     needs: basic-validation
     if: needs.basic-validation.outputs.client-changed == 'true' || needs.basic-validation.outputs.github-changed == 'true'
-    uses: ./.github/workflows/validate-client.yml
+    uses: ./.github/workflows/jobs/validate-client.yml
 
   # Job 3: Server validation
   validate-server:
     name: Server
     needs: basic-validation
     if: needs.basic-validation.outputs.server-changed == 'true' || needs.basic-validation.outputs.github-changed == 'true'
-    uses: ./.github/workflows/validate-server.yml
+    uses: ./.github/workflows/jobs/validate-server.yml
 
   # Job 4: Cron validation
   validate-cron:
     name: Cron
     needs: basic-validation
     if: needs.basic-validation.outputs.cron-changed == 'true' || needs.basic-validation.outputs.github-changed == 'true'
-    uses: ./.github/workflows/validate-cron.yml
+    uses: ./.github/workflows/jobs/validate-cron.yml
 
   # Job 5: Scripts validation
   validate-scripts:
     name: Scripts
     needs: basic-validation
     if: needs.basic-validation.outputs.scripts-changed == 'true' || needs.basic-validation.outputs.github-changed == 'true'
-    uses: ./.github/workflows/validate-scripts.yml
+    uses: ./.github/workflows/jobs/validate-scripts.yml
 
   # Job 6: Final validation and summary
   validation-summary:

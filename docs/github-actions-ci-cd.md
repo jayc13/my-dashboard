@@ -17,11 +17,11 @@ The CI/CD system now uses a modular approach with:
 **Purpose:** Main orchestrator workflow that coordinates all validation jobs
 
 **Architecture:** Now uses reusable workflows and composite actions:
-- **Basic Validation** (`basic-validation.yml`): Validates commits, PR title, detects changes
-- **Client Validation** (`validate-client.yml`): React frontend validation with bundle analysis
-- **Server Validation** (`validate-server.yml`): Node.js backend validation with database tests
-- **Cron Validation** (`validate-cron.yml`): Cron job service validation
-- **Scripts Validation** (`validate-scripts.yml`): Utility scripts validation
+- **Basic Validation** (`jobs/basic-validation.yml`): Validates commits, PR title, detects changes
+- **Client Validation** (`jobs/validate-client.yml`): React frontend validation with bundle analysis
+- **Server Validation** (`jobs/validate-server.yml`): Node.js backend validation with database tests
+- **Cron Validation** (`jobs/validate-cron.yml`): Cron job service validation
+- **Scripts Validation** (`jobs/validate-scripts.yml`): Utility scripts validation
 - **Validation Summary**: Aggregates all results and provides final status
 
 **Key Improvements:**
@@ -31,29 +31,29 @@ The CI/CD system now uses a modular approach with:
 - Better error handling and reporting
 
 ### 2. Reusable Workflows
-Each validation type is now a separate, reusable workflow:
+Each validation type is now a separate, reusable workflow located in `.github/workflows/jobs/`:
 
-#### `basic-validation.yml`
+#### `jobs/basic-validation.yml`
 - Commit message validation using commitlint
 - PR title format validation
 - Change detection for conditional job execution
 - TODO/FIXME comment analysis
 - PR complexity analysis
 
-#### `validate-client.yml`
+#### `jobs/validate-client.yml`
 - ESLint linting and TypeScript type checking
 - Build verification and unit tests
 - Comprehensive bundle size analysis
 - Bundle size comparison with main branch
 - Bundle size validation against thresholds
 
-#### `validate-server.yml`
+#### `jobs/validate-server.yml`
 - TypeScript type checking and ESLint linting
 - Build verification with MySQL service
 - Database migration testing
 - Unit tests with test database
 
-#### `validate-cron.yml` & `validate-scripts.yml`
+#### `jobs/validate-cron.yml` & `jobs/validate-scripts.yml`
 - Component-specific validation
 - Build and test verification
 - Configuration validation

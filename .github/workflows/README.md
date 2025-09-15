@@ -14,11 +14,12 @@ The PR validation system is now built using a modular architecture:
 │   └── bundle-analysis/       # Bundle size analysis
 ├── workflows/                 # Workflow definitions
 │   ├── pr-validation.yml      # Main orchestrator workflow
-│   ├── basic-validation.yml   # Basic PR validation
-│   ├── validate-client.yml    # Client-specific validation
-│   ├── validate-server.yml    # Server-specific validation
-│   ├── validate-cron.yml      # Cron job validation
-│   └── validate-scripts.yml   # Scripts validation
+│   └── jobs/                  # Reusable workflow templates
+│       ├── basic-validation.yml   # Basic PR validation
+│       ├── validate-client.yml    # Client-specific validation
+│       ├── validate-server.yml    # Server-specific validation
+│       ├── validate-cron.yml      # Cron job validation
+│       └── validate-scripts.yml   # Scripts validation
 └── scripts/ci/                # External validation scripts
     ├── bundle-analysis.sh     # Bundle size analysis
     ├── bundle-comparison.sh   # Bundle size comparison
@@ -46,7 +47,9 @@ The main workflow orchestrates all validation jobs:
 
 ## 🔧 Reusable Workflows
 
-### basic-validation.yml
+All reusable workflow templates are located in `.github/workflows/jobs/`:
+
+### jobs/basic-validation.yml
 Handles fundamental PR validation:
 - Commit message validation using commitlint
 - PR title validation
@@ -66,7 +69,7 @@ Handles fundamental PR validation:
 - `scripts-changed`: Boolean indicating scripts changes
 - `github-changed`: Boolean indicating GitHub workflow changes
 
-### validate-client.yml
+### jobs/validate-client.yml
 Validates the React frontend:
 - ESLint linting
 - TypeScript type checking
@@ -79,7 +82,7 @@ Validates the React frontend:
 - `node-version`: Node.js version (default: `v22.16.0`)
 - `run-bundle-analysis`: Enable bundle analysis (default: `true`)
 
-### validate-server.yml
+### jobs/validate-server.yml
 Validates the Node.js backend:
 - TypeScript type checking
 - ESLint linting
@@ -91,7 +94,7 @@ Validates the Node.js backend:
 - `working-directory`: Server directory (default: `./server`)
 - `node-version`: Node.js version (default: `v22.16.0`)
 
-### validate-cron.yml
+### jobs/validate-cron.yml
 Validates cron job services:
 - TypeScript type checking
 - ESLint linting
@@ -102,7 +105,7 @@ Validates cron job services:
 - `working-directory`: Cron directory (default: `./cron`)
 - `node-version`: Node.js version (default: `v22.16.0`)
 
-### validate-scripts.yml
+### jobs/validate-scripts.yml
 Validates utility scripts:
 - Script syntax validation
 - Shellcheck for shell scripts
@@ -160,7 +163,7 @@ All complex bash logic has been moved to external scripts in `scripts/ci/`:
 ```yaml
 jobs:
   validate-client:
-    uses: ./.github/workflows/validate-client.yml
+    uses: ./.github/workflows/jobs/validate-client.yml
     with:
       working-directory: './frontend'
       node-version: 'v22.16.0'
