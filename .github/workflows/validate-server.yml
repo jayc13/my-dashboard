@@ -62,10 +62,7 @@ jobs:
           DB_USER: root
           DB_PASSWORD: test_password
           DB_NAME: test_db
-        run: |
-          echo "TODO: Implement migration testing"
-          echo "TODO: Run migrations against test database"
-          echo "TODO: Verify schema changes"
+        run: npm run migrate
 
       - name: Run unit tests
         env:
