@@ -46,9 +46,7 @@ The main workflow orchestrates all validation jobs:
 
 ## 🔧 Reusable Workflows
 
-All reusable workflow templates are located in `.github/workflows/`:
-
-### jobs/basic-validation.yml
+### basic-validation.yml
 Handles fundamental PR validation:
 - Commit message validation using commitlint
 - PR title validation
@@ -68,7 +66,7 @@ Handles fundamental PR validation:
 - `scripts-changed`: Boolean indicating scripts changes
 - `github-changed`: Boolean indicating GitHub workflow changes
 
-### jobs/validate-client.yml
+### validate-client.yml
 Validates the React frontend:
 - ESLint linting
 - TypeScript type checking
@@ -81,7 +79,7 @@ Validates the React frontend:
 - `node-version`: Node.js version (default: `v22.16.0`)
 - `run-bundle-analysis`: Enable bundle analysis (default: `true`)
 
-### jobs/validate-server.yml
+### validate-server.yml
 Validates the Node.js backend:
 - TypeScript type checking
 - ESLint linting
@@ -93,7 +91,7 @@ Validates the Node.js backend:
 - `working-directory`: Server directory (default: `./server`)
 - `node-version`: Node.js version (default: `v22.16.0`)
 
-### jobs/validate-cron.yml
+### validate-cron.yml
 Validates cron job services:
 - TypeScript type checking
 - ESLint linting
@@ -104,7 +102,7 @@ Validates cron job services:
 - `working-directory`: Cron directory (default: `./cron`)
 - `node-version`: Node.js version (default: `v22.16.0`)
 
-### jobs/validate-scripts.yml
+### validate-scripts.yml
 Validates utility scripts:
 - Script syntax validation
 - Shellcheck for shell scripts

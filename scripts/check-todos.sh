@@ -29,11 +29,6 @@ IGNORE_FILES=(
 
     # Workflow files that may contain TODO placeholders
     ".github/workflows/pr-validation.yml"
-    ".github/workflows/basic-validation.yml"
-    ".github/workflows/validate-client.yml"
-    ".github/workflows/validate-server.yml"
-    ".github/workflows/validate-cron.yml"
-    ".github/workflows/validate-scripts.yml"
 
     "docs/github-actions-ci-cd.md"
 

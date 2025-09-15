@@ -1,0 +1,7 @@
+#!/bin/bash
+
+# Find the merge base with main
+BASE=$(git merge-base main HEAD)
+
+# Start interactive rebase from the base
+git rebase -i $BASE

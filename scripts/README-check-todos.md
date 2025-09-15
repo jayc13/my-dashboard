@@ -68,8 +68,7 @@ The script automatically excludes:
 The script ignores specific files that may contain TODO/FIXME as part of their functionality:
 - `scripts/check-todos.sh` - The script itself
 - `scripts/README-check-todos.md` - Documentation
-- `.github/workflows/pr-validation.yml` - Main workflow file
-- `.github/workflows/*.yml` - Workflow template files
+- `.github/workflows/pr-validation.yml` - Workflow files
 - Lock files: `package-lock.json`, `yarn.lock`, `composer.lock`, etc.
 - Log and temporary files: `*.log`, `*.tmp`, `*.temp`
 - Test files with TODO examples: `**/test-todos.*`, `**/todo-test.*`
