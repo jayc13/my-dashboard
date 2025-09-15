@@ -170,14 +170,14 @@ jobs:
       - name: Compare with main branch
         run: |
           echo "🔍 Comparing bundle size with main branch..."
-
+          
           # Fetch main branch for comparison
           git fetch origin main:main
-
+          
           # Checkout main branch in a temporary directory
           mkdir -p $GITHUB_WORKSPACE/tmp/main-build
-          git archive main | tar -x -C $GITHUB_WORKSPACE/tmp/main-build
-
+          git archive main client | tar -x -C $GITHUB_WORKSPACE/tmp/main-build
+          
           # Build main branch
           cd $GITHUB_WORKSPACE/tmp/main-build/client
           npm ci --silent
@@ -203,19 +203,19 @@ jobs:
 
           # Calculate percentage changes
           if [ $MAIN_TOTAL_SIZE -gt 0 ]; then
-            TOTAL_PERCENT=$(echo "scale=2; $TOTAL_DIFF * 100 / $MAIN_TOTAL_SIZE" | bc -l)
+          TOTAL_PERCENT=$(echo "scale=2; $TOTAL_DIFF * 100 / $MAIN_TOTAL_SIZE" | bc -l)
           else
-            TOTAL_PERCENT="N/A"
+          TOTAL_PERCENT="N/A"
           fi
-
+          
           echo "📊 Bundle size comparison with main branch:"
           if [ $MAIN_TOTAL_SIZE -eq 0 ]; then
-            echo "Main branch sizes: No client build found (new feature)"
+          echo "Main branch sizes: No client build found (new feature)"
           else
-            echo "Main branch sizes:"
-            echo "  JavaScript: $(numfmt --to=iec-i --suffix=B $MAIN_JS_SIZE)"
-            echo "  CSS: $(numfmt --to=iec-i --suffix=B $MAIN_CSS_SIZE)"
-            echo "  Total: $(numfmt --to=iec-i --suffix=B $MAIN_TOTAL_SIZE)"
+          echo "Main branch sizes:"
+          echo "  JavaScript: $(numfmt --to=iec-i --suffix=B $MAIN_JS_SIZE)"
+          echo "  CSS: $(numfmt --to=iec-i --suffix=B $MAIN_CSS_SIZE)"
+          echo "  Total: $(numfmt --to=iec-i --suffix=B $MAIN_TOTAL_SIZE)"
           fi
           echo ""
           echo "Current PR sizes:"
@@ -225,27 +225,27 @@ jobs:
           echo ""
           echo "Size changes:"
           if [ $TOTAL_DIFF -gt 0 ]; then
-            echo "  Total: +$(numfmt --to=iec-i --suffix=B $TOTAL_DIFF) (+${TOTAL_PERCENT}%)"
+          echo "  Total: +$(numfmt --to=iec-i --suffix=B $TOTAL_DIFF) (+${TOTAL_PERCENT}%)"
           elif [ $TOTAL_DIFF -lt 0 ]; then
-            echo "  Total: $(numfmt --to=iec-i --suffix=B $TOTAL_DIFF) (${TOTAL_PERCENT}%)"
+          echo "  Total: $(numfmt --to=iec-i --suffix=B $TOTAL_DIFF) (${TOTAL_PERCENT}%)"
           else
-            echo "  Total: No change"
+          echo "  Total: No change"
           fi
-
+          
           if [ $JS_DIFF -gt 0 ]; then
-            echo "  JavaScript: +$(numfmt --to=iec-i --suffix=B $JS_DIFF)"
+          echo "  JavaScript: +$(numfmt --to=iec-i --suffix=B $JS_DIFF)"
           elif [ $JS_DIFF -lt 0 ]; then
-            echo "  JavaScript: $(numfmt --to=iec-i --suffix=B $JS_DIFF)"
+          echo "  JavaScript: $(numfmt --to=iec-i --suffix=B $JS_DIFF)"
           else
-            echo "  JavaScript: No change"
+          echo "  JavaScript: No change"
           fi
-
+          
           if [ $CSS_DIFF -gt 0 ]; then
-            echo "  CSS: +$(numfmt --to=iec-i --suffix=B $CSS_DIFF)"
+          echo "  CSS: +$(numfmt --to=iec-i --suffix=B $CSS_DIFF)"
           elif [ $CSS_DIFF -lt 0 ]; then
-            echo "  CSS: $(numfmt --to=iec-i --suffix=B $CSS_DIFF)"
+          echo "  CSS: $(numfmt --to=iec-i --suffix=B $CSS_DIFF)"
           else
-            echo "  CSS: No change"
+          echo "  CSS: No change"
           fi
 
           # Store comparison results for next step
@@ -460,7 +460,7 @@ jobs:
   validation-summary:
     name: Validation Summary
     runs-on: ubuntu-latest
-    needs: [setup-and-validate, validate-client, validate-server, validate-cron, validate-scripts]
+    needs: [ setup-and-validate, validate-client, validate-server, validate-cron, validate-scripts ]
     if: always()
     steps:
       - name: Check all validations
