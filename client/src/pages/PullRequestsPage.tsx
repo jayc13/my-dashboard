@@ -264,7 +264,7 @@ const PullRequestsPage = () => {
         }
 
         return (
-            <Box p={3}>
+            <Box p={3} data-testid="pull-requests-page">
                 <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
                     <Typography variant="h4" gutterBottom>
                         Pull Requests

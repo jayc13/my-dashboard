@@ -49,7 +49,7 @@ const TasksPage = () => {
     }
 
     return (
-        <Grid container spacing={2}>
+        <Grid container spacing={2} data-testid="tasks-page">
             <Grid size={{ xs: 12, sm: 6, md: 4 }}>
                 <h2>To-Do List</h2>
                 <ToDoListWidget/>

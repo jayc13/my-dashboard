@@ -32,7 +32,7 @@ const E2EPage = () => {
         </Card>;
     }
 
-    return <Grid container spacing={4}>
+    return <Grid container spacing={4} data-testid="e2e-page">
         <Grid size={{ xs: 12 }}>
             <Stack direction="column" alignItems="left" width="100%">
                 <Grid

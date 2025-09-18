@@ -55,22 +55,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   const login = async (key: string): Promise<{ success: boolean; error?: string }> => {
-    try {
-      setIsLoading(true);
-      const isValid = await validateApiKeyWithServer(key);
-      
-      if (isValid) {
-        localStorage.setItem(API_KEY_STORAGE_KEY, key);
-        setApiKey(key);
-        setIsAuthenticated(true);
-        return { success: true };
-      } else {
-        return { success: false, error: 'Invalid API key' };
-      }
-    } catch {
+    const isValid = await validateApiKeyWithServer(key);
+
+    if (isValid) {
+      localStorage.setItem(API_KEY_STORAGE_KEY, key);
+      setApiKey(key);
+      setIsAuthenticated(true);
+      return { success: true };
+    } else {
       return { success: false, error: 'Failed to validate API key. Please try again.' };
-    } finally {
-      setIsLoading(false);
     }
   };
 

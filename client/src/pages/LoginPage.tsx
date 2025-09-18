@@ -33,11 +33,10 @@ const LoginPage: React.FC = () => {
 
     try {
       const result = await login(apiKey.trim());
-      
+
       if (!result.success) {
         setError(result.error || 'Authentication failed');
       }
-      // If successful, the AuthContext will handle the redirect
     } catch {
       setError('An unexpected error occurred. Please try again.');
     } finally {
@@ -53,7 +52,7 @@ const LoginPage: React.FC = () => {
   };
 
   return (
-    <Container maxWidth="sm">
+    <Container maxWidth="sm" data-testid="login-page">
       <Box
         sx={{
           minHeight: '100vh',
@@ -95,7 +94,7 @@ const LoginPage: React.FC = () => {
 
               {/* Error Alert */}
               {error && (
-                <Alert severity="error" sx={{ width: '100%' }}>
+                <Alert severity="error" sx={{ width: '100%' }} data-testid="error-alert">
                   {error}
                 </Alert>
               )}
@@ -117,6 +116,7 @@ const LoginPage: React.FC = () => {
                     required
                     disabled={isSubmitting}
                     autoFocus
+                    data-testid="api-key-input"
                     placeholder="Enter your API security key"
                   />
 
@@ -124,6 +124,7 @@ const LoginPage: React.FC = () => {
                     type="submit"
                     fullWidth
                     variant="contained"
+                    data-testid="submit-button"
                     size="large"
                     disabled={isSubmitting || !apiKey.trim()}
                     sx={{ py: 1.5 }}
