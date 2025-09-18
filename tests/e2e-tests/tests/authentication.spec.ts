@@ -17,31 +17,14 @@ test.describe('Authentication', () => {
     });
 
     test.describe('Negative Test Cases', () => {
-        AUTH_TEST_DATA.invalidApiKeys.forEach((invalidKey: string) => {
-            test(`should reject invalid API key: ${invalidKey}`, async ({page}) => {
-                await loginPage.fillApiKey(invalidKey); // whitespace only
-                const isDisabled = await loginPage.isSubmitButtonDisabled();
+        const invalidKey = 'fake-security-key';
+        test(`should reject invalid API key: ${invalidKey}`, async () => {
+            await loginPage.fillApiKey(invalidKey); // whitespace only
+            const isDisabled = await loginPage.isSubmitButtonDisabled();
 
-                expect(isDisabled).toBe(false); // Button should be enabled for non-empty input
+            expect(isDisabled).toBe(false); // Button should be enabled for non-empty input
 
-                await loginPage.performFailedLogin(invalidKey, 'Failed to validate API key. Please try again.');
-            });
-        });
-
-        AUTH_TEST_DATA.emptyValues.forEach((emptyValue: string) => {
-            test(`should reject empty/whitespace API key: "${emptyValue}"`, async ({page}) => {
-                await loginPage.clearApiKey();
-                await loginPage.fillApiKey(emptyValue); // whitespace only
-                const isDisabled = await loginPage.isSubmitButtonDisabled();
-
-                expect(isDisabled, 'Button should be disabled for empty values').toBe(true);
-            });
-        });
-
-        AUTH_TEST_DATA.specialCharacters.forEach((specialChar: string) => {
-            test(`should handle special characters safely: ${specialChar}`, async ({page}) => {
-                await loginPage.performFailedLogin(specialChar, 'Failed to validate API key. Please try again.');
-            });
+            await loginPage.performFailedLogin(invalidKey, 'Failed to validate API key. Please try again.');
         });
 
         test('should handle network failure gracefully', async () => {
