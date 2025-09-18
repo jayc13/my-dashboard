@@ -111,13 +111,21 @@ jobs:
         run: npm run build
 
       - name: Setup test database
-        working-directory: ./server
         run: |
-          # Create test database
+          # Start MySQL service
           sudo systemctl start mysql
-          mysql -u root -proot -e "CREATE DATABASE IF NOT EXISTS cypress_dashboard_test;"
+          # Create test database
+          mysql -u root -p${{ secrets.MYSQL_ROOT_PASSWORD || 'root' }} -e "CREATE DATABASE IF NOT EXISTS ${{ secrets.MYSQL_TEST_DATABASE || 'cypress_dashboard_test' }};"
+
+      - name: Run database migrations
+        working-directory: ./server
+        run: npm run migrate
         env:
-          MYSQL_ROOT_PASSWORD: root
+          MYSQL_HOST: ${{ secrets.MYSQL_HOST || 'localhost' }}
+          MYSQL_PORT: ${{ secrets.MYSQL_PORT || '3306' }}
+          MYSQL_USER: ${{ secrets.MYSQL_USER || 'root' }}
+          MYSQL_PASSWORD: ${{ secrets.MYSQL_PASSWORD || secrets.MYSQL_ROOT_PASSWORD || 'root' }}
+          MYSQL_DATABASE: ${{ secrets.MYSQL_TEST_DATABASE || 'cypress_dashboard_test' }}
 
       - name: Start server in background
         working-directory: ./server
@@ -125,13 +133,20 @@ jobs:
           # Set up environment variables for testing
           cat > .env << EOF
           NODE_ENV=test
-          PORT=3000
-          MYSQL_HOST=localhost
-          MYSQL_PORT=3306
-          MYSQL_USER=root
-          MYSQL_PASSWORD=root
-          MYSQL_DATABASE=cypress_dashboard_test
-          API_SECURITY_KEY=test-api-key-for-e2e
+          PORT=${{ secrets.SERVER_PORT || '3000' }}
+          MYSQL_HOST=${{ secrets.MYSQL_HOST || 'localhost' }}
+          MYSQL_PORT=${{ secrets.MYSQL_PORT || '3306' }}
+          MYSQL_USER=${{ secrets.MYSQL_USER || 'root' }}
+          MYSQL_PASSWORD=${{ secrets.MYSQL_PASSWORD || secrets.MYSQL_ROOT_PASSWORD || 'root' }}
+          MYSQL_DATABASE=${{ secrets.MYSQL_TEST_DATABASE || 'cypress_dashboard_test' }}
+          API_SECURITY_KEY=${{ secrets.API_SECURITY_KEY }}
+          FIREBASE_PROJECT_ID=${{ secrets.FIREBASE_PROJECT_ID }}
+          FIREBASE_PRIVATE_KEY="${{ secrets.FIREBASE_PRIVATE_KEY }}"
+          FIREBASE_CLIENT_EMAIL=${{ secrets.FIREBASE_CLIENT_EMAIL }}
+          GITHUB_TOKEN=${{ secrets.SERVER_GITHUB_TOKEN }}
+          JIRA_API_TOKEN=${{ secrets.JIRA_API_TOKEN }}
+          JIRA_BASE_URL=${{ secrets.JIRA_BASE_URL }}
+          CIRCLE_CI_TOKEN=${{ secrets.CIRCLE_CI_TOKEN }}
           EOF
 
           # Start server in background
@@ -139,14 +154,20 @@ jobs:
           echo $! > server.pid
 
           # Wait for server to be ready
-          timeout 60 bash -c 'until curl -f http://localhost:3000/health; do sleep 2; done'
+          timeout 60 bash -c 'until curl -f http://localhost:${{ secrets.SERVER_PORT || '3000' }}/health; do sleep 2; done'
 
       - name: Start client development server
         working-directory: ./client
         run: |
           # Set up environment variables for testing
           cat > .env << EOF
-          VITE_API_BASE_URL=http://localhost:3000
+          VITE_API_BASE_URL=http://localhost:${{ secrets.SERVER_PORT || '3000' }}
+          VITE_FIREBASE_API_KEY=${{ secrets.VITE_FIREBASE_API_KEY }}
+          VITE_FIREBASE_AUTH_DOMAIN=${{ secrets.VITE_FIREBASE_AUTH_DOMAIN }}
+          VITE_FIREBASE_PROJECT_ID=${{ secrets.VITE_FIREBASE_PROJECT_ID }}
+          VITE_FIREBASE_STORAGE_BUCKET=${{ secrets.VITE_FIREBASE_STORAGE_BUCKET }}
+          VITE_FIREBASE_MESSAGING_SENDER_ID=${{ secrets.VITE_FIREBASE_MESSAGING_SENDER_ID }}
+          VITE_FIREBASE_APP_ID=${{ secrets.VITE_FIREBASE_APP_ID }}
           EOF
 
           # Start client dev server in background
@@ -154,16 +175,16 @@ jobs:
           echo $! > client.pid
 
           # Wait for client to be ready
-          timeout 60 bash -c 'until curl -f http://localhost:5173; do sleep 2; done'
+          timeout 60 bash -c 'until curl -f http://localhost:${{ secrets.CLIENT_PORT || '5173' }}; do sleep 2; done'
 
       - name: Run E2E tests
         working-directory: ./tests/e2e-tests
         run: |
           # Set up environment variables for e2e tests
           cat > .env << EOF
-          BASE_URL=http://localhost:5173
-          API_URL=http://localhost:3000
-          API_SECURITY_KEY=test-api-key-for-e2e
+          BASE_URL=http://localhost:${{ secrets.CLIENT_PORT || '5173' }}
+          API_URL=http://localhost:${{ secrets.SERVER_PORT || '3000' }}
+          API_SECURITY_KEY=${{ secrets.API_SECURITY_KEY }}
           CI=true
           EOF
 
@@ -201,8 +222,8 @@ jobs:
             kill $(cat ./client/client.pid) || true
           fi
           # Kill any remaining processes on the ports
-          sudo lsof -ti:3000 | xargs -r sudo kill -9 || true
-          sudo lsof -ti:5173 | xargs -r sudo kill -9 || true
+          sudo lsof -ti:${{ secrets.SERVER_PORT || '3000' }} | xargs -r sudo kill -9 || true
+          sudo lsof -ti:${{ secrets.CLIENT_PORT || '5173' }} | xargs -r sudo kill -9 || true
 
   # Job 8: Final validation and summary
   validation-summary:
