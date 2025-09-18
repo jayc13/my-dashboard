@@ -133,6 +133,7 @@ jobs:
           # Set up environment variables for testing
           cat > .env << EOF
           NODE_ENV=test
+          DATA_DIR=./data
           PORT=${{ secrets.SERVER_PORT || '3000' }}
           MYSQL_HOST=${{ secrets.MYSQL_HOST || 'localhost' }}
           MYSQL_PORT=${{ secrets.MYSQL_PORT || '3306' }}
@@ -143,6 +144,9 @@ jobs:
           FIREBASE_PROJECT_ID=${{ secrets.FIREBASE_PROJECT_ID }}
           FIREBASE_PRIVATE_KEY="${{ secrets.FIREBASE_PRIVATE_KEY }}"
           FIREBASE_CLIENT_EMAIL=${{ secrets.FIREBASE_CLIENT_EMAIL }}
+          FIREBASE_PRIVATE_KEY_ID=${{ secrets.FIREBASE_PRIVATE_KEY_ID }}
+          FIREBASE_CLIENT_ID=${{ secrets.FIREBASE_CLIENT_ID }}
+          FIREBASE_CLIENT_CERT_URL=${{ secrets.FIREBASE_CLIENT_CERT_URL }}
           GITHUB_TOKEN=${{ secrets.SERVER_GITHUB_TOKEN }}
           JIRA_API_TOKEN=${{ secrets.JIRA_API_TOKEN }}
           JIRA_BASE_URL=${{ secrets.JIRA_BASE_URL }}
@@ -162,12 +166,12 @@ jobs:
           # Set up environment variables for testing
           cat > .env << EOF
           VITE_API_BASE_URL=http://localhost:${{ secrets.SERVER_PORT || '3000' }}
-          VITE_FIREBASE_API_KEY=${{ secrets.VITE_FIREBASE_API_KEY }}
-          VITE_FIREBASE_AUTH_DOMAIN=${{ secrets.VITE_FIREBASE_AUTH_DOMAIN }}
+          VITE_FIREBASE_API_KEY=${{ secrets.FIREBASE_API_KEY }}
+          VITE_FIREBASE_AUTH_DOMAIN=${{ secrets.FIREBASE_AUTH_DOMAIN }}
           VITE_FIREBASE_PROJECT_ID=${{ secrets.VITE_FIREBASE_PROJECT_ID }}
-          VITE_FIREBASE_STORAGE_BUCKET=${{ secrets.VITE_FIREBASE_STORAGE_BUCKET }}
-          VITE_FIREBASE_MESSAGING_SENDER_ID=${{ secrets.VITE_FIREBASE_MESSAGING_SENDER_ID }}
-          VITE_FIREBASE_APP_ID=${{ secrets.VITE_FIREBASE_APP_ID }}
+          VITE_FIREBASE_STORAGE_BUCKET=${{ secrets.FIREBASE_STORAGE_BUCKET }}
+          VITE_FIREBASE_MESSAGING_SENDER_ID=${{ secrets.FIREBASE_MESSAGING_SENDER_ID }}
+          VITE_FIREBASE_APP_ID=${{ secrets.FIREBASE_APP_ID }}
           EOF
 
           # Start client dev server in background
