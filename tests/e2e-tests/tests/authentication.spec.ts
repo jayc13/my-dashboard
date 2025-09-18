@@ -46,11 +46,10 @@ test.describe('Authentication', () => {
 
         test('should handle network failure gracefully', async () => {
             await mockNetworkFailure(loginPage.page);
+            await loginPage.goto();
 
-            const authRequestPromise = loginPage.getAuthRequestPromise();
             await loginPage.fillApiKey('test-key');
             await loginPage.clickSubmit();
-            await authRequestPromise;
             // Verify error message is shown
             const errorMessage = await loginPage.getErrorMessage();
             expect(errorMessage).toContain('Failed to validate API key. Please try again.');
@@ -138,16 +137,22 @@ test.describe('Authentication', () => {
             expect(apiKey).toBeNull();
         });
 
-        test('should handle invalid stored API key', async () => {
+        test('should handle invalid stored API key', async ({page}) => {
             // Set invalid API key in storage
-            await loginPage.page.evaluate(() => {
+            await page.evaluate(() => {
                 localStorage.setItem('dashboard_api_key', 'invalid-stored-key');
             });
 
-            await loginPage.goto();
+            const authRequestPromise = loginPage.getAuthRequestPromise();
 
-            // Should show login page and clear invalid key
-            await expect(loginPage.apiKeyInput).toBeVisible();
+            await page.goto('/');
+
+            await authRequestPromise;
+
+            expect(
+                await loginPage.isPageVisible(),
+                'User should be redirected to login page if the api key is invalid'
+            ).toBe(true);
 
             const storedKey = await loginPage.page.evaluate(() =>
                 localStorage.getItem('dashboard_api_key')
