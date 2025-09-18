@@ -71,12 +71,138 @@ jobs:
     name: E2E Testing
     runs-on: ubuntu-latest
     needs: [ integration-testing ]
+    timeout-minutes: 30
     steps:
-      - name: Run E2E tests
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+          cache: 'npm'
+          cache-dependency-path: |
+            server/package-lock.json
+            client/package-lock.json
+            tests/e2e-tests/package-lock.json
+
+      - name: Install server dependencies
+        working-directory: ./server
+        run: npm ci
+
+      - name: Install client dependencies
+        working-directory: ./client
+        run: npm ci
+
+      - name: Install e2e test dependencies
+        working-directory: ./tests/e2e-tests
+        run: npm ci
+
+      - name: Install Playwright browsers
+        working-directory: ./tests/e2e-tests
+        run: npx playwright install --with-deps
+
+      - name: Build client application
+        working-directory: ./client
+        run: npm run build
+
+      - name: Build server application
+        working-directory: ./server
+        run: npm run build
+
+      - name: Setup test database
+        working-directory: ./server
         run: |
-          echo "=== E2E Testing ==="
-          echo "Running end-to-end tests..."
-          echo "TODO: Implement E2E testing"
+          # Create test database
+          sudo systemctl start mysql
+          mysql -u root -proot -e "CREATE DATABASE IF NOT EXISTS cypress_dashboard_test;"
+        env:
+          MYSQL_ROOT_PASSWORD: root
+
+      - name: Start server in background
+        working-directory: ./server
+        run: |
+          # Set up environment variables for testing
+          cat > .env << EOF
+          NODE_ENV=test
+          PORT=3000
+          MYSQL_HOST=localhost
+          MYSQL_PORT=3306
+          MYSQL_USER=root
+          MYSQL_PASSWORD=root
+          MYSQL_DATABASE=cypress_dashboard_test
+          API_SECURITY_KEY=test-api-key-for-e2e
+          EOF
+
+          # Start server in background
+          npm start &
+          echo $! > server.pid
+
+          # Wait for server to be ready
+          timeout 60 bash -c 'until curl -f http://localhost:3000/health; do sleep 2; done'
+
+      - name: Start client development server
+        working-directory: ./client
+        run: |
+          # Set up environment variables for testing
+          cat > .env << EOF
+          VITE_API_BASE_URL=http://localhost:3000
+          EOF
+
+          # Start client dev server in background
+          npm run dev &
+          echo $! > client.pid
+
+          # Wait for client to be ready
+          timeout 60 bash -c 'until curl -f http://localhost:5173; do sleep 2; done'
+
+      - name: Run E2E tests
+        working-directory: ./tests/e2e-tests
+        run: |
+          # Set up environment variables for e2e tests
+          cat > .env << EOF
+          BASE_URL=http://localhost:5173
+          API_URL=http://localhost:3000
+          API_SECURITY_KEY=test-api-key-for-e2e
+          CI=true
+          EOF
+
+          # Run the tests
+          npm test
+        env:
+          CI: true
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: e2e-test-results
+          path: |
+            tests/e2e-tests/test-results/
+            tests/e2e-tests/playwright-report/
+          retention-days: 7
+
+      - name: Upload test videos
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: e2e-test-videos
+          path: tests/e2e-tests/test-results/
+          retention-days: 3
+
+      - name: Cleanup processes
+        if: always()
+        run: |
+          # Kill background processes
+          if [ -f ./server/server.pid ]; then
+            kill $(cat ./server/server.pid) || true
+          fi
+          if [ -f ./client/client.pid ]; then
+            kill $(cat ./client/client.pid) || true
+          fi
+          # Kill any remaining processes on the ports
+          sudo lsof -ti:3000 | xargs -r sudo kill -9 || true
+          sudo lsof -ti:5173 | xargs -r sudo kill -9 || true
 
   # Job 8: Final validation and summary
   validation-summary:
