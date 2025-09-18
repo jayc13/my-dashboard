@@ -100,7 +100,7 @@ jobs:
 
       - name: Install Playwright browsers
         working-directory: ./tests/e2e-tests
-        run: npx playwright install --with-deps
+        run: npx playwright install chromium --with-deps
 
       - name: Build client application
         working-directory: ./client
@@ -189,7 +189,7 @@ jobs:
           EOF
 
           # Run the tests
-          npm test
+          npm run test:chromium
         env:
           CI: true
 
