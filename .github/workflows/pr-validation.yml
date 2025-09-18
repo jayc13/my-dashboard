@@ -134,6 +134,8 @@ jobs:
           cat > .env << EOF
           NODE_ENV=test
           DATA_DIR=./data
+          BRUTE_FORCE_WINDOW_MS=600000
+          BRUTE_FORCE_MAX_ATTEMPTS=20
           PORT=${{ secrets.SERVER_PORT || '3000' }}
           MYSQL_HOST=${{ secrets.MYSQL_HOST || 'localhost' }}
           MYSQL_PORT=${{ secrets.MYSQL_PORT || '3306' }}
@@ -165,7 +167,7 @@ jobs:
         run: |
           # Set up environment variables for testing
           cat > .env << EOF
-          VITE_API_BASE_URL=http://localhost:${{ secrets.SERVER_PORT || '3000' }}
+          VITE_API_URL=http://localhost:${{ secrets.SERVER_PORT || '3000' }}
           VITE_FIREBASE_API_KEY=${{ secrets.FIREBASE_API_KEY }}
           VITE_FIREBASE_AUTH_DOMAIN=${{ secrets.FIREBASE_AUTH_DOMAIN }}
           VITE_FIREBASE_PROJECT_ID=${{ secrets.VITE_FIREBASE_PROJECT_ID }}
@@ -196,16 +198,6 @@ jobs:
           npm run test:chromium
         env:
           CI: true
-
-      - name: Upload test results
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: e2e-test-results
-          path: |
-            tests/e2e-tests/test-results/
-            tests/e2e-tests/playwright-report/
-          retention-days: 7
 
       - name: Upload test videos
         uses: actions/upload-artifact@v4
