@@ -1,0 +1,158 @@
+import {test, expect} from '@playwright/test';
+import {LoginPage} from '../pages/LoginPage';
+import {
+    AUTH_TEST_DATA,
+    clearBrowserData,
+    setupAuthenticatedSession,
+    mockNetworkFailure,
+} from '@utils/test-helpers';
+
+test.describe('Authentication', () => {
+    let loginPage: LoginPage;
+
+    test.beforeEach(async ({page}) => {
+        loginPage = new LoginPage(page);
+        await loginPage.goto(); // Navigate first to ensure localStorage is available
+        await clearBrowserData(page); // Then clear storage
+    });
+
+    test.describe('Negative Test Cases', () => {
+        AUTH_TEST_DATA.invalidApiKeys.forEach((invalidKey: string) => {
+            test(`should reject invalid API key: ${invalidKey}`, async ({page}) => {
+                await loginPage.fillApiKey(invalidKey); // whitespace only
+                const isDisabled = await loginPage.isSubmitButtonDisabled();
+
+                expect(isDisabled).toBe(false); // Button should be enabled for non-empty input
+
+                await loginPage.performFailedLogin(invalidKey, 'Failed to validate API key. Please try again.');
+            });
+        });
+
+        AUTH_TEST_DATA.emptyValues.forEach((emptyValue: string) => {
+            test(`should reject empty/whitespace API key: "${emptyValue}"`, async ({page}) => {
+                await loginPage.clearApiKey();
+                await loginPage.fillApiKey(emptyValue); // whitespace only
+                const isDisabled = await loginPage.isSubmitButtonDisabled();
+
+                expect(isDisabled, 'Button should be disabled for empty values').toBe(true);
+            });
+        });
+
+        AUTH_TEST_DATA.specialCharacters.forEach((specialChar: string) => {
+            test(`should handle special characters safely: ${specialChar}`, async ({page}) => {
+                await loginPage.performFailedLogin(specialChar, 'Failed to validate API key. Please try again.');
+            });
+        });
+
+        test('should handle network failure gracefully', async () => {
+            await mockNetworkFailure(loginPage.page);
+
+            const authRequestPromise = loginPage.getAuthRequestPromise();
+            await loginPage.fillApiKey('test-key');
+            await loginPage.clickSubmit();
+            await authRequestPromise;
+            // Verify error message is shown
+            const errorMessage = await loginPage.getErrorMessage();
+            expect(errorMessage).toContain('Failed to validate API key. Please try again.');
+        });
+
+        test('should handle server error response', async () => {
+            await loginPage.page.route('**/api/auth/validate', async route => {
+                await route.fulfill({
+                    status: 500,
+                    contentType: 'application/json',
+                    body: JSON.stringify({error: 'Internal server error'})
+                });
+            });
+
+            await loginPage.performFailedLogin('test-key', 'Failed to validate API key. Please try again.');
+        });
+
+        test('should handle malformed server response', async () => {
+            await loginPage.page.route('**/api/auth/validate', async route => {
+                await route.fulfill({
+                    status: 200,
+                    contentType: 'text/plain',
+                    body: 'Invalid JSON response'
+                });
+            });
+
+            await loginPage.performFailedLogin('test-key', 'Failed to validate API key. Please try again.');
+        });
+    });
+
+    test.describe('Happy Path Test Cases', () => {
+        test('should successfully authenticate with valid API key', async () => {
+            const validApiKey = AUTH_TEST_DATA.validApiKey();
+            await loginPage.performSuccessfulLogin(validApiKey);
+
+            // Verify we're on the dashboard
+            expect(await loginPage.isDashboardVisible()).toBe(true);
+        });
+
+        test('should persist authentication across page reloads', async () => {
+            const validApiKey = AUTH_TEST_DATA.validApiKey();
+            await loginPage.performSuccessfulLogin(validApiKey);
+
+            const authRequestPromise = loginPage.getAuthRequestPromise();
+            // Reload the page
+            await loginPage.page.reload();
+            await authRequestPromise;
+            // Should still be authenticated and on dashboard
+            expect(await loginPage.isDashboardVisible()).toBe(true);
+            await expect(loginPage.apiKeyInput).not.toBeVisible();
+        });
+
+        test('should handle successful authentication with trimmed whitespace', async () => {
+            const validApiKey = AUTH_TEST_DATA.validApiKey();
+            const keyWithWhitespace = `  ${validApiKey}  `;
+
+            await loginPage.performSuccessfulLogin(keyWithWhitespace);
+            expect(await loginPage.isDashboardVisible()).toBe(true);
+        });
+    });
+
+    test.describe('Session Management', () => {
+        test('should clear session on logout', async ({page}) => {
+            // First authenticate
+            await setupAuthenticatedSession(page);
+            const authRequestPromise = loginPage.getAuthRequestPromise();
+            await page.goto('/');
+            await authRequestPromise;
+            expect(await loginPage.isDashboardVisible()).toBe(true);
+
+            await page.locator('button[aria-label="open menu"]').click();
+
+            // Find and click logout button
+            const logoutButton = page.locator('div[role="button"]:has-text("Logout")').first();
+            await expect(logoutButton).toBeVisible();
+            await logoutButton.click();
+
+            // Should redirect to login page
+            expect(await loginPage.isPageVisible(), 'Login page should be displayed').toBe(true);
+
+            // Verify session is cleared
+            const apiKey = await page.evaluate(() =>
+                localStorage.getItem('dashboard_api_key')
+            );
+            expect(apiKey).toBeNull();
+        });
+
+        test('should handle invalid stored API key', async () => {
+            // Set invalid API key in storage
+            await loginPage.page.evaluate(() => {
+                localStorage.setItem('dashboard_api_key', 'invalid-stored-key');
+            });
+
+            await loginPage.goto();
+
+            // Should show login page and clear invalid key
+            await expect(loginPage.apiKeyInput).toBeVisible();
+
+            const storedKey = await loginPage.page.evaluate(() =>
+                localStorage.getItem('dashboard_api_key')
+            );
+            expect(storedKey).toBeNull();
+        });
+    });
+});
