@@ -42,7 +42,7 @@ const TasksPage = () => {
 
     if (errorMyTickets || errorManualTesting) {
         return (
-            <Card style={{ padding: 24, marginTop: 16 }}>
+            <Card style={{ padding: 24, marginTop: 16 }} data-testid="tasks-page">
                 <Alert severity="error">Error fetching information</Alert>
             </Card>
         );
