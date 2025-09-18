@@ -41,7 +41,7 @@ export class JiraService {
 
   constructor() {
     // Load environment variables
-    dotenv.config();
+    dotenv.config({ quiet: true });
     const JIRA_BASE_URL = process.env.JIRA_BASE_URL || '';
     const JIRA_API_TOKEN = process.env.JIRA_API_TOKEN || '';
     const JIRA_EMAIL = process.env.JIRA_EMAIL || '';

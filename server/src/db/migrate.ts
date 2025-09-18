@@ -4,7 +4,7 @@ import * as dotenv from 'dotenv';
 import { db } from './database';
 
 // Load environment variables
-dotenv.config();
+dotenv.config({ quiet: true });
 
 const MIGRATIONS_DIR = path.join(__dirname, '../../migrations/mysql');
 

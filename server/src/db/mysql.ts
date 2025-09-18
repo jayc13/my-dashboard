@@ -11,7 +11,7 @@ let connection: mysql.Connection | null = null;
  */
 export async function getMySQLConnection(): Promise<mysql.Connection> {
   if (!connection) {
-    dotenv.config();
+    dotenv.config({ quiet: true });
         
     const config: mysql.ConnectionOptions = {
       host: process.env.MYSQL_HOST || 'localhost',

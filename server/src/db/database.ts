@@ -3,7 +3,7 @@ import mysql from 'mysql2/promise';
 import { getMySQLConnection } from './mysql';
 import * as dotenv from 'dotenv';
 
-dotenv.config();
+dotenv.config({ quiet: true });
 
 export interface DatabaseResult {
     insertId?: number;

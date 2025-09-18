@@ -145,6 +145,7 @@ npm run commit-help
 
 ## 🧪 Testing
 
+### Unit & Integration Tests
 ```bash
 # Run all tests
 npm run test
@@ -153,6 +154,42 @@ npm run test
 npm run test --workspace=server
 npm run test --workspace=client
 ```
+
+### End-to-End (E2E) Tests
+The project includes comprehensive E2E tests using Playwright that test the full application stack.
+
+```bash
+# Run E2E tests (requires both client and server to be running)
+./scripts/run-e2e-tests.sh
+
+# Run E2E tests in headed mode (visible browser)
+./scripts/run-e2e-tests.sh --headed
+
+# Run E2E tests in debug mode
+./scripts/run-e2e-tests.sh --debug
+
+# Manual setup for E2E tests
+cd tests/e2e-tests
+npm install
+npx playwright install
+npm test
+```
+
+**E2E Test Features:**
+- ✅ Authentication flow testing
+- ✅ Cross-browser testing (Chrome, Firefox, Safari)
+- ✅ Mobile browser testing
+- ✅ Network failure simulation
+- ✅ Session persistence testing
+- ✅ Automatic screenshots on failure
+- ✅ Video recording on failure
+
+**CI/CD Integration:**
+E2E tests run automatically in GitHub Actions on every pull request, testing the complete application stack including:
+- Server startup and health checks
+- Client build and development server
+- Database setup and migrations
+- Full user journey testing
 
 ## 🏗️ Building
 

@@ -17,13 +17,6 @@ export function getSecurityKey(): string {
  */
 export const AUTH_TEST_DATA = {
   validApiKey: () => getSecurityKey(),
-  invalidApiKeys: [
-    'invalid-key',
-    'wrong-api-key-123',
-    'fake-security-key',
-    '12345',
-    'test-key'
-  ],
   emptyValues: ['', '   ', '\t', '\n'],
   specialCharacters: [
     '!@#$%^&*()',

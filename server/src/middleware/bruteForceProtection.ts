@@ -1,6 +1,9 @@
 import rateLimit from 'express-rate-limit';
 import slowDown from 'express-slow-down';
+import * as dotenv from 'dotenv';
 import { Request, Response, NextFunction } from 'express';
+
+dotenv.config({ quiet: true });
 
 // In-memory store for tracking failed attempts per IP
 interface FailedAttempt {
@@ -12,8 +15,8 @@ interface FailedAttempt {
 
 class BruteForceProtection {
   private failedAttempts: Map<string, FailedAttempt> = new Map();
-  private readonly maxAttempts = 5;
-  private readonly windowMs = 15 * 60 * 1000; // 15 minutes
+  private readonly maxAttempts = parseInt(process.env.BRUTE_FORCE_MAX_ATTEMPTS || '3', 10);
+  private readonly windowMs = parseInt(process.env.BRUTE_FORCE_WINDOW_MS || `${15 * 60 * 1000}`, 10); // 15 minutes
   private readonly blockDurationMs = 30 * 60 * 1000; // 30 minutes
   private readonly cleanupInterval = 60 * 60 * 1000; // 1 hour
 
@@ -113,8 +116,8 @@ export const bruteForceProtection = new BruteForceProtection();
 
 // Rate limiting middleware - general protection
 export const authRateLimit = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 10, // Limit each IP to 10 requests per windowMs
+  windowMs: parseInt(process.env.BRUTE_FORCE_WINDOW_MS || `${15 * 60 * 1000}`, 10), // Default: 15 minutes
+  max: parseInt(process.env.BRUTE_FORCE_MAX_ATTEMPTS || '3', 10), // Limit each IP to 10 requests per windowMs
   message: 'Too many authentication requests. Please try again later.',
   // Skip successful requests
   skipSuccessfulRequests: true,

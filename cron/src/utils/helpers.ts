@@ -1,6 +1,6 @@
 import * as dotenv from 'dotenv';
 
-dotenv.config();
+dotenv.config({ quiet: true });
 
 export async function apiFetch(input: RequestInfo, init: RequestInit = {}) {
   const apiKey = process.env.API_SECURITY_KEY;

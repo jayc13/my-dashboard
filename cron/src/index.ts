@@ -6,7 +6,7 @@ import isPrApprovedJob from './jobs/is-pr-approved.job';
 import manualTicketsReminderJob from './jobs/manualTicketsReminder.job';
 import cleanUpDataFilesJob from './jobs/clean-up-data-files.job';
 
-dotenv.config();
+dotenv.config({ quiet: true });
 
 // Get cron schedule from config
 const reportE2ESchedule: string = config.get('jobs.report_e2e.schedule');

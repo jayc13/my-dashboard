@@ -2,7 +2,7 @@
 import * as admin from 'firebase-admin';
 import * as dotenv from 'dotenv';
 
-dotenv.config();
+dotenv.config({ quiet: true });
 
 // Initialize Firebase Admin SDK
 const initializeFirebase = () => {
