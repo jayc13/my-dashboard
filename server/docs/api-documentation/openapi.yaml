@@ -1,0 +1,32 @@
+openapi: 3.1.0
+info:
+  title: My Dashboard
+  version: 1.0.0
+  description: ''
+  summary: ''
+  license:
+    name: ' GPL v3'
+    identifier: GPL-3.0-or-later
+servers:
+  - url: http://localhost:3000
+    description: Local development server
+tags:
+  - name: Authentication
+    description: Endpoints for user authentication and validation
+  - name: Health Check
+    description: Endpoint to check the health status of the service
+paths:
+  /health:
+    $ref: paths/health.yaml
+  /api/auth/validate:
+    $ref: paths/api_auth_validate.yaml
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: x-api-key
+      description: API key authentication using x-api-key header
+security:
+  - {}
+  - ApiKeyAuth: []

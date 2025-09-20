@@ -55,7 +55,6 @@ class BruteForceProtection {
     if (attempt?.blockedUntil && new Date() < attempt.blockedUntil) {
       const remainingTime = Math.ceil((attempt.blockedUntil.getTime() - Date.now()) / 1000 / 60);
       res.status(429).json({
-        valid: false,
         error: `Too many failed attempts. Try again in ${remainingTime} minutes.`,
         retryAfter: remainingTime * 60,
       });

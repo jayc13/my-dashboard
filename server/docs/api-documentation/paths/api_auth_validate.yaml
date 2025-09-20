@@ -1,0 +1,48 @@
+post:
+  operationId: auth-validate
+  summary: Validate user authentication
+  description: Validate that the API Token is valid
+  tags:
+    - Authentication
+  requestBody:
+    $ref: ../components/requestBodies/AuthValidationRequest.yaml
+  responses:
+    '200':
+      $ref: ../components/responses/AuthValidationResponse.yaml
+      examples:
+        API Key Valid:
+          value:
+            valid: true
+            message: API key is valid
+    '400':
+      $ref: ../components/responses/AuthValidationResponse.yaml
+      examples:
+        Bad Request:
+          value:
+            valid: false
+            message: API key is required and must be a string
+        Empty API key:
+          value:
+            valid: false
+            message: API key cannot be empty
+    '401':
+      $ref: ../components/responses/AuthValidationResponse.yaml
+      examples:
+        Invalid API key:
+          value:
+            valid: false
+            message: Invalid API key
+    '429':
+      description: Rate limit exceeded
+      content:
+        application/json:
+          schema:
+            $ref: ../components/responses/RateLimitResponse.yaml
+          examples:
+            Example 1:
+              value:
+                error: Too many failed attempts. Try again in 10 minutes.
+                retryAfter: 600
+    '500':
+      $ref: ../components/responses/ErrorResponse.yaml
+  security: []

@@ -1,0 +1,11 @@
+description: Example response
+content:
+  application/json:
+    schema:
+      type: object
+      x-examples:
+        Example 1:
+          status: ok
+      properties:
+        status:
+          type: string
