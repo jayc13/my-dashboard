@@ -17,40 +17,6 @@ This is a monorepo containing:
 - Node.js >= 18.0.0
 - npm (comes with Node.js)
 
-### Installation
-
-```bash
-# Clone the repository
-git clone <repository-url>
-cd cypress-dashboard
-
-# Install dependencies for all workspaces
-npm install
-
-# Start development servers
-npm run dev:client   # Start React development server
-npm run dev:server   # Start Express development server
-npm run dev:cron     # Start cron development server
-```
-
-## 🛠️ Available Scripts
-
-### Root Level Scripts
-```bash
-npm run lint          # Run linting across all workspaces
-npm run lint:fix      # Run linting with auto-fix across all workspaces
-npm run test          # Run tests across all workspaces
-npm run build         # Build all workspaces
-npm run commit-help   # Show commit message format guide
-```
-
-### Workspace-Specific Scripts
-```bash
-npm run dev --workspace=client    # Start client development
-npm run dev --workspace=server    # Start server development
-npm run dev --workspace=cron      # Start cron development
-```
-
 ## 🎯 Git Hooks & Code Quality
 
 This project uses [Husky](https://typicode.github.io/husky/) to enforce code quality standards:

@@ -17,7 +17,7 @@ export class AuthController {
         bruteForceProtection.recordFailedAttempt(req);
         res.status(400).json({
           valid: false,
-          error: 'API key is required and must be a string',
+          message: 'API key is required and must be a string',
         });
         return;
       }
@@ -27,7 +27,7 @@ export class AuthController {
         bruteForceProtection.recordFailedAttempt(req);
         res.status(400).json({
           valid: false,
-          error: 'API key cannot be empty',
+          message: 'API key cannot be empty',
         });
         return;
       }
@@ -38,7 +38,7 @@ export class AuthController {
         console.error('API_SECURITY_KEY environment variable is not set');
         res.status(500).json({
           valid: false,
-          error: 'Server configuration error',
+          message: 'Server configuration error',
         });
         return;
       }
@@ -70,7 +70,7 @@ export class AuthController {
 
         res.status(401).json({
           valid: false,
-          error: 'Invalid API key',
+          message: 'Invalid API key',
         });
       }
     } catch (error) {
@@ -80,7 +80,6 @@ export class AuthController {
       bruteForceProtection.recordFailedAttempt(req);
 
       res.status(500).json({
-        valid: false,
         error: 'Internal server error',
       });
     }
