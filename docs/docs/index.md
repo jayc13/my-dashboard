@@ -1,217 +1,38 @@
-# Project Documentation
+# My Dashboard Documentation
 
-Welcome to the project documentation!
+Welcome to the comprehensive documentation for My Dashboard - a Cypress test results dashboard with automated git hooks for code quality.
 
-## 📚 Documentation Index
+## 🚀 Quick Start
 
-### Development Standards
-- **[Conventional Commits Guide](./conventional-commits.md)** - Standards for commit message formatting
-- **[Pull Request Guide](./pull-request-guide.md)** - Complete guide for creating and reviewing PRs
+### For Developers
+1. **[Getting Started](./getting-started.md)** - Set up your development environment
+2. **[API Overview](./api/overview.md)** - Learn about the REST API
+3. **[Authentication](./api/authentication.md)** - Get your API key and start making requests
 
-### Quick Reference
+### For Integrators
+1. **[API Integration Guide](./api/integration-guide.md)** - Comprehensive integration patterns
+2. **[E2E Reports API](./api/endpoints/e2e-reports.md)** - Access test results and project status
+3. **[OpenAPI Specification](../server/docs/api-documentation/openapi.yaml)** - Complete API reference
 
-#### Commit Message Format
-```
-<type>[optional scope]: <description>
+## 📚 Documentation Sections
 
-[optional body]
+### 🔧 API Documentation
+- **[API Overview](./api/overview.md)** - Base URLs, authentication, and response formats
+- **[Authentication Guide](./api/authentication.md)** - API key management and security
+- **[Integration Guide](./api/integration-guide.md)** - Best practices and SDK examples
+- **[E2E Reports Endpoints](./api/endpoints/e2e-reports.md)** - Test results and project monitoring
+- **[OpenAPI Specification](../server/docs/api-documentation/openapi.yaml)** - Complete API reference
 
-[optional footer(s)]
-```
+### 🏗️ Architecture
+- **[System Overview](./architecture/overview.md)** - High-level architecture and data flow
+- **[Component Relationships](./architecture/overview.md#component-overview)** - How services interact
+- **[Technology Stack](./architecture/overview.md#technology-stack)** - Technologies and frameworks used
 
-**Common Types:**
-- `feat`: New feature
-- `fix`: Bug fix
-- `docs`: Documentation changes
-- `refactor`: Code refactoring
-- `test`: Adding or updating tests
-- `chore`: Maintenance tasks
-
-**Example:**
-```bash
-feat(client): add user authentication modal
-
-Implement login/signup modal with form validation and error handling.
-Includes integration with authentication API and session management.
-
-Closes #123
-```
-
-#### Branch Naming Convention
-```
-<type>/<short-description>
-```
-
-**Examples:**
-- `feat/user-dashboard`
-- `fix/memory-leak`
-- `docs/api-guide`
-- `refactor/error-handling`
-
-#### PR Title Format
-Follow the same format as commit messages:
-```
-feat(server): implement rate limiting middleware
-fix(client): resolve hydration mismatch in SSR
-docs: update deployment guide
-```
-
-## 🏗️ Project Structure
-
-This project is organized into several main components:
-
-### `/client`
-React frontend application
-- TypeScript + Vite
-- Component-based architecture
-- Responsive design
-
-### `/server`
-Node.js backend API
-- Express.js framework
-- RESTful API design
-- Database integration
-
-### `/cron`
-Scheduled job services
-- Background task processing
-- Automated maintenance
-- Report generation
-
-### `/scripts`
-Utility and deployment scripts
-- Build automation
-- Database migrations
-- Deployment helpers
-
-## 🚀 Getting Started
-
-### Prerequisites
-- Node.js 18+ 
-- npm or yarn
-- Git
-
-### Development Workflow
-
-1. **Clone and Setup**
-   ```bash
-   git clone <repository-url>
-   cd cypress-dashboard
-   npm install
-   ```
-
-2. **Create Feature Branch**
-   ```bash
-   git checkout -b feat/your-feature-name
-   ```
-
-3. **Make Changes**
-   - Follow coding standards
-   - Add tests for new functionality
-   - Update documentation as needed
-
-4. **Commit Changes**
-   ```bash
-   git add .
-   git commit -m "feat(component): add new feature"
-   ```
-
-5. **Push and Create PR**
-   ```bash
-   git push origin feat/your-feature-name
-   ```
-   Then create a PR using the provided template.
-
-## 📋 Contribution Guidelines
-
-### Before Contributing
-- Read the [Conventional Commits Guide](./conventional-commits.md)
-- Review the [Pull Request Guide](./pull-request-guide.md)
-- Check existing issues and PRs to avoid duplicates
-- Discuss major changes in an issue first
-
-### Code Standards
-- Follow existing code style and conventions
-- Write meaningful commit messages
-- Include tests for new functionality
-- Update documentation for API changes
-- Ensure all CI checks pass
-
-### Review Process
-1. Self-review your changes
-2. Ensure all tests pass
-3. Create PR with detailed description
-4. Address reviewer feedback promptly
-5. Merge after approval and passing checks
-
-## 🧪 Testing
-
-### Running Tests
-```bash
-# Run all tests
-npm test
-
-# Run tests for specific component
-npm run test:client
-npm run test:server
-npm run test:cron
-
-# Run tests in watch mode
-npm run test:watch
-```
-
-### Test Coverage
-- Code coverage only goes up
-- Write unit tests for all new functions
-- Add integration tests for API endpoints
-- Include E2E tests for critical user flows
-
-## 🔧 Development Tools
-
-### Git Hooks
-The project uses Husky for git hooks:
-- **pre-commit**: Runs linting and formatting
-- **commit-msg**: Validates commit message format
-- **pre-push**: Runs unit tests before pushing
-
-### Code Quality Tools
-- **ESLint**: Code linting
-- **Prettier**: Code formatting
-- **TypeScript**: Type checking
-- **Jest**: Unit testing
-- **Commitlint**: Commit message validation
-
-## 🆘 Getting Help
-
-### Resources
-- Check existing documentation first
-- Search through issues and discussions
-- Review similar PRs for examples
-- Ask questions in team channels
-
-### Contact
-- Create an issue for bugs or feature requests
-- Use discussions for general questions
-- Tag relevant team members for urgent issues
-
-## 📝 Documentation Standards
-
-### Writing Guidelines
-- Use clear, concise language
-- Include code examples where helpful
-- Keep documentation up to date with code changes
-- Use consistent formatting and structure
-
-### Documentation Types
-- **API Documentation**: Generated from code comments
-- **User Guides**: Step-by-step instructions
-- **Developer Guides**: Technical implementation details
-- **Architecture Decisions**: Record important design choices
-
-## 🔄 Continuous Improvement
-
-This documentation is a living resource that should evolve with the project. Please:
-- Suggest improvements through issues or PRs
-- Update documentation when making code changes
-- Share feedback on clarity and usefulness
-- Contribute examples and best practices
+### 🛠️ Development Guide
+- **[Development Overview](./development/overview.md)** - Complete development setup and workflow
+- **[Commit Standards](./development/commit-standards.md)** - Conventional commits format and best practices
+- **[Pull Request Guide](./development/pull-requests.md)** - PR workflow and review process
+- **[Coding Standards](./development/standards.md)** - Code style, conventions, and quality guidelines
+- **[Testing Guide](./development/testing.md)** - Testing strategies and best practices
+- **[Git Hooks](./development/git-hooks.md)** - Automated code quality checks
+- **[CI/CD Pipeline](./development/ci-cd.md)** - GitHub Actions workflows and automation

@@ -1,6 +1,6 @@
 # Pull Request Guide
 
-This document outlines the standards and best practices for creating, reviewing, and merging pull requests in this project.
+This guide outlines the standards and best practices for creating, reviewing, and merging pull requests in My Dashboard, ensuring high code quality and smooth collaboration.
 
 ## Pull Request Workflow
 

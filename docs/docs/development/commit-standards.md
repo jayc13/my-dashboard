@@ -1,6 +1,6 @@
-# Conventional Commits Guide
+# Commit Standards
 
-This document outlines the conventional commit format used in this project to maintain consistent and meaningful commit messages.
+This document outlines the conventional commit format and standards used in My Dashboard to maintain consistent and meaningful commit messages that enable automated changelog generation and better project history.
 
 ## Format
 

@@ -1,6 +1,6 @@
-# GitHub Actions CI/CD Documentation
+# CI/CD Pipeline
 
-This directory contains GitHub Actions workflows for automated testing, validation, and deployment of the Cypress Dashboard project. The workflows have been refactored into a modular architecture for better maintainability and reusability.
+My Dashboard uses GitHub Actions for automated testing, validation, and deployment. The CI/CD system features a modular architecture with reusable workflows and comprehensive validation for all components.
 
 ## 🏗️ Architecture Overview
 

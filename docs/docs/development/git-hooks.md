@@ -1,6 +1,6 @@
-# Git Hooks Setup
+# Git Hooks
 
-This project uses [Husky](https://typicode.github.io/husky/) to manage Git hooks that help maintain code quality and consistency.
+My Dashboard uses [Husky](https://typicode.github.io/husky/) to manage Git hooks that automatically enforce code quality and consistency standards throughout the development workflow.
 
 ## Installed Hooks
 
