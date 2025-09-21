@@ -17,12 +17,12 @@ cd my-dashboard
 ```
 
 ### Development Workflow
-1. **[Create a branch](./workflow.md#branch-naming)** following naming conventions
+1. **[Create a branch](./commit-standards.md)** following naming conventions
 2. **[Make changes](./standards.md)** following coding standards
-3. **[Write tests](./testing.md)** for new functionality
+3. **Write tests** for new functionality
 4. **[Commit changes](./commit-standards.md)** using conventional commits
 5. **[Create a PR](./pull-requests.md)** following the PR guide
-6. **[Review process](./pull-requests.md#code-review-process)** and merge
+6. **[Review process](./pull-requests.md)** and merge
 
 ## 📚 Development Documentation
 
@@ -30,12 +30,11 @@ cd my-dashboard
 - **[Commit Standards](./commit-standards.md)** - Conventional commits format and best practices
 - **[Pull Request Guide](./pull-requests.md)** - Complete PR workflow and review process
 - **[Coding Standards](./standards.md)** - Code style, conventions, and quality guidelines
-- **[Testing Guide](./testing.md)** - Testing strategies and best practices
+- **Testing Guide** - Testing strategies and best practices
 
 ### 🔧 Tools & Automation
 - **[Git Hooks](./git-hooks.md)** - Automated code quality checks and validation
 - **[CI/CD Pipeline](./ci-cd.md)** - GitHub Actions workflows and automation
-- **[Development Tools](./tools.md)** - IDE setup, extensions, and utilities
 
 ### 🏗️ Project Structure
 - **[Monorepo Guide](./monorepo.md)** - Understanding the workspace structure
