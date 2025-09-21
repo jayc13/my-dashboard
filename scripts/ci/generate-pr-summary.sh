@@ -2,7 +2,7 @@
 
 # PR Summary Generation Script
 # Generates a formatted summary message for PR validation results
-# Usage: generate-pr-summary.sh <basic> <client> <server> <cron> <scripts> <integration> <e2e> [test-results]
+# Usage: generate-pr-summary.sh <basic> <client> <server> <cron> <scripts> <docs> <integration> <e2e> [test-results]
 
 set -e
 
@@ -20,11 +20,12 @@ CLIENT_VALIDATION="${2:-skipped}"
 SERVER_VALIDATION="${3:-skipped}"
 CRON_VALIDATION="${4:-skipped}"
 SCRIPTS_VALIDATION="${5:-skipped}"
-INTEGRATION_TESTING="${6:-skipped}"
-E2E_TESTING="${7:-skipped}"
+DOCS_VALIDATION="${6:-skipped}"
+INTEGRATION_TESTING="${7:-skipped}"
+E2E_TESTING="${8:-skipped}"
 
-# Test results (optional 8th argument)
-TEST_RESULTS="${8:-}"
+# Test results (optional 9th argument)
+TEST_RESULTS="${9:-}"
 
 # Required environment variables for links
 GITHUB_SERVER_URL="${GITHUB_SERVER_URL:-https://github.com}"
@@ -78,7 +79,7 @@ get_overall_status() {
 }
 
 # Get overall status
-OVERALL_STATUS=$(get_overall_status "$BASIC_VALIDATION" "$CLIENT_VALIDATION" "$SERVER_VALIDATION" "$CRON_VALIDATION" "$SCRIPTS_VALIDATION" "$INTEGRATION_TESTING" "$E2E_TESTING")
+OVERALL_STATUS=$(get_overall_status "$BASIC_VALIDATION" "$CLIENT_VALIDATION" "$SERVER_VALIDATION" "$CRON_VALIDATION" "$SCRIPTS_VALIDATION" "$DOCS_VALIDATION" "$INTEGRATION_TESTING" "$E2E_TESTING")
 
 # Build comment body
 COMMENT_BODY="## 🔍 Pull Request Validation Results
@@ -108,6 +109,7 @@ COMMENT_BODY+="| Validation | Status |
 | **Server Validation** | $(get_status_display "$SERVER_VALIDATION") |
 | **Cron Validation** | $(get_status_display "$CRON_VALIDATION") |
 | **Scripts Validation** | $(get_status_display "$SCRIPTS_VALIDATION") |
+| **Documentation Validation** | $(get_status_display "$DOCS_VALIDATION") |
 | **Integration Testing** | $(get_status_display "$INTEGRATION_TESTING") |
 | **E2E Testing** | $(get_status_display "$E2E_TESTING") |
 
@@ -162,7 +164,12 @@ if [[ "$OVERALL_STATUS" == "failure" ]]; then
         COMMENT_BODY+="- **Scripts Validation Failed**: Review utility scripts and their tests
 "
     fi
-    
+
+    if [[ "$DOCS_VALIDATION" == "failure" ]]; then
+        COMMENT_BODY+="- **Documentation Validation Failed**: Review markdown files, OpenAPI specs, and documentation structure
+"
+    fi
+
     if [[ "$INTEGRATION_TESTING" == "failure" ]]; then
         COMMENT_BODY+="- **Integration Testing Failed**: Review integration test setup and dependencies
 "
