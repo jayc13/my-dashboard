@@ -22,7 +22,7 @@ graph TB
     end
     
     subgraph "Data Layer"
-        DB[(SQLite Database<br/>Application Data)]
+        DB[(MySQL Database<br/>Application Data)]
         FILES[(File System<br/>Reports & Cache)]
     end
     
@@ -78,7 +78,7 @@ graph TB
 - **Controllers**: Handle HTTP requests and responses
 - **Services**: Business logic and external API integration
 - **Middleware**: Authentication, rate limiting, error handling
-- **Database**: SQLite for application data storage
+- **Database**: MySQL for application data storage
 
 ### ⏰ Background Services
 
@@ -176,7 +176,7 @@ sequenceDiagram
 - **Node.js**: JavaScript runtime
 - **Express**: Web application framework
 - **TypeScript**: Type safety for server-side code
-- **SQLite**: Embedded database for application data
+- **MySQL**: Relational database
 - **JWT**: Token-based authentication (where applicable)
 
 ### DevOps & Tools
@@ -213,12 +213,10 @@ sequenceDiagram
 
 ### Current Architecture
 - **Monorepo Structure**: Simplified development and deployment
-- **SQLite Database**: Suitable for moderate loads
 - **File-based Caching**: Simple and effective for current scale
 - **Single Server Deployment**: Cost-effective and maintainable
 
 ### Future Scaling Options
-- **Database Migration**: PostgreSQL or MySQL for higher loads
 - **Caching Layer**: Redis for improved performance
 - **Load Balancing**: Multiple server instances
 - **Microservices**: Split components for independent scaling
