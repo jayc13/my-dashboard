@@ -6,6 +6,10 @@ const config: Config = {
   title: 'My Dashboard Documentation',
   favicon: 'img/logo.png',
 
+  markdown: {
+    mermaid: true,
+  },
+  themes: ['@docusaurus/theme-mermaid'],
   // Future flags, see https://docusaurus.io/docs/api/docusaurus-config#future
   future: {
     v4: true, // Improve compatibility with the upcoming Docusaurus v4
@@ -51,7 +55,6 @@ const config: Config = {
   ],
 
   themeConfig: {
-    // Replace with your project's social card
     image: 'img/logo.png',
     navbar: {
       title: 'My Dashboard Documentation',
@@ -60,12 +63,6 @@ const config: Config = {
         src: 'img/logo.png',
       },
       items: [
-        // {
-        //   type: 'docSidebar',
-        //   sidebarId: 'client',
-        //   position: 'left',
-        //   label: 'Client',
-        // },
         {
           href: 'https://github.com/facebook/docusaurus',
           label: 'GitHub',
@@ -76,7 +73,7 @@ const config: Config = {
     footer: {
       style: 'dark',
       links: [],
-      copyright: `Copyright © ${new Date().getFullYear()} My Project, Inc. Built with Docusaurus.`,
+      copyright: `Copyright © ${new Date().getFullYear()} My Dashboard`,
     },
     prism: {
       theme: prismThemes.github,

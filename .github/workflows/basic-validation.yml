@@ -39,6 +39,9 @@ on:
       github-changed:
         description: 'Whether GitHub files changed'
         value: ${{ jobs.basic-validation.outputs.github-changed }}
+      docs-changed:
+        description: 'Whether documentation files changed'
+        value: ${{ jobs.basic-validation.outputs.docs-changed }}
 
 jobs:
   basic-validation:
@@ -50,6 +53,7 @@ jobs:
       cron-changed: ${{ steps.changes.outputs.cron }}
       scripts-changed: ${{ steps.changes.outputs.scripts }}
       github-changed: ${{ steps.changes.outputs.github }}
+      docs-changed: ${{ steps.changes.outputs.docs }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v5
@@ -80,6 +84,10 @@ jobs:
               - 'scripts/**'
             github:
               - '.github/**'
+            docs:
+              - 'docs/**'
+              - '**/*.md'
+              - 'server/docs/**'
 
       - name: Validate PR title
         shell: bash

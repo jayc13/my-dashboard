@@ -1,0 +1,41 @@
+name: Documentation Validation
+
+on:
+  workflow_call:
+    inputs:
+      docs-changed:
+        description: 'Whether documentation files have changed'
+        required: false
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  validate-docs:
+    name: Documentation Validation
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+          cache: 'npm'
+          cache-dependency-path: docs/package-lock.json
+
+      - name: Install documentation dependencies
+        working-directory: ./docs
+        run: npm ci
+
+      - name: Build documentation
+        working-directory: ./docs
+        run: npm run build
