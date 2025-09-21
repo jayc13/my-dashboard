@@ -54,11 +54,20 @@ jobs:
     if: needs.basic-validation.outputs.scripts-changed == 'true' || needs.basic-validation.outputs.github-changed == 'true'
     uses: ./.github/workflows/validate-scripts.yml
 
-  # Job 6: Integration testing
+  # Job 6: Documentation validation
+  validate-docs:
+    name: Documentation
+    needs: basic-validation
+    if: needs.basic-validation.outputs.docs-changed == 'true' || needs.basic-validation.outputs.github-changed == 'true'
+    uses: ./.github/workflows/validate-docs.yml
+    with:
+      docs-changed: ${{ needs.basic-validation.outputs.docs-changed == 'true' }}
+
+  # Job 7: Integration testing
   integration-testing:
     name: Integration Testing
     runs-on: ubuntu-latest
-    needs: [ validate-client, validate-server, validate-cron, validate-scripts ]
+    needs: [ validate-client, validate-server, validate-cron, validate-scripts, validate-docs ]
     if: always()
     steps:
       - name: Run integration tests
@@ -67,7 +76,7 @@ jobs:
           echo "Running integration tests..."
           echo "TODO: Implement integration testing"
 
-  # Job 7: E2E testing
+  # Job 8: E2E testing
   e2e-testing:
     name: E2E Testing
     runs-on: ubuntu-latest
@@ -223,11 +232,11 @@ jobs:
           sudo lsof -ti:${{ secrets.SERVER_PORT || '3000' }} | xargs -r sudo kill -9 || true
           sudo lsof -ti:${{ secrets.CLIENT_PORT || '5173' }} | xargs -r sudo kill -9 || true
 
-  # Job 8: Final validation and summary
+  # Job 9: Final validation and summary
   validation-summary:
     name: Validation Summary
     runs-on: ubuntu-latest
-    needs: [ basic-validation, validate-client, validate-server, validate-cron, validate-scripts, integration-testing, e2e-testing ]
+    needs: [ basic-validation, validate-client, validate-server, validate-cron, validate-scripts, validate-docs, integration-testing, e2e-testing ]
     if: always()
     steps:
       - name: Check all validations
@@ -238,6 +247,7 @@ jobs:
           echo "Server validation: ${{ needs.validate-server.result }}"
           echo "Cron validation: ${{ needs.validate-cron.result }}"
           echo "Scripts validation: ${{ needs.validate-scripts.result }}"
+          echo "Documentation validation: ${{ needs.validate-docs.result }}"
           echo "Integration testing: ${{ needs.integration-testing.result }}"
           echo "E2E testing: ${{ needs.e2e-testing.result }}"
 
@@ -247,6 +257,7 @@ jobs:
              [[ "${{ needs.validate-server.result }}" == "failure" ]] || \
              [[ "${{ needs.validate-cron.result }}" == "failure" ]] || \
              [[ "${{ needs.validate-scripts.result }}" == "failure" ]] || \
+             [[ "${{ needs.validate-docs.result }}" == "failure" ]] || \
              [[ "${{ needs.integration-testing.result }}" == "failure" ]] || \
              [[ "${{ needs.e2e-testing.result }}" == "failure" ]]; then
             echo "❌ One or more validations failed"
@@ -276,6 +287,7 @@ jobs:
             "${{ needs.validate-server.result }}" \
             "${{ needs.validate-cron.result }}" \
             "${{ needs.validate-scripts.result }}" \
+            "${{ needs.validate-docs.result }}" \
             "${{ needs.integration-testing.result }}" \
             "${{ needs.e2e-testing.result }}")
 
