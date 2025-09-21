@@ -1,0 +1,9 @@
+type: object
+description: Request body for registering or unregistering FCM device tokens
+required:
+  - token
+properties:
+  token:
+    type: string
+    description: Firebase Cloud Messaging device token obtained from the client
+    example: "dGhpcyBpcyBhIGZha2UgZmNtIHRva2VuIGZvciBkb2N1bWVudGF0aW9u"

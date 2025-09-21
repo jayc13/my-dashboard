@@ -1,0 +1,79 @@
+get:
+  tags:
+    - JIRA
+  summary: Get current user's assigned tickets
+  description: |
+    Retrieve JIRA issues assigned to the current authenticated user that are unresolved.
+    This endpoint returns tickets ordered by last updated date (most recent first).
+    
+    **Predefined JQL Query:**
+    ```
+    assignee = currentUser() AND resolution = Unresolved order by updated DESC
+    ```
+    
+    This endpoint is useful for:
+    - Personal dashboards showing assigned work
+    - Task management and prioritization
+    - Daily standup preparation
+    - Workload tracking
+    
+    **Note:** The "current user" is determined by the JIRA API credentials configured on the server.
+  responses:
+    '200':
+      description: Successfully retrieved user's assigned tickets
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/JiraIssuesResponse.yaml'
+          examples:
+            with_tickets:
+              summary: Response with assigned tickets
+              value:
+                total: 4
+                issues:
+                  - id: "10001"
+                    key: "ACT-789"
+                    url: "https://company.atlassian.net/browse/ACT-789"
+                    summary: "Implement user authentication API"
+                    status: "In Progress"
+                    created: "2024-01-10T08:00:00.000Z"
+                    updated: "2024-01-16T16:30:00.000Z"
+                    assignee: "Current User"
+                    reporter: "Product Manager"
+                    labels: ["backend", "api", "authentication"]
+                    priority: "High"
+                  - id: "10002"
+                    key: "ACT-790"
+                    url: "https://company.atlassian.net/browse/ACT-790"
+                    summary: "Fix responsive design issues"
+                    status: "Code Review"
+                    created: "2024-01-12T10:15:00.000Z"
+                    updated: "2024-01-15T14:20:00.000Z"
+                    assignee: "Current User"
+                    reporter: "UX Designer"
+                    labels: ["frontend", "css", "responsive"]
+                    priority: "Medium"
+            no_tickets:
+              summary: No assigned tickets found
+              value:
+                total: 0
+                issues: []
+    '401':
+      description: Unauthorized - Invalid or missing API key
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/ErrorResponse.yaml'
+    '500':
+      description: Internal server error - JIRA API connection or processing error
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/ErrorResponse.yaml'
+          examples:
+            auth_error:
+              summary: JIRA authentication error
+              value:
+                error: "Failed to authenticate with JIRA API"
+  security:
+    - ApiKeyAuth: []

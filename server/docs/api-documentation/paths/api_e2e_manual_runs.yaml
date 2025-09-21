@@ -1,0 +1,150 @@
+get:
+  tags:
+    - E2E Manual Runs
+  summary: Get all E2E manual runs
+  description: |
+    Retrieve all E2E manual test runs ordered by creation date (most recent first).
+    
+    **Use Cases:**
+    - Dashboard overview of all manual E2E test executions
+    - Audit trail of manual testing activities
+    - Historical analysis of E2E test frequency
+    
+    **Data Includes:**
+    - Run ID and associated application ID
+    - CircleCI pipeline ID for tracking test execution
+    - Creation timestamp for chronological ordering
+  responses:
+    '200':
+      description: Successfully retrieved E2E manual runs
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: '../schemas/E2EManualRun.yaml'
+          examples:
+            with_runs:
+              summary: Response with E2E manual runs
+              value:
+                - id: 123
+                  app_id: 5
+                  pipeline_id: "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+                  created_at: "2024-01-20T10:30:00.000Z"
+                - id: 122
+                  app_id: 3
+                  pipeline_id: "b2c3d4e5-f6g7-8901-bcde-f23456789012"
+                  created_at: "2024-01-19T15:45:00.000Z"
+            empty_list:
+              summary: No E2E manual runs found
+              value: []
+    '401':
+      description: Unauthorized - Invalid or missing API key
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/ErrorResponse.yaml'
+    '500':
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/ErrorResponse.yaml'
+          examples:
+            database_error:
+              summary: Database connection error
+              value:
+                error: "Failed to fetch e2e manual runs"
+  security:
+    - ApiKeyAuth: []
+
+post:
+  tags:
+    - E2E Manual Runs
+  summary: Create and trigger a new E2E manual run
+  description: |
+    Create a new E2E manual test run for a specific application. This endpoint:
+    
+    **Workflow:**
+    1. Validates that the specified application exists
+    2. Checks that the application has E2E trigger configuration
+    3. Triggers CircleCI pipeline using the app's configuration
+    4. Records the run with the returned pipeline ID
+    
+    **Prerequisites:**
+    - Application must exist and have `e2e_trigger_configuration` set
+    - CircleCI integration must be properly configured
+    - Required environment variables: `CIRCLE_CI_TOKEN`, `E2E_PIPELINE_URL`
+    
+    **Integration:**
+    - Automatically triggers E2E tests in CircleCI
+    - Returns immediately with run record (tests run asynchronously)
+    - Pipeline ID can be used to track test progress in CircleCI
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: '../schemas/E2EManualRunInput.yaml'
+        examples:
+          create_run:
+            summary: Create E2E run for application
+            value:
+              app_id: 5
+  responses:
+    '201':
+      description: E2E manual run created and triggered successfully
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/E2EManualRun.yaml'
+          examples:
+            success:
+              summary: Successful creation and trigger
+              value:
+                id: 123
+                app_id: 5
+                pipeline_id: "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+                created_at: "2024-01-20T10:30:00.000Z"
+    '400':
+      description: Bad request - Invalid or missing app_id, or app configuration issues
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/ErrorResponse.yaml'
+          examples:
+            missing_app_id:
+              summary: Missing or invalid app_id
+              value:
+                error: "Valid app_id is required"
+            invalid_app:
+              summary: App does not exist
+              value:
+                error: "Invalid app_id: app does not exist"
+            no_config:
+              summary: App missing E2E configuration
+              value:
+                error: "App with id 5 does not have e2e_trigger_configuration set"
+    '401':
+      description: Unauthorized - Invalid or missing API key
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/ErrorResponse.yaml'
+    '500':
+      description: Internal server error - Database or CircleCI integration error
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/ErrorResponse.yaml'
+          examples:
+            creation_error:
+              summary: Failed to create E2E run
+              value:
+                error: "Failed to create e2e manual run"
+            circleci_error:
+              summary: CircleCI integration error
+              value:
+                error: "Failed to trigger CircleCI pipeline"
+  security:
+    - ApiKeyAuth: []

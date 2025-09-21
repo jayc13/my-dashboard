@@ -1,0 +1,10 @@
+type: object
+description: Input data for creating or updating an E2E manual run
+required:
+  - app_id
+properties:
+  app_id:
+    type: integer
+    description: ID of the application to run E2E tests for
+    minimum: 1
+    example: 5

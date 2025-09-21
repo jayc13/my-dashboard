@@ -1,0 +1,139 @@
+get:
+  tags:
+    - To-Do Lists
+  summary: Get all to-do items
+  description: |
+    Retrieve all to-do items ordered by due date (ascending). Items without due dates appear first,
+    followed by items with due dates in chronological order.
+    
+    **Sorting Logic:**
+    1. Completed items appear at the end
+    2. For non-completed items:
+       - Items without due dates appear first
+       - Items with due dates are sorted chronologically (earliest first)
+  responses:
+    '200':
+      description: Successfully retrieved to-do items
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: '../schemas/Todo.yaml'
+          examples:
+            with_todos:
+              summary: Response with to-do items
+              value:
+                - id: 1
+                  title: "Complete API documentation"
+                  description: "Write comprehensive OpenAPI documentation for all endpoints"
+                  link: "https://github.com/company/project/issues/123"
+                  due_date: "2024-01-20T23:59:59.000Z"
+                  is_completed: false
+                - id: 2
+                  title: "Review pull request"
+                  description: "Review and approve the authentication feature PR"
+                  link: "https://github.com/company/project/pull/456"
+                  due_date: "2024-01-18T17:00:00.000Z"
+                  is_completed: true
+            empty_list:
+              summary: Empty to-do list
+              value: []
+    '401':
+      description: Unauthorized - Invalid or missing API key
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/ErrorResponse.yaml'
+    '500':
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/ErrorResponse.yaml'
+          examples:
+            database_error:
+              summary: Database connection error
+              value:
+                error: "Failed to fetch todos"
+  security:
+    - ApiKeyAuth: []
+
+post:
+  tags:
+    - To-Do Lists
+  summary: Create a new to-do item
+  description: |
+    Create a new to-do item. Only the title is required; all other fields are optional.
+    
+    **Field Requirements:**
+    - `title`: Required, maximum 255 characters
+    - `description`: Optional, can be empty string
+    - `link`: Optional, maximum 500 characters, can be empty string
+    - `due_date`: Optional, must be valid ISO 8601 format if provided, can be empty string
+    - `is_completed`: Optional, defaults to false
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: '../schemas/TodoInput.yaml'
+        examples:
+          full_todo:
+            summary: Complete to-do item with all fields
+            value:
+              title: "Complete API documentation"
+              description: "Write comprehensive OpenAPI documentation for all endpoints"
+              link: "https://github.com/company/project/issues/123"
+              due_date: "2024-01-20T23:59:59.000Z"
+              is_completed: false
+          minimal_todo:
+            summary: Minimal to-do item with only title
+            value:
+              title: "Quick task"
+              description: ""
+              link: ""
+              due_date: ""
+              is_completed: false
+  responses:
+    '201':
+      description: To-do item created successfully
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/TodoCreateResponse.yaml'
+          examples:
+            success:
+              summary: Successful creation
+              value:
+                id: 123
+    '400':
+      description: Bad request - Missing required fields or validation error
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/ErrorResponse.yaml'
+          examples:
+            missing_title:
+              summary: Missing required title field
+              value:
+                error: "Missing required fields"
+    '401':
+      description: Unauthorized - Invalid or missing API key
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/ErrorResponse.yaml'
+    '500':
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/ErrorResponse.yaml'
+          examples:
+            creation_error:
+              summary: Database error during creation
+              value:
+                error: "Failed to create todo"
+  security:
+    - ApiKeyAuth: []

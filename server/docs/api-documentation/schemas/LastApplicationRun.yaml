@@ -1,0 +1,41 @@
+type: object
+description: Information about the most recent application run
+required:
+  - id
+  - status
+  - url
+  - pipelineId
+  - createdAt
+properties:
+  id:
+    type: integer
+    description: Unique identifier for the run
+    example: 123
+  status:
+    type: string
+    description: Current status of the run
+    enum:
+      - success
+      - failed
+      - running
+      - canceled
+      - not_run
+      - infrastructure_fail
+      - timedout
+      - on_hold
+      - terminated-unknown
+    example: "success"
+  url:
+    type: string
+    format: uri
+    description: URL to view the run details
+    example: "https://app.circleci.com/pipelines/github/myorg/my-web-app/123/workflows/456"
+  pipelineId:
+    type: string
+    description: Pipeline identifier from CI/CD system
+    example: "abc123-def456-ghi789"
+  createdAt:
+    type: string
+    format: date-time
+    description: When the run was created
+    example: "2025-09-20T10:30:00.000Z"

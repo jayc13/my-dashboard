@@ -1,0 +1,16 @@
+type: object
+description: Input data for creating a new pull request record
+required:
+  - pullRequestNumber
+  - repository
+properties:
+  pullRequestNumber:
+    type: integer
+    description: GitHub pull request number
+    minimum: 1
+    example: 456
+  repository:
+    type: string
+    description: Repository name or identifier
+    example: "myorg/my-web-app"
+    pattern: "^[a-zA-Z0-9._-]+/[a-zA-Z0-9._-]+$"

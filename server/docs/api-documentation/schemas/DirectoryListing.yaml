@@ -1,0 +1,27 @@
+type: object
+description: Directory listing response with items and metadata
+required:
+  - path
+  - items
+  - totalFiles
+  - totalDirectories
+properties:
+  path:
+    type: string
+    description: The requested path
+    example: "/"
+  items:
+    type: array
+    description: List of files and directories
+    items:
+      $ref: './FileSystemItem.yaml'
+  totalFiles:
+    type: integer
+    description: Total number of files in the directory
+    minimum: 0
+    example: 3
+  totalDirectories:
+    type: integer
+    description: Total number of directories in the directory
+    minimum: 0
+    example: 11

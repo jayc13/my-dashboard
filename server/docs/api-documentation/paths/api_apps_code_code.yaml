@@ -1,0 +1,65 @@
+get:
+  operationId: get-app-by-code
+  summary: Get application by code
+  description: |
+    Retrieve detailed information about a specific application by its unique code identifier.
+    
+    Returns extended application information including recent run details and statistics.
+  tags:
+    - Applications
+  security:
+    - ApiKeyAuth: []
+  parameters:
+    - name: code
+      in: path
+      description: Application code identifier
+      required: true
+      schema:
+        type: string
+        pattern: "^[a-z0-9-]+$"
+        example: "my-web-app"
+  responses:
+    '200':
+      description: Application retrieved successfully
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/ApplicationDetails.yaml'
+          example:
+            id: 1
+            name: "My Web App"
+            code: "my-web-app"
+            pipeline_url: "https://app.circleci.com/pipelines/github/myorg/my-web-app"
+            e2e_trigger_configuration: "branch:main,schedule:daily"
+            watching: true
+            lastRun:
+              id: 123
+              status: "success"
+              url: "https://app.circleci.com/pipelines/github/myorg/my-web-app/123/workflows/456"
+              pipelineId: "abc123-def456-ghi789"
+              createdAt: "2025-09-20T10:30:00.000Z"
+            e2eRunsQuantity: 42
+    '404':
+      description: Application not found
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/ValidationError.yaml'
+          example:
+            error: "App not found"
+    '401':
+      description: Unauthorized - Invalid or missing API key
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/ValidationError.yaml'
+          example:
+            error: "Unauthorized: Invalid or missing API key"
+    '500':
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/ValidationError.yaml'
+          example:
+            error: "Failed to fetch app"

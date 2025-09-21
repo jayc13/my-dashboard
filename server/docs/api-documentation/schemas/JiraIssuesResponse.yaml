@@ -1,0 +1,16 @@
+type: object
+description: Response containing JIRA issues with total count
+required:
+  - total
+  - issues
+properties:
+  total:
+    type: integer
+    description: Total number of issues found
+    minimum: 0
+    example: 15
+  issues:
+    type: array
+    description: Array of JIRA tickets/issues
+    items:
+      $ref: 'JiraTicket.yaml'

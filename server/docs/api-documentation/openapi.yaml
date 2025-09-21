@@ -1,25 +1,161 @@
 openapi: 3.1.0
 info:
-  title: My Dashboard
+  title: My Dashboard API
   version: 1.0.0
-  description: ''
-  summary: ''
+  description: |
+    # My Dashboard API
+
+    A comprehensive REST API for the My Dashboard application - a Cypress test results dashboard with automated git hooks for code quality.
+
+    ## Overview
+
+    This API provides endpoints for managing:
+    - **E2E Test Reports**: Cypress test execution results and project status
+    - **Applications**: Project/application management and monitoring
+    - **Pull Requests**: GitHub pull request tracking and management
+    - **Notifications**: System notifications and alerts
+    - **JIRA Integration**: Issue tracking and project management
+    - **To-Do Lists**: Task management and tracking
+    - **Firebase Cloud Messaging**: Push notification services
+    - **Internal File System**: Data directory management and cleanup
+
+    ## Authentication
+
+    The API uses API key authentication via the `x-api-key` header for most endpoints.
+    The `/api/auth/validate` endpoint is used to validate API keys, and the `/health` endpoint is publicly accessible.
+
+    ## Rate Limiting
+
+    Authentication endpoints are protected with rate limiting and brute force protection:
+    - Maximum 3 attempts per 15-minute window
+    - Progressive delays on repeated failures
+    - IP-based blocking for persistent abuse
+
+    ## Error Handling
+
+    The API returns consistent error responses with appropriate HTTP status codes:
+    - `400` - Bad Request (validation errors)
+    - `401` - Unauthorized (invalid/missing API key)
+    - `403` - Forbidden (access denied)
+    - `404` - Not Found (resource not found)
+    - `429` - Too Many Requests (rate limiting)
+    - `500` - Internal Server Error (server errors)
+
+    ## Data Formats
+
+    - All request and response bodies use JSON format
+    - Dates are in ISO 8601 format (YYYY-MM-DDTHH:mm:ss.sssZ)
+    - File sizes are in bytes
+    - Boolean values are represented as `true`/`false`
+
+  summary: REST API for My Dashboard - Cypress test results dashboard
+  contact:
+    name: API Support
+    url: https://github.com/jayc13/my-dashboard
   license:
-    name: ' GPL v3'
+    name: GPL v3
     identifier: GPL-3.0-or-later
+    url: https://www.gnu.org/licenses/gpl-3.0.html
 servers:
   - url: http://localhost:3000
     description: Local development server
 tags:
-  - name: Authentication
-    description: Endpoints for user authentication and validation
   - name: Health Check
-    description: Endpoint to check the health status of the service
+    description: Service health monitoring and status checks
+  - name: Authentication
+    description: API key validation and authentication services
+  - name: E2E Reports
+    description: Cypress end-to-end test execution reports and project status
+  - name: Applications
+    description: Application/project management and monitoring
+  - name: Pull Requests
+    description: GitHub pull request tracking and management
+  - name: Notifications
+    description: System notifications and alert management
+  - name: JIRA
+    description: JIRA integration for issue tracking and project management
+  - name: To-Do Lists
+    description: Task management and to-do list functionality
+  - name: FCM
+    description: Firebase Cloud Messaging for push notifications
+  - name: E2E Manual Runs
+    description: Manual execution of end-to-end test runs
+  - name: Internal
+    description: Internal system endpoints for file management and administration
 paths:
+  # Health Check
   /health:
-    $ref: paths/health.yaml
+    $ref: './paths/health.yaml'
+
+  # Authentication
   /api/auth/validate:
-    $ref: paths/api_auth_validate.yaml
+    $ref: './paths/api_auth_validate.yaml'
+
+  # E2E Reports
+  /api/e2e_reports:
+    $ref: './paths/api_e2e_reports.yaml'
+  /api/e2e_reports/report/{id}:
+    $ref: './paths/api_e2e_reports_report_id.yaml'
+  /api/e2e_reports/project_status/{projectName}:
+    $ref: './paths/api_e2e_reports_project_status_projectName.yaml'
+
+  # Applications
+  /api/apps:
+    $ref: './paths/api_apps.yaml'
+  /api/apps/{id}:
+    $ref: './paths/api_apps_id.yaml'
+  /api/apps/code/{code}:
+    $ref: './paths/api_apps_code_code.yaml'
+
+  # Pull Requests
+  /api/pull_requests:
+    $ref: './paths/api_pull_requests.yaml'
+  /api/pull_requests/{id}:
+    $ref: './paths/api_pull_requests_id.yaml'
+
+  # Notifications
+  /api/notifications:
+    $ref: './paths/api_notifications.yaml'
+
+  # JIRA Integration
+  /api/jira:
+    $ref: './paths/api_jira.yaml'
+  /api/jira/manual_qa:
+    $ref: './paths/api_jira_manual_qa.yaml'
+  /api/jira/my_tickets:
+    $ref: './paths/api_jira_my_tickets.yaml'
+
+  # To-Do Lists
+  /api/to_do_list:
+    $ref: './paths/api_to_do_list.yaml'
+  /api/to_do_list/{id}:
+    $ref: './paths/api_to_do_list_id.yaml'
+
+  # Firebase Cloud Messaging
+  /api/fcm/register-token:
+    $ref: './paths/api_fcm_register_token.yaml'
+  /api/fcm/unregister-token:
+    $ref: './paths/api_fcm_unregister_token.yaml'
+  /api/fcm/test-notification:
+    $ref: './paths/api_fcm_test_notification.yaml'
+  /api/fcm/tokens:
+    $ref: './paths/api_fcm_tokens.yaml'
+
+  # E2E Manual Runs
+  /api/e2e_manual_runs:
+    $ref: './paths/api_e2e_manual_runs.yaml'
+  /api/e2e_manual_runs/{id}:
+    $ref: './paths/api_e2e_manual_runs_id.yaml'
+  /api/e2e_manual_runs/app/{appId}:
+    $ref: './paths/api_e2e_manual_runs_app_appId.yaml'
+  /api/e2e_manual_runs/app-code/{appCode}:
+    $ref: './paths/api_e2e_manual_runs_app_code_appCode.yaml'
+
+  # Internal File System
+  /api/internal/files:
+    $ref: './paths/api_internal_files.yaml'
+  /api/internal/files/info:
+    $ref: './paths/api_internal_files_info.yaml'
 components:
   securitySchemes:
     ApiKeyAuth:
@@ -27,6 +163,92 @@ components:
       in: header
       name: x-api-key
       description: API key authentication using x-api-key header
+
+  schemas:
+    # Core Data Models
+    Application:
+      $ref: './schemas/Application.yaml'
+    ApplicationDetails:
+      $ref: './schemas/ApplicationDetails.yaml'
+    LastApplicationRun:
+      $ref: './schemas/LastApplicationRun.yaml'
+
+    # E2E Testing Models
+    ProjectSummary:
+      $ref: './schemas/ProjectSummary.yaml'
+    CypressRun:
+      $ref: './schemas/CypressRun.yaml'
+
+    # Notification Models
+    Notification:
+      $ref: './schemas/Notification.yaml'
+    NotificationInput:
+      $ref: './schemas/NotificationInput.yaml'
+
+    # Pull Request Models
+    PullRequest:
+      $ref: './schemas/PullRequest.yaml'
+    PullRequestInput:
+      $ref: './schemas/PullRequestInput.yaml'
+    GithubPullRequestDetails:
+      $ref: './schemas/GithubPullRequestDetails.yaml'
+
+    # File System Models
+    FileSystemItem:
+      $ref: './schemas/FileSystemItem.yaml'
+    DirectoryListing:
+      $ref: './schemas/DirectoryListing.yaml'
+
+    # JIRA Models
+    JiraTicket:
+      $ref: './schemas/JiraTicket.yaml'
+    JiraIssuesResponse:
+      $ref: './schemas/JiraIssuesResponse.yaml'
+
+    # To-Do List Models
+    Todo:
+      $ref: './schemas/Todo.yaml'
+    TodoInput:
+      $ref: './schemas/TodoInput.yaml'
+    TodoCreateResponse:
+      $ref: './schemas/TodoCreateResponse.yaml'
+
+    # FCM Models
+    FCMTokenRequest:
+      $ref: './schemas/FCMTokenRequest.yaml'
+    FCMTokenResponse:
+      $ref: './schemas/FCMTokenResponse.yaml'
+    FCMTestNotificationRequest:
+      $ref: './schemas/FCMTestNotificationRequest.yaml'
+    FCMTestNotificationResponse:
+      $ref: './schemas/FCMTestNotificationResponse.yaml'
+    FCMTokensResponse:
+      $ref: './schemas/FCMTokensResponse.yaml'
+
+    # E2E Manual Run Models
+    E2EManualRun:
+      $ref: './schemas/E2EManualRun.yaml'
+    E2EManualRunInput:
+      $ref: './schemas/E2EManualRunInput.yaml'
+    E2EManualRunUpdateResponse:
+      $ref: './schemas/E2EManualRunUpdateResponse.yaml'
+
+    # Response Models
+    SuccessResponse:
+      $ref: './schemas/SuccessResponse.yaml'
+    ValidationError:
+      $ref: './schemas/ValidationError.yaml'
+
+    # Authentication Models (existing)
+    AuthValidationRequest:
+      $ref: './schemas/AuthValidationRequest.yaml'
+    AuthValidationResponse:
+      $ref: './schemas/AuthValidationResponse.yaml'
+    ErrorResponse:
+      $ref: './schemas/ErrorResponse.yaml'
+    RateLimitResponse:
+      $ref: './schemas/RateLimitResponse.yaml'
+
 security:
   - {}
   - ApiKeyAuth: []

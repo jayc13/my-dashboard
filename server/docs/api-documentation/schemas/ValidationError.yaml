@@ -1,0 +1,27 @@
+type: object
+description: Validation error response
+required:
+  - error
+properties:
+  error:
+    type: string
+    description: Error message describing the validation failure
+    example: "Missing required fields"
+  details:
+    type: array
+    description: Detailed validation errors (optional)
+    items:
+      type: object
+      properties:
+        field:
+          type: string
+          description: Field name that failed validation
+          example: "email"
+        message:
+          type: string
+          description: Specific validation error message
+          example: "Email is required"
+        code:
+          type: string
+          description: Error code for programmatic handling
+          example: "REQUIRED_FIELD"

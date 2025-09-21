@@ -1,0 +1,25 @@
+type: object
+description: An E2E manual test run record with CircleCI pipeline information
+required:
+  - app_id
+  - pipeline_id
+properties:
+  id:
+    type: integer
+    description: Unique identifier for the E2E manual run (auto-generated)
+    example: 123
+    readOnly: true
+  app_id:
+    type: integer
+    description: ID of the application this E2E run belongs to
+    example: 5
+  pipeline_id:
+    type: string
+    description: CircleCI pipeline ID returned when the E2E tests were triggered
+    example: "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+  created_at:
+    type: string
+    format: date-time
+    description: Timestamp when the E2E manual run was created
+    example: "2024-01-20T10:30:00.000Z"
+    readOnly: true

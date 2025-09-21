@@ -1,0 +1,70 @@
+get:
+  operationId: get-data-dir-info
+  summary: Get data directory information
+  description: |
+    Returns information about the DATA_DIR configuration and status.
+    
+    Provides details about the data directory path, existence, and accessibility.
+    Useful for system monitoring and configuration validation.
+  tags:
+    - Internal
+  security:
+    - ApiKeyAuth: []
+  responses:
+    '200':
+      description: Data directory information retrieved successfully
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: '../schemas/SuccessResponse.yaml'
+              - type: object
+                properties:
+                  data:
+                    type: object
+                    description: Data directory configuration information
+                    required:
+                      - dataDir
+                      - exists
+                      - isDirectory
+                      - envVar
+                    properties:
+                      dataDir:
+                        type: string
+                        description: Absolute path to the data directory
+                        example: "/absolute/path/to/data"
+                      exists:
+                        type: boolean
+                        description: Whether the data directory exists
+                        example: true
+                      isDirectory:
+                        type: boolean
+                        description: Whether the path is a directory
+                        example: true
+                      envVar:
+                        type: string
+                        description: Original DATA_DIR environment variable value
+                        example: "./data"
+          example:
+            success: true
+            data:
+              dataDir: "/absolute/path/to/data"
+              exists: true
+              isDirectory: true
+              envVar: "./data"
+    '401':
+      description: Unauthorized - Invalid or missing API key
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/ValidationError.yaml'
+          example:
+            error: "Unauthorized: Invalid or missing API key"
+    '500':
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/ValidationError.yaml'
+          example:
+            error: "Internal server error"

@@ -1,0 +1,66 @@
+get:
+  operationId: get-e2e-reports
+  summary: Get E2E test reports
+  description: |
+    Retrieve Cypress end-to-end test execution reports for all monitored projects.
+    
+    Returns a summary of test runs including success rates, total runs, and status information
+    for the current day or a specified date.
+  tags:
+    - E2E Reports
+  security:
+    - ApiKeyAuth: []
+  parameters:
+    - name: date
+      in: query
+      description: Report date in YYYY-MM-DD format (defaults to current date)
+      required: false
+      schema:
+        type: string
+        format: date
+        example: "2025-09-20"
+  responses:
+    '200':
+      description: E2E reports retrieved successfully
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: '../schemas/ProjectSummary.yaml'
+          examples:
+            success:
+              summary: Successful response with multiple projects
+              value:
+                - projectName: "my-web-app"
+                  projectCode: "abc123"
+                  lastUpdated: "2025-09-20T10:30:00.000Z"
+                  lastRunStatus: "passed"
+                  totalRuns: 50
+                  passedRuns: 45
+                  failedRuns: 5
+                  successRate: 90.0
+                - projectName: "mobile-app"
+                  projectCode: "def456"
+                  lastUpdated: "2025-09-20T09:15:00.000Z"
+                  lastRunStatus: "failed"
+                  totalRuns: 30
+                  passedRuns: 25
+                  failedRuns: 5
+                  successRate: 83.3
+    '401':
+      description: Unauthorized - Invalid or missing API key
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/ValidationError.yaml'
+          example:
+            error: "Unauthorized: Invalid or missing API key"
+    '500':
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/ValidationError.yaml'
+          example:
+            error: "Internal server error"

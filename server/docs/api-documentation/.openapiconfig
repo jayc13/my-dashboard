@@ -1,0 +1,28 @@
+definition: >-
+  /Users/javier.caballero/WebstormProjects/my-dashboard/server/docs/api-documentation/openapi.yaml
+resolve:
+  external: true
+tests:
+  health-check:
+    call operation:
+      checks:
+        - Success2XX
+        - ValidResponseBody
+      request:
+        params: {}
+        config:
+          headers: {}
+  auth-validate:
+    call operation:
+      checks:
+        - Success2XX
+        - ValidResponseBody
+      request:
+        params: {}
+        data: |
+          {
+            "apiKey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+          }
+        config:
+          headers:
+            Content-Type: application/json

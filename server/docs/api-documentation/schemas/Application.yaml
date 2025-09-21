@@ -1,0 +1,37 @@
+type: object
+description: Application/project configuration and metadata
+required:
+  - name
+  - code
+  - watching
+properties:
+  id:
+    type: integer
+    description: Unique identifier for the application
+    example: 1
+  name:
+    type: string
+    description: Human-readable name of the application
+    example: "My Web App"
+    minLength: 1
+    maxLength: 255
+  code:
+    type: string
+    description: Unique code identifier for the application
+    example: "my-web-app"
+    pattern: "^[a-z0-9-]+$"
+    minLength: 1
+    maxLength: 100
+  pipeline_url:
+    type: string
+    format: uri
+    description: URL to the CI/CD pipeline for this application
+    example: "https://app.circleci.com/pipelines/github/myorg/my-web-app"
+  e2e_trigger_configuration:
+    type: string
+    description: Configuration for triggering E2E tests
+    example: "branch:main,schedule:daily"
+  watching:
+    type: boolean
+    description: Whether this application is actively monitored
+    example: true

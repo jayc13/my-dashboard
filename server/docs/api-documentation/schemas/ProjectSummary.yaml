@@ -1,0 +1,59 @@
+type: object
+description: Summary of Cypress test project execution results
+required:
+  - projectName
+  - lastRunStatus
+  - totalRuns
+  - passedRuns
+  - failedRuns
+  - successRate
+properties:
+  projectName:
+    type: string
+    description: Name of the Cypress project
+    example: "my-web-app"
+    minLength: 1
+  projectCode:
+    type: string
+    nullable: true
+    description: Cypress project code identifier
+    example: "abc123"
+  lastUpdated:
+    type: string
+    format: date-time
+    nullable: true
+    description: When the project was last updated
+    example: "2025-09-20T10:30:00.000Z"
+  lastRunStatus:
+    type: string
+    description: Status of the most recent test run
+    enum:
+      - passed
+      - failed
+      - running
+      - canceled
+      - errored
+      - timedout
+    example: "passed"
+  totalRuns:
+    type: integer
+    description: Total number of test runs in the reporting period
+    minimum: 0
+    example: 50
+  passedRuns:
+    type: integer
+    description: Number of successful test runs
+    minimum: 0
+    example: 45
+  failedRuns:
+    type: integer
+    description: Number of failed test runs
+    minimum: 0
+    example: 5
+  successRate:
+    type: number
+    format: float
+    description: Success rate as a percentage (0-100)
+    minimum: 0
+    maximum: 100
+    example: 90.0

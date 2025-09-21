@@ -1,0 +1,48 @@
+type: object
+description: System notification message
+required:
+  - title
+  - message
+  - type
+  - is_read
+  - created_at
+properties:
+  id:
+    type: integer
+    description: Unique identifier for the notification
+    example: 1
+  title:
+    type: string
+    description: Notification title
+    example: "E2E Test Failed"
+    minLength: 1
+    maxLength: 255
+  message:
+    type: string
+    description: Notification message content
+    example: "The E2E tests for my-web-app have failed. Please check the dashboard for details."
+    minLength: 1
+    maxLength: 1000
+  link:
+    type: string
+    format: uri
+    description: Optional link related to the notification
+    example: "https://cloud.cypress.io/projects/abc123/runs"
+  type:
+    type: string
+    description: Notification type/severity
+    enum:
+      - success
+      - error
+      - info
+      - warning
+    example: "error"
+  is_read:
+    type: boolean
+    description: Whether the notification has been read
+    example: false
+  created_at:
+    type: string
+    format: date-time
+    description: When the notification was created
+    example: "2025-09-20T10:30:00.000Z"

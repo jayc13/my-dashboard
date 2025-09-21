@@ -1,0 +1,21 @@
+type: object
+description: Pull request tracking information
+required:
+  - id
+  - pullRequestNumber
+  - repository
+properties:
+  id:
+    type: string
+    description: Unique identifier for the pull request record
+    example: "123"
+  pullRequestNumber:
+    type: integer
+    description: GitHub pull request number
+    minimum: 1
+    example: 456
+  repository:
+    type: string
+    description: Repository name or identifier
+    example: "myorg/my-web-app"
+    pattern: "^[a-zA-Z0-9._-]+/[a-zA-Z0-9._-]+$"

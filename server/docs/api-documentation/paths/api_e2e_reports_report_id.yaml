@@ -1,0 +1,67 @@
+get:
+  operationId: get-e2e-report-by-id
+  summary: Get E2E report by project name
+  description: |
+    Retrieve detailed E2E test execution report for a specific project by its name.
+    
+    Returns the project summary including test run statistics and status information.
+  tags:
+    - E2E Reports
+  security:
+    - ApiKeyAuth: []
+  parameters:
+    - name: id
+      in: path
+      description: Project name identifier
+      required: true
+      schema:
+        type: string
+        example: "my-web-app"
+    - name: date
+      in: query
+      description: Report date in YYYY-MM-DD format (defaults to current date)
+      required: false
+      schema:
+        type: string
+        format: date
+        example: "2025-09-20"
+  responses:
+    '200':
+      description: E2E report retrieved successfully
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/ProjectSummary.yaml'
+          example:
+            projectName: "my-web-app"
+            projectCode: "abc123"
+            lastUpdated: "2025-09-20T10:30:00.000Z"
+            lastRunStatus: "passed"
+            totalRuns: 50
+            passedRuns: 45
+            failedRuns: 5
+            successRate: 90.0
+    '404':
+      description: Project not found
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/ValidationError.yaml'
+          example:
+            error: "Project not found"
+    '401':
+      description: Unauthorized - Invalid or missing API key
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/ValidationError.yaml'
+          example:
+            error: "Unauthorized: Invalid or missing API key"
+    '500':
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/ValidationError.yaml'
+          example:
+            error: "Internal server error"
