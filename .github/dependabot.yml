@@ -4,7 +4,7 @@ updates:
   - package-ecosystem: "npm"
     directory: "/client"
     schedule:
-      interval: "weekly"
+      interval: "daily"
       day: "monday"
       time: "09:00"
     open-pull-requests-limit: 5
@@ -13,8 +13,11 @@ updates:
     assignees:
       - "jayc13"
     commit-message:
-      prefix: "client"
-      include: "scope"
+      prefix: "deps"
+      include: "dependency-name"
+    pull-request-branch-name:
+      separator: "-"
+      include: "dependency-name"
     labels:
       - "dependencies"
       - "client"
@@ -29,7 +32,7 @@ updates:
   - package-ecosystem: "npm"
     directory: "/server"
     schedule:
-      interval: "weekly"
+      interval: "daily"
       day: "monday"
       time: "09:00"
     open-pull-requests-limit: 5
@@ -38,8 +41,11 @@ updates:
     assignees:
       - "jayc13"
     commit-message:
-      prefix: "server"
-      include: "scope"
+      prefix: "deps"
+      include: "dependency-name"
+    pull-request-branch-name:
+      separator: "-"
+      include: "dependency-name"
     labels:
       - "dependencies"
       - "server"
@@ -52,7 +58,7 @@ updates:
   - package-ecosystem: "npm"
     directory: "/cron"
     schedule:
-      interval: "weekly"
+      interval: "daily"
       day: "monday"
       time: "09:00"
     open-pull-requests-limit: 3
@@ -61,8 +67,11 @@ updates:
     assignees:
       - "jayc13"
     commit-message:
-      prefix: "cron"
-      include: "scope"
+      prefix: "deps"
+      include: "dependency-name"
+    pull-request-branch-name:
+      separator: "-"
+      include: "dependency-name"
     labels:
       - "dependencies"
       - "cron"
@@ -71,7 +80,7 @@ updates:
   - package-ecosystem: "npm"
     directory: "/scripts"
     schedule:
-      interval: "weekly"
+      interval: "daily"
       day: "monday"
       time: "09:00"
     open-pull-requests-limit: 3
@@ -80,8 +89,11 @@ updates:
     assignees:
       - "jayc13"
     commit-message:
-      prefix: "scripts"
-      include: "scope"
+      prefix: "deps"
+      include: "dependency-name"
+    pull-request-branch-name:
+      separator: "-"
+      include: "dependency-name"
     labels:
       - "dependencies"
       - "scripts"
@@ -100,7 +112,10 @@ updates:
       - "jayc13"
     commit-message:
       prefix: "ci"
-      include: "scope"
+      include: "dependency-name"
+    pull-request-branch-name:
+      separator: "-"
+      include: "dependency-name"
     labels:
       - "dependencies"
       - "github-actions"
