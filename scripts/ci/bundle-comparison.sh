@@ -30,13 +30,12 @@ if git ls-tree --name-only main | grep -q '^client$'; then
   echo -e "${GREEN}client directory found in main branch. Proceeding with extraction.${NC}"
   mkdir -p $GITHUB_WORKSPACE/tmp/main-build
   echo "Attempting to archive and extract client directory from main branch..."
-  git archive main client | tar -x -C $GITHUB_WORKSPACE/tmp/main-build
+  git archive main | tar -x -C $GITHUB_WORKSPACE/tmp/main-build
   echo "Archive and extraction successful."
-  cd $GITHUB_WORKSPACE/tmp/main-build
-  cd packages/types || { echo -e "${RED}Failed to navigate to packages/types in main branch.${NC}"; exit 1; }
+  cd $GITHUB_WORKSPACE/tmp/main-build/packages/types || { echo -e "${RED}Failed to navigate to packages/types in main branch.${NC}"; exit 1; }
   npm ci --silent
   npm run build --silent
-  cd ../../client || { echo -e "${RED}Failed to navigate to client in main branch.${NC}"; exit 1; }
+  cd $GITHUB_WORKSPACE/tmp/main-build/client || { echo -e "${RED}Failed to navigate to client in main branch.${NC}"; exit 1; }
   npm ci --silent
   eval "$BUILD_COMMAND --silent"
   MAIN_JS_SIZE=$(find dist/assets -name "*.js" -type f -exec wc -c {} + | tail -1 | awk '{print $1}')
