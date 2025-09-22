@@ -69,7 +69,8 @@ jobs:
     needs: [ basic-validation, validate-client, validate-server, validate-cron, validate-scripts, validate-docs ]
     if: needs.basic-validation.outputs.server-changed == 'true' || needs.basic-validation.outputs.github-changed == 'true'
     uses: ./.github/workflows/validate-integration.yml
-    with:
+    secrets:
+      SERVER_PORT: ${{ secrets.SERVER_PORT }}
       API_SECURITY_KEY: ${{ secrets.API_SECURITY_KEY }}
       FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
       FIREBASE_PRIVATE_KEY: ${{ secrets.FIREBASE_PRIVATE_KEY }}
