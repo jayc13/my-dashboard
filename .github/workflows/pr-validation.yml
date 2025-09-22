@@ -69,6 +69,18 @@ jobs:
     needs: [ basic-validation, validate-client, validate-server, validate-cron, validate-scripts, validate-docs ]
     if: needs.basic-validation.outputs.server-changed == 'true' || needs.basic-validation.outputs.github-changed == 'true'
     uses: ./.github/workflows/validate-integration.yml
+    with:
+      API_SECURITY_KEY: ${{ secrets.API_SECURITY_KEY }}
+      FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
+      FIREBASE_PRIVATE_KEY: ${{ secrets.FIREBASE_PRIVATE_KEY }}
+      FIREBASE_CLIENT_EMAIL: ${{ secrets.FIREBASE_CLIENT_EMAIL }}
+      FIREBASE_PRIVATE_KEY_ID: ${{ secrets.FIREBASE_PRIVATE_KEY_ID }}
+      FIREBASE_CLIENT_ID: ${{ secrets.FIREBASE_CLIENT_ID }}
+      FIREBASE_CLIENT_CERT_URL: ${{ secrets.FIREBASE_CLIENT_CERT_URL }}
+      SERVER_GITHUB_TOKEN: ${{ secrets.SERVER_GITHUB_TOKEN }}
+      JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
+      JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL }}
+      CIRCLE_CI_TOKEN: ${{ secrets.CIRCLE_CI_TOKEN }}
 
   # Job 8: E2E testing
   e2e-testing:
