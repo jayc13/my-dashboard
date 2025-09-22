@@ -1,6 +1,6 @@
 [build]
 builder = "RAILPACK"
-buildCommand = "npm run build"
+buildCommand = "../scripts/railway-build.sh"
 watchPatterns = ["server/**"]
 
 [source]
