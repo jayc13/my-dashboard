@@ -13,6 +13,9 @@
     "build": "tsc",
     "build:watch": "tsc --watch",
     "clean": "rm -rf dist",
+    "lint": "echo \"No linting configured\"",
+    "lint-fix": "echo \"No linting configured\"",
+    "test": "echo \"No tests configured\"",
     "prepublishOnly": "npm run clean && npm run build",
     "dev": "tsc --watch"
   },
