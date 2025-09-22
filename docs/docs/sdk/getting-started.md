@@ -264,7 +264,6 @@ Now that you have the basics, explore more advanced features:
 - [Service Reference](./services.md) - Detailed documentation for each service
 - [Examples](./examples.md) - Real-world usage examples
 - [Advanced Usage](./advanced.md) - Advanced patterns and customization
-- [Migration Guide](./migration.md) - Migrating from direct API calls
 
 ## Common Issues
 
