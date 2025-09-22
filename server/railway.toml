@@ -1,19 +1,19 @@
 [build]
 builder = "RAILPACK"
-buildCommand = "../scripts/railway-build.sh"
+buildCommand = "./scripts/railway-build.sh"
 watchPatterns = ["server/**"]
 
 [source]
 repo = "jayc13/my-dashboard"
 branch = "main"
-rootDirectory = "server"
+rootDirectory = ""
 
 [deploy]
 runtime = "V2"
 numReplicas = 1
-startCommand = "npm start"
+startCommand = "cd server && npm start"
 healthcheckPath = "/health"
-preDeployCommand = ["npm run migrate"]
+preDeployCommand = ["cd server && npm run migrate"]
 sleepApplication = false
 useLegacyStacker = false
 restartPolicyType = "ON_FAILURE"
