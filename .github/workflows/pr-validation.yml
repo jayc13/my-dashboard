@@ -66,15 +66,9 @@ jobs:
   # Job 7: Integration testing
   integration-testing:
     name: Integration Testing
-    runs-on: ubuntu-latest
     needs: [ basic-validation, validate-client, validate-server, validate-cron, validate-scripts, validate-docs ]
     if: needs.basic-validation.outputs.server-changed == 'true' || needs.basic-validation.outputs.github-changed == 'true'
-    steps:
-      - name: Run integration tests
-        run: |
-          echo "=== Integration Testing ==="
-          echo "Running integration tests..."
-          echo "TODO: Implement integration testing"
+    uses: ./.github/workflows/validate-integration.yml
 
   # Job 8: E2E testing
   e2e-testing:

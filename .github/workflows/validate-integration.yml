@@ -1,0 +1,150 @@
+name: Integration Testing Validation
+
+on:
+  workflow_call:
+    inputs:
+      working-directory:
+        description: 'Working directory for integration tests'
+        required: false
+        type: string
+        default: './tests/integration-tests'
+      node-version:
+        description: 'Node.js version to use'
+        required: false
+        type: string
+        default: 'v22.16.0'
+      server-working-directory:
+        description: 'Server working directory'
+        required: false
+        type: string
+        default: './server'
+
+permissions:
+  contents: read
+
+jobs:
+  validate-integration:
+    name: Validate Integration Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: test_password
+          MYSQL_DATABASE: test_db
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Setup Node.js for server
+        uses: ./.github/actions/setup-node
+        with:
+          node-version: ${{ inputs.node-version }}
+          working-directory: ${{ inputs.server-working-directory }}
+          cache-dependency-path: ${{ inputs.server-working-directory }}/package-lock.json
+
+      - name: Setup Node.js for integration tests
+        uses: ./.github/actions/setup-node
+        with:
+          node-version: ${{ inputs.node-version }}
+          working-directory: ${{ inputs.working-directory }}
+          cache-dependency-path: ${{ inputs.working-directory }}/package-lock.json
+
+      - name: Build server
+        working-directory: ${{ inputs.server-working-directory }}
+        run: npm run build
+
+      - name: Build integration tests
+        working-directory: ${{ inputs.working-directory }}
+        run: npm run build
+
+      - name: Setup test database
+        run: |
+          # Wait for MySQL to be ready
+          timeout 60 bash -c 'until mysqladmin ping -h 127.0.0.1 -P 3306 -u root -ptest_password --silent; do sleep 2; done'
+          
+          # Create test database if it doesn't exist
+          mysql -h 127.0.0.1 -P 3306 -u root -ptest_password -e "CREATE DATABASE IF NOT EXISTS integration_test_db;"
+
+      - name: Run database migrations
+        working-directory: ${{ inputs.server-working-directory }}
+        run: npm run migrate
+        env:
+          NODE_ENV: test
+          MYSQL_HOST: 127.0.0.1
+          MYSQL_PORT: 3306
+          MYSQL_USER: root
+          MYSQL_PASSWORD: test_password
+          MYSQL_DATABASE: integration_test_db
+
+      - name: Start server in background
+        working-directory: ${{ inputs.server-working-directory }}
+        run: |
+          # Create test environment file
+          cat > .env << EOF
+          NODE_ENV=test
+          PORT=3000
+          DATA_DIR=./data
+          BRUTE_FORCE_WINDOW_MS=600000
+          BRUTE_FORCE_MAX_ATTEMPTS=20
+          MYSQL_HOST=127.0.0.1
+          MYSQL_PORT=3306
+          MYSQL_USER=root
+          MYSQL_PASSWORD=test_password
+          MYSQL_DATABASE=integration_test_db
+          API_SECURITY_KEY=test-api-key-for-integration-tests
+          EOF
+          
+          # Start server in background
+          npm start &
+          echo $! > server.pid
+          
+          # Wait for server to be ready
+          timeout 60 bash -c 'until curl -sf http://localhost:3000/health; do sleep 2; done'
+
+      - name: Run integration tests
+        working-directory: ${{ inputs.working-directory }}
+        run: |
+          # Set up environment variables for integration tests
+          cat > .env << EOF
+          NODE_ENV=test
+          SERVER_URL=http://localhost:3000
+          API_SECURITY_KEY=test-api-key-for-integration-tests
+          CI=true
+          EOF
+
+          # Run the integration tests
+          npm test
+        env:
+          NODE_ENV: test
+          SERVER_URL: http://localhost:3000
+          API_SECURITY_KEY: test-api-key-for-integration-tests
+          CI: true
+
+      - name: Upload test coverage
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: integration-test-coverage
+          path: ${{ inputs.working-directory }}/coverage/
+          retention-days: 3
+
+      - name: Cleanup server process
+        if: always()
+        working-directory: ${{ inputs.server-working-directory }}
+        run: |
+          # Kill background server process
+          if [ -f server.pid ]; then
+            kill $(cat server.pid) || true
+            rm server.pid
+          fi
+          # Kill any remaining processes on port 3000
+          sudo lsof -ti:3000 | xargs -r sudo kill -9 || true
