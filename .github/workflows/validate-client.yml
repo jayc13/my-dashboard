@@ -30,7 +30,14 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v5
 
-      - name: Setup Node.js
+      - name: Setup Node.js for @my-dashboard/types
+        uses: ./.github/actions/setup-node
+        with:
+          node-version: ${{ inputs.node-version }}
+          working-directory: ./packages/types
+          cache-dependency-path: ./packages/types/package-lock.json
+
+      - name: Setup Node.js for client
         uses: ./.github/actions/setup-node
         with:
           node-version: ${{ inputs.node-version }}
@@ -42,6 +49,10 @@ jobs:
 
       - name: Type check
         run: npx tsc --noEmit
+
+      - name: Build @my-dashboard/types
+        working-directory: ./packages/types
+        run: npm run build
 
       - name: Build client
         run: npm run build
