@@ -1,0 +1,46 @@
+{
+  "name": "@my-dashboard/sdk",
+  "version": "1.0.0",
+  "description": "TypeScript SDK for My Dashboard API",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist/**/*",
+    "src/**/*",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "build:watch": "tsc --watch",
+    "clean": "rm -rf dist",
+    "lint": "echo \"No linting configured\"",
+    "lint-fix": "echo \"No linting configured\"",
+    "test": "echo \"No tests configured\"",
+    "prepublishOnly": "npm run clean && npm run build",
+    "dev": "tsc --watch"
+  },
+  "author": "Javier Caballero",
+  "license": "MIT",
+  "dependencies": {
+    "@my-dashboard/types": "file:../types"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.2",
+    "@types/node": "^20.0.0"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.js"
+    }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:jayc13/my-dashboard.git",
+    "directory": "packages/sdk"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}

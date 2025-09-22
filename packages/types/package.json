@@ -82,6 +82,11 @@
       "types": "./dist/api/index.d.ts",
       "import": "./dist/api/index.js",
       "require": "./dist/api/index.js"
+    },
+    "./sdk": {
+      "types": "./dist/models/sdk/index.d.ts",
+      "import": "./dist/models/sdk/index.js",
+      "require": "./dist/models/sdk/index.js"
     }
   },
   "repository": {
