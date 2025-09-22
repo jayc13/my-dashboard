@@ -2,5 +2,5 @@
 export * from '@my-dashboard/types';
 
 // Client-specific type aliases for backward compatibility
-export type { ClientNotification as Notification } from '@my-dashboard/entity/notifications';
-export type { ClientTodo as ToDo } from '@my-dashboard/entity/todos';
+export type { ClientNotification as Notification } from '@my-dashboard/types/notifications';
+export type { ClientTodo as ToDo } from '@my-dashboard/types/todos';
