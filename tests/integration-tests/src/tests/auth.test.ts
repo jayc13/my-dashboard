@@ -52,7 +52,7 @@ describe('Authentication Integration Tests', () => {
         apiKey: apiKey
       });
 
-      testHelpers.validateResponseStructure(response, ['valid']);
+      testHelpers.validateResponseStructure(response, ['valid', 'message']);
       expect(response.valid).toBe(true);
     });
   });

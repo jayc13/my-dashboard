@@ -1,19 +1,6 @@
 import { initializeFirebase } from '../config/firebase-config';
 import { DatabaseRow, db } from '../db/database';
-
-interface FCMMessage {
-  title: string;
-  body: string;
-  data?: { [key: string]: string };
-  link?: string;
-}
-
-interface DeviceToken {
-  id?: number;
-  token: string;
-  created_at?: string;
-  last_used?: string;
-}
+import type { FCMMessage, DeviceToken } from '@my-dashboard/types/fcm';
 
 export class FCMService {
   private admin;

@@ -25,15 +25,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
 import LinkIcon from '@mui/icons-material/Link';
 import EditIcon from '@mui/icons-material/Edit';
-
-interface ToDo {
-    id: number;
-    title: string;
-    description: string;
-    link: string;
-    due_date: string;
-    is_completed: boolean;
-}
+import type { ClientTodo as ToDo } from '@my-dashboard/types/todos';
 
 const ToDoListWidget = () => {
     const [open, setOpen] = useState(false);

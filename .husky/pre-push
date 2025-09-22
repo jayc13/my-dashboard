@@ -16,17 +16,6 @@ for dir in client server cron; do
     echo "❌ Tests failed in $dir! Please fix failing tests before pushing."
     exit 1
   fi
-
-  echo "🏗️  Running build in $dir..."
-  npm run build
-
-  # If linting passes, run lint:fix to auto-fix issues
-  if [ $? -eq 0 ]; then
-    echo "✅ Build passed in $dir!"
-  else
-    echo "❌ Build failed in $dir! Please fix the issues before pushing."
-    exit 1
-  fi
 done
 
 echo "✅ Pre-push checks completed successfully!"

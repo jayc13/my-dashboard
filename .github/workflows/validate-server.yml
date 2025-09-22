@@ -38,12 +38,23 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v5
 
-      - name: Setup Node.js
+      - name: Setup Node.js for @my-dashboard/types
+        uses: ./.github/actions/setup-node
+        with:
+          node-version: ${{ inputs.node-version }}
+          working-directory: ./packages/types
+          cache-dependency-path: ./packages/types/package-lock.json
+
+      - name: Setup Node.js for server
         uses: ./.github/actions/setup-node
         with:
           node-version: ${{ inputs.node-version }}
           working-directory: ${{ inputs.working-directory }}
           cache-dependency-path: ${{ inputs.working-directory }}/package-lock.json
+
+      - name: Build @my-dashboard/types
+        working-directory: ./packages/types
+        run: npm run build
 
       - name: Type check
         run: npx tsc --noEmit
