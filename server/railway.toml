@@ -1,7 +1,10 @@
 [build]
-builder = "RAILPACK"
+builder = "NIXPACKS"
 buildCommand = "./scripts/railway-build.sh"
 #watchPatterns = ["server/**"]
+
+[variables]
+NODE_VERSION = "22"
 
 [source]
 repo = "jayc13/my-dashboard"
