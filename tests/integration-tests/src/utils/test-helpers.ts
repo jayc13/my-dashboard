@@ -1,4 +1,7 @@
 import { HttpClient } from './http-client';
+import * as dotenv from 'dotenv';
+
+dotenv.config({ quiet: true });
 
 export interface TestConfig {
   serverUrl?: string;
@@ -15,6 +18,11 @@ export class TestHelpers {
     });
   }
 
+  // Get the API key from environment variable
+  getApiKey(): string {
+    return process.env.API_SECURITY_KEY || 'test-api-key-for-integration-tests';
+  }
+
   getHttpClient(): HttpClient {
     return this.httpClient;
   }
@@ -25,7 +33,6 @@ export class TestHelpers {
       try {
         const response = await this.httpClient.get('/health');
         if (response.ok) {
-          console.log(`Server is ready after ${attempt} attempts`);
           return;
         }
       } catch {}

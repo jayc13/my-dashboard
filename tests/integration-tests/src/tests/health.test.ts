@@ -1,4 +1,4 @@
-import { TestHelpers } from '../utils/test-helpers';
+import { TestHelpers } from '@utils/test-helpers';
 
 describe('Health Check Integration Tests', () => {
   let testHelpers: TestHelpers;
