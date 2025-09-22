@@ -1,4 +1,4 @@
-name: Integration Testing Validation
+name: Run Integration Tests
 
 on:
   workflow_call:
@@ -68,39 +68,46 @@ jobs:
 
       - name: Setup test database
         run: |
-          # Wait for MySQL to be ready
-          timeout 60 bash -c 'until mysqladmin ping -h 127.0.0.1 -P 3306 -u root -ptest_password --silent; do sleep 2; done'
-          
-          # Create test database if it doesn't exist
-          mysql -h 127.0.0.1 -P 3306 -u root -ptest_password -e "CREATE DATABASE IF NOT EXISTS integration_test_db;"
+          # Start MySQL service
+          sudo systemctl start mysql
+          # Create test database
+          mysql -u root -p${{ secrets.MYSQL_ROOT_PASSWORD || 'root' }} -e "CREATE DATABASE IF NOT EXISTS ${{ secrets.MYSQL_TEST_DATABASE || 'cypress_dashboard_test' }};"
 
       - name: Run database migrations
         working-directory: ${{ inputs.server-working-directory }}
         run: npm run migrate
         env:
-          NODE_ENV: test
-          MYSQL_HOST: 127.0.0.1
-          MYSQL_PORT: 3306
-          MYSQL_USER: root
-          MYSQL_PASSWORD: test_password
-          MYSQL_DATABASE: integration_test_db
-
+          MYSQL_HOST: ${{ secrets.MYSQL_HOST || 'localhost' }}
+          MYSQL_PORT: ${{ secrets.MYSQL_PORT || '3306' }}
+          MYSQL_USER: ${{ secrets.MYSQL_USER || 'root' }}
+          MYSQL_PASSWORD: ${{ secrets.MYSQL_PASSWORD || secrets.MYSQL_ROOT_PASSWORD || 'root' }}
+          MYSQL_DATABASE: ${{ secrets.MYSQL_TEST_DATABASE || 'cypress_dashboard_test' }}
       - name: Start server in background
         working-directory: ${{ inputs.server-working-directory }}
         run: |
-          # Create test environment file
+          # Set up environment variables for testing
           cat > .env << EOF
           NODE_ENV=test
-          PORT=3000
           DATA_DIR=./data
           BRUTE_FORCE_WINDOW_MS=600000
           BRUTE_FORCE_MAX_ATTEMPTS=20
-          MYSQL_HOST=127.0.0.1
-          MYSQL_PORT=3306
-          MYSQL_USER=root
-          MYSQL_PASSWORD=test_password
-          MYSQL_DATABASE=integration_test_db
-          API_SECURITY_KEY=test-api-key-for-integration-tests
+          PORT=${{ secrets.SERVER_PORT || '3000' }}
+          MYSQL_HOST=${{ secrets.MYSQL_HOST || 'localhost' }}
+          MYSQL_PORT=${{ secrets.MYSQL_PORT || '3306' }}
+          MYSQL_USER=${{ secrets.MYSQL_USER || 'root' }}
+          MYSQL_PASSWORD=${{ secrets.MYSQL_PASSWORD || secrets.MYSQL_ROOT_PASSWORD || 'root' }}
+          MYSQL_DATABASE=${{ secrets.MYSQL_TEST_DATABASE || 'cypress_dashboard_test' }}
+          API_SECURITY_KEY=${{ secrets.API_SECURITY_KEY }}
+          FIREBASE_PROJECT_ID=${{ secrets.FIREBASE_PROJECT_ID }}
+          FIREBASE_PRIVATE_KEY="${{ secrets.FIREBASE_PRIVATE_KEY }}"
+          FIREBASE_CLIENT_EMAIL=${{ secrets.FIREBASE_CLIENT_EMAIL }}
+          FIREBASE_PRIVATE_KEY_ID=${{ secrets.FIREBASE_PRIVATE_KEY_ID }}
+          FIREBASE_CLIENT_ID=${{ secrets.FIREBASE_CLIENT_ID }}
+          FIREBASE_CLIENT_CERT_URL=${{ secrets.FIREBASE_CLIENT_CERT_URL }}
+          GITHUB_TOKEN=${{ secrets.SERVER_GITHUB_TOKEN }}
+          JIRA_API_TOKEN=${{ secrets.JIRA_API_TOKEN }}
+          JIRA_BASE_URL=${{ secrets.JIRA_BASE_URL }}
+          CIRCLE_CI_TOKEN=${{ secrets.CIRCLE_CI_TOKEN }}
           EOF
           
           # Start server in background
@@ -108,34 +115,20 @@ jobs:
           echo $! > server.pid
           
           # Wait for server to be ready
-          timeout 60 bash -c 'until curl -sf http://localhost:3000/health; do sleep 2; done'
-
+          timeout 60 bash -c 'until curl -sf http://localhost:${{ secrets.SERVER_PORT || '3000' }}/health; do sleep 2; done'
       - name: Run integration tests
         working-directory: ${{ inputs.working-directory }}
         run: |
           # Set up environment variables for integration tests
           cat > .env << EOF
           NODE_ENV=test
-          SERVER_URL=http://localhost:3000
-          API_SECURITY_KEY=test-api-key-for-integration-tests
+          SERVER_URL=http://localhost:${{ secrets.SERVER_PORT || '3000' }}
+          API_SECURITY_KEY=${{ secrets.API_SECURITY_KEY }}
           CI=true
           EOF
 
           # Run the integration tests
           npm test
-        env:
-          NODE_ENV: test
-          SERVER_URL: http://localhost:3000
-          API_SECURITY_KEY: test-api-key-for-integration-tests
-          CI: true
-
-      - name: Upload test coverage
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: integration-test-coverage
-          path: ${{ inputs.working-directory }}/coverage/
-          retention-days: 3
 
       - name: Cleanup server process
         if: always()
