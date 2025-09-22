@@ -52,10 +52,6 @@ info:
   contact:
     name: API Support
     url: https://github.com/jayc13/my-dashboard
-  license:
-    name: GPL v3
-    identifier: GPL-3.0-or-later
-    url: https://www.gnu.org/licenses/gpl-3.0.html
 servers:
   - url: http://localhost:3000
     description: Local development server

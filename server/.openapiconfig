@@ -1,5 +1,5 @@
 definition: >-
-  /Users/javier.caballero/WebstormProjects/my-dashboard/server/docs/api-documentation/openapi.yaml
+   ./docs/api-documentation/openapi.yaml
 resolve:
   external: true
 tests:
