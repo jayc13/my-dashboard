@@ -52,15 +52,15 @@ jobs:
           working-directory: ${{ inputs.working-directory }}
           cache-dependency-path: ${{ inputs.working-directory }}/package-lock.json
 
+      - name: Build @my-dashboard/types
+        working-directory: ./packages/types
+        run: npm run build
+
       - name: Type check
         run: npx tsc --noEmit
 
       - name: Run linting
         run: npm run lint
-
-      - name: Build @my-dashboard/types
-        working-directory: ./packages/types
-        run: npm run build
 
       - name: Build server
         run: npm run build
