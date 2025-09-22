@@ -48,6 +48,10 @@ export class ToDoListController {
   async update(req: Request, res: Response) {
     try {
       const id = Number(req.params.id);
+      const getExistingTodo = await TodoService.getById(id);
+      if (!getExistingTodo) {
+        return res.status(404).json({ error: 'ToDo item not found' });
+      }
       const { title, description, link, due_date, is_completed } = req.body;
       await TodoService.update(id, { title, description, link, due_date, is_completed });
       res.status(204).send();
