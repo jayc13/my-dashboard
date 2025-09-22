@@ -1,7 +1,7 @@
 [build]
 builder = "RAILPACK"
 buildCommand = "./scripts/railway-build.sh"
-watchPatterns = ["server/**"]
+#watchPatterns = ["server/**"]
 
 [source]
 repo = "jayc13/my-dashboard"
