@@ -4,6 +4,8 @@
   "description": "",
   "main": "inject-firebase-config.js",
   "scripts": {
+    "build": "echo \"No build step required\"",
+    "test": "echo \"No tests configured\"",
     "prepare": "husky",
     "replace-env": "node inject-firebase-config.js",
     "check-todos": "./check-todos.sh",
