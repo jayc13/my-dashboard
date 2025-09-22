@@ -14,6 +14,8 @@ module.exports = {
         'test',     // Adding missing tests or correcting existing tests
         'build',    // Changes that affect the build system or external dependencies
         'ci',       // Changes to our CI configuration files and scripts
+        'maint',    // Changes to the maintenance scripts
+        'deps',     // Updates to dependencies
         'chore',    // Other changes that don't modify src or test files
         'revert',    // Reverts a previous commit
       ],
