@@ -1,28 +1,7 @@
 import { db } from '../db/database';
 import { E2EManualRunService } from './e2e_manual_run.service';
 import { CircleCIService } from './circle_ci.service';
-
-export interface Application {
-    id?: number;
-    name: string;
-    code: string;
-    pipeline_url?: string;
-    e2e_trigger_configuration?: string;
-    watching: boolean;
-}
-
-interface LastApplicationRun {
-    id: number;
-    status: string;
-    url: string;
-    pipelineId: string;
-    createdAt: string;
-}
-
-export interface ApplicationDetails extends Application {
-    lastRun?: LastApplicationRun,
-    e2eRunsQuantity: number
-}
+import type { Application, ApplicationDetails, LastApplicationRun } from '@my-dashboard/types';
 
 export class AppService {
   static async getAll(): Promise<Application[]> {

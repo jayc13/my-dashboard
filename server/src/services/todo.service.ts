@@ -1,13 +1,5 @@
 import { db } from '../db/database';
-
-export interface Todo {
-    id?: number;
-    title: string;
-    description: string;
-    link: string;
-    due_date: string; // ISO string
-    is_completed: boolean;
-}
+import type { Todo } from '@my-dashboard/types';
 
 export class TodoService {
   static async getAll(): Promise<Todo[]> {

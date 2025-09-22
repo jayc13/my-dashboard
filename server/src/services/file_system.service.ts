@@ -1,27 +1,6 @@
 import * as fs from 'fs';
 import * as path from 'path';
-
-export interface FileSystemItem {
-    name: string;
-    type: 'file' | 'directory';
-    path: string;
-    size?: number;
-    modified?: Date;
-}
-
-export interface DirectoryListing {
-    path: string;
-    items: FileSystemItem[];
-    totalFiles: number;
-    totalDirectories: number;
-}
-
-export interface DeletionResult {
-    success: boolean;
-    path: string;
-    type: 'file' | 'directory';
-    message: string;
-}
+import type { FileSystemItem, DirectoryListing, DeletionResult } from '@my-dashboard/entity/file-system';
 
 export class FileSystemService {
   private static getDataDir(): string {
