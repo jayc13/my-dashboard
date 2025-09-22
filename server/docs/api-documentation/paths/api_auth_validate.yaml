@@ -5,31 +5,37 @@ post:
   tags:
     - Authentication
   requestBody:
-    $ref: ../components/requestBodies/AuthValidationRequest.yaml
+    description: API key to validate
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: ../schemas/AuthValidationRequest.yaml
+        example:
+          apiKey: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
   responses:
     '200':
-      $ref: ../components/responses/AuthValidationResponse.yaml
-      examples:
-        API Key Valid:
-          value:
+      content:
+        application/json:
+          schema:
+            $ref: ../schemas/AuthValidationResponse.yaml
+          example:
             valid: true
             message: API key is valid
     '400':
-      $ref: ../components/responses/AuthValidationResponse.yaml
-      examples:
-        Bad Request:
-          value:
-            valid: false
-            message: API key is required and must be a string
-        Empty API key:
-          value:
+      content:
+        application/json:
+          schema:
+            $ref: ../schemas/AuthValidationResponse.yaml
+          example:
             valid: false
             message: API key cannot be empty
     '401':
-      $ref: ../components/responses/AuthValidationResponse.yaml
-      examples:
-        Invalid API key:
-          value:
+      content:
+        application/json:
+          schema:
+            $ref: ../schemas/AuthValidationResponse.yaml
+          example:
             valid: false
             message: Invalid API key
     '429':
@@ -37,12 +43,17 @@ post:
       content:
         application/json:
           schema:
-            $ref: ../components/responses/RateLimitResponse.yaml
-          examples:
-            Example 1:
-              value:
-                error: Too many failed attempts. Try again in 10 minutes.
-                retryAfter: 600
+            $ref: ../schemas/RateLimitResponse.yaml
+          example:
+            error: Too many failed attempts. Try again in 10 minutes.
+            retryAfter: 600
     '500':
-      $ref: ../components/responses/ErrorResponse.yaml
+      description: An internal server error occurred
+      content:
+        application/json:
+          schema:
+            $ref: ../schemas/ErrorResponse.yaml
+          example:
+            error: Internal server error
+
   security: []

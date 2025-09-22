@@ -1,0 +1,127 @@
+get:
+  operationId: get-pull-request-details
+  summary: Get pull request details
+  description: |
+    Retrieve detailed information about a specific pull request from GitHub.
+    
+    Fetches comprehensive pull request data including status, labels, author information, and merge details.
+  tags:
+    - Pull Requests
+  security:
+    - ApiKeyAuth: []
+  parameters:
+    - name: id
+      in: path
+      description: Pull request tracking ID
+      required: true
+      schema:
+        type: string
+        example: "1"
+  responses:
+    '200':
+      description: Pull request details retrieved successfully
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/GithubPullRequestDetails.yaml'
+          example:
+            id: 789012345
+            number: 456
+            title: "feat: add user authentication"
+            state: "open"
+            isDraft: false
+            merged: false
+            mergeableState: "clean"
+            createdAt: "2025-09-20T10:30:00.000Z"
+            updatedAt: "2025-09-20T15:45:00.000Z"
+            closedAt: null
+            mergedAt: null
+            labels:
+              - name: "feature"
+                color: "0e8a16"
+              - name: "frontend"
+                color: "1d76db"
+            url: "https://github.com/myorg/my-web-app/pull/456"
+            author:
+              username: "johndoe"
+              avatarUrl: "https://avatars.githubusercontent.com/u/123456?v=4"
+              htmlUrl: "https://github.com/johndoe"
+    '404':
+      description: Pull request not found
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/ValidationError.yaml'
+          example:
+            error: "Pull request not found"
+    '401':
+      description: Unauthorized - Invalid or missing API key
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/ValidationError.yaml'
+          example:
+            error: "Unauthorized: Invalid or missing API key"
+    '500':
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/ValidationError.yaml'
+          example:
+            error: "Error fetching pull request details"
+
+delete:
+  operationId: delete-pull-request
+  summary: Delete pull request
+  description: |
+    Remove a pull request from the tracking system.
+    
+    **Note**: This only removes the pull request from the local tracking system, not from GitHub.
+  tags:
+    - Pull Requests
+  security:
+    - ApiKeyAuth: []
+  parameters:
+    - name: id
+      in: path
+      description: Pull request tracking ID
+      required: true
+      schema:
+        type: string
+        example: "1"
+  responses:
+    '200':
+      description: Pull request deleted successfully
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: "Pull request deleted successfully"
+    '404':
+      description: Pull request not found
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/ValidationError.yaml'
+          example:
+            error: "Pull request not found"
+    '401':
+      description: Unauthorized - Invalid or missing API key
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/ValidationError.yaml'
+          example:
+            error: "Unauthorized: Invalid or missing API key"
+    '500':
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/ValidationError.yaml'
+          example:
+            error: "Error deleting pull request"

@@ -1,0 +1,119 @@
+type: object
+description: Detailed information about a single Cypress test run
+required:
+  - project_name
+  - created_at
+  - run_number
+  - commit_author_name
+  - spec
+  - status
+  - total_tests
+  - pass_tests
+  - flaky_tests
+  - fail_tests
+  - parallel_enabled
+  - commit_branch
+  - run_tags
+  - spec_duration
+  - browser_name
+  - browser_version
+  - os_name
+  - os_version
+properties:
+  project_name:
+    type: string
+    description: Name of the Cypress project
+    example: "my-web-app"
+  created_at:
+    type: string
+    format: date-time
+    description: When the run was created
+    example: "2025-09-20T10:30:00.000Z"
+  run_number:
+    type: integer
+    description: Sequential run number
+    minimum: 1
+    example: 123
+  commit_author_name:
+    type: string
+    description: Name of the commit author
+    example: "John Doe"
+  spec:
+    type: string
+    description: Test specification file path
+    example: "cypress/e2e/login.cy.ts"
+  status:
+    type: string
+    description: Run status
+    enum:
+      - passed
+      - failed
+      - running
+      - canceled
+      - errored
+      - timedout
+    example: "passed"
+  total_tests:
+    type: integer
+    description: Total number of tests in the run
+    minimum: 0
+    example: 15
+  pass_tests:
+    type: integer
+    description: Number of passed tests
+    minimum: 0
+    example: 13
+  flaky_tests:
+    type: integer
+    description: Number of flaky tests
+    minimum: 0
+    example: 1
+  fail_tests:
+    type: integer
+    description: Number of failed tests
+    minimum: 0
+    example: 1
+  parallel_enabled:
+    type: boolean
+    description: Whether parallel execution was enabled
+    example: true
+  commit_branch:
+    type: string
+    description: Git branch name
+    example: "main"
+  group_name:
+    type: string
+    nullable: true
+    description: Test group name
+    example: "smoke-tests"
+  run_tags:
+    type: string
+    description: Tags associated with the run
+    example: "nightly,regression"
+  failed_spec_prioritized:
+    type: string
+    nullable: true
+    description: Prioritized failed spec information
+    example: "cypress/e2e/critical.cy.ts"
+  spec_duration:
+    type: number
+    format: float
+    description: Duration of spec execution in seconds
+    minimum: 0
+    example: 45.5
+  browser_name:
+    type: string
+    description: Browser used for testing
+    example: "chrome"
+  browser_version:
+    type: string
+    description: Browser version
+    example: "118.0.5993.70"
+  os_name:
+    type: string
+    description: Operating system name
+    example: "linux"
+  os_version:
+    type: string
+    description: Operating system version
+    example: "ubuntu-22.04"

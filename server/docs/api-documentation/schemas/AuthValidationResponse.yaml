@@ -1,0 +1,11 @@
+description: ''
+content:
+  application/json:
+    schema:
+      type: object
+      properties:
+        valid:
+          type: boolean
+        message:
+          type: string
+headers: {}

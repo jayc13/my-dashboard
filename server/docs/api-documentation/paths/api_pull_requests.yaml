@@ -1,0 +1,124 @@
+get:
+  operationId: list-pull-requests
+  summary: List all pull requests
+  description: |
+    Retrieve a list of all tracked pull requests in the system.
+    
+    Returns basic pull request information including PR number, repository, and tracking ID.
+  tags:
+    - Pull Requests
+  security:
+    - ApiKeyAuth: []
+  responses:
+    '200':
+      description: Pull requests retrieved successfully
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: '../schemas/PullRequest.yaml'
+          examples:
+            success:
+              summary: List of pull requests
+              value:
+                - id: "1"
+                  pullRequestNumber: 456
+                  repository: "myorg/my-web-app"
+                - id: "2"
+                  pullRequestNumber: 789
+                  repository: "myorg/mobile-app"
+    '401':
+      description: Unauthorized - Invalid or missing API key
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/ValidationError.yaml'
+          example:
+            error: "Unauthorized: Invalid or missing API key"
+    '500':
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/ValidationError.yaml'
+          example:
+            error: "Error fetching pull requests"
+
+post:
+  operationId: add-pull-request
+  summary: Add a new pull request
+  description: |
+    Add a new pull request to the tracking system.
+    
+    Creates a new pull request record for monitoring and integration purposes.
+  tags:
+    - Pull Requests
+  security:
+    - ApiKeyAuth: []
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: '../schemas/PullRequestInput.yaml'
+        examples:
+          add_pr:
+            summary: Add new pull request
+            value:
+              pullRequestNumber: 456
+              repository: "myorg/my-web-app"
+  responses:
+    '201':
+      description: Pull request added successfully
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/PullRequest.yaml'
+          example:
+            id: "3"
+            pullRequestNumber: 456
+            repository: "myorg/my-web-app"
+    '400':
+      description: Bad request - Invalid input data
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/ValidationError.yaml'
+          examples:
+            missing_fields:
+              summary: Missing required fields
+              value:
+                error: "Pull request number and repository are required"
+            invalid_pr_number:
+              summary: Invalid PR number
+              value:
+                error: "Pull request number must be a positive integer"
+            invalid_repository:
+              summary: Invalid repository format
+              value:
+                error: "Repository must be in format 'owner/repo'"
+    '401':
+      description: Unauthorized - Invalid or missing API key
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/ValidationError.yaml'
+          example:
+            error: "Unauthorized: Invalid or missing API key"
+    '409':
+      description: Conflict - Pull request already exists
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/ValidationError.yaml'
+          example:
+            error: "Pull request already exists in the system"
+    '500':
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/ValidationError.yaml'
+          example:
+            error: "Error creating pull request"

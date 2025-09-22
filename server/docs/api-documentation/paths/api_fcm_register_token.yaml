@@ -1,0 +1,73 @@
+post:
+  tags:
+    - FCM
+  summary: Register device token for push notifications
+  description: |
+    Register a Firebase Cloud Messaging (FCM) device token to enable push notifications for a device.
+    
+    **How it works:**
+    - If the token already exists, updates the `last_used` timestamp
+    - If the token is new, adds it to the database with current timestamp
+    - Tokens are used to send push notifications to specific devices
+    
+    **Client Integration:**
+    - Obtain the FCM token using Firebase SDK on the client side
+    - Call this endpoint when the app starts or when the token refreshes
+    - Store the registration status locally to avoid unnecessary re-registrations
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: '../schemas/FCMTokenRequest.yaml'
+        examples:
+          register_token:
+            summary: Register a new device token
+            value:
+              token: "dGhpcyBpcyBhIGZha2UgZmNtIHRva2VuIGZvciBkb2N1bWVudGF0aW9u"
+  responses:
+    '200':
+      description: Device token registered successfully
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/FCMTokenResponse.yaml'
+          examples:
+            success:
+              summary: Successful registration
+              value:
+                message: "Device token registered successfully"
+    '400':
+      description: Bad request - Device token is required
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/ErrorResponse.yaml'
+          examples:
+            missing_token:
+              summary: Missing device token
+              value:
+                error: "Device token is required"
+    '401':
+      description: Unauthorized - Invalid or missing API key
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/ErrorResponse.yaml'
+    '500':
+      description: Internal server error - Database or Firebase configuration error
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/ErrorResponse.yaml'
+          examples:
+            registration_failed:
+              summary: Registration failed
+              value:
+                error: "Failed to register device token"
+            server_error:
+              summary: Internal server error
+              value:
+                error: "Internal server error"
+  security:
+    - ApiKeyAuth: []

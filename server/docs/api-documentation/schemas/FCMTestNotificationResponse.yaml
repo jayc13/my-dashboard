@@ -1,0 +1,21 @@
+type: object
+description: Response after sending test FCM notification
+required:
+  - message
+  - successCount
+  - failureCount
+properties:
+  message:
+    type: string
+    description: Status message
+    example: "Test notification sent"
+  successCount:
+    type: integer
+    description: Number of devices that successfully received the notification
+    minimum: 0
+    example: 5
+  failureCount:
+    type: integer
+    description: Number of devices that failed to receive the notification
+    minimum: 0
+    example: 1

@@ -1,0 +1,26 @@
+type: object
+description: Request body for sending test FCM notifications
+required:
+  - title
+  - body
+properties:
+  title:
+    type: string
+    description: Notification title
+    example: "Test Notification"
+  body:
+    type: string
+    description: Notification body/message
+    example: "This is a test notification from the dashboard"
+  data:
+    type: object
+    description: Optional custom data to include with the notification
+    additionalProperties:
+      type: string
+    example:
+      type: "test"
+      source: "dashboard"
+  link:
+    type: string
+    description: Optional URL to open when notification is clicked
+    example: "https://dashboard.example.com/notifications"

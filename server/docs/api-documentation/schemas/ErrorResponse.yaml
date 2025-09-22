@@ -6,10 +6,5 @@ content:
       properties:
         error:
           type: string
-      x-examples:
-        Example 1:
-          error: 'Unauthorized: Invalid or missing API key'
-    examples:
-      Internal server error:
-        value:
+      example:
           error: Internal server error

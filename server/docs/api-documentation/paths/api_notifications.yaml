@@ -1,0 +1,200 @@
+get:
+  operationId: get-all-notifications
+  summary: Get all notifications
+  description: |
+    Retrieve all system notifications ordered by creation date (newest first).
+    
+    Returns a list of notifications with their read status, type, and associated links.
+  tags:
+    - Notifications
+  security:
+    - ApiKeyAuth: []
+  parameters:
+    - name: limit
+      in: query
+      description: Maximum number of notifications to return
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 50
+        example: 20
+    - name: offset
+      in: query
+      description: Number of notifications to skip (for pagination)
+      required: false
+      schema:
+        type: integer
+        minimum: 0
+        default: 0
+        example: 0
+    - name: type
+      in: query
+      description: Filter notifications by type
+      required: false
+      schema:
+        type: string
+        enum:
+          - success
+          - error
+          - info
+          - warning
+        example: "error"
+    - name: unread_only
+      in: query
+      description: Return only unread notifications
+      required: false
+      schema:
+        type: boolean
+        default: false
+        example: true
+  responses:
+    '200':
+      description: Notifications retrieved successfully
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              type: object
+              description: Notification with client-friendly field names
+              required:
+                - id
+                - title
+                - message
+                - type
+                - read
+                - created_at
+              properties:
+                id:
+                  type: integer
+                  example: 1
+                title:
+                  type: string
+                  example: "E2E Test Failed"
+                message:
+                  type: string
+                  example: "The E2E tests for my-web-app have failed."
+                link:
+                  type: string
+                  format: uri
+                  example: "https://cloud.cypress.io/projects/abc123/runs"
+                type:
+                  type: string
+                  enum: [success, error, info, warning]
+                  example: "error"
+                read:
+                  type: boolean
+                  example: false
+                created_at:
+                  type: string
+                  format: date-time
+                  example: "2025-09-20T10:30:00.000Z"
+          examples:
+            success:
+              summary: List of notifications
+              value:
+                - id: 1
+                  title: "E2E Test Failed"
+                  message: "The E2E tests for my-web-app have failed. Please check the dashboard for details."
+                  link: "https://cloud.cypress.io/projects/abc123/runs"
+                  type: "error"
+                  read: false
+                  created_at: "2025-09-20T10:30:00.000Z"
+                - id: 2
+                  title: "E2E Report Generated"
+                  message: "The E2E report for 2025-09-20 has been generated successfully"
+                  link: "/e2e-dashboard"
+                  type: "success"
+                  read: true
+                  created_at: "2025-09-20T09:00:00.000Z"
+    '401':
+      description: Unauthorized - Invalid or missing API key
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/ValidationError.yaml'
+          example:
+            error: "Unauthorized: Invalid or missing API key"
+    '500':
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/ValidationError.yaml'
+          example:
+            error: "Error fetching notifications"
+
+post:
+  operationId: create-notification
+  summary: Create a new notification
+  description: |
+    Create a new system notification.
+    
+    Notifications can be used to alert users about important events, errors, or status updates.
+    Optionally sends push notifications via FCM if configured.
+  tags:
+    - Notifications
+  security:
+    - ApiKeyAuth: []
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: '../schemas/NotificationInput.yaml'
+        examples:
+          error_notification:
+            summary: Error notification
+            value:
+              title: "E2E Test Failed"
+              message: "The E2E tests for my-web-app have failed. Please check the dashboard for details."
+              link: "https://cloud.cypress.io/projects/abc123/runs"
+              type: "error"
+          success_notification:
+            summary: Success notification
+            value:
+              title: "Deployment Complete"
+              message: "Application my-web-app has been successfully deployed to production."
+              link: "/deployments/123"
+              type: "success"
+  responses:
+    '201':
+      description: Notification created successfully
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/Notification.yaml'
+          example:
+            id: 3
+            title: "E2E Test Failed"
+            message: "The E2E tests for my-web-app have failed. Please check the dashboard for details."
+            link: "https://cloud.cypress.io/projects/abc123/runs"
+            type: "error"
+            is_read: false
+            created_at: "2025-09-20T10:30:00.000Z"
+    '400':
+      description: Bad request - Missing required fields
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/ValidationError.yaml'
+          example:
+            error: "Missing required fields"
+    '401':
+      description: Unauthorized - Invalid or missing API key
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/ValidationError.yaml'
+          example:
+            error: "Unauthorized: Invalid or missing API key"
+    '500':
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/ValidationError.yaml'
+          example:
+            error: "Error creating notification"

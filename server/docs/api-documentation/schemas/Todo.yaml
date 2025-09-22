@@ -1,0 +1,37 @@
+type: object
+description: A to-do item with task details and completion status
+required:
+  - title
+  - description
+  - link
+  - due_date
+  - is_completed
+properties:
+  id:
+    type: integer
+    description: Unique identifier for the to-do item (auto-generated)
+    example: 123
+    readOnly: true
+  title:
+    type: string
+    description: Title or summary of the to-do item
+    maxLength: 255
+    example: "Complete API documentation"
+  description:
+    type: string
+    description: Detailed description of the task
+    example: "Write comprehensive OpenAPI documentation for all endpoints"
+  link:
+    type: string
+    description: Optional URL link related to the task (can be empty string)
+    maxLength: 500
+    example: "https://github.com/company/project/issues/123"
+  due_date:
+    type: string
+    format: date-time
+    description: Due date for the task in ISO 8601 format (can be empty string for no due date)
+    example: "2024-01-20T23:59:59.000Z"
+  is_completed:
+    type: boolean
+    description: Whether the task has been completed
+    example: false

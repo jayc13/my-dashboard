@@ -1,0 +1,259 @@
+get:
+  operationId: get-app-by-id
+  summary: Get application by ID
+  description: |
+    Retrieve detailed information about a specific application by its ID.
+    
+    Returns extended application information including recent run details and statistics.
+  tags:
+    - Applications
+  security:
+    - ApiKeyAuth: []
+  parameters:
+    - name: id
+      in: path
+      description: Application ID
+      required: true
+      schema:
+        type: integer
+        minimum: 1
+        example: 1
+  responses:
+    '200':
+      description: Application retrieved successfully
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/ApplicationDetails.yaml'
+          example:
+            id: 1
+            name: "My Web App"
+            code: "my-web-app"
+            pipeline_url: "https://app.circleci.com/pipelines/github/myorg/my-web-app"
+            e2e_trigger_configuration: "branch:main,schedule:daily"
+            watching: true
+            lastRun:
+              id: 123
+              status: "success"
+              url: "https://app.circleci.com/pipelines/github/myorg/my-web-app/123/workflows/456"
+              pipelineId: "abc123-def456-ghi789"
+              createdAt: "2025-09-20T10:30:00.000Z"
+            e2eRunsQuantity: 42
+    '400':
+      description: Bad request - Invalid application ID
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/ValidationError.yaml'
+          example:
+            error: "Invalid app ID"
+    '404':
+      description: Application not found
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/ValidationError.yaml'
+          example:
+            error: "App not found"
+    '401':
+      description: Unauthorized - Invalid or missing API key
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/ValidationError.yaml'
+          example:
+            error: "Unauthorized: Invalid or missing API key"
+    '500':
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/ValidationError.yaml'
+          example:
+            error: "Failed to fetch app"
+
+put:
+  operationId: update-app
+  summary: Update application
+  description: |
+    Update an existing application's configuration and settings.
+    
+    Allows modification of application properties including name, monitoring status, and pipeline configuration.
+  tags:
+    - Applications
+  security:
+    - ApiKeyAuth: []
+  parameters:
+    - name: id
+      in: path
+      description: Application ID
+      required: true
+      schema:
+        type: integer
+        minimum: 1
+        example: 1
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            name:
+              type: string
+              description: Human-readable name of the application
+              example: "My Updated App"
+              minLength: 1
+              maxLength: 255
+            code:
+              type: string
+              description: Unique code identifier for the application
+              example: "my-updated-app"
+              pattern: "^[a-z0-9-]+$"
+              minLength: 1
+              maxLength: 100
+            pipeline_url:
+              type: string
+              format: uri
+              description: URL to the CI/CD pipeline for this application
+              example: "https://app.circleci.com/pipelines/github/myorg/my-updated-app"
+            e2e_trigger_configuration:
+              type: string
+              description: Configuration for triggering E2E tests
+              example: "branch:main,schedule:nightly"
+            watching:
+              type: boolean
+              description: Whether this application should be actively monitored
+              example: false
+        examples:
+          update_app:
+            summary: Update application settings
+            value:
+              name: "My Updated App"
+              watching: false
+              e2e_trigger_configuration: "branch:main,schedule:nightly"
+  responses:
+    '200':
+      description: Application updated successfully
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/Application.yaml'
+          example:
+            id: 1
+            name: "My Updated App"
+            code: "my-web-app"
+            pipeline_url: "https://app.circleci.com/pipelines/github/myorg/my-web-app"
+            e2e_trigger_configuration: "branch:main,schedule:nightly"
+            watching: false
+    '400':
+      description: Bad request - Invalid input data or application ID
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/ValidationError.yaml'
+          examples:
+            invalid_id:
+              summary: Invalid application ID
+              value:
+                error: "Invalid app ID"
+            invalid_data:
+              summary: Invalid input data
+              value:
+                error: "Invalid application data"
+    '404':
+      description: Application not found
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/ValidationError.yaml'
+          example:
+            error: "App not found"
+    '401':
+      description: Unauthorized - Invalid or missing API key
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/ValidationError.yaml'
+          example:
+            error: "Unauthorized: Invalid or missing API key"
+    '409':
+      description: Conflict - Application code already exists
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/ValidationError.yaml'
+          example:
+            error: "Application with this code already exists"
+    '500':
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/ValidationError.yaml'
+          example:
+            error: "Failed to update app"
+
+delete:
+  operationId: delete-app
+  summary: Delete application
+  description: |
+    Remove an application from the system.
+    
+    **Warning**: This action is irreversible and will remove all associated data.
+  tags:
+    - Applications
+  security:
+    - ApiKeyAuth: []
+  parameters:
+    - name: id
+      in: path
+      description: Application ID
+      required: true
+      schema:
+        type: integer
+        minimum: 1
+        example: 1
+  responses:
+    '200':
+      description: Application deleted successfully
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: "Application deleted successfully"
+    '400':
+      description: Bad request - Invalid application ID
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/ValidationError.yaml'
+          example:
+            error: "Invalid app ID"
+    '404':
+      description: Application not found
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/ValidationError.yaml'
+          example:
+            error: "App not found"
+    '401':
+      description: Unauthorized - Invalid or missing API key
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/ValidationError.yaml'
+          example:
+            error: "Unauthorized: Invalid or missing API key"
+    '500':
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/ValidationError.yaml'
+          example:
+            error: "Failed to delete app"

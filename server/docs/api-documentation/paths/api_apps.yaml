@@ -1,0 +1,163 @@
+get:
+  operationId: get-all-apps
+  summary: Get all applications
+  description: |
+    Retrieve a list of all registered applications/projects in the system.
+    
+    Returns basic application information including name, code, and monitoring status.
+  tags:
+    - Applications
+  security:
+    - ApiKeyAuth: []
+  responses:
+    '200':
+      description: Applications retrieved successfully
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: '../schemas/Application.yaml'
+          examples:
+            success:
+              summary: List of applications
+              value:
+                - id: 1
+                  name: "My Web App"
+                  code: "my-web-app"
+                  pipeline_url: "https://app.circleci.com/pipelines/github/myorg/my-web-app"
+                  e2e_trigger_configuration: "branch:main,schedule:daily"
+                  watching: true
+                - id: 2
+                  name: "Mobile App"
+                  code: "mobile-app"
+                  pipeline_url: "https://app.circleci.com/pipelines/github/myorg/mobile-app"
+                  e2e_trigger_configuration: "branch:main"
+                  watching: false
+    '401':
+      description: Unauthorized - Invalid or missing API key
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/ValidationError.yaml'
+          example:
+            error: "Unauthorized: Invalid or missing API key"
+    '500':
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/ValidationError.yaml'
+          example:
+            error: "Failed to fetch apps"
+
+post:
+  operationId: create-app
+  summary: Create a new application
+  description: |
+    Register a new application/project in the system.
+    
+    Creates a new application record with the provided configuration.
+  tags:
+    - Applications
+  security:
+    - ApiKeyAuth: []
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          type: object
+          required:
+            - name
+            - code
+            - watching
+          properties:
+            name:
+              type: string
+              description: Human-readable name of the application
+              example: "My New App"
+              minLength: 1
+              maxLength: 255
+            code:
+              type: string
+              description: Unique code identifier for the application
+              example: "my-new-app"
+              pattern: "^[a-z0-9-]+$"
+              minLength: 1
+              maxLength: 100
+            pipeline_url:
+              type: string
+              format: uri
+              description: URL to the CI/CD pipeline for this application
+              example: "https://app.circleci.com/pipelines/github/myorg/my-new-app"
+            e2e_trigger_configuration:
+              type: string
+              description: Configuration for triggering E2E tests
+              example: "branch:main,schedule:daily"
+            watching:
+              type: boolean
+              description: Whether this application should be actively monitored
+              example: true
+        examples:
+          create_app:
+            summary: Create new application
+            value:
+              name: "My New App"
+              code: "my-new-app"
+              pipeline_url: "https://app.circleci.com/pipelines/github/myorg/my-new-app"
+              e2e_trigger_configuration: "branch:main,schedule:daily"
+              watching: true
+  responses:
+    '201':
+      description: Application created successfully
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/Application.yaml'
+          example:
+            id: 3
+            name: "My New App"
+            code: "my-new-app"
+            pipeline_url: "https://app.circleci.com/pipelines/github/myorg/my-new-app"
+            e2e_trigger_configuration: "branch:main,schedule:daily"
+            watching: true
+    '400':
+      description: Bad request - Invalid input data
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/ValidationError.yaml'
+          examples:
+            missing_fields:
+              summary: Missing required fields
+              value:
+                error: "Missing required fields"
+            invalid_code:
+              summary: Invalid application code format
+              value:
+                error: "Application code must contain only lowercase letters, numbers, and hyphens"
+    '401':
+      description: Unauthorized - Invalid or missing API key
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/ValidationError.yaml'
+          example:
+            error: "Unauthorized: Invalid or missing API key"
+    '409':
+      description: Conflict - Application code already exists
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/ValidationError.yaml'
+          example:
+            error: "Application with this code already exists"
+    '500':
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/ValidationError.yaml'
+          example:
+            error: "Failed to create application"

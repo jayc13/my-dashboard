@@ -1,0 +1,9 @@
+type: object
+description: Response after successfully creating a to-do item
+required:
+  - id
+properties:
+  id:
+    type: integer
+    description: The ID of the newly created to-do item
+    example: 123

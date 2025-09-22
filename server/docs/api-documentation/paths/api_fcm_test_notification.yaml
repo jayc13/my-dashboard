@@ -1,0 +1,100 @@
+post:
+  tags:
+    - FCM
+  summary: Send test notification to all devices
+  description: |
+    Send a test push notification to all registered devices. This endpoint is useful for:
+    
+    **Testing & Debugging:**
+    - Verify FCM configuration is working correctly
+    - Test notification delivery to registered devices
+    - Debug notification formatting and data payload
+    
+    **Administrative Use:**
+    - Send system-wide announcements
+    - Test notification systems before important releases
+    - Verify device registration status
+    
+    **Behavior:**
+    - Sends notification to all currently registered device tokens
+    - Automatically removes invalid/expired tokens from the database
+    - Returns success and failure counts for monitoring
+    - Custom data and links are optional but recommended for rich notifications
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: '../schemas/FCMTestNotificationRequest.yaml'
+        examples:
+          basic_notification:
+            summary: Basic test notification
+            value:
+              title: "Test Notification"
+              body: "This is a test notification from the dashboard"
+          rich_notification:
+            summary: Rich notification with data and link
+            value:
+              title: "System Maintenance"
+              body: "Scheduled maintenance will begin in 30 minutes"
+              data:
+                type: "maintenance"
+                severity: "info"
+                scheduled_time: "2024-01-20T02:00:00Z"
+              link: "https://dashboard.example.com/maintenance"
+  responses:
+    '200':
+      description: Test notification sent successfully
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/FCMTestNotificationResponse.yaml'
+          examples:
+            all_success:
+              summary: All devices received notification
+              value:
+                message: "Test notification sent"
+                successCount: 5
+                failureCount: 0
+            partial_success:
+              summary: Some devices failed to receive notification
+              value:
+                message: "Test notification sent"
+                successCount: 3
+                failureCount: 2
+            no_devices:
+              summary: No registered devices
+              value:
+                message: "Test notification sent"
+                successCount: 0
+                failureCount: 0
+    '400':
+      description: Bad request - Title and body are required
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/ErrorResponse.yaml'
+          examples:
+            missing_fields:
+              summary: Missing required fields
+              value:
+                error: "Title and body are required"
+    '401':
+      description: Unauthorized - Invalid or missing API key
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/ErrorResponse.yaml'
+    '500':
+      description: Internal server error - FCM service or database error
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/ErrorResponse.yaml'
+          examples:
+            server_error:
+              summary: Internal server error
+              value:
+                error: "Internal server error"
+  security:
+    - ApiKeyAuth: []

@@ -1,0 +1,64 @@
+type: object
+description: A JIRA ticket/issue with formatted fields
+required:
+  - id
+  - key
+  - url
+  - summary
+  - status
+  - created
+  - updated
+  - assignee
+  - reporter
+  - labels
+  - priority
+properties:
+  id:
+    type: string
+    description: JIRA issue ID
+    example: "10001"
+  key:
+    type: string
+    description: JIRA issue key (e.g., PROJECT-123)
+    example: "ACT-456"
+  url:
+    type: string
+    format: uri
+    description: Direct URL to the JIRA issue
+    example: "https://company.atlassian.net/browse/ACT-456"
+  summary:
+    type: string
+    description: Issue title/summary
+    example: "Fix login authentication bug"
+  status:
+    type: string
+    description: Current status of the issue
+    example: "In Progress"
+  created:
+    type: string
+    format: date-time
+    description: Issue creation timestamp in ISO 8601 format
+    example: "2024-01-15T10:30:00.000Z"
+  updated:
+    type: string
+    format: date-time
+    description: Last update timestamp in ISO 8601 format
+    example: "2024-01-16T14:45:00.000Z"
+  assignee:
+    type: string
+    description: Display name of the assigned user, or "Unassigned" if no assignee
+    example: "John Doe"
+  reporter:
+    type: string
+    description: Display name of the user who reported the issue, or "Unknown" if not available
+    example: "Jane Smith"
+  labels:
+    type: array
+    description: Array of labels associated with the issue
+    items:
+      type: string
+    example: ["manual_qa", "bug", "high-priority"]
+  priority:
+    type: string
+    description: Priority level of the issue, or "None" if not set
+    example: "High"

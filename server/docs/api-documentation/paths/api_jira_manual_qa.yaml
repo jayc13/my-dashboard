@@ -1,0 +1,72 @@
+get:
+  tags:
+    - JIRA
+  summary: Get manual QA testing tickets
+  description: |
+    Retrieve JIRA issues that require manual QA testing. This endpoint returns tickets with the "manual_qa" label 
+    that are not in "Done", "Ready to Release", or "To Do" status from the "Agent Client Tools" project.
+    
+    **Predefined JQL Query:**
+    ```
+    labels in ("manual_qa") AND "Status" NOT IN ("Done", "Ready to Release", "To Do") 
+    AND project = "Agent Client Tools" ORDER BY created DESC
+    ```
+    
+    This endpoint is commonly used for:
+    - Dashboard widgets showing pending manual testing tasks
+    - Automated reminders for QA team
+    - Tracking manual testing workload
+  responses:
+    '200':
+      description: Successfully retrieved manual QA tickets
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/JiraIssuesResponse.yaml'
+          examples:
+            with_tickets:
+              summary: Response with manual QA tickets
+              value:
+                total: 3
+                issues:
+                  - id: "10001"
+                    key: "ACT-123"
+                    url: "https://company.atlassian.net/browse/ACT-123"
+                    summary: "Test new user registration flow"
+                    status: "In Progress"
+                    created: "2024-01-15T10:30:00.000Z"
+                    updated: "2024-01-16T14:45:00.000Z"
+                    assignee: "QA Team"
+                    reporter: "Product Manager"
+                    labels: ["manual_qa", "user-flow"]
+                    priority: "High"
+                  - id: "10002"
+                    key: "ACT-124"
+                    url: "https://company.atlassian.net/browse/ACT-124"
+                    summary: "Verify payment processing integration"
+                    status: "Ready for Testing"
+                    created: "2024-01-14T09:15:00.000Z"
+                    updated: "2024-01-15T11:20:00.000Z"
+                    assignee: "John Doe"
+                    reporter: "Developer"
+                    labels: ["manual_qa", "payment", "critical"]
+                    priority: "Critical"
+            no_tickets:
+              summary: No manual QA tickets found
+              value:
+                total: 0
+                issues: []
+    '401':
+      description: Unauthorized - Invalid or missing API key
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/ErrorResponse.yaml'
+    '500':
+      description: Internal server error - JIRA API connection or processing error
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/ErrorResponse.yaml'
+  security:
+    - ApiKeyAuth: []

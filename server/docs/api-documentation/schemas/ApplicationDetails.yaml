@@ -1,0 +1,12 @@
+allOf:
+  - $ref: './Application.yaml'
+  - type: object
+    description: Extended application information with runtime details
+    properties:
+      lastRun:
+        $ref: './LastApplicationRun.yaml'
+      e2eRunsQuantity:
+        type: integer
+        description: Total number of E2E runs for this application
+        minimum: 0
+        example: 42

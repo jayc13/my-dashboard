@@ -1,0 +1,211 @@
+get:
+  operationId: list-data-directory
+  summary: List data directory contents
+  description: |
+    List all directories and files under the DATA_DIR environment variable path.
+    
+    Provides a secure way to browse the data directory with built-in path traversal protection.
+    Returns file sizes, modification dates, and directory structure information.
+  tags:
+    - Internal
+  security:
+    - ApiKeyAuth: []
+  parameters:
+    - name: path
+      in: query
+      description: Relative path within DATA_DIR to list (defaults to root directory)
+      required: false
+      schema:
+        type: string
+        example: "2025-09-20"
+  responses:
+    '200':
+      description: Directory contents retrieved successfully
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: '../schemas/SuccessResponse.yaml'
+              - type: object
+                properties:
+                  data:
+                    $ref: '../schemas/DirectoryListing.yaml'
+          example:
+            success: true
+            data:
+              path: "/"
+              items:
+                - name: "2025-09-20"
+                  type: "directory"
+                  path: "2025-09-20"
+                  modified: "2025-09-20T17:41:44.686Z"
+                - name: "database.sqlite"
+                  type: "file"
+                  path: "database.sqlite"
+                  size: 57344
+                  modified: "2025-09-20T18:18:36.578Z"
+              totalFiles: 3
+              totalDirectories: 11
+    '400':
+      description: Bad request - Path is not a directory
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/ValidationError.yaml'
+          example:
+            error: "Path is not a directory"
+    '403':
+      description: Forbidden - Path is outside of allowed directory
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/ValidationError.yaml'
+          example:
+            error: "Access denied: Path is outside of DATA_DIR"
+    '404':
+      description: Not found - Path does not exist
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/ValidationError.yaml'
+          example:
+            error: "Path does not exist"
+    '401':
+      description: Unauthorized - Invalid or missing API key
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/ValidationError.yaml'
+          example:
+            error: "Unauthorized: Invalid or missing API key"
+    '500':
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/ValidationError.yaml'
+          example:
+            error: "Internal server error"
+
+delete:
+  operationId: delete-file-or-directory
+  summary: Delete file or directory
+  description: |
+    Safely delete allowed files or directories under the DATA_DIR environment variable path.
+    
+    **Security Features:**
+    - Protected files cannot be deleted (database.db, .env, config.json, package.json)
+    - Only specific file extensions are allowed (.json, .txt, .log, .tmp, .cache)
+    - Date directories (YYYY-MM-DD pattern) are considered safe to delete
+    - Directories containing protected files cannot be deleted
+    - Path traversal protection prevents access outside DATA_DIR
+    
+    **Use Cases:**
+    - Clean up old cache files and temporary data
+    - Remove outdated date-based directories
+    - Manage log files and temporary exports
+  tags:
+    - Internal
+  security:
+    - ApiKeyAuth: []
+  parameters:
+    - name: path
+      in: query
+      description: Relative path within DATA_DIR to delete
+      required: true
+      schema:
+        type: string
+        example: "2025-08-15"
+  responses:
+    '200':
+      description: Item deleted successfully
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: '../schemas/SuccessResponse.yaml'
+              - type: object
+                properties:
+                  data:
+                    type: object
+                    required:
+                      - success
+                      - path
+                      - type
+                      - message
+                    properties:
+                      success:
+                        type: boolean
+                        example: true
+                      path:
+                        type: string
+                        example: "2025-08-15"
+                      type:
+                        type: string
+                        enum: [file, directory]
+                        example: "directory"
+                      message:
+                        type: string
+                        example: "Directory deleted successfully"
+          example:
+            success: true
+            data:
+              success: true
+              path: "2025-08-15"
+              type: "directory"
+              message: "Directory deleted successfully"
+    '400':
+      description: Bad request - Path parameter is required
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/ValidationError.yaml'
+          example:
+            error: "Path parameter is required"
+    '403':
+      description: Forbidden - File is protected or path is outside allowed directory
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/ValidationError.yaml'
+          examples:
+            protected_file:
+              summary: Protected file
+              value:
+                error: "Cannot delete protected file: database.db"
+            outside_directory:
+              summary: Path outside DATA_DIR
+              value:
+                error: "Access denied: Path is outside of DATA_DIR"
+            protected_directory:
+              summary: Directory contains protected files
+              value:
+                error: "Cannot delete directory containing protected files"
+            invalid_extension:
+              summary: File extension not allowed
+              value:
+                error: "File extension not allowed for deletion"
+    '404':
+      description: Not found - Path does not exist
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/ValidationError.yaml'
+          example:
+            error: "Path does not exist"
+    '401':
+      description: Unauthorized - Invalid or missing API key
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/ValidationError.yaml'
+          example:
+            error: "Unauthorized: Invalid or missing API key"
+    '500':
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/ValidationError.yaml'
+          example:
+            error: "Internal server error"

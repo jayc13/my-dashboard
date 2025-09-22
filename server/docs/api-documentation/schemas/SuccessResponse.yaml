@@ -1,0 +1,18 @@
+type: object
+description: Standard success response wrapper
+required:
+  - success
+  - data
+properties:
+  success:
+    type: boolean
+    description: Indicates successful operation
+    example: true
+  data:
+    description: Response data (type varies by endpoint)
+    oneOf:
+      - type: object
+      - type: array
+      - type: string
+      - type: number
+      - type: boolean
