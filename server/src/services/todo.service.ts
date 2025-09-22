@@ -31,11 +31,18 @@ export class TodoService {
   }
 
   static async create(todo: Omit<Todo, 'id'>): Promise<number> {
+    const {
+      title,
+      description = null,
+      link = null,
+      due_date = null,
+      is_completed = false,
+    } = todo;
     try {
       const result = await db.run(
         `INSERT INTO todos (title, description, link, due_date, is_completed)
                  VALUES (?, ?, ?, ?, ?)`,
-        [todo.title, todo.description, todo.link, todo.due_date, todo.is_completed ? 1 : 0],
+        [title, description, link, due_date, is_completed],
       );
       return result.insertId!;
     } catch (error) {

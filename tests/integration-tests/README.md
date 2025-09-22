@@ -20,7 +20,11 @@ src/
 │   ├── http-client.ts    # HTTP client wrapper around node-fetch
 │   └── test-helpers.ts   # Common test utilities
 └── tests/
-    └── health.test.ts    # Example health check tests
+    ├── health.test.ts         # Health check endpoint tests
+    ├── auth.test.ts           # Authentication and API key tests
+    ├── apps.test.ts           # Applications API tests
+    ├── todos.test.ts          # To-Do List API tests
+    └── pull-requests.test.ts  # Pull Requests API tests
 ```
 
 ## Configuration Files
@@ -43,6 +47,9 @@ npm run test:watch
 
 # Run tests with verbose output
 npm run test:verbose
+
+# Run tests with coverage report
+npm run test:coverage
 
 # Run development server check
 npm run dev
@@ -124,18 +131,25 @@ You can configure the integration tests using environment variables:
 
 ## Running Tests
 
-1. **Start your server** (if not already running):
+### Local Development
+
+1. **Start your server in test mode** (if not already running):
    ```bash
    cd ../../server
+   # Copy the test environment configuration
+   cp .env.test .env
    npm run dev
    ```
 
 2. **Run the integration tests**:
    ```bash
-   npm test
+   cd ../tests/integration-tests
+   API_SECURITY_KEY=test-api-key-for-integration-tests npm test
    ```
 
 The tests will automatically wait for the server to be ready before executing.
+
+**Important**: Make sure to restore your original `.env` file in the server directory after running tests if you need the production configuration.
 
 ## Adding New Tests
 
@@ -145,10 +159,38 @@ The tests will automatically wait for the server to be ready before executing.
 4. Use the `HttpClient` for making HTTP requests
 5. Use `TestHelpers` for common testing utilities
 
+## Test Coverage
+
+The integration tests cover the following API endpoints and functionality:
+
+### Health Check (`health.test.ts`)
+- Server connectivity and health endpoint validation
+- Basic server response testing
+
+### Authentication (`auth.test.ts`)
+- API key validation endpoint testing
+- Protected endpoint access control
+- Authentication error handling
+
+### Applications API (`apps.test.ts`)
+- CRUD operations for applications
+- Application listing and filtering
+- Data validation and error handling
+
+### To-Do List API (`todos.test.ts`)
+- CRUD operations for to-do items
+- Data validation and required field checking
+- Status updates and completion tracking
+
+### Pull Requests API (`pull-requests.test.ts`)
+- Pull request tracking and management
+- GitHub integration testing
+- Error handling for external API calls
+
 ## Example Test
 
-See `src/tests/health.test.ts` for a complete example of integration tests that:
-- Check server connectivity
-- Validate health check endpoint
-- Use proper TypeScript types
-- Follow testing best practices
+See `src/tests/health.test.ts` for a basic example, or `src/tests/apps.test.ts` for a complete CRUD API testing example that demonstrates:
+- Creating, reading, updating, and deleting resources
+- Data validation and error handling
+- Proper TypeScript types and test structure
+- API key authentication testing

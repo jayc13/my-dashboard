@@ -1,0 +1,183 @@
+name: Run Integration Tests
+
+on:
+  workflow_call:
+    inputs:
+      working-directory:
+        description: 'Working directory for integration tests'
+        required: false
+        type: string
+        default: './tests/integration-tests'
+      node-version:
+        description: 'Node.js version to use'
+        required: false
+        type: string
+        default: 'v22.16.0'
+      server-working-directory:
+        description: 'Server working directory'
+        required: false
+        type: string
+        default: './server'
+    secrets:
+      API_SECURITY_KEY:
+        description: 'API security key'
+        required: true
+      FIREBASE_PROJECT_ID:
+        description: 'Firebase project ID'
+        required: true
+      FIREBASE_PRIVATE_KEY:
+        description: 'Firebase private key'
+        required: true
+      FIREBASE_CLIENT_EMAIL:
+        description: 'Firebase client email'
+        required: true
+      FIREBASE_PRIVATE_KEY_ID:
+        description: 'Firebase private key ID'
+        required: true
+      FIREBASE_CLIENT_ID:
+        description: 'Firebase client ID'
+        required: true
+      FIREBASE_CLIENT_CERT_URL:
+        description: 'Firebase client cert URL'
+        required: true
+      SERVER_GITHUB_TOKEN:
+        description: 'Server GitHub token'
+        required: false
+      JIRA_API_TOKEN:
+        description: 'Jira API token'
+        required: false
+      JIRA_BASE_URL:
+        description: 'Jira base URL'
+        required: false
+      CIRCLE_CI_TOKEN:
+        description: 'CircleCI token'
+        required: false
+      MYSQL_ROOT_PASSWORD:
+        description: 'MySQL root password'
+        required: false
+      MYSQL_TEST_DATABASE:
+        description: 'Test database name'
+        required: false
+      MYSQL_HOST:
+        description: 'MySQL host'
+        required: false
+      MYSQL_PORT:
+        description: 'MySQL port'
+        required: false
+      MYSQL_USER:
+        description: 'MySQL user'
+        required: false
+      MYSQL_PASSWORD:
+        description: 'MySQL password'
+        required: false
+
+permissions:
+  contents: read
+
+jobs:
+  validate-integration:
+    name: Validate Integration Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Setup Node.js for server
+        uses: ./.github/actions/setup-node
+        with:
+          node-version: ${{ inputs.node-version }}
+          working-directory: ${{ inputs.server-working-directory }}
+          cache-dependency-path: ${{ inputs.server-working-directory }}/package-lock.json
+
+      - name: Setup Node.js for integration tests
+        uses: ./.github/actions/setup-node
+        with:
+          node-version: ${{ inputs.node-version }}
+          working-directory: ${{ inputs.working-directory }}
+          cache-dependency-path: ${{ inputs.working-directory }}/package-lock.json
+
+      - name: Build server
+        working-directory: ${{ inputs.server-working-directory }}
+        run: npm run build
+
+      - name: Build integration tests
+        working-directory: ${{ inputs.working-directory }}
+        run: npm run build
+
+      - name: Setup test database
+        run: |
+          # Start MySQL service
+          sudo systemctl start mysql
+          # Create test database
+          mysql -u root -p${{ secrets.MYSQL_ROOT_PASSWORD || 'root' }} -e "CREATE DATABASE IF NOT EXISTS ${{ secrets.MYSQL_TEST_DATABASE || 'cypress_dashboard_test' }};"
+
+      - name: Run database migrations
+        working-directory: ${{ inputs.server-working-directory }}
+        run: npm run migrate
+        env:
+          MYSQL_HOST: ${{ secrets.MYSQL_HOST || 'localhost' }}
+          MYSQL_PORT: ${{ secrets.MYSQL_PORT || '3306' }}
+          MYSQL_USER: ${{ secrets.MYSQL_USER || 'root' }}
+          MYSQL_PASSWORD: ${{ secrets.MYSQL_PASSWORD || secrets.MYSQL_ROOT_PASSWORD || 'root' }}
+          MYSQL_DATABASE: ${{ secrets.MYSQL_TEST_DATABASE || 'cypress_dashboard_test' }}
+      - name: Start server in background
+        working-directory: ${{ inputs.server-working-directory }}
+        run: |
+          # Set up environment variables for testing
+          cat > .env << EOF
+          NODE_ENV=test
+          DATA_DIR=./data
+          BRUTE_FORCE_WINDOW_MS=600000
+          BRUTE_FORCE_MAX_ATTEMPTS=20
+          PORT=3000
+          MYSQL_HOST=${{ secrets.MYSQL_HOST || 'localhost' }}
+          MYSQL_PORT=${{ secrets.MYSQL_PORT || '3306' }}
+          MYSQL_USER=${{ secrets.MYSQL_USER || 'root' }}
+          MYSQL_PASSWORD=${{ secrets.MYSQL_PASSWORD || secrets.MYSQL_ROOT_PASSWORD || 'root' }}
+          MYSQL_DATABASE=${{ secrets.MYSQL_TEST_DATABASE || 'cypress_dashboard_test' }}
+          API_SECURITY_KEY=${{ secrets.API_SECURITY_KEY }}
+          FIREBASE_PROJECT_ID=${{ secrets.FIREBASE_PROJECT_ID }}
+          FIREBASE_PRIVATE_KEY="${{ secrets.FIREBASE_PRIVATE_KEY }}"
+          FIREBASE_CLIENT_EMAIL=${{ secrets.FIREBASE_CLIENT_EMAIL }}
+          FIREBASE_PRIVATE_KEY_ID=${{ secrets.FIREBASE_PRIVATE_KEY_ID }}
+          FIREBASE_CLIENT_ID=${{ secrets.FIREBASE_CLIENT_ID }}
+          FIREBASE_CLIENT_CERT_URL=${{ secrets.FIREBASE_CLIENT_CERT_URL }}
+          GITHUB_TOKEN=${{ secrets.SERVER_GITHUB_TOKEN }}
+          JIRA_API_TOKEN=${{ secrets.JIRA_API_TOKEN }}
+          JIRA_BASE_URL=${{ secrets.JIRA_BASE_URL }}
+          CIRCLE_CI_TOKEN=${{ secrets.CIRCLE_CI_TOKEN }}
+          EOF
+
+          # Start server in background
+          npm start &
+          echo $! > server.pid
+
+          # Wait for server to be ready
+          timeout 60 bash -c 'until curl -sf http://localhost:3000/health; do sleep 2; done'
+
+      - name: Run integration tests
+        working-directory: ${{ inputs.working-directory }}
+        run: |
+          # Set up environment variables for integration tests
+          cat > .env << EOF
+          NODE_ENV=test
+          SERVER_URL=http://localhost:3000
+          API_SECURITY_KEY=${{ secrets.API_SECURITY_KEY }}
+          CI=true
+          EOF
+
+          # Run the integration tests
+          npm test
+
+      - name: Cleanup server process
+        if: always()
+        working-directory: ${{ inputs.server-working-directory }}
+        run: |
+          # Kill background server process
+          if [ -f server.pid ]; then
+            kill $(cat server.pid) || true
+            rm server.pid
+          fi
+          # Kill any remaining processes on port 3000
+          sudo lsof -ti:3000 | xargs -r sudo kill -9 || true

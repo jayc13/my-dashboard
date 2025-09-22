@@ -13,7 +13,7 @@ export class HttpClient {
 
   constructor(config: HttpClientConfig = {}) {
     this.baseUrl = config.baseUrl || 'http://localhost:3000';
-    this.timeout = config.timeout || 10000; // 10 seconds default
+    this.timeout = config.timeout || 30 * 1000; // 30 seconds default
     this.defaultHeaders = config.defaultHeaders || {
       'Content-Type': 'application/json',
       'Accept': 'application/json',

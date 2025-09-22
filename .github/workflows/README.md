@@ -112,6 +112,18 @@ Validates utility scripts:
 - `working-directory`: Scripts directory (default: `./scripts`)
 - `node-version`: Node.js version (default: `v22.16.0`)
 
+### validate-integration.yml
+Validates integration tests:
+- Sets up MySQL test database
+- Builds and starts server in test mode
+- Runs comprehensive API integration tests
+- Generates test coverage reports
+
+**Inputs:**
+- `working-directory`: Integration tests directory (default: `./tests/integration-tests`)
+- `server-working-directory`: Server directory (default: `./server`)
+- `node-version`: Node.js version (default: `v22.16.0`)
+
 ## 🎭 Composite Actions
 
 ### setup-node
