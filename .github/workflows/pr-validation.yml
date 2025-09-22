@@ -102,6 +102,11 @@ jobs:
             server/package-lock.json
             client/package-lock.json
             tests/e2e-tests/package-lock.json
+            packages/types/package-lock.json
+
+      - name: Install @my-dashboard/types dependencies
+        working-directory: ./packages/types
+        run: npm ci
 
       - name: Install server dependencies
         working-directory: ./server
@@ -118,6 +123,10 @@ jobs:
       - name: Install Playwright browsers
         working-directory: ./tests/e2e-tests
         run: npx playwright install chromium --with-deps
+
+      - name: Build @my-dashboard/types
+        working-directory: ./packages/types
+        run: npm run build
 
       - name: Build client application
         working-directory: ./client
