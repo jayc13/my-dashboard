@@ -18,6 +18,58 @@ on:
         required: false
         type: string
         default: './server'
+    secrets:
+      API_SECURITY_KEY:
+        description: 'API security key'
+        required: true
+      FIREBASE_PROJECT_ID:
+        description: 'Firebase project ID'
+        required: true
+      FIREBASE_PRIVATE_KEY:
+        description: 'Firebase private key'
+        required: true
+      FIREBASE_CLIENT_EMAIL:
+        description: 'Firebase client email'
+        required: true
+      FIREBASE_PRIVATE_KEY_ID:
+        description: 'Firebase private key ID'
+        required: true
+      FIREBASE_CLIENT_ID:
+        description: 'Firebase client ID'
+        required: true
+      FIREBASE_CLIENT_CERT_URL:
+        description: 'Firebase client cert URL'
+        required: true
+      SERVER_GITHUB_TOKEN:
+        description: 'Server GitHub token'
+        required: false
+      JIRA_API_TOKEN:
+        description: 'Jira API token'
+        required: false
+      JIRA_BASE_URL:
+        description: 'Jira base URL'
+        required: false
+      CIRCLE_CI_TOKEN:
+        description: 'CircleCI token'
+        required: false
+      MYSQL_ROOT_PASSWORD:
+        description: 'MySQL root password'
+        required: false
+      MYSQL_TEST_DATABASE:
+        description: 'Test database name'
+        required: false
+      MYSQL_HOST:
+        description: 'MySQL host'
+        required: false
+      MYSQL_PORT:
+        description: 'MySQL port'
+        required: false
+      MYSQL_USER:
+        description: 'MySQL user'
+        required: false
+      MYSQL_PASSWORD:
+        description: 'MySQL password'
+        required: false
 
 permissions:
   contents: read
@@ -78,7 +130,7 @@ jobs:
           DATA_DIR=./data
           BRUTE_FORCE_WINDOW_MS=600000
           BRUTE_FORCE_MAX_ATTEMPTS=20
-          PORT=${{ secrets.SERVER_PORT || '3000' }}
+          PORT=3000
           MYSQL_HOST=${{ secrets.MYSQL_HOST || 'localhost' }}
           MYSQL_PORT=${{ secrets.MYSQL_PORT || '3306' }}
           MYSQL_USER=${{ secrets.MYSQL_USER || 'root' }}
@@ -102,7 +154,7 @@ jobs:
           echo $! > server.pid
 
           # Wait for server to be ready
-          timeout 60 bash -c 'until curl -sf http://localhost:${{ secrets.SERVER_PORT || '3000' }}/health; do sleep 2; done'
+          timeout 60 bash -c 'until curl -sf http://localhost:3000/health; do sleep 2; done'
 
       - name: Run integration tests
         working-directory: ${{ inputs.working-directory }}
@@ -110,7 +162,7 @@ jobs:
           # Set up environment variables for integration tests
           cat > .env << EOF
           NODE_ENV=test
-          SERVER_URL=http://localhost:${{ secrets.SERVER_PORT || '3000' }}
+          SERVER_URL=http://localhost:3000
           API_SECURITY_KEY=${{ secrets.API_SECURITY_KEY }}
           CI=true
           EOF
