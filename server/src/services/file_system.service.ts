@@ -1,6 +1,6 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import type { FileSystemItem, DirectoryListing, DeletionResult } from '@my-dashboard/entity/file-system';
+import type { FileSystemItem, DirectoryListing, DeletionResult } from '@my-dashboard/types/file-system';
 
 export class FileSystemService {
   private static getDataDir(): string {

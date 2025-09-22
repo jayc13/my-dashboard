@@ -1,4 +1,4 @@
-# @my-dashboard/entity
+# @my-dashboard/types
 
 Shared entity interfaces and types for My Dashboard server and client applications.
 
@@ -9,7 +9,7 @@ This package contains all the TypeScript interface definitions and type declarat
 ## Installation
 
 ```bash
-npm install @my-dashboard/entity
+npm install @my-dashboard/types
 ```
 
 ## Usage
@@ -21,10 +21,10 @@ import { Application, Notification, JiraTicket } from '@my-dashboard/types';
 
 ### Import from specific modules
 ```typescript
-import { Application, ApplicationDetails } from '@my-dashboard/entity/applications';
-import { Notification, NotificationInput } from '@my-dashboard/entity/notifications';
-import { ProjectSummary, CypressRun } from '@my-dashboard/entity/e2e';
-import { AuthValidationRequest, SuccessResponse } from '@my-dashboard/entity/api';
+import { Application, ApplicationDetails } from '@my-dashboard/types/applications';
+import { Notification, NotificationInput } from '@my-dashboard/types/notifications';
+import { ProjectSummary, CypressRun } from '@my-dashboard/types/e2e';
+import { AuthValidationRequest, SuccessResponse } from '@my-dashboard/types/api';
 ```
 
 ## Available Entities

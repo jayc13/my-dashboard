@@ -1,5 +1,5 @@
 /**
- * @my-dashboard/entity
+ * @my-dashboard/types
  * 
  * Shared entity interfaces and types for My Dashboard server and client applications.
  * This package provides a centralized location for all TypeScript interface definitions
