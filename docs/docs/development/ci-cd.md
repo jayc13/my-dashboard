@@ -22,6 +22,8 @@ The CI/CD system now uses a modular approach with:
 - **Server Validation** (`validate-server.yml`): Node.js backend validation with database tests
 - **Cron Validation** (`validate-cron.yml`): Cron job service validation
 - **Scripts Validation** (`validate-scripts.yml`): Utility scripts validation
+- **Integration Testing** (`validate-integration.yml`): API integration tests with test database
+- **E2E Testing**: End-to-end browser tests with full application stack
 - **Validation Summary**: Aggregates all results and provides final status
 
 **Key Improvements:**
@@ -57,6 +59,15 @@ Each validation type is now a separate, reusable workflow:
 - Component-specific validation
 - Build and test verification
 - Configuration validation
+
+#### `validate-integration.yml`
+- MySQL test database setup
+- Server startup in test mode
+- Comprehensive API integration testing
+- Authentication and authorization testing
+- CRUD operations validation
+- Error handling verification
+- Test coverage reporting
 
 ### 3. Composite Actions
 Reusable action components in `.github/actions/`:
