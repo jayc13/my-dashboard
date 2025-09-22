@@ -1,0 +1,89 @@
+{
+  "name": "@my-dashboard/types",
+  "version": "1.0.0",
+  "description": "Shared interfaces and types for My Dashboard server and client applications",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist/**/*",
+    "src/**/*",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "build:watch": "tsc --watch",
+    "clean": "rm -rf dist",
+    "prepublishOnly": "npm run clean && npm run build",
+    "dev": "tsc --watch"
+  },
+  "keywords": [
+    "typescript",
+    "interfaces",
+    "types",
+    "entities",
+    "dashboard",
+    "shared"
+  ],
+  "author": "Javier Caballero",
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "^5.9.2"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.js"
+    },
+    "./e2e": {
+      "types": "./dist/models/e2e/index.d.ts",
+      "import": "./dist/models/e2e/index.js",
+      "require": "./dist/models/e2e/index.js"
+    },
+    "./notifications": {
+      "types": "./dist/models/notifications/index.d.ts",
+      "import": "./dist/models/notifications/index.js",
+      "require": "./dist/models/notifications/index.js"
+    },
+    "./applications": {
+      "types": "./dist/models/applications/index.d.ts",
+      "import": "./dist/models/applications/index.js",
+      "require": "./dist/models/applications/index.js"
+    },
+    "./pull-requests": {
+      "types": "./dist/models/pull-requests/index.d.ts",
+      "import": "./dist/models/pull-requests/index.js",
+      "require": "./dist/models/pull-requests/index.js"
+    },
+    "./jira": {
+      "types": "./dist/models/jira/index.d.ts",
+      "import": "./dist/models/jira/index.js",
+      "require": "./dist/models/jira/index.js"
+    },
+    "./todos": {
+      "types": "./dist/models/todos/index.d.ts",
+      "import": "./dist/models/todos/index.js",
+      "require": "./dist/models/todos/index.js"
+    },
+    "./fcm": {
+      "types": "./dist/models/fcm/index.d.ts",
+      "import": "./dist/models/fcm/index.js",
+      "require": "./dist/models/fcm/index.js"
+    },
+    "./file-system": {
+      "types": "./dist/models/file-system/index.d.ts",
+      "import": "./dist/models/file-system/index.js",
+      "require": "./dist/models/file-system/index.js"
+    },
+    "./api": {
+      "types": "./dist/api/index.d.ts",
+      "import": "./dist/api/index.js",
+      "require": "./dist/api/index.js"
+    }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:jayc13/my-dashboard.git",
+    "directory": "packages/entity"
+  }
+}
