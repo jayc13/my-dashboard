@@ -2,6 +2,8 @@
 
 export PATH="/usr/local/bin:$PATH"
 
+whereis npm
+
 # Start build process
 echo "==========   S T A R T I N G   R A I L W A Y   B U I L D   =========="
 cd packages/types || exit
