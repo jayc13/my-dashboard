@@ -1,6 +1,6 @@
 import { initializeFirebase } from '../config/firebase-config';
 import { DatabaseRow, db } from '../db/database';
-import type { FCMMessage, DeviceToken } from '@my-dashboard/entity/fcm';
+import type { FCMMessage, DeviceToken } from '@my-dashboard/types/fcm';
 
 export class FCMService {
   private admin;
