@@ -3,6 +3,10 @@
   "workspaces": [
     "server",
     "client",
+    "cron",
+    "scripts",
+    "tests/e2e-tests",
+    "tests/integration-tests",
     "packages/sdk",
     "packages/types"
   ]

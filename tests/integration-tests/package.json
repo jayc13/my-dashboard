@@ -5,9 +5,9 @@
   "main": "dist/index.js",
   "scripts": {
     "build": "tsc",
-    "test": "jest",
-    "test:watch": "jest --watch",
-    "test:verbose": "jest --verbose",
+    "test": "jest --runInBand --setupFilesAfterEnv ./setup.ts",
+    "test:watch": "jest --watch --runInBand --setupFilesAfterEnv ./setup.ts",
+    "test:verbose": "jest --verbose --runInBand --setupFilesAfterEnv ./setup.ts",
     "dev": "ts-node src/index.ts",
     "proxy-validator": "prism proxy ../../server/docs/api-documentation/openapi.yaml http://localhost:3000"
   },
