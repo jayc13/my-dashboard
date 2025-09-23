@@ -1,49 +1,63 @@
-import { db } from '../db/database';
-import type { Todo } from '@my-dashboard/types';
+import { DatabaseRow, db } from '../db/database';
+import type { ToDoItem, TodoRequest } from '@my-dashboard/types';
 
 export class TodoService {
-  static async getAll(): Promise<Todo[]> {
+  private static formatTodoItem(todo: DatabaseRow): ToDoItem {
+    return {
+      id: todo.id,
+      title: todo.title,
+      description: todo.description,
+      link: todo.link,
+      dueDate: todo.due_date,
+      isCompleted: todo.is_completed === 1,
+    };
+  }
+
+  static async getAll(): Promise<ToDoItem[]> {
     try {
       const rows = await db.all('SELECT * FROM todos ORDER BY due_date ASC');
-      return rows as Todo[];
+      return rows.map(this.formatTodoItem);
     } catch (error) {
       console.error('Error fetching todos:', error);
       throw error;
     }
   }
 
-  static async getById(id: number): Promise<Todo | undefined> {
+  static async getById(id: number): Promise<ToDoItem | undefined> {
     try {
       const row = await db.get('SELECT * FROM todos WHERE id = ?', [id]);
-      return row as Todo | undefined;
+      if (!row) {
+        return undefined;
+      }
+      return this.formatTodoItem(row);
     } catch (error) {
       console.error('Error fetching todo by id:', error);
       throw error;
     }
   }
 
-  static async create(todo: Omit<Todo, 'id'>): Promise<number> {
+  static async create(todo: TodoRequest): Promise<ToDoItem | undefined> {
     const {
       title,
       description = null,
       link = null,
-      due_date = null,
-      is_completed = false,
+      dueDate = null,
+      isCompleted = false,
     } = todo;
     try {
       const result = await db.run(
         `INSERT INTO todos (title, description, link, due_date, is_completed)
                  VALUES (?, ?, ?, ?, ?)`,
-        [title, description, link, due_date, is_completed],
+        [title, description, link, dueDate, isCompleted],
       );
-      return result.insertId!;
+      return this.getById(result.insertId!);
     } catch (error) {
       console.error('Error creating todo:', error);
       throw error;
     }
   }
 
-  static async update(id: number, todo: Partial<Omit<Todo, 'id'>>): Promise<void> {
+  static async update(id: number, todo: TodoRequest): Promise<ToDoItem | undefined> {
     try {
       const fields: string[] = [];
       const values: unknown[] = [];
@@ -59,13 +73,13 @@ export class TodoService {
         fields.push('link = ?');
         values.push(todo.link);
       }
-      if (todo.due_date !== undefined) {
+      if (todo.dueDate !== undefined) {
         fields.push('due_date = ?');
-        values.push(todo.due_date);
+        values.push(todo.dueDate);
       }
-      if (todo.is_completed !== undefined) {
+      if (todo.isCompleted !== undefined) {
         fields.push('is_completed = ?');
-        values.push(todo.is_completed ? 1 : 0);
+        values.push(todo.isCompleted ? 1 : 0);
       }
       if (fields.length === 0) {
         return;
@@ -76,6 +90,7 @@ export class TodoService {
         `UPDATE todos SET ${fields.join(', ')} WHERE id = ?`,
         values,
       );
+      return this.getById(id);
     } catch (error) {
       console.error('Error updating todo:', error);
       throw error;

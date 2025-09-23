@@ -4,8 +4,8 @@ required:
   - title
   - description
   - link
-  - due_date
-  - is_completed
+  - dueDate
+  - isCompleted
 properties:
   id:
     type: integer
@@ -20,18 +20,21 @@ properties:
   description:
     type: string
     description: Detailed description of the task
+    nullable: true
     example: "Write comprehensive OpenAPI documentation for all endpoints"
   link:
     type: string
     description: Optional URL link related to the task (can be empty string)
     maxLength: 500
+    nullable: true
     example: "https://github.com/company/project/issues/123"
-  due_date:
+  dueDate:
     type: string
     format: date-time
+    nullable: true
     description: Due date for the task in ISO 8601 format (can be empty string for no due date)
     example: "2024-01-20T23:59:59.000Z"
-  is_completed:
+  isCompleted:
     type: boolean
     description: Whether the task has been completed
     example: false

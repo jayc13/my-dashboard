@@ -203,11 +203,9 @@ components:
 
     # To-Do List Models
     Todo:
-      $ref: './schemas/Todo.yaml'
+      $ref: './schemas/ToDoItem.yaml'
     TodoInput:
       $ref: './schemas/TodoInput.yaml'
-    TodoCreateResponse:
-      $ref: './schemas/TodoCreateResponse.yaml'
 
     # FCM Models
     FCMTokenRequest:
