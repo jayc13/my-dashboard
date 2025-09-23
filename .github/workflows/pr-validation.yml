@@ -33,7 +33,7 @@ jobs:
     if: needs.basic-validation.outputs.client-changed == 'true' || needs.basic-validation.outputs.github-changed == 'true'
     uses: ./.github/workflows/validate-client.yml
     with:
-      run-bundle-analysis: 'false'
+      run-bundle-analysis: false
 
   # Job 3: Server validation
   validate-server:
