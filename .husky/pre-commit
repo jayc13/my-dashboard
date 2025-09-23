@@ -1,28 +1,28 @@
 #!/usr/bin/env sh
 
 echo "🔍 Running pre-commit checks..."
+cd "$(git rev-parse --show-toplevel)" || exit
+# Install dependencies to avoid problems with dependencies
+echo "📦 Installing dependencies"
+npm install --registry=https://registry.npmjs.org/
 
-for dir in packages/types client server cron scripts; do
-  cd "$(git rev-parse --show-toplevel)" || exit
-  cd "./$dir" || exit
-  # Install dependencies to avoid problems with dependencies
-  echo "📦 Installing dependencies in $dir..."
-  npm install --registry=https://registry.npmjs.org/
+for dir in packages/types packages/sdk client server cron scripts; do
+
   # Run linting
   echo "📝 Running linting in $dir..."
-  npm run lint
+  npm run lint --workspace=$dir
 
   # If linting passes, run lint:fix to auto-fix issues
   if [ $? -eq 0 ]; then
     echo "✅ Linting passed in $dir! Running auto-fix..."
-    npm run lint-fix
+    npm run lint-fix --workspace=$dir
   else
     echo "❌ Linting failed in $dir! Please fix the issues before committing."
     exit 1
   fi
 
   echo "🏗️  Running build in $dir..."
-  npm run build
+  npm run build --workspace=$dir
 
   # If linting passes, run lint:fix to auto-fix issues
   if [ $? -eq 0 ]; then
