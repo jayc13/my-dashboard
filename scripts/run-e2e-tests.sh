@@ -100,17 +100,7 @@ fi
 
 echo -e "${BLUE}📦 Installing dependencies...${NC}"
 
-# Install server dependencies
-echo -e "${YELLOW}Installing server dependencies...${NC}"
-cd server && npm ci && cd ..
-
-# Install client dependencies
-echo -e "${YELLOW}Installing client dependencies...${NC}"
-cd client && npm ci && cd ..
-
-# Install e2e test dependencies
-echo -e "${YELLOW}Installing e2e test dependencies...${NC}"
-cd tests/e2e-tests && npm ci && cd ../..
+npm install --registry=https://registry.npmjs.org/
 
 # Install Playwright browsers
 echo -e "${YELLOW}Installing Playwright browsers...${NC}"
