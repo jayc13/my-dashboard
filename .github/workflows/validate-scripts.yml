@@ -29,8 +29,7 @@ jobs:
         uses: ./.github/actions/setup-node
         with:
           node-version: ${{ inputs.node-version }}
-          working-directory: ${{ inputs.working-directory }}
-          cache-dependency-path: ${{ inputs.working-directory }}/package-lock.json
+          working-directory: ${{ github.workspace }}
 
       - name: Validate scripts
         run: |

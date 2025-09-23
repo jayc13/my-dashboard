@@ -30,23 +30,15 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v5
 
-      - name: Setup Node.js for @my-dashboard/types
+      - name: Setup Node.js
         uses: ./.github/actions/setup-node
         with:
           node-version: ${{ inputs.node-version }}
-          working-directory: ./packages/types
-          cache-dependency-path: ./packages/types/package-lock.json
-
-      - name: Setup Node.js for client
-        uses: ./.github/actions/setup-node
-        with:
-          node-version: ${{ inputs.node-version }}
-          working-directory: ${{ inputs.working-directory }}
-          cache-dependency-path: ${{ inputs.working-directory }}/package-lock.json
+          working-directory: ${{ github.workspace }}
 
       - name: Build @my-dashboard/types
-        working-directory: ./packages/types
-        run: npm run build
+        run: npm run build --workspace=@my-dashboard/types
+        working-directory: ${{ github.workspace }}
 
       - name: Run ESLint
         run: npm run lint
