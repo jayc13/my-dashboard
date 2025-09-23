@@ -2,6 +2,8 @@
 // This file runs before all tests
 
 // Set test environment variables
+import {cleanupDatabase} from "@utils/dbCleanup";
+
 process.env.NODE_ENV = 'test';
 
 // Mock console methods to reduce test noise (optional)
@@ -14,9 +16,10 @@ beforeAll(() => {
   // console.error = jest.fn();
 });
 
-afterAll(() => {
+afterAll(async () => {
   // Restore console methods
   Object.assign(console, originalConsole);
+  await cleanupDatabase();
 });
 
 // Global test timeout

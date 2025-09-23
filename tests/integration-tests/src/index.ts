@@ -1,7 +1,7 @@
 // Main entry point for integration tests
 // This file can be used to run tests programmatically or set up test environment
 
-import { TestHelpers } from './utils/test-helpers';
+import { TestHelpers } from '@utils/test-helpers';
 
 async function main() {
   console.log('Integration Tests Setup');
