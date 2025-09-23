@@ -1,6 +1,6 @@
 [build]
-buildCommand = "./scripts/railway-build.sh"
-#watchPatterns = ["server/**"]
+buildCommand = "./scripts/railway-server-build.sh"
+watchPatterns = ["server/**"]
 
 [source]
 repo = "jayc13/my-dashboard"
