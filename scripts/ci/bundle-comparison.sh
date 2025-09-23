@@ -34,7 +34,9 @@ if git ls-tree --name-only main | grep -q '^client$'; then
   cd $GITHUB_WORKSPACE/tmp/main-build
   npm ci --silent
   npm run build --workspace=packages/types --silent
-  npm run build --workspace=client --silent
+  cd client # Navigate to client directory
+  npm run build --silent
+  # Calculate sizes in bytes
   MAIN_JS_SIZE=$(find dist/assets -name "*.js" -type f -exec wc -c {} + | tail -1 | awk '{print $1}')
   MAIN_CSS_SIZE=$(find dist/assets -name "*.css" -type f -exec wc -c {} + | tail -1 | awk '{print $1}' || echo "0")
   MAIN_TOTAL_SIZE=$((MAIN_JS_SIZE + MAIN_CSS_SIZE))
