@@ -87,8 +87,8 @@ jobs:
       - name: Build projects
         run: |
           npm run build \
-            --workspace=packages/types
-            --workspace=server
+            --workspace=packages/types \
+            --workspace=server \
             --workspace=tests/integration-tests
 
       - name: Setup test database

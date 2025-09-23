@@ -104,37 +104,19 @@ jobs:
             tests/e2e-tests/package-lock.json
             packages/types/package-lock.json
 
-      - name: Install @my-dashboard/types dependencies
-        working-directory: ./packages/types
-        run: npm ci
-
-      - name: Install server dependencies
-        working-directory: ./server
-        run: npm ci
-
-      - name: Install client dependencies
-        working-directory: ./client
-        run: npm ci
-
-      - name: Install e2e test dependencies
-        working-directory: ./tests/e2e-tests
+      - name: Install dependencies
         run: npm ci
 
       - name: Install Playwright browsers
         working-directory: ./tests/e2e-tests
         run: npx playwright install chromium --with-deps
 
-      - name: Build @my-dashboard/types
-        working-directory: ./packages/types
-        run: npm run build
-
-      - name: Build client application
-        working-directory: ./client
-        run: npm run build
-
-      - name: Build server application
-        working-directory: ./server
-        run: npm run build
+      - name: Build projects
+        run: |
+          npm run build \
+            --workspace=packages/types \
+            --workspace=server \
+            --workspace=client
 
       - name: Setup test database
         run: |
