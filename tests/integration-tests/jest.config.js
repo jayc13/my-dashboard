@@ -1,11 +1,21 @@
 module.exports = {
-  preset: 'ts-jest',
+  preset: 'ts-jest/presets/default-esm',
   testEnvironment: 'node',
   roots: ['<rootDir>/src'],
   testMatch: ['**/__tests__/**/*.ts', '**/?(*.)+(spec|test).ts'],
   transform: {
-    '^.+\\.ts$': 'ts-jest',
+    '^.+\\.ts$': ['ts-jest', {
+      useESM: true,
+      tsconfig: {
+        module: 'esnext',
+        target: 'es2020',
+        allowJs: true
+      }
+    }]
   },
+  transformIgnorePatterns: [
+    'node_modules/(?!(@my-dashboard)/)'
+  ],
   testTimeout: 30000, // 30 seconds for integration tests
   setupFilesAfterEnv: ['<rootDir>/src/setup.ts'],
   moduleNameMapper: {
@@ -13,4 +23,7 @@ module.exports = {
     '^@utils/(.*)$': '<rootDir>/src/utils/$1',
     '^@tests/(.*)$': '<rootDir>/src/tests/$1',
   },
+  // Handle ES modules from @my-dashboard packages
+  extensionsToTreatAsEsm: ['.ts'],
+  moduleFileExtensions: ['ts', 'js', 'json']
 };
