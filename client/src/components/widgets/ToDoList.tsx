@@ -25,7 +25,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
 import LinkIcon from '@mui/icons-material/Link';
 import EditIcon from '@mui/icons-material/Edit';
-import type { ClientTodo as ToDo } from '@my-dashboard/types/todos';
+import type { ToDoItem } from '@my-dashboard/types/todos';
 
 const ToDoListWidget = () => {
     const [open, setOpen] = useState(false);
@@ -33,7 +33,7 @@ const ToDoListWidget = () => {
         title: '',
         description: '',
         link: '',
-        due_date: '',
+        dueDate: '',
     });
     // New state for editing
     const [editId, setEditId] = useState<number | null>(null);
@@ -52,7 +52,7 @@ const ToDoListWidget = () => {
         await apiFetch(`${API_BASE_URL}/api/to_do_list/${id}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ is_completed: checked }),
+            body: JSON.stringify({ isCompleted: checked }),
         });
         await fetchToDoList();
     };
@@ -74,13 +74,13 @@ const ToDoListWidget = () => {
     };
 
     // Open modal for editing, prefill form
-    const handleEditOpen = (todo: ToDo) => {
-        setEditId(todo.id);
+    const handleEditOpen = (todo: ToDoItem) => {
+        setEditId(todo.id!);
         setForm({
             title: todo.title || '',
             description: todo.description || '',
             link: todo.link || '',
-            due_date: todo.due_date ? todo.due_date.slice(0, 10) : '',
+            dueDate: todo.dueDate ? todo.dueDate.slice(0, 10) : '',
         });
         setOpen(true);
     };
@@ -88,7 +88,7 @@ const ToDoListWidget = () => {
     const handleClose = () => {
         setOpen(false);
         setEditId(null);
-        setForm({ title: '', description: '', link: '', due_date: '' });
+        setForm({ title: '', description: '', link: '', dueDate: '' });
     };
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -107,7 +107,7 @@ const ToDoListWidget = () => {
             await apiFetch(`${API_BASE_URL}/api/to_do_list`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ ...form, is_completed: false }),
+                body: JSON.stringify({ ...form, isCompleted: false }),
             });
         }
         handleClose();
@@ -122,7 +122,7 @@ return;
         await apiFetch(`${API_BASE_URL}/api/to_do_list`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ title: quickTitle, is_completed: false }),
+            body: JSON.stringify({ title: quickTitle, isCompleted: false }),
         });
         setQuickTitle('');
         await fetchToDoList();
@@ -130,22 +130,22 @@ return;
 
     // Sort: non-completed first, then completed.
     // Non-completed: no due date first, then ascending due date.
-    const sortedToDoList = (toDoListData || []).slice().sort((a: ToDo, b: ToDo) => {
+    const sortedToDoList = (toDoListData || []).slice().sort((a: ToDoItem, b: ToDoItem) => {
         // Completed to the end
-        if (a.is_completed !== b.is_completed) {
-            return a.is_completed ? 1 : -1;
+        if (a.isCompleted !== b.isCompleted) {
+            return a.isCompleted ? 1 : -1;
         }
         // Only sort non-completed by due date logic
-        if (!a.is_completed && !b.is_completed) {
-            const aHasDue = !!a.due_date;
-            const bHasDue = !!b.due_date;
+        if (!a.isCompleted && !b.isCompleted) {
+            const aHasDue = !!a.dueDate;
+            const bHasDue = !!b.dueDate;
             if (aHasDue !== bHasDue) {
                 // No due date first
                 return aHasDue ? 1 : -1;
             }
             if (aHasDue && bHasDue) {
                 // Both have due date, sort ascending
-                return DateTime.fromISO(a.due_date).toMillis() - DateTime.fromISO(b.due_date).toMillis();
+                return DateTime.fromISO(a.dueDate).toMillis() - DateTime.fromISO(b.dueDate).toMillis();
             }
         }
         // Otherwise, keep original order
@@ -162,13 +162,13 @@ return;
                         <Skeleton variant="rectangular" height={50}/>
                     </Stack>
                 }
-                {sortedToDoList.map((todo: ToDo) => (
+                {sortedToDoList.map((todo: ToDoItem) => (
                     <ListItem
                         key={todo.id}
                         component={Card}
                         sx={{
                             mb: 1,
-                            backgroundColor: todo.is_completed ? 'rgba(0, 128, 0, 0.1)' : 'background.paper',
+                            backgroundColor: todo.isCompleted ? 'rgba(0, 128, 0, 0.1)' : 'background.paper',
                         }}
                         variant="outlined"
                         secondaryAction={
@@ -200,7 +200,7 @@ return;
                                     <IconButton
                                         edge="end"
                                         aria-label="delete"
-                                        onClick={() => handleDelete(todo.id)}
+                                        onClick={() => handleDelete(todo.id!)}
                                         size="small"
                                     >
                                         <DeleteIcon />
@@ -211,10 +211,10 @@ return;
                     >
                         <Checkbox
                             edge="start"
-                            checked={todo.is_completed}
+                            checked={todo.isCompleted}
                             tabIndex={-1}
                             disableRipple
-                            onChange={(_, checked) => handleToggle(todo.id, checked)}
+                            onChange={(_, checked) => handleToggle(todo.id!, checked)}
                         />
                         <ListItemText
                             primary={
@@ -222,23 +222,23 @@ return;
                                     <Typography
                                         variant="body1"
                                         sx={{
-                                            textDecoration: todo.is_completed ? 'line-through' : undefined,
-                                            fontWeight: todo.is_completed ? 'normal' : 'bold',
+                                            textDecoration: todo.isCompleted ? 'line-through' : undefined,
+                                            fontWeight: todo.isCompleted ? 'normal' : 'bold',
                                             mr: 1,
                                         }}
                                     >
                                         {todo.title}
                                     </Typography>
-                                    {todo.due_date && (
+                                    {todo.dueDate && (
                                         <Typography
                                             variant="caption"
                                             color={
-                                                DateTime.fromISO(todo.due_date) < DateTime.now() && !todo.is_completed
+                                                DateTime.fromISO(todo.dueDate) < DateTime.now() && !todo.isCompleted
                                                     ? 'error'
                                                     : 'text.secondary'
                                             }
                                         >
-                                            {DateTime.fromISO(todo.due_date).toFormat('yyyy-MM-dd')}
+                                            {DateTime.fromISO(todo.dueDate).toFormat('yyyy-MM-dd')}
                                         </Typography>
                                     )}
                                 </Box>
@@ -305,9 +305,9 @@ return;
                         <TextField
                             margin="dense"
                             label="Due Date"
-                            name="due_date"
+                            name="dueDate"
                             type="date"
-                            value={form.due_date}
+                            value={form.dueDate}
                             onChange={handleChange}
                             fullWidth
                             InputLabelProps={{ shrink: true }}
