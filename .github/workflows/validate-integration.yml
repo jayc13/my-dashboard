@@ -3,11 +3,6 @@ name: Run Integration Tests
 on:
   workflow_call:
     inputs:
-      working-directory:
-        description: 'Working directory for integration tests'
-        required: false
-        type: string
-        default: './tests/integration-tests'
       node-version:
         description: 'Node.js version to use'
         required: false
@@ -142,7 +137,7 @@ jobs:
           timeout 60 bash -c 'until curl -sf http://localhost:3000/health; do sleep 2; done'
 
       - name: Run integration tests
-        working-directory: ${{ inputs.working-directory }}
+        working-directory: ./tests/integration-tests
         run: |
           # Set up environment variables for integration tests
           cat > .env << EOF
