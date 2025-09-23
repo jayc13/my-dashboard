@@ -3,21 +3,12 @@ name: Run Integration Tests
 on:
   workflow_call:
     inputs:
-      working-directory:
-        description: 'Working directory for integration tests'
-        required: false
-        type: string
-        default: './tests/integration-tests'
       node-version:
         description: 'Node.js version to use'
         required: false
         type: string
         default: 'v22.16.0'
-      server-working-directory:
-        description: 'Server working directory'
-        required: false
-        type: string
-        default: './server'
+
     secrets:
       API_SECURITY_KEY:
         description: 'API security key'
@@ -83,38 +74,17 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v5
 
-      - name: Setup Node.js for @my-dashboard/types
+      - name: Setup Node.js
         uses: ./.github/actions/setup-node
         with:
           node-version: ${{ inputs.node-version }}
-          working-directory: ./packages/types
-          cache-dependency-path: ./packages/types/package-lock.json
 
-      - name: Setup Node.js for server
-        uses: ./.github/actions/setup-node
-        with:
-          node-version: ${{ inputs.node-version }}
-          working-directory: ${{ inputs.server-working-directory }}
-          cache-dependency-path: ${{ inputs.server-working-directory }}/package-lock.json
-
-      - name: Setup Node.js for integration tests
-        uses: ./.github/actions/setup-node
-        with:
-          node-version: ${{ inputs.node-version }}
-          working-directory: ${{ inputs.working-directory }}
-          cache-dependency-path: ${{ inputs.working-directory }}/package-lock.json
-
-      - name: Build @my-dashboard/types
-        working-directory: ./packages/types
-        run: npm run build
-
-      - name: Build server
-        working-directory: ${{ inputs.server-working-directory }}
-        run: npm run build
-
-      - name: Build integration tests
-        working-directory: ${{ inputs.working-directory }}
-        run: npm run build
+      - name: Build projects
+        run: |
+          npm run build \
+            --workspace=packages/types \
+            --workspace=server \
+            --workspace=tests/integration-tests
 
       - name: Setup test database
         run: |
@@ -124,8 +94,7 @@ jobs:
           mysql -u root -p${{ secrets.MYSQL_ROOT_PASSWORD || 'root' }} -e "CREATE DATABASE IF NOT EXISTS ${{ secrets.MYSQL_TEST_DATABASE || 'cypress_dashboard_test' }};"
 
       - name: Run database migrations
-        working-directory: ${{ inputs.server-working-directory }}
-        run: npm run migrate
+        run: npm run migrate --workspace=server
         env:
           MYSQL_HOST: ${{ secrets.MYSQL_HOST || 'localhost' }}
           MYSQL_PORT: ${{ secrets.MYSQL_PORT || '3306' }}
@@ -133,7 +102,7 @@ jobs:
           MYSQL_PASSWORD: ${{ secrets.MYSQL_PASSWORD || secrets.MYSQL_ROOT_PASSWORD || 'root' }}
           MYSQL_DATABASE: ${{ secrets.MYSQL_TEST_DATABASE || 'cypress_dashboard_test' }}
       - name: Start server in background
-        working-directory: ${{ inputs.server-working-directory }}
+        working-directory: ./server
         run: |
           # Set up environment variables for testing
           cat > .env << EOF
@@ -168,7 +137,7 @@ jobs:
           timeout 60 bash -c 'until curl -sf http://localhost:3000/health; do sleep 2; done'
 
       - name: Run integration tests
-        working-directory: ${{ inputs.working-directory }}
+        working-directory: ./tests/integration-tests
         run: |
           # Set up environment variables for integration tests
           cat > .env << EOF
@@ -183,7 +152,7 @@ jobs:
 
       - name: Cleanup server process
         if: always()
-        working-directory: ${{ inputs.server-working-directory }}
+        working-directory: ./server
         run: |
           # Kill background server process
           if [ -f server.pid ]; then

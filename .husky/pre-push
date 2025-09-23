@@ -3,12 +3,13 @@
 
 echo "🧪 Running pre-push checks..."
 
+cd "$(git rev-parse --show-toplevel)" || exit
+
 for dir in client server cron; do
-  cd "$(git rev-parse --show-toplevel)" || exit
-  cd "./$dir" || exit
+
   # Install dependencies to avoid problems with dependencies
   echo "🔬 Running tests in $dir..."
-  npm run test
+  npm run test --workspace=$dir --if-present
 
   if [ $? -eq 0 ]; then
     echo "✅ All tests passe in $dir!"

@@ -1,6 +1,5 @@
 [build]
-builder = "RAILPACK"
-buildCommand = "./scripts/railway-build.sh"
+buildCommand = "./scripts/railway-server-build.sh"
 watchPatterns = ["server/**"]
 
 [source]

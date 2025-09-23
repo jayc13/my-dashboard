@@ -1,5 +1,5 @@
 {
-  "name": "cypress-dashboard-server",
+  "name": "server",
   "version": "1.0.0",
   "description": "TypeScript server for Cypress dashboard data",
   "main": "dist/index.js",

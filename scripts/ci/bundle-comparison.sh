@@ -16,7 +16,6 @@ NC='\033[0m' # No Color
 
 # Configuration
 WORKING_DIR=${WORKING_DIR:-"./client"}
-BUILD_COMMAND=${BUILD_COMMAND:-"npm run build"}
 
 echo -e "${CYAN}🔍 Comparing bundle size with main branch...${NC}"
 
@@ -32,12 +31,10 @@ if git ls-tree --name-only main | grep -q '^client$'; then
   echo "Attempting to archive and extract client directory from main branch..."
   git archive main | tar -x -C $GITHUB_WORKSPACE/tmp/main-build
   echo "Archive and extraction successful."
-  cd $GITHUB_WORKSPACE/tmp/main-build/packages/types || { echo -e "${RED}Failed to navigate to packages/types in main branch.${NC}"; exit 1; }
+  cd $GITHUB_WORKSPACE/tmp/main-build
   npm ci --silent
-  npm run build --silent
-  cd $GITHUB_WORKSPACE/tmp/main-build/client || { echo -e "${RED}Failed to navigate to client in main branch.${NC}"; exit 1; }
-  npm ci --silent
-  eval "$BUILD_COMMAND --silent"
+  npm run build --workspace=packages/types --silent
+  npm run build --workspace=client --silent
   MAIN_JS_SIZE=$(find dist/assets -name "*.js" -type f -exec wc -c {} + | tail -1 | awk '{print $1}')
   MAIN_CSS_SIZE=$(find dist/assets -name "*.css" -type f -exec wc -c {} + | tail -1 | awk '{print $1}' || echo "0")
   MAIN_TOTAL_SIZE=$((MAIN_JS_SIZE + MAIN_CSS_SIZE))
