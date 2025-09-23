@@ -13,9 +13,8 @@ import {
   FCMTokensResponse,
   JiraTicket,
   JiraIssuesResponse,
-  Todo,
-  TodoInput,
-  TodoCreateResponse
+  ToDoItem,
+  TodoRequest,
 } from '../types';
 
 /**
@@ -114,8 +113,8 @@ export class TodosService extends BaseClient {
    * Get all to-do items
    * @returns Promise resolving to array of to-do items
    */
-  public async getTodos(): Promise<Todo[]> {
-    return this.request<Todo[]>('/api/to_do_list', {
+  public async getTodos(): Promise<ToDoItem[]> {
+    return this.request<ToDoItem[]>('/api/to_do_list', {
       method: 'GET',
     });
   }
@@ -125,8 +124,8 @@ export class TodosService extends BaseClient {
    * @param id To-do item ID
    * @returns Promise resolving to to-do item
    */
-  public async getTodo(id: number): Promise<Todo> {
-    return this.request<Todo>(`/api/to_do_list/${id}`, {
+  public async getTodo(id: number): Promise<ToDoItem> {
+    return this.request<ToDoItem>(`/api/to_do_list/${id}`, {
       method: 'GET',
     });
   }
@@ -136,8 +135,8 @@ export class TodosService extends BaseClient {
    * @param todo To-do item data
    * @returns Promise resolving to creation response
    */
-  public async createTodo(todo: TodoInput): Promise<TodoCreateResponse> {
-    return this.request<TodoCreateResponse>('/api/to_do_list', {
+  public async createTodo(todo: TodoRequest): Promise<ToDoItem> {
+    return this.request<ToDoItem>('/api/to_do_list', {
       method: 'POST',
       body: JSON.stringify(todo),
     });
@@ -149,8 +148,8 @@ export class TodosService extends BaseClient {
    * @param updates To-do item updates
    * @returns Promise resolving to updated to-do item
    */
-  public async updateTodo(id: number, updates: TodoInput): Promise<Todo> {
-    return this.request<Todo>(`/api/to_do_list/${id}`, {
+  public async updateTodo(id: number, updates: TodoRequest): Promise<ToDoItem> {
+    return this.request<ToDoItem>(`/api/to_do_list/${id}`, {
       method: 'PUT',
       body: JSON.stringify(updates),
     });

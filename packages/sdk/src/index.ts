@@ -53,8 +53,5 @@ export {
 // Error classes
 export { APIError, NetworkError, ConfigurationError } from './errors';
 
-// All types and interfaces (re-exported from @my-dashboard/types)
-export * from './types';
-
 // Default export for convenience
 export { MyDashboardAPI as default } from './client';
