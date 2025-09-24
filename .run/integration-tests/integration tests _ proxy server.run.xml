@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="integration tests - proxy server" type="js.build_tools.npm" folderName="Integration Tests">
+  <configuration default="false" name="integration tests &gt; proxy server" type="js.build_tools.npm" folderName="Integration Tests">
     <package-json value="$PROJECT_DIR$/tests/integration-tests/package.json" />
     <command value="run" />
     <scripts>

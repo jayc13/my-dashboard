@@ -1,9 +1,9 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="cron build" type="js.build_tools.npm" folderName="Cron">
-    <package-json value="$PROJECT_DIR$/cron/package.json" />
+  <configuration default="false" name="scripts &gt; lint-fix" type="js.build_tools.npm" folderName="Script">
+    <package-json value="$PROJECT_DIR$/scripts/package.json" />
     <command value="run" />
     <scripts>
-      <script value="build" />
+      <script value="lint-fix" />
     </scripts>
     <node-interpreter value="project" />
     <envs />

@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="cron lint" type="js.build_tools.npm" folderName="Cron">
+  <configuration default="false" name="cron &gt; lint" type="js.build_tools.npm" folderName="Cron">
     <package-json value="$PROJECT_DIR$/cron/package.json" />
     <command value="run" />
     <scripts>

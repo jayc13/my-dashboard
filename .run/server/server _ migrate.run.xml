@@ -1,9 +1,9 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="client lint" type="js.build_tools.npm" folderName="Client">
-    <package-json value="$PROJECT_DIR$/client/package.json" />
+  <configuration default="false" name="server &gt; migrate" type="js.build_tools.npm" folderName="Server">
+    <package-json value="$PROJECT_DIR$/server/package.json" />
     <command value="run" />
     <scripts>
-      <script value="lint" />
+      <script value="migrate" />
     </scripts>
     <node-interpreter value="project" />
     <envs />
