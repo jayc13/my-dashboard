@@ -35,8 +35,3 @@ runs:
         key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
         restore-keys: |
           ${{ runner.os }}-pnpm-store-
-
-    - name: Install commitlint
-      if: inputs.install-commitlint == 'true'
-      shell: bash
-      run: npm install -D @commitlint/cli @commitlint/config-conventional
