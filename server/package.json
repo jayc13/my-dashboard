@@ -13,7 +13,7 @@
     "test": "jest"
   },
   "engines": {
-    "node": "v22.16.0"
+    "node": "v22.19.0"
   },
   "dependencies": {
     "@my-dashboard/types": "file:../packages/types",

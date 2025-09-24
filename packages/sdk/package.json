@@ -19,8 +19,6 @@
     "prepublishOnly": "npm run clean && npm run build",
     "dev": "tsc --watch"
   },
-  "author": "Javier Caballero",
-  "license": "MIT",
   "dependencies": {
     "@my-dashboard/types": "file:../types"
   },
@@ -35,12 +33,7 @@
       "require": "./dist/index.js"
     }
   },
-  "repository": {
-    "type": "git",
-    "url": "git@github.com:jayc13/my-dashboard.git",
-    "directory": "packages/sdk"
-  },
   "engines": {
-    "node": ">=20.0.0"
+    "node": "v22.19.0"
   }
 }

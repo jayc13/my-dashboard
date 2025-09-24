@@ -27,5 +27,8 @@
     "@types/jest": "^30.0.0",
     "@types/node": "^24.5.2",
     "@types/node-fetch": "^2.6.12"
+  },
+  "engines": {
+    "node": "v22.19.0"
   }
 }
