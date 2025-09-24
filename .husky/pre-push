@@ -9,10 +9,10 @@ for dir in client server cron; do
 
   # Install dependencies to avoid problems with dependencies
   echo "🔬 Running tests in $dir..."
-  npm run test --workspace=$dir --if-present
+  npx pnpm run test --filter=$dir --if-present
 
   if [ $? -eq 0 ]; then
-    echo "✅ All tests passe in $dir!"
+    echo "✅ All tests passed in $dir!"
   else
     echo "❌ Tests failed in $dir! Please fix failing tests before pushing."
     exit 1
