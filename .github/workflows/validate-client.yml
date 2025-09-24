@@ -39,7 +39,7 @@ jobs:
       - name: Build dependencies
         run: |
           npm run build \
-            --workspace=@my-dashboard/types
+            --workspace=@my-dashboard/types \
             --workspace=@my-dashboard/sdk
         working-directory: ${{ github.workspace }}
 
