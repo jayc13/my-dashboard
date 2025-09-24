@@ -15,7 +15,6 @@ NC='\033[0m' # No Color
 
 # Configuration
 PR_TITLE="$1"
-COMMITLINT_CONFIG="${COMMITLINT_CONFIG:-./scripts/commitlint.config.js}"
 COMMENT_KEY="pr-title-validation"
 PR_COMMENT_SCRIPT="$(dirname "$0")/pr-comment.sh"
 
@@ -27,8 +26,8 @@ fi
 echo -e "${CYAN}🔍 Validating PR title format...${NC}"
 echo -e "${BLUE}PR Title: ${PR_TITLE}${NC}"
 
-# Validate PR title with commitlint
-if echo "$PR_TITLE" | npx commitlint --config="$COMMITLINT_CONFIG" --verbose; then
+# Validate PR title with commitlint (run from scripts directory to access dependencies)
+if echo "$PR_TITLE" | (cd "$(dirname "$0")/.." && npx commitlint --config="./commitlint.config.js" --verbose); then
   echo -e "${GREEN}✅ PR title is valid.${NC}"
 
   # Remove any existing PR title validation comment by posting empty comment
