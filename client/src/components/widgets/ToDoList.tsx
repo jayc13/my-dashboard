@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
 import { DateTime } from 'luxon';
-import useSWR from 'swr';
-import { API_BASE_URL } from '../../utils/constants';
-import { apiFetch } from '../../utils/helpers';
+import { useTodos, useCreateTodo, useUpdateTodo, useDeleteTodo, useToggleTodo } from '../../hooks';
 import {
     Alert,
     Card,
@@ -40,20 +38,17 @@ const ToDoListWidget = () => {
     const [deleteId, setDeleteId] = useState<number | null>(null);
     const [quickTitle, setQuickTitle] = useState('');
 
-    const {
-        data: toDoListData,
-        isLoading: isLoadingList,
-        mutate: fetchToDoList,
-    } = useSWR(`${API_BASE_URL}/api/to_do_list`, {
-        refreshInterval: 3 * 60 * 1000, // Refresh every 10 minutes
+    // SDK hooks
+    const { data: toDoListData, loading: isLoadingList, error: todosError, refetch: fetchToDoList } = useTodos({
+        refetchInterval: 3 * 60 * 1000, // Refresh every 3 minutes
     });
+    const { mutate: createTodo, loading: isCreating } = useCreateTodo();
+    const { mutate: updateTodo, loading: isUpdating } = useUpdateTodo();
+    const { mutate: deleteTodo, loading: isDeleting } = useDeleteTodo();
+    const { mutate: toggleTodo, loading: isToggling } = useToggleTodo();
 
     const handleToggle = async (id: number, checked: boolean) => {
-        await apiFetch(`${API_BASE_URL}/api/to_do_list/${id}`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ isCompleted: checked }),
-        });
+        await toggleTodo({ id, isCompleted: checked });
         await fetchToDoList();
     };
 
@@ -63,7 +58,7 @@ const ToDoListWidget = () => {
 
     const handleConfirmDelete = async () => {
         if (deleteId !== null) {
-            await apiFetch(`${API_BASE_URL}/api/to_do_list/${deleteId}`, { method: 'DELETE' });
+            await deleteTodo(deleteId);
             await fetchToDoList();
             setDeleteId(null);
         }
@@ -98,17 +93,9 @@ const ToDoListWidget = () => {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (editId) {
-            await apiFetch(`${API_BASE_URL}/api/to_do_list/${editId}`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(form),
-            });
+            await updateTodo({ id: editId, data: form });
         } else {
-            await apiFetch(`${API_BASE_URL}/api/to_do_list`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ ...form, isCompleted: false }),
-            });
+            await createTodo({ ...form, isCompleted: false });
         }
         handleClose();
         await fetchToDoList();
@@ -117,13 +104,9 @@ const ToDoListWidget = () => {
     const handleQuickAdd = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!quickTitle.trim()) {
-return;
-}
-        await apiFetch(`${API_BASE_URL}/api/to_do_list`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ title: quickTitle, isCompleted: false }),
-        });
+            return;
+        }
+        await createTodo({ title: quickTitle, isCompleted: false });
         setQuickTitle('');
         await fetchToDoList();
     };
@@ -154,6 +137,11 @@ return;
 
     return (
         <Box>
+            {todosError && (
+                <Alert severity="error" sx={{ mb: 2 }}>
+                    Failed to load todos: {todosError.message}
+                </Alert>
+            )}
             <List sx={{ padding: 0 }}>
                 {isLoadingList &&
                     <Stack direction="column" spacing={2}>
@@ -214,6 +202,7 @@ return;
                             checked={todo.isCompleted}
                             tabIndex={-1}
                             disableRipple
+                            disabled={isToggling}
                             onChange={(_, checked) => handleToggle(todo.id!, checked)}
                         />
                         <ListItemText
@@ -267,7 +256,7 @@ return;
                     required
                     sx={{ mr: 1 }}
                 />
-                <Button type="submit" variant="contained" color="primary" disabled={!quickTitle.trim()}>
+                <Button type="submit" variant="contained" color="primary" disabled={!quickTitle.trim() || isCreating}>
                     <AddIcon />
                 </Button>
             </Box>
@@ -314,8 +303,10 @@ return;
                         />
                     </DialogContent>
                     <DialogActions>
-                        <Button onClick={handleClose}>Cancel</Button>
-                        <Button type="submit" variant="contained">{editId ? 'Save' : 'Add'}</Button>
+                        <Button onClick={handleClose} disabled={isCreating || isUpdating}>Cancel</Button>
+                        <Button type="submit" variant="contained" disabled={isCreating || isUpdating}>
+                            {editId ? 'Save' : 'Add'}
+                        </Button>
                     </DialogActions>
                 </form>
             </Dialog>
@@ -330,8 +321,8 @@ return;
                     <Typography>Are you sure you want to delete this to-do item?</Typography>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={handleCancelDelete}>Cancel</Button>
-                    <Button onClick={handleConfirmDelete} color="error" variant="contained">
+                    <Button onClick={handleCancelDelete} disabled={isDeleting}>Cancel</Button>
+                    <Button onClick={handleConfirmDelete} color="error" variant="contained" disabled={isDeleting}>
                         Delete
                     </Button>
                 </DialogActions>
