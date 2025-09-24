@@ -34,6 +34,7 @@ if git ls-tree --name-only main | grep -q '^client$'; then
   cd $GITHUB_WORKSPACE/tmp/main-build
   npm ci --silent
   npm run build --workspace=packages/types --silent
+  npm run build --workspace=packages/sdk --silent
   cd client # Navigate to client directory
   npm run build --silent
   # Calculate sizes in bytes

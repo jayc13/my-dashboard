@@ -1,14 +1,8 @@
-import React, { createContext, useMemo, type ReactNode } from 'react';
+import React, { useMemo, type ReactNode } from 'react';
 import { MyDashboardAPI } from '@my-dashboard/sdk';
 import { API_BASE_URL } from '../utils/constants';
 import { useAuth } from './useAuth';
-
-export interface SDKContextType {
-  api: MyDashboardAPI | null;
-  isReady: boolean;
-}
-
-export const SDKContext = createContext<SDKContextType | undefined>(undefined);
+import { SDKContext, type SDKContextType } from './sdk-context';
 
 interface SDKProviderProps {
   children: ReactNode;
