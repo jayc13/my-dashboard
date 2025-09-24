@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node dist/index.js",
     "dev": "ts-node-dev --respawn src/index.ts",
-    "migrate": "ts-node src/db/migrate.ts",
+    "migrate": "node dist/db/migrate.js",
     "build": "tsc",
     "lint": "eslint .",
     "lint-fix": "eslint . --fix",
