@@ -26,15 +26,15 @@ echo "\033[1;34m🔹 Step 0: Checking if the script is run from the project root
 cd "$(git rev-parse --show-toplevel)" || exit
 
 echo "\033[1;34m🔹 Step 1: Installing dependencies...\033[0m"
-npm install --registry=https://registry.npmjs.org/ &>/dev/null
+npx pnpm install --registry=https://registry.npmjs.org/ &>/dev/null
 
 echo "\033[1;33m🔸 Step 2: Running linter...\033[0m"
-npm run lint --workspace=client &>/dev/null || { echo -e "\033[1;31mLint failed.\033[0m"; exit 1; }
+npx pnpm run lint --filter=client &>/dev/null || { echo -e "\033[1;31mLint failed.\033[0m"; exit 1; }
 
 echo "\033[1;32m🛠️Step 3: Building client...\033[0m"
-npm run build --workspace=client &>/dev/null || { echo -e "\033[1;31mBuild failed.\033[0m"; exit 1; }
+npx pnpm run build --filter=client &>/dev/null || { echo -e "\033[1;31mBuild failed.\033[0m"; exit 1; }
 cd scripts || exit
-npm run replace-env &>/dev/null || { echo -e "\033[1;31mEnvironment variable replacement failed.\033[0m"; exit 1; }
+npx pnpm run replace-env &>/dev/null || { echo -e "\033[1;31mEnvironment variable replacement failed.\033[0m"; exit 1; }
 
 echo "\033[1;31m🗑️Step 4: Removing old dashboard version...\033[0m"
 rm -rf ${WWW_DIR}/* &>/dev/null

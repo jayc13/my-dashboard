@@ -103,10 +103,10 @@ cd scripts
 node inject-firebase-config.js
 ```
 
-#### Via npm Script
+#### Via pnpm Script
 ```bash
 cd scripts
-npm run replace-env
+pnpm run replace-env
 ```
 
 ### Environment Variables Required
@@ -537,11 +537,11 @@ echo "Deployment validation successful"
 ```bash
 # Update Node.js dependencies
 cd scripts
-npm audit fix
-npm update
+pnpm audit --fix
+pnpm update
 
 # Check for outdated packages
-npm outdated
+pnpm outdated
 ```
 
 ### Documentation Updates

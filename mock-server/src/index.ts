@@ -15,7 +15,7 @@ import { apiCallRegistry } from './registry/api-call-registry';
 // Load environment variables
 dotenv.config();
 
-const app = express();
+const app: express.Express = express();
 const PORT = process.env.PORT || 3001;
 
 // Security middleware
