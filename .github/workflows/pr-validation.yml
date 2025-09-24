@@ -110,6 +110,7 @@ jobs:
         run: |
           npm run build \
             --workspace=packages/types \
+            --workspace=packages/sdk \
             --workspace=server \
             --workspace=client
 

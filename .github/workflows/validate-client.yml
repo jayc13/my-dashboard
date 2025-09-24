@@ -36,8 +36,11 @@ jobs:
           node-version: ${{ inputs.node-version }}
           working-directory: ${{ github.workspace }}
 
-      - name: Build @my-dashboard/types
-        run: npm run build --workspace=@my-dashboard/types
+      - name: Build dependencies
+        run: |
+          npm run build \
+            --workspace=@my-dashboard/types
+            --workspace=@my-dashboard/sdk
         working-directory: ${{ github.workspace }}
 
       - name: Run ESLint
