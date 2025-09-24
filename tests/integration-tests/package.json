@@ -12,8 +12,8 @@
     "proxy-validator": "prism proxy ../../server/docs/api-documentation/openapi.yaml http://localhost:3000"
   },
   "dependencies": {
-    "@my-dashboard/sdk": "file:../../packages/sdk",
-    "@my-dashboard/types": "file:../../packages/types",
+    "@my-dashboard/sdk": "file:./packages/sdk",
+    "@my-dashboard/types": "file:./packages/types",
     "dotenv": "^17.2.2",
     "@stoplight/prism-cli": "^5.14.2",
     "jest": "^30.1.3",
