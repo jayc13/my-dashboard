@@ -21,17 +21,17 @@ jobs:
       - name: Install dependencies
         run: |
           echo "📦 Installing dependencies for packages/sdk..."
-          npx pnpm install --filter=packages/sdk
+          pnpm install --filter=packages/sdk
 
       - name: Build packages/types (dependency)
         run: |
           echo "🏗️ Building packages/types (required dependency)..."
-          npx pnpm --filter=packages/types run build
+          pnpm --filter=packages/types run build
 
       - name: Run linting
         run: |
           echo "🔍 Running linting on packages/sdk..."
-          npx pnpm --filter=packages/sdk run lint || echo "⚠️ No linting configured for packages/sdk"
+          pnpm --filter=packages/sdk run lint || echo "⚠️ No linting configured for packages/sdk"
 
       - name: Run type checking
         run: |
@@ -42,12 +42,12 @@ jobs:
       - name: Run tests
         run: |
           echo "🧪 Running tests for packages/sdk..."
-          npx pnpm --filter=packages/sdk run test || echo "⚠️ No tests configured for packages/sdk"
+          pnpm --filter=packages/sdk run test || echo "⚠️ No tests configured for packages/sdk"
 
       - name: Build package
         run: |
           echo "🏗️ Building packages/sdk..."
-          npx pnpm --filter=packages/sdk run build
+          pnpm --filter=packages/sdk run build
 
       - name: Verify build artifacts
         run: |
