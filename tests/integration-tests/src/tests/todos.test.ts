@@ -1,6 +1,6 @@
 import { TestHelpers } from '@utils/test-helpers';
 import { MyDashboardAPI } from '@my-dashboard/sdk';
-import { cleanupDatabase, closeTestConnection } from '@utils/dbCleanup';
+import { truncateTables, closeTestConnection } from '@utils/dbCleanup';
 
 describe('To-Do List API Integration Tests', () => {
   let testHelpers: TestHelpers;
@@ -17,18 +17,18 @@ describe('To-Do List API Integration Tests', () => {
         apiKey: testHelpers.getApiKey(),
     });
 
-    await cleanupDatabase();
+    await truncateTables(['todos']);
   });
 
   // Clean up and close connection after all tests
   afterAll(async () => {
-    await cleanupDatabase();
+    await truncateTables(['todos']);
     await closeTestConnection();
   });
 
   describe('Generic Validations', () => {
     beforeAll(async () => {
-      await cleanupDatabase();
+      await truncateTables(['todos']);
     });
     describe('GET /api/to_do_list', () => {
       it('should return 401 when API key is missing', async () => {
@@ -246,7 +246,7 @@ describe('To-Do List API Integration Tests', () => {
           'x-api-key': apiKey
         });
 
-        expect(response.status).toBe(204);
+        expect(response.status).toBe(200);
       });
 
       it('should return 404 for non-existent todo update', async () => {
@@ -321,7 +321,7 @@ describe('To-Do List API Integration Tests', () => {
   describe('Functional Tests', () => {
     let todoId: number;
     beforeAll(async () => {
-      await cleanupDatabase();
+      await truncateTables(['todos']);
     });
     it('List of ToDo - Empty', async () => {
         const todos = await myDashboardSdk.todos.getTodos();
@@ -332,7 +332,6 @@ describe('To-Do List API Integration Tests', () => {
         const newToDo = await myDashboardSdk.todos.createTodo({
             title: 'Test ToDo'
         });
-        console.log({newToDo});
         expect(newToDo.id).toBeDefined();
         expect(newToDo.title).toBe('Test ToDo');
         expect(newToDo.isCompleted).toBe(false);

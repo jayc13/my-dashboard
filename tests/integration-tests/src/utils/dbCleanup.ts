@@ -68,11 +68,7 @@ export async function cleanupDatabase(): Promise<void> {
   }
 }
 
-/**
- * Utility to truncate specific todo tables
- * @param tables - Array of table names to truncate (defaults to ['todos'])
- */
-export async function truncateTodoTables(tables: string[] = ['todos']): Promise<void> {
+export async function truncateTables(tables: string[] = []): Promise<void> {
   try {
     const conn = await getTestConnection();
 
