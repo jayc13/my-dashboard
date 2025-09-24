@@ -1,6 +1,7 @@
 #!/bin/bash
 
 # Default constants
+export HNVM_PNPM="10.17.1"
 DEFAULT_WWW_DIR="/opt/homebrew/var/www"
 DASHBOARD_URL="https://localhost"
 
