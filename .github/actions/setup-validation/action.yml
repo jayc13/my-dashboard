@@ -5,15 +5,36 @@ inputs:
     description: 'Whether to install commitlint'
     required: false
     default: 'true'
+  node-version:
+    description: 'Node.js version to use'
+    required: false
+    default: 'v22.16.0'
 
 runs:
   using: 'composite'
   steps:
-    - name: Setup Node.js for validation tools
-      if: inputs.install-commitlint == 'true'
+    - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: v22.16.0
+        node-version: ${{ inputs.node-version }}
+
+    - name: Setup pnpm
+      uses: pnpm/action-setup@v4
+      with:
+        version: 10.17.1
+
+    - name: Get pnpm store directory
+      shell: bash
+      run: |
+        echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+
+    - name: Setup pnpm cache
+      uses: actions/cache@v4
+      with:
+        path: ${{ env.STORE_PATH }}
+        key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+        restore-keys: |
+          ${{ runner.os }}-pnpm-store-
 
     - name: Install commitlint
       if: inputs.install-commitlint == 'true'

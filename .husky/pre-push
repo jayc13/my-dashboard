@@ -9,7 +9,7 @@ for dir in client server cron; do
 
   # Install dependencies to avoid problems with dependencies
   echo "🔬 Running tests in $dir..."
-  npx pnpm run test --filter=$dir --if-present
+  npx pnpm --filter=$dir --if-present run test
 
   if [ $? -eq 0 ]; then
     echo "✅ All tests passed in $dir!"

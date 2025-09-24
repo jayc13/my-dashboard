@@ -27,10 +27,10 @@ importers:
         version: 8.11.3(@emotion/react@11.14.0(@types/react@19.1.13)(react@19.1.1))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.1.13)(react@19.1.1))(@types/react@19.1.13)(react@19.1.1))(@mui/material@7.3.2(@emotion/react@11.14.0(@types/react@19.1.13)(react@19.1.1))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.1.13)(react@19.1.1))(@types/react@19.1.13)(react@19.1.1))(@types/react@19.1.13)(react-dom@19.1.1(react@19.1.1))(react@19.1.1))(@mui/system@7.3.2(@emotion/react@11.14.0(@types/react@19.1.13)(react@19.1.1))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.1.13)(react@19.1.1))(@types/react@19.1.13)(react@19.1.1))(@types/react@19.1.13)(react@19.1.1))(@types/react@19.1.13)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
       '@my-dashboard/sdk':
         specifier: file:../packages/sdk
-        version: link:../packages/sdk
+        version: file:packages/sdk
       '@my-dashboard/types':
         specifier: file:../packages/types
-        version: link:../packages/types
+        version: file:packages/types
       firebase:
         specifier: ^12.2.1
         version: 12.3.0
@@ -221,25 +221,6 @@ importers:
         specifier: ^5.3.2
         version: 5.9.2
 
-  packages/sdk:
-    dependencies:
-      '@my-dashboard/types':
-        specifier: file:../types
-        version: link:../types
-    devDependencies:
-      '@types/node':
-        specifier: ^20.0.0
-        version: 20.19.17
-      typescript:
-        specifier: ^5.9.2
-        version: 5.9.2
-
-  packages/types:
-    devDependencies:
-      typescript:
-        specifier: ^5.9.2
-        version: 5.9.2
-
   scripts:
     dependencies:
       dotenv:
@@ -278,7 +259,7 @@ importers:
     dependencies:
       '@my-dashboard/types':
         specifier: file:../packages/types
-        version: link:../packages/types
+        version: file:packages/types
       '@octokit/core':
         specifier: ^7.0.3
         version: 7.0.4
@@ -372,10 +353,10 @@ importers:
     dependencies:
       '@my-dashboard/sdk':
         specifier: file:../../packages/sdk
-        version: link:../../packages/sdk
+        version: file:packages/sdk
       '@my-dashboard/types':
         specifier: file:../../packages/types
-        version: link:../../packages/types
+        version: file:packages/types
       '@stoplight/prism-cli':
         specifier: ^5.14.2
         version: 5.14.2
@@ -1586,6 +1567,14 @@ packages:
     peerDependencies:
       react: ^17.0.0 || ^18.0.0 || ^19.0.0
       react-dom: ^17.0.0 || ^18.0.0 || ^19.0.0
+
+  '@my-dashboard/sdk@file:packages/sdk':
+    resolution: {directory: packages/sdk, type: directory}
+    engines: {node: v22.19.0}
+
+  '@my-dashboard/types@file:packages/types':
+    resolution: {directory: packages/types, type: directory}
+    engines: {node: v22.19.0}
 
   '@napi-rs/wasm-runtime@0.2.12':
     resolution: {integrity: sha512-ZVWUcfwY4E/yPitQJl481FjFo3K22D6qF0DuFH6Y/nbnE11GY5uguDxZMGXPQ8WQ0128MXQD7TnfHyK4oWoIJQ==}
@@ -7277,6 +7266,12 @@ snapshots:
       react-dom: 19.1.1(react@19.1.1)
     transitivePeerDependencies:
       - '@types/react'
+
+  '@my-dashboard/sdk@file:packages/sdk':
+    dependencies:
+      '@my-dashboard/types': file:packages/types
+
+  '@my-dashboard/types@file:packages/types': {}
 
   '@napi-rs/wasm-runtime@0.2.12':
     dependencies:

@@ -13,5 +13,5 @@ packages:
   - 'tests/integration-tests'
   
   # Shared packages
-  - 'packages/sdk'
-  - 'packages/types'
+  - '@my-dashboard/types'
+  - '@my-dashboard/sdk'
