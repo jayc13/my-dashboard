@@ -1,18 +1,48 @@
 #!/usr/bin/env sh
 
+# =============================================================================
+# Pre-commit Hook
+# =============================================================================
+# This script runs before each commit to ensure code quality and consistency.
+# It performs linting, auto-fixing, and building for all workspace packages.
+# =============================================================================
+
 echo "🔍 Running pre-commit checks..."
-cd "$(git rev-parse --show-toplevel)" || exit
-# Install dependencies to avoid problems with dependencies
-echo "📦 Installing dependencies"
+
+# Navigate to the git repository root
+cd "$(git rev-parse --show-toplevel)" || exit 1
+
+# =============================================================================
+# Install Dependencies
+# =============================================================================
+echo "📦 Installing dependencies to ensure everything is up to date..."
 npm install --registry=https://registry.npmjs.org/
 
-for dir in packages/types packages/sdk client server cron scripts; do
+# =============================================================================
+# Define Workspace Directories
+# =============================================================================
+# List of all workspace directories that need to be processed
+# Each directory on its own line for easy modification
+DIRS="packages/types \
+packages/sdk \
+client \
+server \
+cron \
+mock-server \
+scripts"
 
-  # Run linting
+# =============================================================================
+# Process Each Workspace Directory
+# =============================================================================
+for dir in $DIRS; do
+  echo ""
+  echo "🔄 Processing workspace: $dir"
+  echo "----------------------------------------"
+
+  # Step 1: Run linting
   echo "📝 Running linting in $dir..."
   npm run lint --workspace=$dir
 
-  # If linting passes, run lint:fix to auto-fix issues
   if [ $? -eq 0 ]; then
     echo "✅ Linting passed in $dir! Running auto-fix..."
     npm run lint-fix --workspace=$dir
@@ -21,16 +51,18 @@ for dir in packages/types packages/sdk client server cron scripts; do
     exit 1
   fi
 
+  # Step 2: Run build
   echo "🏗️  Running build in $dir..."
   npm run build --workspace=$dir
 
-  # If linting passes, run lint:fix to auto-fix issues
   if [ $? -eq 0 ]; then
     echo "✅ Build passed in $dir!"
   else
-    echo "❌ Build failed in $dir! Please fix the issues before pushing."
+    echo "❌ Build failed in $dir! Please fix the issues before committing."
     exit 1
   fi
 done
 
-echo "✅ Pre-commit checks completed successfully!"
+echo ""
+echo "🎉 All pre-commit checks completed successfully!"
+echo "Your code is ready to commit! 🚀"
