@@ -5,6 +5,7 @@
     "client",
     "cron",
     "scripts",
+    "mock-server",
     "tests/e2e-tests",
     "tests/integration-tests",
     "packages/sdk",

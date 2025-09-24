@@ -1,0 +1,12 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="server &gt; lint" type="js.build_tools.npm" folderName="Server">
+    <package-json value="$PROJECT_DIR$/server/package.json" />
+    <command value="run" />
+    <scripts>
+      <script value="lint" />
+    </scripts>
+    <node-interpreter value="project" />
+    <envs />
+    <method v="2" />
+  </configuration>
+</component>

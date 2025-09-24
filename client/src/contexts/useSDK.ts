@@ -1,6 +1,5 @@
 import { useContext } from 'react';
-import { SDKContext } from './SDKContext';
-import type { SDKContextType } from './SDKContext';
+import { SDKContext, type SDKContextType } from './sdk-context';
 
 export const useSDK = (): SDKContextType => {
   const context = useContext(SDKContext);

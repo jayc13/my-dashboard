@@ -5,6 +5,7 @@ export class GitHubService {
   private static getInstance() {
     return new Octokit({
       auth: process.env.GITHUB_TOKEN,
+      baseUrl: process.env.GITHUB_URL,
     });
   }
   /**
