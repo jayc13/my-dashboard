@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import TodoService from '../services/todo.service';
 
 export class ToDoListController {
-  async getAll(req: Request, res: Response ) {
+  async getAll(req: Request, res: Response) {
     try {
       const todos = await TodoService.getAll();
       res.json(todos);
@@ -27,18 +27,18 @@ export class ToDoListController {
 
   async create(req: Request, res: Response) {
     try {
-      const { title, description, link, due_date, is_completed } = req.body;
+      const { title, description, link, dueDate, isCompleted } = req.body;
       if (!title) {
         return res.status(400).json({ error: 'Missing required fields' });
       }
-      const id = await TodoService.create({
+      const newToDoItem = await TodoService.create({
         title,
         description,
         link,
-        due_date,
-        is_completed: !!is_completed,
+        dueDate,
+        isCompleted: !!isCompleted,
       });
-      res.status(201).json({ id });
+      res.status(201).json(newToDoItem);
     } catch (err) {
       console.error(err);
       res.status(500).json({ error: 'Failed to create todo' });
@@ -52,9 +52,9 @@ export class ToDoListController {
       if (!getExistingTodo) {
         return res.status(404).json({ error: 'ToDo item not found' });
       }
-      const { title, description, link, due_date, is_completed } = req.body;
-      await TodoService.update(id, { title, description, link, due_date, is_completed });
-      res.status(204).send();
+      const { title, description, link, dueDate, isCompleted } = req.body;
+      const updatedToDoItem = await TodoService.update(id, { title, description, link, dueDate, isCompleted });
+      res.status(200).send(updatedToDoItem);
     } catch {
       res.status(500).json({ error: 'Failed to update todo' });
     }
@@ -64,10 +64,10 @@ export class ToDoListController {
     try {
       const id = Number(req.params.id);
       await TodoService.delete(id);
-      res.status(204).send();
+      res.status(200).send({ success: true });
     } catch {
-      res.status(500).json({ error: 'Failed to delete todo' });
+      res.status(500).json({ success: false, error: 'Failed to delete todo' });
     }
   }
-}
 
+}

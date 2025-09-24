@@ -26,6 +26,8 @@ export default defineConfig(({ mode }) => ({
       '@mui/material',
       '@mui/system',
       '@mui/styled-engine',
+      '@my-dashboard/sdk',
+      '@my-dashboard/types',
     ],
   },
   define: {

@@ -11,6 +11,7 @@ import { apiFetch } from './utils/helpers';
 import { SnackbarProvider } from 'notistack';
 import { CircularProgress, Box } from '@mui/material';
 import { AuthProvider } from './contexts/AuthContext';
+import { SDKProvider } from './contexts/SDKContext';
 import { useAuth } from './contexts/useAuth';
 
 // Protected Routes Component
@@ -27,40 +28,42 @@ const ProtectedApp: React.FC = () => {
                     minHeight: '100vh',
                 }}
             >
-                <CircularProgress />
+                <CircularProgress/>
             </Box>
         );
     }
 
     if (!isAuthenticated) {
-        return <LoginPage />;
+        return <LoginPage/>;
     }
 
     return (
-        <SWRConfig
-            value={{
-                fetcher: (resource, init) => apiFetch(resource, init).then(res => {
-                    if (!res.ok) {
-                        throw new Error(`HTTP error! status: ${res.status}`);
-                    }
-                    return res.json();
-                }),
-            }}
-        >
-            <Layout>
-                <NotificationPermission />
-                <Routes>
-                    <Route index element={<TasksPage/>}/>
-                    <Route path="/e2e-dashboard" element={<E2EPage/>}/>
-                    <Route path="/pull_requests" element={<PullRequestsPage/>}/>
-                    <Route path="/apps" element={<AppsPage/>}/>
-                </Routes>
-                <SnackbarProvider
-                    anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-                    autoHideDuration={2000}
-                />
-            </Layout>
-        </SWRConfig>
+        <SDKProvider>
+            <SWRConfig
+                value={{
+                    fetcher: (resource, init) => apiFetch(resource, init).then(res => {
+                        if (!res.ok) {
+                            throw new Error(`HTTP error! status: ${res.status}`);
+                        }
+                        return res.json();
+                    }),
+                }}
+            >
+                <Layout>
+                    <NotificationPermission/>
+                    <Routes>
+                        <Route index element={<TasksPage/>}/>
+                        <Route path="/e2e-dashboard" element={<E2EPage/>}/>
+                        <Route path="/pull_requests" element={<PullRequestsPage/>}/>
+                        <Route path="/apps" element={<AppsPage/>}/>
+                    </Routes>
+                    <SnackbarProvider
+                        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+                        autoHideDuration={2000}
+                    />
+                </Layout>
+            </SWRConfig>
+        </SDKProvider>
     );
 };
 
@@ -68,7 +71,7 @@ function App() {
     return (
         <AuthProvider>
             <BrowserRouter>
-                <ProtectedApp />
+                <ProtectedApp/>
             </BrowserRouter>
         </AuthProvider>
     );

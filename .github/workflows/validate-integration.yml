@@ -83,6 +83,7 @@ jobs:
         run: |
           npm run build \
             --workspace=packages/types \
+            --workspace=packages/sdk \
             --workspace=server \
             --workspace=tests/integration-tests
 
@@ -145,6 +146,13 @@ jobs:
           SERVER_URL=http://localhost:3000
           API_SECURITY_KEY=${{ secrets.API_SECURITY_KEY }}
           CI=true
+          
+          MYSQL_HOST=${{ secrets.MYSQL_HOST || 'localhost' }}
+          MYSQL_PORT=${{ secrets.MYSQL_PORT || '3306' }}
+          MYSQL_USER=${{ secrets.MYSQL_USER || 'root' }}
+          MYSQL_PASSWORD=${{ secrets.MYSQL_PASSWORD || secrets.MYSQL_ROOT_PASSWORD || 'root' }}
+          MYSQL_DATABASE=${{ secrets.MYSQL_TEST_DATABASE || 'cypress_dashboard_test' }}
+          
           EOF
 
           # Run the integration tests

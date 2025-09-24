@@ -17,12 +17,12 @@ properties:
     description: Optional URL link related to the task
     maxLength: 500
     example: "https://github.com/company/project/issues/123"
-  due_date:
+  dueDate:
     type: string
     format: date-time
     description: Due date for the task in ISO 8601 format (optional, empty string for no due date)
     example: "2024-01-20T23:59:59.000Z"
-  is_completed:
+  isCompleted:
     type: boolean
     description: Whether the task has been completed (defaults to false for new items)
     example: false

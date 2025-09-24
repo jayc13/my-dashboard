@@ -18,7 +18,7 @@ get:
       content:
         application/json:
           schema:
-            $ref: '../schemas/Todo.yaml'
+            $ref: '../schemas/TodoItem.yaml'
           examples:
             success:
               summary: Successful retrieval
@@ -27,8 +27,8 @@ get:
                 title: "Complete API documentation"
                 description: "Write comprehensive OpenAPI documentation for all endpoints"
                 link: "https://github.com/company/project/issues/123"
-                due_date: "2024-01-20T23:59:59.000Z"
-                is_completed: false
+                dueDate: "2024-01-20T23:59:59.000Z"
+                isCompleted: false
     '404':
       description: To-do item not found
       content:
@@ -85,47 +85,34 @@ put:
     content:
       application/json:
         schema:
-          type: object
-          description: Fields to update (all optional)
-          properties:
-            title:
-              type: string
-              maxLength: 255
-              example: "Updated task title"
-            description:
-              type: string
-              example: "Updated description"
-            link:
-              type: string
-              maxLength: 500
-              example: "https://updated-link.com"
-            due_date:
-              type: string
-              format: date-time
-              example: "2024-01-25T23:59:59.000Z"
-            is_completed:
-              type: boolean
-              example: true
+          schema:
+            $ref: '../schemas/ToDoInput.yaml'
         examples:
-          complete_task:
-            summary: Mark task as completed
-            value:
-              is_completed: true
-          update_due_date:
-            summary: Update due date only
-            value:
-              due_date: "2024-01-25T23:59:59.000Z"
           full_update:
             summary: Update all fields
             value:
               title: "Updated task title"
               description: "Updated description with more details"
               link: "https://updated-link.com"
-              due_date: "2024-01-25T23:59:59.000Z"
-              is_completed: true
+              dueDate: "2024-01-25T23:59:59.000Z"
+              isCompleted: true
   responses:
-    '204':
-      description: To-do item updated successfully (no content returned)
+    '200':
+      description: Successfully updated the to-do item
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/TodoItem.yaml'
+          examples:
+            success:
+              summary: Successful update
+              value:
+                id: 123
+                title: "Complete API documentation"
+                description: "Write comprehensive OpenAPI documentation for all endpoints"
+                link: "https://github.com/company/project/issues/123"
+                dueDate: "2024-01-20T23:59:59.000Z"
+                isCompleted: false
     '400':
       description: Bad request - Invalid data format
       content:
@@ -173,8 +160,17 @@ delete:
         minimum: 1
         example: 123
   responses:
-    '204':
+    '200':
       description: To-do item deleted successfully (no content returned)
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+          example:
+            success: true
     '401':
       description: Unauthorized - Invalid or missing API key
       content:

@@ -2,15 +2,6 @@ get:
   tags:
     - To-Do Lists
   summary: Get all to-do items
-  description: |
-    Retrieve all to-do items ordered by due date (ascending). Items without due dates appear first,
-    followed by items with due dates in chronological order.
-    
-    **Sorting Logic:**
-    1. Completed items appear at the end
-    2. For non-completed items:
-       - Items without due dates appear first
-       - Items with due dates are sorted chronologically (earliest first)
   responses:
     '200':
       description: Successfully retrieved to-do items
@@ -19,7 +10,7 @@ get:
           schema:
             type: array
             items:
-              $ref: '../schemas/Todo.yaml'
+              $ref: '../schemas/ToDoItem.yaml'
           examples:
             with_todos:
               summary: Response with to-do items
@@ -101,7 +92,7 @@ post:
       content:
         application/json:
           schema:
-            $ref: '../schemas/TodoCreateResponse.yaml'
+            $ref: '../schemas/TodoItem.yaml'
           examples:
             success:
               summary: Successful creation

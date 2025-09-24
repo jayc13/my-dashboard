@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
 import { DateTime } from 'luxon';
-import useSWR from 'swr';
-import { API_BASE_URL } from '../../utils/constants';
-import { apiFetch } from '../../utils/helpers';
+import { useTodos, useCreateTodo, useUpdateTodo, useDeleteTodo, useToggleTodo } from '../../hooks';
 import {
     Alert,
     Card,
@@ -25,7 +23,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
 import LinkIcon from '@mui/icons-material/Link';
 import EditIcon from '@mui/icons-material/Edit';
-import type { ClientTodo as ToDo } from '@my-dashboard/types/todos';
+import type { ToDoItem } from '@my-dashboard/types/todos';
 
 const ToDoListWidget = () => {
     const [open, setOpen] = useState(false);
@@ -33,27 +31,24 @@ const ToDoListWidget = () => {
         title: '',
         description: '',
         link: '',
-        due_date: '',
+        dueDate: '',
     });
     // New state for editing
     const [editId, setEditId] = useState<number | null>(null);
     const [deleteId, setDeleteId] = useState<number | null>(null);
     const [quickTitle, setQuickTitle] = useState('');
 
-    const {
-        data: toDoListData,
-        isLoading: isLoadingList,
-        mutate: fetchToDoList,
-    } = useSWR(`${API_BASE_URL}/api/to_do_list`, {
-        refreshInterval: 3 * 60 * 1000, // Refresh every 10 minutes
+    // SDK hooks
+    const { data: toDoListData, loading: isLoadingList, error: todosError, refetch: fetchToDoList } = useTodos({
+        refetchInterval: 3 * 60 * 1000, // Refresh every 3 minutes
     });
+    const { mutate: createTodo, loading: isCreating } = useCreateTodo();
+    const { mutate: updateTodo, loading: isUpdating } = useUpdateTodo();
+    const { mutate: deleteTodo, loading: isDeleting } = useDeleteTodo();
+    const { mutate: toggleTodo, loading: isToggling } = useToggleTodo();
 
     const handleToggle = async (id: number, checked: boolean) => {
-        await apiFetch(`${API_BASE_URL}/api/to_do_list/${id}`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ is_completed: checked }),
-        });
+        await toggleTodo({ id, isCompleted: checked });
         await fetchToDoList();
     };
 
@@ -63,7 +58,7 @@ const ToDoListWidget = () => {
 
     const handleConfirmDelete = async () => {
         if (deleteId !== null) {
-            await apiFetch(`${API_BASE_URL}/api/to_do_list/${deleteId}`, { method: 'DELETE' });
+            await deleteTodo(deleteId);
             await fetchToDoList();
             setDeleteId(null);
         }
@@ -74,13 +69,13 @@ const ToDoListWidget = () => {
     };
 
     // Open modal for editing, prefill form
-    const handleEditOpen = (todo: ToDo) => {
-        setEditId(todo.id);
+    const handleEditOpen = (todo: ToDoItem) => {
+        setEditId(todo.id!);
         setForm({
             title: todo.title || '',
             description: todo.description || '',
             link: todo.link || '',
-            due_date: todo.due_date ? todo.due_date.slice(0, 10) : '',
+            dueDate: todo.dueDate ? todo.dueDate.slice(0, 10) : '',
         });
         setOpen(true);
     };
@@ -88,7 +83,7 @@ const ToDoListWidget = () => {
     const handleClose = () => {
         setOpen(false);
         setEditId(null);
-        setForm({ title: '', description: '', link: '', due_date: '' });
+        setForm({ title: '', description: '', link: '', dueDate: '' });
     };
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -98,17 +93,9 @@ const ToDoListWidget = () => {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (editId) {
-            await apiFetch(`${API_BASE_URL}/api/to_do_list/${editId}`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(form),
-            });
+            await updateTodo({ id: editId, data: form });
         } else {
-            await apiFetch(`${API_BASE_URL}/api/to_do_list`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ ...form, is_completed: false }),
-            });
+            await createTodo({ ...form, isCompleted: false });
         }
         handleClose();
         await fetchToDoList();
@@ -117,35 +104,31 @@ const ToDoListWidget = () => {
     const handleQuickAdd = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!quickTitle.trim()) {
-return;
-}
-        await apiFetch(`${API_BASE_URL}/api/to_do_list`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ title: quickTitle, is_completed: false }),
-        });
+            return;
+        }
+        await createTodo({ title: quickTitle, isCompleted: false });
         setQuickTitle('');
         await fetchToDoList();
     };
 
     // Sort: non-completed first, then completed.
     // Non-completed: no due date first, then ascending due date.
-    const sortedToDoList = (toDoListData || []).slice().sort((a: ToDo, b: ToDo) => {
+    const sortedToDoList = (toDoListData || []).slice().sort((a: ToDoItem, b: ToDoItem) => {
         // Completed to the end
-        if (a.is_completed !== b.is_completed) {
-            return a.is_completed ? 1 : -1;
+        if (a.isCompleted !== b.isCompleted) {
+            return a.isCompleted ? 1 : -1;
         }
         // Only sort non-completed by due date logic
-        if (!a.is_completed && !b.is_completed) {
-            const aHasDue = !!a.due_date;
-            const bHasDue = !!b.due_date;
+        if (!a.isCompleted && !b.isCompleted) {
+            const aHasDue = !!a.dueDate;
+            const bHasDue = !!b.dueDate;
             if (aHasDue !== bHasDue) {
                 // No due date first
                 return aHasDue ? 1 : -1;
             }
             if (aHasDue && bHasDue) {
                 // Both have due date, sort ascending
-                return DateTime.fromISO(a.due_date).toMillis() - DateTime.fromISO(b.due_date).toMillis();
+                return DateTime.fromISO(a.dueDate).toMillis() - DateTime.fromISO(b.dueDate).toMillis();
             }
         }
         // Otherwise, keep original order
@@ -154,6 +137,11 @@ return;
 
     return (
         <Box>
+            {todosError && (
+                <Alert severity="error" sx={{ mb: 2 }}>
+                    Failed to load todos: {todosError.message}
+                </Alert>
+            )}
             <List sx={{ padding: 0 }}>
                 {isLoadingList &&
                     <Stack direction="column" spacing={2}>
@@ -162,13 +150,13 @@ return;
                         <Skeleton variant="rectangular" height={50}/>
                     </Stack>
                 }
-                {sortedToDoList.map((todo: ToDo) => (
+                {sortedToDoList.map((todo: ToDoItem) => (
                     <ListItem
                         key={todo.id}
                         component={Card}
                         sx={{
                             mb: 1,
-                            backgroundColor: todo.is_completed ? 'rgba(0, 128, 0, 0.1)' : 'background.paper',
+                            backgroundColor: todo.isCompleted ? 'rgba(0, 128, 0, 0.1)' : 'background.paper',
                         }}
                         variant="outlined"
                         secondaryAction={
@@ -200,7 +188,7 @@ return;
                                     <IconButton
                                         edge="end"
                                         aria-label="delete"
-                                        onClick={() => handleDelete(todo.id)}
+                                        onClick={() => handleDelete(todo.id!)}
                                         size="small"
                                     >
                                         <DeleteIcon />
@@ -211,10 +199,11 @@ return;
                     >
                         <Checkbox
                             edge="start"
-                            checked={todo.is_completed}
+                            checked={todo.isCompleted}
                             tabIndex={-1}
                             disableRipple
-                            onChange={(_, checked) => handleToggle(todo.id, checked)}
+                            disabled={isToggling}
+                            onChange={(_, checked) => handleToggle(todo.id!, checked)}
                         />
                         <ListItemText
                             primary={
@@ -222,23 +211,23 @@ return;
                                     <Typography
                                         variant="body1"
                                         sx={{
-                                            textDecoration: todo.is_completed ? 'line-through' : undefined,
-                                            fontWeight: todo.is_completed ? 'normal' : 'bold',
+                                            textDecoration: todo.isCompleted ? 'line-through' : undefined,
+                                            fontWeight: todo.isCompleted ? 'normal' : 'bold',
                                             mr: 1,
                                         }}
                                     >
                                         {todo.title}
                                     </Typography>
-                                    {todo.due_date && (
+                                    {todo.dueDate && (
                                         <Typography
                                             variant="caption"
                                             color={
-                                                DateTime.fromISO(todo.due_date) < DateTime.now() && !todo.is_completed
+                                                DateTime.fromISO(todo.dueDate) < DateTime.now() && !todo.isCompleted
                                                     ? 'error'
                                                     : 'text.secondary'
                                             }
                                         >
-                                            {DateTime.fromISO(todo.due_date).toFormat('yyyy-MM-dd')}
+                                            {DateTime.fromISO(todo.dueDate).toFormat('yyyy-MM-dd')}
                                         </Typography>
                                     )}
                                 </Box>
@@ -267,7 +256,7 @@ return;
                     required
                     sx={{ mr: 1 }}
                 />
-                <Button type="submit" variant="contained" color="primary" disabled={!quickTitle.trim()}>
+                <Button type="submit" variant="contained" color="primary" disabled={!quickTitle.trim() || isCreating}>
                     <AddIcon />
                 </Button>
             </Box>
@@ -305,17 +294,19 @@ return;
                         <TextField
                             margin="dense"
                             label="Due Date"
-                            name="due_date"
+                            name="dueDate"
                             type="date"
-                            value={form.due_date}
+                            value={form.dueDate}
                             onChange={handleChange}
                             fullWidth
                             InputLabelProps={{ shrink: true }}
                         />
                     </DialogContent>
                     <DialogActions>
-                        <Button onClick={handleClose}>Cancel</Button>
-                        <Button type="submit" variant="contained">{editId ? 'Save' : 'Add'}</Button>
+                        <Button onClick={handleClose} disabled={isCreating || isUpdating}>Cancel</Button>
+                        <Button type="submit" variant="contained" disabled={isCreating || isUpdating}>
+                            {editId ? 'Save' : 'Add'}
+                        </Button>
                     </DialogActions>
                 </form>
             </Dialog>
@@ -330,8 +321,8 @@ return;
                     <Typography>Are you sure you want to delete this to-do item?</Typography>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={handleCancelDelete}>Cancel</Button>
-                    <Button onClick={handleConfirmDelete} color="error" variant="contained">
+                    <Button onClick={handleCancelDelete} disabled={isDeleting}>Cancel</Button>
+                    <Button onClick={handleConfirmDelete} color="error" variant="contained" disabled={isDeleting}>
                         Delete
                     </Button>
                 </DialogActions>

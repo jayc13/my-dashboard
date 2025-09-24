@@ -20,6 +20,10 @@ export class HttpClient {
     };
   }
 
+  getBaseUrl() {
+    return this.baseUrl;
+  }
+
   private async makeRequest(
     endpoint: string,
     options: RequestInit = {}

@@ -19,7 +19,6 @@ beforeAll(() => {
 afterAll(async () => {
   // Restore console methods
   Object.assign(console, originalConsole);
-  await cleanupDatabase();
 });
 
 // Global test timeout

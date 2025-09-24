@@ -8,43 +8,22 @@
 /**
  * To-do item with task details and completion status
  */
-export interface Todo {
+export interface ToDoItem {
     id?: number;
     title: string;
     description: string;
     link: string;
-    due_date: string; // ISO string
-    is_completed: boolean;
+    dueDate: string; // ISO string
+    isCompleted: boolean;
 }
 
 /**
  * Input data for creating or updating a to-do item
  */
-export interface TodoInput {
+export interface ToDoItemInput {
     title: string;
     description?: string;
     link?: string;
-    due_date?: string; // ISO string, optional
-    is_completed?: boolean;
-}
-
-/**
- * Response structure for todo creation
- */
-export interface TodoCreateResponse {
-    id: number;
-    success: boolean;
-    message: string;
-}
-
-/**
- * Client-side todo interface (used in React components)
- */
-export interface ClientTodo {
-    id: number;
-    title: string;
-    description: string;
-    link: string;
-    due_date: string;
-    is_completed: boolean;
+    dueDate?: string; // ISO string, optional
+    isCompleted?: boolean;
 }
