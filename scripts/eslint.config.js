@@ -29,6 +29,17 @@ module.exports = [
     },
   },
   {
+    files: ['**/__tests__/**/*.js', '**/*.test.js', '**/*.spec.js'],
+    languageOptions: {
+      ecmaVersion: 'latest',
+      sourceType: 'commonjs',
+      globals: {
+        ...globals.node,
+        ...globals.jest,
+      },
+    },
+  },
+  {
     ignores: ['node_modules/**'],
   },
 ];
