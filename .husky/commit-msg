@@ -2,7 +2,7 @@
 
 echo "📝 Validating commit message format..."
 # Run commitlint to validate the commit message using the scripts workspace
-npx pnpm --filter=scripts exec commitlint --config="./commitlint.config.js" --edit "$1"
+cd scripts && npx pnpm exec commitlint --config="./commitlint.config.js" --edit "$1"
 
 if [ $? -eq 0 ]; then
   echo "✅ Commit message format is valid!"
