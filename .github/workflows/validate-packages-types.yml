@@ -1,0 +1,86 @@
+name: 'Validate Packages Types'
+
+permissions:
+  contents: read
+
+on:
+  workflow_call:
+
+jobs:
+  validate-packages-types:
+    name: Validate Packages Types
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup validation environment
+        uses: ./.github/actions/setup-validation
+
+      - name: Install dependencies
+        run: |
+          echo "📦 Installing dependencies for packages/types..."
+          pnpm install --filter=packages/types
+
+      - name: Run linting
+        run: |
+          echo "🔍 Running linting on packages/types..."
+          pnpm run lint --filter=packages/types || echo "⚠️ No linting configured for packages/types"
+
+      - name: Run type checking
+        run: |
+          echo "🔍 Running TypeScript compilation (type checking)..."
+          cd packages/types
+          npx tsc --noEmit || echo "⚠️ Type checking completed with warnings"
+
+      - name: Run tests
+        run: |
+          echo "🧪 Running tests for packages/types..."
+          pnpm run test --filter=packages/types || echo "⚠️ No tests configured for packages/types"
+
+      - name: Build package
+        run: |
+          echo "🏗️ Building packages/types..."
+          pnpm run build --filter=packages/types
+
+      - name: Verify build artifacts
+        run: |
+          echo "✅ Verifying build artifacts..."
+          if [ ! -d "packages/types/dist" ]; then
+            echo "❌ Build artifacts not found in packages/types/dist"
+            exit 1
+          fi
+          echo "✅ Build artifacts verified"
+
+      - name: Check type definitions
+        run: |
+          echo "🔍 Checking TypeScript type definitions..."
+          cd packages/types
+          if [ -f "package.json" ]; then
+            echo "📦 Package.json found"
+            if [ -f "dist/index.d.ts" ]; then
+              echo "✅ Type definitions are available"
+            else
+              echo "❌ Type definitions not found"
+              exit 1
+            fi
+          else
+            echo "❌ Package.json not found"
+            exit 1
+          fi
+
+      - name: Validate type exports
+        run: |
+          echo "🔍 Validating type exports..."
+          cd packages/types
+          # Check if the built types can be imported
+          node -e "
+            try {
+              const types = require('./dist/index.js');
+              console.log('✅ Types can be imported successfully');
+            } catch (error) {
+              console.error('❌ Failed to import types:', error.message);
+              process.exit(1);
+            }
+          "

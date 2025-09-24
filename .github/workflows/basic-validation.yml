@@ -36,6 +36,18 @@ on:
       scripts-changed:
         description: 'Whether scripts files changed'
         value: ${{ jobs.basic-validation.outputs.scripts-changed }}
+      packages-sdk-changed:
+        description: 'Whether packages/sdk files changed'
+        value: ${{ jobs.basic-validation.outputs.packages-sdk-changed }}
+      packages-types-changed:
+        description: 'Whether packages/types files changed'
+        value: ${{ jobs.basic-validation.outputs.packages-types-changed }}
+      tests-integration-changed:
+        description: 'Whether tests/integration-tests files changed'
+        value: ${{ jobs.basic-validation.outputs.tests-integration-changed }}
+      tests-e2e-changed:
+        description: 'Whether tests/e2e-tests files changed'
+        value: ${{ jobs.basic-validation.outputs.tests-e2e-changed }}
       github-changed:
         description: 'Whether GitHub files changed'
         value: ${{ jobs.basic-validation.outputs.github-changed }}
@@ -52,6 +64,10 @@ jobs:
       server-changed: ${{ steps.changes.outputs.server }}
       cron-changed: ${{ steps.changes.outputs.cron }}
       scripts-changed: ${{ steps.changes.outputs.scripts }}
+      packages-sdk-changed: ${{ steps.changes.outputs.packages-sdk }}
+      packages-types-changed: ${{ steps.changes.outputs.packages-types }}
+      tests-integration-changed: ${{ steps.changes.outputs.tests-integration }}
+      tests-e2e-changed: ${{ steps.changes.outputs.tests-e2e }}
       github-changed: ${{ steps.changes.outputs.github }}
       docs-changed: ${{ steps.changes.outputs.docs }}
     steps:
@@ -82,6 +98,14 @@ jobs:
               - 'cron/**'
             scripts:
               - 'scripts/**'
+            packages-sdk:
+              - 'packages/sdk/**'
+            packages-types:
+              - 'packages/types/**'
+            tests-integration:
+              - 'tests/integration-tests/**'
+            tests-e2e:
+              - 'tests/e2e-tests/**'
             github:
               - '.github/**'
             docs:

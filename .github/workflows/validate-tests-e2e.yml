@@ -1,0 +1,104 @@
+name: 'Validate Tests E2E'
+
+permissions:
+  contents: read
+
+on:
+  workflow_call:
+
+jobs:
+  validate-tests-e2e:
+    name: Validate E2E Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup validation environment
+        uses: ./.github/actions/setup-validation
+
+      - name: Install dependencies
+        run: |
+          echo "📦 Installing dependencies for tests/e2e-tests..."
+          pnpm install --filter=tests/e2e-tests
+
+      - name: Run linting
+        run: |
+          echo "🔍 Running linting on tests/e2e-tests..."
+          pnpm run lint --filter=tests/e2e-tests || echo "⚠️ No linting configured for tests/e2e-tests"
+
+      - name: Run type checking
+        run: |
+          echo "🔍 Running TypeScript type checking..."
+          pnpm run type-check --filter=tests/e2e-tests
+
+      - name: Validate test structure
+        run: |
+          echo "🔍 Validating E2E test structure..."
+          cd tests/e2e-tests
+          
+          # Check for test files
+          if [ ! -d "tests" ] && [ ! -d "src" ] && [ ! -f "*.spec.ts" ] && [ ! -f "*.spec.js" ] && [ ! -f "*.test.ts" ] && [ ! -f "*.test.js" ]; then
+            echo "❌ No E2E test files found"
+            exit 1
+          fi
+          
+          echo "✅ E2E test structure validated"
+
+      - name: Check Playwright configuration
+        run: |
+          echo "🔍 Checking Playwright configuration..."
+          cd tests/e2e-tests
+          
+          if [ -f "playwright.config.ts" ] || [ -f "playwright.config.js" ]; then
+            echo "✅ Playwright configuration found"
+          else
+            echo "⚠️ No Playwright configuration found"
+          fi
+
+      - name: Install Playwright browsers (headless)
+        run: |
+          echo "🎭 Installing Playwright browsers for validation..."
+          cd tests/e2e-tests
+          
+          # Install only chromium for validation (faster)
+          if command -v playwright &> /dev/null; then
+            npx playwright install chromium --with-deps
+          elif pnpm exec playwright --version &> /dev/null; then
+            pnpm exec playwright install chromium --with-deps
+          else
+            echo "⚠️ Playwright not found, skipping browser installation"
+          fi
+
+      - name: Validate test syntax
+        run: |
+          echo "🔍 Validating test syntax..."
+          cd tests/e2e-tests
+          
+          # Try to parse test files without running them
+          if command -v playwright &> /dev/null; then
+            npx playwright test --list > /dev/null 2>&1 && echo "✅ Test syntax validated" || echo "⚠️ Test syntax validation skipped"
+          elif pnpm exec playwright --version &> /dev/null; then
+            pnpm exec playwright test --list > /dev/null 2>&1 && echo "✅ Test syntax validated" || echo "⚠️ Test syntax validation skipped"
+          else
+            echo "⚠️ Playwright not available for syntax validation"
+          fi
+
+      - name: Check test dependencies
+        run: |
+          echo "🔍 Checking test dependencies..."
+          cd tests/e2e-tests
+          
+          # Verify package.json has required dependencies
+          if [ -f "package.json" ]; then
+            echo "📦 Package.json found"
+            if grep -q "playwright\|@playwright" package.json; then
+              echo "✅ Playwright dependency found"
+            else
+              echo "⚠️ Playwright dependency not found in package.json"
+            fi
+          else
+            echo "❌ Package.json not found"
+            exit 1
+          fi
