@@ -14,7 +14,7 @@ import {
   JiraTicket,
   JiraIssuesResponse,
   ToDoItem,
-  TodoRequest,
+  ToDoItemInput,
 } from '../types';
 
 /**
@@ -135,7 +135,7 @@ export class TodosService extends BaseClient {
    * @param todo To-do item data
    * @returns Promise resolving to creation response
    */
-  public async createTodo(todo: TodoRequest): Promise<ToDoItem> {
+  public async createTodo(todo: ToDoItemInput): Promise<ToDoItem> {
     return this.request<ToDoItem>('/api/to_do_list', {
       method: 'POST',
       body: JSON.stringify(todo),
@@ -148,7 +148,7 @@ export class TodosService extends BaseClient {
    * @param updates To-do item updates
    * @returns Promise resolving to updated to-do item
    */
-  public async updateTodo(id: number, updates: TodoRequest): Promise<ToDoItem> {
+  public async updateTodo(id: number, updates: ToDoItemInput): Promise<ToDoItem> {
     return this.request<ToDoItem>(`/api/to_do_list/${id}`, {
       method: 'PUT',
       body: JSON.stringify(updates),

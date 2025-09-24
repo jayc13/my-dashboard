@@ -1,5 +1,5 @@
 import { DatabaseRow, db } from '../db/database';
-import type { ToDoItem, TodoRequest } from '@my-dashboard/types';
+import type { ToDoItem, ToDoItemInput } from '@my-dashboard/types';
 
 export class TodoService {
   private static formatTodoItem(todo: DatabaseRow): ToDoItem {
@@ -36,7 +36,7 @@ export class TodoService {
     }
   }
 
-  static async create(todo: TodoRequest): Promise<ToDoItem | undefined> {
+  static async create(todo: ToDoItemInput): Promise<ToDoItem | undefined> {
     const {
       title,
       description = null,
@@ -57,7 +57,7 @@ export class TodoService {
     }
   }
 
-  static async update(id: number, todo: TodoRequest): Promise<ToDoItem | undefined> {
+  static async update(id: number, todo: ToDoItemInput): Promise<ToDoItem | undefined> {
     try {
       const fields: string[] = [];
       const values: unknown[] = [];

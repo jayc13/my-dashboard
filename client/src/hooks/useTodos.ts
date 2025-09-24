@@ -3,7 +3,7 @@ import { useSDKData, useSDKMutation } from './useSDKData';
 import { useSDK } from '../contexts/useSDK';
 import type { 
   ToDoItem, 
-  TodoRequest,
+  ToDoItemInput,
 } from '@my-dashboard/types';
 
 /**
@@ -44,7 +44,7 @@ throw new Error('API not available');
 export function useCreateTodo() {
   const { api } = useSDK();
 
-  const mutationFn = useCallback(async (data: TodoRequest): Promise<ToDoItem> => {
+  const mutationFn = useCallback(async (data: ToDoItemInput): Promise<ToDoItem> => {
     if (!api) {
 throw new Error('API not available');
 }
@@ -60,7 +60,7 @@ throw new Error('API not available');
 export function useUpdateTodo() {
   const { api } = useSDK();
 
-  const mutationFn = useCallback(async ({ id, data }: { id: number; data: TodoRequest }): Promise<ToDoItem> => {
+  const mutationFn = useCallback(async ({ id, data }: { id: number; data: ToDoItemInput }): Promise<ToDoItem> => {
     if (!api) {
 throw new Error('API not available');
 }

@@ -20,7 +20,7 @@ export interface ToDoItem {
 /**
  * Input data for creating or updating a to-do item
  */
-export interface TodoRequest {
+export interface ToDoItemInput {
     title: string;
     description?: string;
     link?: string;
