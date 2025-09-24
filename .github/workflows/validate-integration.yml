@@ -82,8 +82,8 @@ jobs:
       - name: Build projects
         run: |
           npm run build \
-            --workspace=packages/sdk \
             --workspace=packages/types \
+            --workspace=packages/sdk \
             --workspace=server \
             --workspace=tests/integration-tests
 
