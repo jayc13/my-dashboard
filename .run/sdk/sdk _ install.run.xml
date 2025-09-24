@@ -1,8 +1,10 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="sdk - install" type="js.build_tools.npm" folderName="SDK">
+  <configuration default="false" name="sdk &gt; install" type="js.build_tools.npm" folderName="SDK">
     <package-json value="$PROJECT_DIR$/packages/sdk/package.json" />
-    <command value="install" />
-    <arguments value="--registry=https://registry.npmjs.org/" />
+    <command value="run" />
+    <scripts>
+      <script value="build" />
+    </scripts>
     <node-interpreter value="project" />
     <envs />
     <method v="2" />
