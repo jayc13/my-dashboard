@@ -26,8 +26,8 @@ jobs:
       - name: Build required packages
         run: |
           echo "🏗️ Building required packages..."
-          pnpm run build --filter=packages/types
-          pnpm run build --filter=packages/sdk
+          pnpm run build --filter=@my-dashboard/types
+          pnpm run build --filter=@my-dashboard/sdk
 
       - name: Run linting
         run: |

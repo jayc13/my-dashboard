@@ -21,12 +21,12 @@ jobs:
       - name: Install dependencies
         run: |
           echo "📦 Installing dependencies for packages/types..."
-          pnpm install --filter=packages/types
+          pnpm install --filter=@my-dashboard/types
 
       - name: Run linting
         run: |
           echo "🔍 Running linting on packages/types..."
-          pnpm --filter=packages/types run lint || echo "⚠️ No linting configured for packages/types"
+          pnpm --filter=@my-dashboard/types run lint || echo "⚠️ No linting configured for packages/types"
 
       - name: Run type checking
         run: |
@@ -37,12 +37,12 @@ jobs:
       - name: Run tests
         run: |
           echo "🧪 Running tests for packages/types..."
-          pnpm --filter=packages/types run test || echo "⚠️ No tests configured for packages/types"
+          pnpm --filter=@my-dashboard/types run test || echo "⚠️ No tests configured for packages/types"
 
       - name: Build package
         run: |
           echo "🏗️ Building packages/types..."
-          pnpm --filter=packages/types run build
+          pnpm --filter=@my-dashboard/types run build
 
       - name: Verify build artifacts
         run: |
