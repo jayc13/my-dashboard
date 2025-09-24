@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="sdk &gt; install" type="js.build_tools.npm" folderName="SDK">
+  <configuration default="false" name="sdk &gt; build" type="js.build_tools.npm" folderName="SDK">
     <package-json value="$PROJECT_DIR$/packages/sdk/package.json" />
     <command value="run" />
     <scripts>
