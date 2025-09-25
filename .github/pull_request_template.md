@@ -7,6 +7,7 @@
 - [ ] 💥 Breaking change
 - [ ] 📚 Documentation
 - [ ] 🔧 Refactoring
+- [ ] 🐞 Testing
 - [ ] 🏗️ CI/CD
 - [ ] 🔄 Other: ___________
 
