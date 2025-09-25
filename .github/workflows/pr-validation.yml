@@ -125,6 +125,19 @@ jobs:
     needs: [ basic-validation, validate-packages-types, validate-packages-sdk, validate-client, validate-server, integration-testing ]
     if: always() && needs.basic-validation.result == 'success' && (needs.basic-validation.outputs.client-changed == 'true' || needs.basic-validation.outputs.server-changed == 'true' || needs.basic-validation.outputs.github-changed == 'true') && (needs.integration-testing.result == 'success' || needs.integration-testing.result == 'skipped') && (needs.validate-client.result == 'success' || needs.validate-client.result == 'skipped') && (needs.validate-server.result == 'success' || needs.validate-server.result == 'skipped')
     timeout-minutes: 30
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: test_password
+          MYSQL_DATABASE: test_db
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -143,22 +156,15 @@ jobs:
             --workspace=server \
             --workspace=client
 
-      - name: Setup test database
-        run: |
-          # Start MySQL service
-          sudo systemctl start mysql
-          # Create test database
-          mysql -u root -p${{ secrets.MYSQL_ROOT_PASSWORD || 'root' }} -e "CREATE DATABASE IF NOT EXISTS ${{ secrets.MYSQL_TEST_DATABASE || 'cypress_dashboard_test' }};"
-
       - name: Run database migrations
         working-directory: ./server
         run: npm run migrate
         env:
-          MYSQL_HOST: ${{ secrets.MYSQL_HOST || 'localhost' }}
-          MYSQL_PORT: ${{ secrets.MYSQL_PORT || '3306' }}
-          MYSQL_USER: ${{ secrets.MYSQL_USER || 'root' }}
-          MYSQL_PASSWORD: ${{ secrets.MYSQL_PASSWORD || secrets.MYSQL_ROOT_PASSWORD || 'root' }}
-          MYSQL_DATABASE: ${{ secrets.MYSQL_TEST_DATABASE || 'cypress_dashboard_test' }}
+          MYSQL_HOST: localhost
+          MYSQL_PORT: 3306
+          MYSQL_USER: root
+          MYSQL_PASSWORD: test_db
+          MYSQL_DATABASE: test_password
 
       - name: Start server in background
         working-directory: ./server
@@ -170,11 +176,11 @@ jobs:
           BRUTE_FORCE_WINDOW_MS=600000
           BRUTE_FORCE_MAX_ATTEMPTS=20
           PORT=${{ secrets.SERVER_PORT || '3000' }}
-          MYSQL_HOST=${{ secrets.MYSQL_HOST || 'localhost' }}
-          MYSQL_PORT=${{ secrets.MYSQL_PORT || '3306' }}
-          MYSQL_USER=${{ secrets.MYSQL_USER || 'root' }}
-          MYSQL_PASSWORD=${{ secrets.MYSQL_PASSWORD || secrets.MYSQL_ROOT_PASSWORD || 'root' }}
-          MYSQL_DATABASE=${{ secrets.MYSQL_TEST_DATABASE || 'cypress_dashboard_test' }}
+          MYSQL_HOST: localhost
+          MYSQL_PORT: 3306
+          MYSQL_USER: root
+          MYSQL_PASSWORD: test_db
+          MYSQL_DATABASE: test_password
           API_SECURITY_KEY=${{ secrets.API_SECURITY_KEY }}
           FIREBASE_PROJECT_ID=${{ secrets.FIREBASE_PROJECT_ID }}
           FIREBASE_PRIVATE_KEY="${{ secrets.FIREBASE_PRIVATE_KEY }}"
