@@ -17,7 +17,8 @@
     "lint-fix": "echo \"No linting configured\"",
     "test": "echo \"No tests configured\"",
     "prepublishOnly": "pnpm run clean && pnpm run build",
-    "dev": "tsc --watch"
+    "dev": "tsc --watch",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@my-dashboard/types": "file:../types"

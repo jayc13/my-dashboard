@@ -10,7 +10,8 @@
     "build": "tsc",
     "lint": "eslint .",
     "lint-fix": "eslint . --fix",
-    "test": "jest"
+    "test": "jest",
+    "typecheck": "tsc --noEmit"
   },
   "engines": {
     "node": "v22.19.0"

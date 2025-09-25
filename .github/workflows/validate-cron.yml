@@ -33,13 +33,13 @@ jobs:
           project: cron
 
       - name: Type check
-        run: npx tsc --noEmit
+        run: pnpm --filter=cron run typecheck
 
       - name: Run linting
-        run: npm run lint
+        run: pnpm --filter=cron run lint
 
       - name: Build cron
-        run: npm run build
+        run: pnpm --filter=cron run build
 
       - name: Run tests
         run: |

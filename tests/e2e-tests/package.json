@@ -16,6 +16,7 @@
     "report": "playwright show-report",
     "install-browsers": "playwright install",
     "type-check": "tsc --noEmit",
+    "typecheck": "tsc --noEmit",
     "clean": "rm -rf test-results playwright-report"
   },
   "devDependencies": {

@@ -31,8 +31,7 @@ jobs:
       - name: Run type checking
         run: |
           echo "🔍 Running TypeScript compilation (type checking)..."
-          cd packages/types
-          npx tsc --noEmit || echo "⚠️ Type checking completed with warnings"
+          pnpm --filter=@my-dashboard/types run typecheck || echo "⚠️ Type checking completed with warnings"
 
       - name: Run tests
         run: |
