@@ -54,6 +54,9 @@ on:
       docs-changed:
         description: 'Whether documentation files changed'
         value: ${{ jobs.basic-validation.outputs.docs-changed }}
+      mock-server-changed:
+        description: 'Whether mock-server files changed'
+        value: ${{ jobs.basic-validation.outputs.mock-server-changed }}
 
 jobs:
   basic-validation:
@@ -70,6 +73,7 @@ jobs:
       tests-e2e-changed: ${{ steps.changes.outputs.tests-e2e }}
       github-changed: ${{ steps.changes.outputs.github }}
       docs-changed: ${{ steps.changes.outputs.docs }}
+      mock-server-changed: ${{ steps.changes.outputs.mock-server }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v5
@@ -112,6 +116,8 @@ jobs:
               - 'docs/**'
               - '**/*.md'
               - 'server/docs/**'
+            mock-server:
+              - 'mock-server/**'
 
       - name: Validate PR title
         shell: bash

@@ -2,7 +2,7 @@
 
 # PR Summary Generation Script
 # Generates a formatted summary message for PR validation results
-# Usage: generate-pr-summary.sh <basic> <packages-types> <packages-sdk> <client> <server> <cron> <scripts> <tests-integration> <tests-e2e> <docs> <integration> <e2e> [test-results]
+# Usage: generate-pr-summary.sh <basic> <packages-types> <packages-sdk> <client> <server> <mock-server> <cron> <scripts> <tests-integration> <tests-e2e> <docs> <integration> <e2e> [test-results]
 
 set -e
 
@@ -20,16 +20,17 @@ PACKAGES_TYPES_VALIDATION="${2:-skipped}"
 PACKAGES_SDK_VALIDATION="${3:-skipped}"
 CLIENT_VALIDATION="${4:-skipped}"
 SERVER_VALIDATION="${5:-skipped}"
-CRON_VALIDATION="${6:-skipped}"
-SCRIPTS_VALIDATION="${7:-skipped}"
-TESTS_INTEGRATION_VALIDATION="${8:-skipped}"
-TESTS_E2E_VALIDATION="${9:-skipped}"
-DOCS_VALIDATION="${10:-skipped}"
-INTEGRATION_TESTING="${11:-skipped}"
-E2E_TESTING="${12:-skipped}"
+MOCK_SERVER_VALIDATION="${6:-skipped}"
+CRON_VALIDATION="${7:-skipped}"
+SCRIPTS_VALIDATION="${8:-skipped}"
+TESTS_INTEGRATION_VALIDATION="${9:-skipped}"
+TESTS_E2E_VALIDATION="${10:-skipped}"
+DOCS_VALIDATION="${11:-skipped}"
+INTEGRATION_TESTING="${12:-skipped}"
+E2E_TESTING="${13:-skipped}"
 
-# Test results (optional 13th argument)
-TEST_RESULTS="${13:-}"
+# Test results (optional 14th argument)
+TEST_RESULTS="${14:-}"
 
 # Required environment variables for links
 GITHUB_SERVER_URL="${GITHUB_SERVER_URL:-https://github.com}"
@@ -83,7 +84,7 @@ get_overall_status() {
 }
 
 # Get overall status
-OVERALL_STATUS=$(get_overall_status "$BASIC_VALIDATION" "$PACKAGES_TYPES_VALIDATION" "$PACKAGES_SDK_VALIDATION" "$CLIENT_VALIDATION" "$SERVER_VALIDATION" "$CRON_VALIDATION" "$SCRIPTS_VALIDATION" "$TESTS_INTEGRATION_VALIDATION" "$TESTS_E2E_VALIDATION" "$DOCS_VALIDATION" "$INTEGRATION_TESTING" "$E2E_TESTING")
+OVERALL_STATUS=$(get_overall_status "$BASIC_VALIDATION" "$PACKAGES_TYPES_VALIDATION" "$PACKAGES_SDK_VALIDATION" "$CLIENT_VALIDATION" "$SERVER_VALIDATION" "$MOCK_SERVER_VALIDATION" "$CRON_VALIDATION" "$SCRIPTS_VALIDATION" "$TESTS_INTEGRATION_VALIDATION" "$TESTS_E2E_VALIDATION" "$DOCS_VALIDATION" "$INTEGRATION_TESTING" "$E2E_TESTING")
 
 # Build comment body
 COMMENT_BODY="## 🔍 Pull Request Validation Results
@@ -113,6 +114,7 @@ COMMENT_BODY+="| Validation | Status |
 | **Packages SDK** | $(get_status_display "$PACKAGES_SDK_VALIDATION") |
 | **Client Validation** | $(get_status_display "$CLIENT_VALIDATION") |
 | **Server Validation** | $(get_status_display "$SERVER_VALIDATION") |
+| **Mock Server Validation** | $(get_status_display "$MOCK_SERVER_VALIDATION") |
 | **Cron Validation** | $(get_status_display "$CRON_VALIDATION") |
 | **Scripts Validation** | $(get_status_display "$SCRIPTS_VALIDATION") |
 | **Tests Integration** | $(get_status_display "$TESTS_INTEGRATION_VALIDATION") |

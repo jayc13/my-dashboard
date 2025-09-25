@@ -1,0 +1,42 @@
+name: 'Validate Mock Server'
+
+on:
+  workflow_call:
+    inputs:
+      working-directory:
+        description: 'Working directory for mock-server operations'
+        required: false
+        type: string
+        default: './mock-server'
+      node-version:
+        description: 'Node.js version to use'
+        required: false
+        type: string
+        default: 'v22.19.0'
+
+jobs:
+  validate-mock-server:
+    name: Validate Mock Server
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ inputs.working-directory }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Setup Node.js
+        uses: ./.github/actions/setup-node
+        with:
+          node-version: ${{ inputs.node-version }}
+          working-directory: ${{ github.workspace }}
+          project: "mock-server"
+
+      - name: Type check
+        run: pnpm --filter=mock-server run typecheck
+
+      - name: Run linting
+        run: pnpm --filter=mock-server run lint
+
+      - name: Build mock server
+        run: pnpm --filter=mock-server run build

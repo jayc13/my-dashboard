@@ -210,3 +210,20 @@ pnpm run test
 ```
 
 For more detailed troubleshooting, see [docs/git-hooks.md](docs/git-hooks.md).
+
+## Setup
+
+1. Install [pnpm](https://pnpm.io/installation) if you haven't already:
+   ```sh
+   npm install -g pnpm
+   ```
+
+2. Install dependencies:
+   ```sh
+   pnpm install
+   ```
+
+3. Start the development server:
+   ```sh
+   pnpm run dev
+   ```
