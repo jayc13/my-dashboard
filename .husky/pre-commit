@@ -18,7 +18,7 @@ cd "$(git rev-parse --show-toplevel)" || exit 1
 # Install Dependencies
 # =============================================================================
 echo "📦 Installing dependencies to ensure everything is up to date..."
-pnpm install &>/dev/null
+pnpm install
 
 # =============================================================================
 # Run Quality Checks Across All Workspaces
