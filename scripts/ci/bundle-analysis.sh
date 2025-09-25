@@ -17,13 +17,9 @@ NC='\033[0m' # No Color
 # Configuration
 MAX_SIZE_INCREASE=${MAX_SIZE_INCREASE:-524288}  # 512KB in bytes
 MAX_PERCENT_INCREASE=${MAX_PERCENT_INCREASE:-10}  # 10% increase
-BUILD_COMMAND=${BUILD_COMMAND:-"npm run build"}
+BUILD_COMMAND=${BUILD_COMMAND:-"pnpm --filter=client run build"}
 
 echo -e "${CYAN}📦 Starting Bundle Size Analysis...${NC}"
-
-# Install bundle analyzer
-echo -e "${BLUE}Installing bundle analyzer...${NC}"
-npm install --save-dev rollup-plugin-visualizer
 
 # Build with bundle analysis
 echo -e "${BLUE}Building project...${NC}"
