@@ -45,7 +45,7 @@ jobs:
           working-directory: ${{ github.workspace }}
 
       - name: Build @my-dashboard/types
-        run: pnpm run build --workspace=packages/types
+        run: pnpm --filter=@my-dashboard/types run build
         working-directory: ${{ github.workspace }}
 
       - name: Type check
