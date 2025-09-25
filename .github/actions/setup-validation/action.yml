@@ -1,10 +1,6 @@
 name: 'Setup Validation Environment'
 description: 'Setup common validation tools and environment'
 inputs:
-  install-commitlint:
-    description: 'Whether to install commitlint'
-    required: false
-    default: 'true'
   node-version:
     description: 'Node.js version to use'
     required: false
