@@ -110,15 +110,15 @@ fi
 COMMENT_BODY+="| Validation | Status |
 |------------|--------|
 | **Basic Validation** | $(get_status_display "$BASIC_VALIDATION") |
-| **Packages Types** | $(get_status_display "$PACKAGES_TYPES_VALIDATION") |
-| **Packages SDK** | $(get_status_display "$PACKAGES_SDK_VALIDATION") |
+| **Packages Types Validation** | $(get_status_display "$PACKAGES_TYPES_VALIDATION") |
+| **Packages SDK Validation** | $(get_status_display "$PACKAGES_SDK_VALIDATION") |
 | **Client Validation** | $(get_status_display "$CLIENT_VALIDATION") |
 | **Server Validation** | $(get_status_display "$SERVER_VALIDATION") |
 | **Mock Server Validation** | $(get_status_display "$MOCK_SERVER_VALIDATION") |
 | **Cron Validation** | $(get_status_display "$CRON_VALIDATION") |
 | **Scripts Validation** | $(get_status_display "$SCRIPTS_VALIDATION") |
-| **Tests Integration** | $(get_status_display "$TESTS_INTEGRATION_VALIDATION") |
-| **Tests E2E** | $(get_status_display "$TESTS_E2E_VALIDATION") |
+| **Tests Integration Validation** | $(get_status_display "$TESTS_INTEGRATION_VALIDATION") |
+| **Tests E2E Validation** | $(get_status_display "$TESTS_E2E_VALIDATION") |
 | **Documentation Validation** | $(get_status_display "$DOCS_VALIDATION") |
 | **Integration Testing** | $(get_status_display "$INTEGRATION_TESTING") |
 | **E2E Testing** | $(get_status_display "$E2E_TESTING") |
