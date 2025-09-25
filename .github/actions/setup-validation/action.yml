@@ -35,5 +35,4 @@ runs:
     - name: Install dependencies
       shell: bash
       run: |
-        echo "📦 Installing dependencies..."
         npx pnpm install --registry=https://registry.npmjs.org/

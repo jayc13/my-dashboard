@@ -174,7 +174,12 @@ if [[ "$OVERALL_STATUS" == "failure" ]]; then
         COMMENT_BODY+="- **Server Validation Failed**: Review server-side code, tests, and API endpoints
 "
     fi
-    
+
+    if [[ "$MOCK_SERVER_VALIDATION" == "failure" ]]; then
+        COMMENT_BODY+="- **Mock Server Validation Failed**: Review mock server code, tests, and configuration
+"
+    fi
+
     if [[ "$CRON_VALIDATION" == "failure" ]]; then
         COMMENT_BODY+="- **Cron Validation Failed**: Review scheduled job configurations and scripts
 "
