@@ -11,8 +11,7 @@
     "prepare": "husky",
     "replace-env": "node inject-firebase-config.js",
     "check-todos": "./check-todos.sh",
-    "validate-commits": "commitlint --from=HEAD~1",
-    "test-commit-msg": "node test-commit-msg.js",
+    "validate-commits": "sh -c 'npx commitlint --from=${1:-HEAD~1}' --",
     "lint": "eslint .",
     "lint-fix": "eslint . --fix"
   },
