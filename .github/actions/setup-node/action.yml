@@ -10,9 +10,9 @@ inputs:
     required: false
     default: '.'
   cache-dependency-path:
-    description: 'Path to package-lock.json for cache key'
+    description: 'Path to pnpm-lock.yaml for cache key'
     required: false
-    default: 'package-lock.json'
+    default: 'pnpm-lock.yaml'
   install-dependencies:
     description: 'Whether to install dependencies'
     required: false
@@ -21,6 +21,10 @@ inputs:
     description: 'npm registry to use'
     required: false
     default: 'https://registry.npmjs.org/'
+  project:
+    description: 'Project to filter for installation (pnpm --filter). Leave empty to install everything.'
+    required: false
+    default: ''
 
 runs:
   using: 'composite'
@@ -29,7 +33,7 @@ runs:
       uses: actions/setup-node@v5
       with:
         node-version: ${{ inputs.node-version }}
-        cache: 'npm'
+        cache: 'pnpm'
         cache-dependency-path: ${{ inputs.cache-dependency-path }}
         registry-url: ${{ inputs.registry }}
 
@@ -37,4 +41,9 @@ runs:
       if: inputs.install-dependencies == 'true'
       shell: bash
       working-directory: ${{ inputs.working-directory }}
-      run: npm ci --registry=${{ inputs.registry }}
+      run: |
+        if [ -z "${{ inputs.project }}" ]; then
+          pnpm install --registry=${{ inputs.registry }}
+        else
+          pnpm install --filter=${{ inputs.project }} --registry=${{ inputs.registry }}
+        fi

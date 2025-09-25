@@ -43,6 +43,7 @@ jobs:
         with:
           node-version: ${{ inputs.node-version }}
           working-directory: ${{ github.workspace }}
+          project: server
 
       - name: Build @my-dashboard/types
         run: npm run build --workspace=packages/types

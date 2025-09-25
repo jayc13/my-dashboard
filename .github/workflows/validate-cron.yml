@@ -30,6 +30,7 @@ jobs:
         with:
           node-version: ${{ inputs.node-version }}
           working-directory: ${{ github.workspace }}
+          project: cron
 
       - name: Type check
         run: npx tsc --noEmit
