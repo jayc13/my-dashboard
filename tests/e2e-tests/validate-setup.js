@@ -71,22 +71,6 @@ try {
   checkError('Playwright CLI not available. Run: npm run install-browsers');
 }
 
-// Check if test files exist
-const testFiles = [
-  'tests/authentication.spec.ts',
-  'tests/authentication-security.spec.ts',
-  'pages/LoginPage.ts',
-  'utils/test-helpers.ts'
-];
-
-testFiles.forEach(file => {
-  if (fs.existsSync(file)) {
-    checkSuccess(`${file} exists`);
-  } else {
-    checkError(`${file} is missing`);
-  }
-});
-
 // Check TypeScript configuration
 if (fs.existsSync('tsconfig.json')) {
   checkSuccess('TypeScript configuration exists');

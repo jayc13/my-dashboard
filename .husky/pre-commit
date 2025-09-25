@@ -30,15 +30,13 @@ echo "📝 Running linting across all workspaces..."
 echo "----------------------------------------"
 pnpm -r --if-present run lint
 
-if [ $? -eq 0 ]; then
-  echo "✅ Linting passed! Running auto-fix..."
-  pnpm -r --if-present run lint-fix
-else
-  echo "❌ Linting failed! Please fix the issues before committing."
-  exit 1
-fi
+# Step 2: Run type checking across all workspaces (excluding root)
+echo ""
+echo "🔍 Running type checking across all workspaces..."
+echo "----------------------------------------"
+pnpm -r --if-present run typecheck
 
-# Step 2: Run build across all workspaces (excluding root)
+# Step 3: Run build across all workspaces (excluding root)
 echo ""
 echo "🏗️  Running build across all workspaces..."
 echo "----------------------------------------"

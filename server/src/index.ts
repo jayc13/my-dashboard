@@ -15,6 +15,7 @@ import { createAppsRouter } from './routes/apps';
 import { createE2EManualRunsRouter } from './routes/e2e_manual_runs';
 import { createInternalRouter } from './routes/internal';
 import apiKeyValidator from './middleware/api_key_validator';
+import { testMySQLConnection } from './db/mysql';
 
 // Load environment variables
 dotenv.config({ quiet: true });
@@ -65,8 +66,15 @@ app.use('/api/e2e_manual_runs', createE2EManualRunsRouter());
 app.use('/api/internal', createInternalRouter());
 
 // Health check endpoint
-app.get('/health', (req: Request, res: Response) => {
-  res.status(200).json({ status: 'ok' });
+app.get('/health', async (req: Request, res: Response) => {
+  const dbConnected = await testMySQLConnection().catch(() => false);
+  res.status(200).json({ 
+    status: dbConnected ? 'ok' : 'degraded',
+    service: 'My Dashboard Server',
+    dbConnected,
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime(),
+  });
 });
 
 // Error handling middleware

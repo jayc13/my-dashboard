@@ -30,7 +30,7 @@ A clear and concise description of what actually happened.
 - OS: [e.g. iOS8.1, Windows 10]
 
 **Server (if applicable):**
-- Node.js version: [e.g. 22.16.0]
+- Node.js version: [e.g. 22.19.0]
 - Environment: [e.g. development, production]
 - Database: [e.g. MySQL 8.0]
 
