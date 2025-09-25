@@ -110,7 +110,7 @@ jobs:
           NODE_ENV=test
           DATA_DIR=./data
           BRUTE_FORCE_WINDOW_MS=600000
-          BRUTE_FORCE_MAX_ATTEMPTS=20
+          BRUTE_FORCE_MAX_ATTEMPTS=100
           PORT=3000
           MYSQL_HOST=${{ secrets.MYSQL_HOST || 'localhost' }}
           MYSQL_PORT=${{ secrets.MYSQL_PORT || '3306' }}
