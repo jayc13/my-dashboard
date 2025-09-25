@@ -1,6 +1,6 @@
 [build]
 buildCommand = "./scripts/railway-cron-build.sh"
-# watchPatterns = ["cron/**"]
+watchPatterns = ["cron/**"]
 
 [source]
 repo = "jayc13/my-dashboard"
