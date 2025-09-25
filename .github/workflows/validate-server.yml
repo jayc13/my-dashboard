@@ -12,7 +12,7 @@ on:
         description: 'Node.js version to use'
         required: false
         type: string
-        default: 'v22.16.0'
+        default: 'v22.19.0'
 
 jobs:
   validate-server:
@@ -45,17 +45,17 @@ jobs:
           working-directory: ${{ github.workspace }}
 
       - name: Build @my-dashboard/types
-        run: npm run build --workspace=packages/types
+        run: pnpm --filter=@my-dashboard/types run build
         working-directory: ${{ github.workspace }}
 
       - name: Type check
-        run: npx tsc --noEmit
+        run: pnpm --filter=server run typecheck
 
       - name: Run linting
-        run: npm run lint
+        run: pnpm --filter=server run lint
 
       - name: Build server
-        run: npm run build
+        run: pnpm --filter=server run build
 
       - name: Test database migrations
         env:
@@ -65,7 +65,7 @@ jobs:
           MYSQL_USER: root
           MYSQL_PASSWORD: test_password
           MYSQL_DATABASE: test_db
-        run: npm run migrate
+        run: pnpm --filter=server run migrate
 
       - name: Run unit tests
         env:
@@ -75,4 +75,4 @@ jobs:
           MYSQL_USER: root
           MYSQL_PASSWORD: test_password
           MYSQL_DATABASE: test_db
-        run: npm test
+        run: pnpm --filter=client run test

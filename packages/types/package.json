@@ -16,19 +16,10 @@
     "lint": "echo \"No linting configured\"",
     "lint-fix": "echo \"No linting configured\"",
     "test": "echo \"No tests configured\"",
-    "prepublishOnly": "npm run clean && npm run build",
-    "dev": "tsc --watch"
+    "prepublishOnly": "pnpm run clean && pnpm run build",
+    "dev": "tsc --watch",
+    "typecheck": "tsc --noEmit"
   },
-  "keywords": [
-    "typescript",
-    "interfaces",
-    "types",
-    "entities",
-    "dashboard",
-    "shared"
-  ],
-  "author": "Javier Caballero",
-  "license": "MIT",
   "devDependencies": {
     "typescript": "^5.9.2"
   },
@@ -89,9 +80,7 @@
       "require": "./dist/models/sdk/index.js"
     }
   },
-  "repository": {
-    "type": "git",
-    "url": "git@github.com:jayc13/my-dashboard.git",
-    "directory": "packages/entity"
+  "engines": {
+    "node": "v22.19.0"
   }
 }

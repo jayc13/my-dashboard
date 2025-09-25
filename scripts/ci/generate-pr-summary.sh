@@ -2,7 +2,7 @@
 
 # PR Summary Generation Script
 # Generates a formatted summary message for PR validation results
-# Usage: generate-pr-summary.sh <basic> <client> <server> <cron> <scripts> <docs> <integration> <e2e> [test-results]
+# Usage: generate-pr-summary.sh <basic> <packages-types> <packages-sdk> <client> <server> <mock-server> <cron> <scripts> <tests-integration> <tests-e2e> <docs> <integration> <e2e> [test-results]
 
 set -e
 
@@ -16,16 +16,21 @@ NC='\033[0m' # No Color
 
 # Validation results (passed as arguments)
 BASIC_VALIDATION="${1:-skipped}"
-CLIENT_VALIDATION="${2:-skipped}"
-SERVER_VALIDATION="${3:-skipped}"
-CRON_VALIDATION="${4:-skipped}"
-SCRIPTS_VALIDATION="${5:-skipped}"
-DOCS_VALIDATION="${6:-skipped}"
-INTEGRATION_TESTING="${7:-skipped}"
-E2E_TESTING="${8:-skipped}"
+PACKAGES_TYPES_VALIDATION="${2:-skipped}"
+PACKAGES_SDK_VALIDATION="${3:-skipped}"
+CLIENT_VALIDATION="${4:-skipped}"
+SERVER_VALIDATION="${5:-skipped}"
+MOCK_SERVER_VALIDATION="${6:-skipped}"
+CRON_VALIDATION="${7:-skipped}"
+SCRIPTS_VALIDATION="${8:-skipped}"
+TESTS_INTEGRATION_VALIDATION="${9:-skipped}"
+TESTS_E2E_VALIDATION="${10:-skipped}"
+DOCS_VALIDATION="${11:-skipped}"
+INTEGRATION_TESTING="${12:-skipped}"
+E2E_TESTING="${13:-skipped}"
 
-# Test results (optional 9th argument)
-TEST_RESULTS="${9:-}"
+# Test results (optional 14th argument)
+TEST_RESULTS="${14:-}"
 
 # Required environment variables for links
 GITHUB_SERVER_URL="${GITHUB_SERVER_URL:-https://github.com}"
@@ -79,7 +84,7 @@ get_overall_status() {
 }
 
 # Get overall status
-OVERALL_STATUS=$(get_overall_status "$BASIC_VALIDATION" "$CLIENT_VALIDATION" "$SERVER_VALIDATION" "$CRON_VALIDATION" "$SCRIPTS_VALIDATION" "$DOCS_VALIDATION" "$INTEGRATION_TESTING" "$E2E_TESTING")
+OVERALL_STATUS=$(get_overall_status "$BASIC_VALIDATION" "$PACKAGES_TYPES_VALIDATION" "$PACKAGES_SDK_VALIDATION" "$CLIENT_VALIDATION" "$SERVER_VALIDATION" "$MOCK_SERVER_VALIDATION" "$CRON_VALIDATION" "$SCRIPTS_VALIDATION" "$TESTS_INTEGRATION_VALIDATION" "$TESTS_E2E_VALIDATION" "$DOCS_VALIDATION" "$INTEGRATION_TESTING" "$E2E_TESTING")
 
 # Build comment body
 COMMENT_BODY="## 🔍 Pull Request Validation Results
@@ -105,10 +110,15 @@ fi
 COMMENT_BODY+="| Validation | Status |
 |------------|--------|
 | **Basic Validation** | $(get_status_display "$BASIC_VALIDATION") |
+| **Packages Types Validation** | $(get_status_display "$PACKAGES_TYPES_VALIDATION") |
+| **Packages SDK Validation** | $(get_status_display "$PACKAGES_SDK_VALIDATION") |
 | **Client Validation** | $(get_status_display "$CLIENT_VALIDATION") |
 | **Server Validation** | $(get_status_display "$SERVER_VALIDATION") |
+| **Mock Server Validation** | $(get_status_display "$MOCK_SERVER_VALIDATION") |
 | **Cron Validation** | $(get_status_display "$CRON_VALIDATION") |
 | **Scripts Validation** | $(get_status_display "$SCRIPTS_VALIDATION") |
+| **Tests Integration Validation** | $(get_status_display "$TESTS_INTEGRATION_VALIDATION") |
+| **Tests E2E Validation** | $(get_status_display "$TESTS_E2E_VALIDATION") |
 | **Documentation Validation** | $(get_status_display "$DOCS_VALIDATION") |
 | **Integration Testing** | $(get_status_display "$INTEGRATION_TESTING") |
 | **E2E Testing** | $(get_status_display "$E2E_TESTING") |
@@ -144,7 +154,17 @@ if [[ "$OVERALL_STATUS" == "failure" ]]; then
         COMMENT_BODY+="- **Basic Validation Failed**: Check PR title format, commit messages, and TODO/FIXME comments
 "
     fi
-    
+
+    if [[ "$PACKAGES_TYPES_VALIDATION" == "failure" ]]; then
+        COMMENT_BODY+="- **Packages Types Failed**: Review TypeScript types, build process, and type definitions
+"
+    fi
+
+    if [[ "$PACKAGES_SDK_VALIDATION" == "failure" ]]; then
+        COMMENT_BODY+="- **Packages SDK Failed**: Review SDK code, dependencies on types package, and exports
+"
+    fi
+
     if [[ "$CLIENT_VALIDATION" == "failure" ]]; then
         COMMENT_BODY+="- **Client Validation Failed**: Review client-side code, tests, and build process
 "
@@ -154,7 +174,12 @@ if [[ "$OVERALL_STATUS" == "failure" ]]; then
         COMMENT_BODY+="- **Server Validation Failed**: Review server-side code, tests, and API endpoints
 "
     fi
-    
+
+    if [[ "$MOCK_SERVER_VALIDATION" == "failure" ]]; then
+        COMMENT_BODY+="- **Mock Server Validation Failed**: Review mock server code, tests, and configuration
+"
+    fi
+
     if [[ "$CRON_VALIDATION" == "failure" ]]; then
         COMMENT_BODY+="- **Cron Validation Failed**: Review scheduled job configurations and scripts
 "
@@ -162,6 +187,16 @@ if [[ "$OVERALL_STATUS" == "failure" ]]; then
     
     if [[ "$SCRIPTS_VALIDATION" == "failure" ]]; then
         COMMENT_BODY+="- **Scripts Validation Failed**: Review utility scripts and their tests
+"
+    fi
+
+    if [[ "$TESTS_INTEGRATION_VALIDATION" == "failure" ]]; then
+        COMMENT_BODY+="- **Tests Integration Failed**: Review integration test structure, dependencies, and configuration
+"
+    fi
+
+    if [[ "$TESTS_E2E_VALIDATION" == "failure" ]]; then
+        COMMENT_BODY+="- **Tests E2E Failed**: Review E2E test structure, Playwright configuration, and test syntax
 "
     fi
 

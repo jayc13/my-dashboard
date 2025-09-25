@@ -1,0 +1,17 @@
+packages:
+  # Main applications
+  - 'server'
+  - 'client'
+  - 'cron'
+
+  # Supporting applications
+  - 'scripts'
+  - 'mock-server'
+  
+  # Test packages
+  - 'tests/e2e-tests'
+  - 'tests/integration-tests'
+  
+  # Shared packages
+  - 'packages/types'
+  - 'packages/sdk'

@@ -16,11 +16,10 @@
     "lint": "echo \"No linting configured\"",
     "lint-fix": "echo \"No linting configured\"",
     "test": "echo \"No tests configured\"",
-    "prepublishOnly": "npm run clean && npm run build",
-    "dev": "tsc --watch"
+    "prepublishOnly": "pnpm run clean && pnpm run build",
+    "dev": "tsc --watch",
+    "typecheck": "tsc --noEmit"
   },
-  "author": "Javier Caballero",
-  "license": "MIT",
   "dependencies": {
     "@my-dashboard/types": "file:../types"
   },
@@ -35,12 +34,7 @@
       "require": "./dist/index.js"
     }
   },
-  "repository": {
-    "type": "git",
-    "url": "git@github.com:jayc13/my-dashboard.git",
-    "directory": "packages/sdk"
-  },
   "engines": {
-    "node": ">=20.0.0"
+    "node": "v22.19.0"
   }
 }

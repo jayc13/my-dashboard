@@ -5,7 +5,7 @@ The server application is a robust Node.js backend built with Express.js and Typ
 ## 🚀 Technology Stack
 
 ### Core Technologies
-- **Node.js v22.16.0** - JavaScript runtime environment
+- **Node.js v22.19.0** - JavaScript runtime environment
 - **Express.js 5.1.0** - Web application framework
 - **TypeScript 5.3.3** - Type-safe JavaScript development
 - **MySQL2 3.14.5** - Database connectivity and ORM
@@ -85,7 +85,7 @@ server/
 ## 🛠️ Development Setup
 
 ### Prerequisites
-- Node.js v22.16.0 (specified in engines)
+- Node.js v22.19.0 (specified in engines)
 - MySQL database server
 - Firebase project with Admin SDK
 - GitHub personal access token (for integrations)

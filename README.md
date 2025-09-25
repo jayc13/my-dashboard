@@ -15,7 +15,16 @@ This is a monorepo containing:
 
 ### Prerequisites
 - Node.js >= 18.0.0
-- npm (comes with Node.js)
+- pnpm (package manager)
+
+### Installation
+```bash
+# Install pnpm globally if not already installed
+npm install -g pnpm
+
+# Install all workspace dependencies
+pnpm install
+```
 
 ## 🎯 Git Hooks & Code Quality
 
@@ -49,7 +58,7 @@ test(server): add unit tests for auth middleware
 
 **Get help with commit format:**
 ```bash
-npm run commit-help
+pnpm run commit-help
 ```
 
 ### Valid Commit Types
@@ -78,7 +87,7 @@ npm run commit-help
    ```bash
    git clone <repository-url>
    cd cypress-dashboard
-   npm install
+   pnpm install
    ```
 
 2. **Create Feature Branch**
@@ -114,11 +123,11 @@ npm run commit-help
 ### Unit & Integration Tests
 ```bash
 # Run all tests
-npm run test
+pnpm run test
 
 # Run tests for specific workspace
-npm run test --workspace=server
-npm run test --workspace=client
+pnpm run test --filter=server
+pnpm run test --filter=client
 ```
 
 ### End-to-End (E2E) Tests
@@ -136,9 +145,9 @@ The project includes comprehensive E2E tests using Playwright that test the full
 
 # Manual setup for E2E tests
 cd tests/e2e-tests
-npm install
+pnpm install
 npx playwright install
-npm test
+pnpm test
 ```
 
 **E2E Test Features:**
@@ -161,11 +170,11 @@ E2E tests run automatically in GitHub Actions on every pull request, testing the
 
 ```bash
 # Build all workspaces
-npm run build
+pnpm run build
 
 # Build specific workspace
-npm run build --workspace=client
-npm run build --workspace=server
+pnpm run build --filter=client
+pnpm run build --filter=server
 ```
 
 ## 🤝 Contributing
@@ -191,13 +200,30 @@ npx husky install
 ### Commit Message Validation Failing
 ```bash
 # Get help with commit format
-npm run commit-help
+pnpm run commit-help
 ```
 
 ### Tests Failing
 ```bash
 # Run tests to see specific failures
-npm run test
+pnpm run test
 ```
 
 For more detailed troubleshooting, see [docs/git-hooks.md](docs/git-hooks.md).
+
+## Setup
+
+1. Install [pnpm](https://pnpm.io/installation) if you haven't already:
+   ```sh
+   npm install -g pnpm
+   ```
+
+2. Install dependencies:
+   ```sh
+   pnpm install
+   ```
+
+3. Start the development server:
+   ```sh
+   pnpm run dev
+   ```

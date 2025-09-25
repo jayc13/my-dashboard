@@ -100,7 +100,7 @@ fi
 
 echo -e "${BLUE}📦 Installing dependencies...${NC}"
 
-npm install --registry=https://registry.npmjs.org/
+npx pnpm install --registry=https://registry.npmjs.org/
 
 # Install Playwright browsers
 echo -e "${YELLOW}Installing Playwright browsers...${NC}"
@@ -110,11 +110,11 @@ echo -e "${BLUE}🏗️  Building applications...${NC}"
 
 # Build client
 echo -e "${YELLOW}Building client...${NC}"
-cd client && npm run build && cd ..
+cd client && npx pnpm run build && cd ..
 
 # Build server
 echo -e "${YELLOW}Building server...${NC}"
-cd server && npm run build && cd ..
+cd server && npx pnpm run build && cd ..
 
 echo -e "${BLUE}🚀 Starting services...${NC}"
 

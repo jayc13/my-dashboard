@@ -30,8 +30,8 @@ echo -e "${CYAN}🔍 Validating PR commits with commitlint...${NC}"
 echo -e "${BLUE}Base SHA: $BASE_SHA${NC}"
 echo -e "${BLUE}Head SHA: $HEAD_SHA${NC}"
 
-# Validate commits with commitlint
-if npx commitlint --config="$COMMITLINT_CONFIG" --from "$BASE_SHA" --to "$HEAD_SHA" --verbose; then
+# Validate commits with commitlint (run from scripts directory to access dependencies)
+if (cd "$(dirname "$0")/.." && npx commitlint --config="./commitlint.config.js" --from "$BASE_SHA" --to "$HEAD_SHA" --verbose); then
   echo -e "${GREEN}✅ All commits are valid.${NC}"
 
   # Remove any existing commit validation comment by posting empty comment

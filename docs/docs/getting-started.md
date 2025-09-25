@@ -81,22 +81,22 @@ Welcome to My Dashboard! This guide will help you set up your development enviro
 ### Available Scripts
 
 **Server:**
-- `npm run dev` - Start development server with hot reload
-- `npm run build` - Build for production
-- `npm test` - Run tests
-- `npm run lint` - Run ESLint
+- `pnpm run dev --filter=server` - Start development server with hot reload
+- `pnpm run build --filter=server` - Build for production
+- `pnpm test --filter=server` - Run tests
+- `pnpm run lint --filter=server` - Run ESLint
 
 **Client:**
-- `npm run dev` - Start development server
-- `npm run build` - Build for production
-- `npm run preview` - Preview production build
-- `npm test` - Run tests
-- `npm run lint` - Run ESLint
+- `pnpm run dev --filter=client` - Start development server
+- `pnpm run build --filter=client` - Build for production
+- `pnpm run preview --filter=client` - Preview production build
+- `pnpm test --filter=client` - Run tests
+- `pnpm run lint --filter=client` - Run ESLint
 
 **Documentation:**
-- `npm start` - Start development server
-- `npm run build` - Build for production
-- `npm run serve` - Serve production build
+- `pnpm start --filter=docs` - Start development server
+- `pnpm run build --filter=docs` - Build for production
+- `pnpm run serve --filter=docs` - Serve production build
 
 ## 🐛 Troubleshooting
 

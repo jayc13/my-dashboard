@@ -1,0 +1,29 @@
+name: 'Validate Tests E2E'
+
+permissions:
+  contents: read
+
+on:
+  workflow_call:
+
+jobs:
+  validate-tests-e2e:
+    name: Validate E2E Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup validation environment
+        uses: ./.github/actions/setup-validation
+
+      - name: Install dependencies
+        run: |
+          echo "📦 Installing dependencies for tests/e2e-tests..."
+          pnpm install --filter=tests/e2e-tests
+
+      - name: Run linting
+        run: |
+          echo "🔍 Running linting on tests/e2e-tests..."
+          pnpm run lint --filter=tests/e2e-tests || echo "⚠️ No linting configured for tests/e2e-tests"

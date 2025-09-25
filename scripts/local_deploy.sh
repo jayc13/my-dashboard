@@ -1,6 +1,7 @@
 #!/bin/bash
 
 # Default constants
+export HNVM_PNPM="10.17.1"
 DEFAULT_WWW_DIR="/opt/homebrew/var/www"
 DASHBOARD_URL="https://localhost"
 
@@ -26,21 +27,25 @@ echo "\033[1;34m🔹 Step 0: Checking if the script is run from the project root
 cd "$(git rev-parse --show-toplevel)" || exit
 
 echo "\033[1;34m🔹 Step 1: Installing dependencies...\033[0m"
-npm install --registry=https://registry.npmjs.org/ &>/dev/null
+pnpm install
 
 echo "\033[1;33m🔸 Step 2: Running linter...\033[0m"
-npm run lint --workspace=client &>/dev/null || { echo -e "\033[1;31mLint failed.\033[0m"; exit 1; }
+pnpm --filter=client run lint &>/dev/null  || { echo -e "\033[1;31mLint failed.\033[0m"; exit 1; }
 
 echo "\033[1;32m🛠️Step 3: Building client...\033[0m"
-npm run build --workspace=client &>/dev/null || { echo -e "\033[1;31mBuild failed.\033[0m"; exit 1; }
 cd scripts || exit
 npm run replace-env &>/dev/null || { echo -e "\033[1;31mEnvironment variable replacement failed.\033[0m"; exit 1; }
+
+cd .. || exit
+pnpm --filter=@my-dashboard/types run build &>/dev/null || { echo -e "\033[1;31mBuild Types failed.\033[0m"; exit 1; }
+pnpm --filter=@my-dashboard/sdk run build &>/dev/null || { echo -e "\033[1;31mBuild SDK failed.\033[0m"; exit 1; }
+pnpm --filter=client run build &>/dev/null || { echo -e "\033[1;31mBuild Client failed.\033[0m"; exit 1; }
 
 echo "\033[1;31m🗑️Step 4: Removing old dashboard version...\033[0m"
 rm -rf ${WWW_DIR}/* &>/dev/null
 
 echo "\033[1;36m🚀 Step 5: Copying the new version...\033[0m"
-cp -r ../client/dist/* ${WWW_DIR}/ &>/dev/null
+cp -r ./client/dist/* ${WWW_DIR}/ &>/dev/null
 
 echo "\033[1;35m✅  Deployment completed successfully!\033[0m"
 

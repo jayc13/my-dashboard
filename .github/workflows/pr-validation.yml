@@ -26,35 +26,70 @@ jobs:
       head-sha: ${{ github.event.pull_request.head.sha }}
       pr-number: ${{ github.event.pull_request.number }}
 
-  # Job 2: Client validation
+  # Job 2: Packages Types validation (must run before other packages)
+  validate-packages-types:
+    name: Packages Types
+    needs: basic-validation
+    if: needs.basic-validation.outputs.packages-types-changed == 'true' || needs.basic-validation.outputs.github-changed == 'true'
+    uses: ./.github/workflows/validate-packages-types.yml
+
+  # Job 3: Packages SDK validation (depends on types)
+  validate-packages-sdk:
+    name: Packages SDK
+    needs: [basic-validation, validate-packages-types]
+    if: needs.basic-validation.outputs.packages-sdk-changed == 'true' || needs.basic-validation.outputs.github-changed == 'true'
+    uses: ./.github/workflows/validate-packages-sdk.yml
+
+  # Job 4: Client validation
   validate-client:
     name: Client
-    needs: basic-validation
+    needs: [basic-validation, validate-packages-types, validate-packages-sdk]
     if: needs.basic-validation.outputs.client-changed == 'true' || needs.basic-validation.outputs.github-changed == 'true'
     uses: ./.github/workflows/validate-client.yml
 
-  # Job 3: Server validation
+  # Job 5: Server validation
   validate-server:
     name: Server
-    needs: basic-validation
+    needs: [basic-validation, validate-packages-types, validate-packages-sdk]
     if: needs.basic-validation.outputs.server-changed == 'true' || needs.basic-validation.outputs.github-changed == 'true'
     uses: ./.github/workflows/validate-server.yml
 
-  # Job 4: Cron validation
+  # Job 6: Mock Server validation
+  validate-mock-server:
+    name: Mock Server
+    needs: [basic-validation, validate-packages-types, validate-packages-sdk]
+    if: needs.basic-validation.outputs.mock-server-changed == 'true' || needs.basic-validation.outputs.github-changed == 'true'
+    uses: ./.github/workflows/validate-mock-server.yml
+
+  # Job 7: Cron validation
   validate-cron:
     name: Cron
-    needs: basic-validation
+    needs: [basic-validation, validate-packages-types, validate-packages-sdk]
     if: needs.basic-validation.outputs.cron-changed == 'true' || needs.basic-validation.outputs.github-changed == 'true'
     uses: ./.github/workflows/validate-cron.yml
 
-  # Job 5: Scripts validation
+  # Job 8: Scripts validation
   validate-scripts:
     name: Scripts
     needs: basic-validation
     if: needs.basic-validation.outputs.scripts-changed == 'true' || needs.basic-validation.outputs.github-changed == 'true'
     uses: ./.github/workflows/validate-scripts.yml
 
-  # Job 6: Documentation validation
+  # Job 9: Tests Integration validation
+  validate-tests-integration:
+    name: Tests Integration
+    needs: [basic-validation, validate-packages-types, validate-packages-sdk]
+    if: needs.basic-validation.outputs.tests-integration-changed == 'true' || needs.basic-validation.outputs.github-changed == 'true'
+    uses: ./.github/workflows/validate-tests-integration.yml
+
+  # Job 10: Tests E2E validation
+  validate-tests-e2e:
+    name: Tests E2E
+    needs: [basic-validation, validate-packages-types, validate-packages-sdk]
+    if: needs.basic-validation.outputs.tests-e2e-changed == 'true' || needs.basic-validation.outputs.github-changed == 'true'
+    uses: ./.github/workflows/validate-tests-e2e.yml
+
+  # Job 11: Documentation validation
   validate-docs:
     name: Documentation
     needs: basic-validation
@@ -63,11 +98,11 @@ jobs:
     with:
       docs-changed: ${{ needs.basic-validation.outputs.docs-changed == 'true' }}
 
-  # Job 7: Integration testing
+  # Job 12: Integration testing
   integration-testing:
     name: Integration Testing
-    needs: [ basic-validation, validate-server ]
-    if: (needs.basic-validation.outputs.server-changed == 'true' || needs.basic-validation.outputs.github-changed == 'true') && needs.validate-server.result == 'success'
+    needs: [ basic-validation, validate-packages-types, validate-packages-sdk, validate-server, validate-mock-server ]
+    if: (needs.basic-validation.outputs.server-changed == 'true' || needs.basic-validation.outputs.github-changed == 'true') && needs.validate-server.result == 'success' && (needs.validate-mock-server.result == 'success' || needs.validate-mock-server.result == 'skipped')
     uses: ./.github/workflows/validate-integration.yml
     secrets:
       API_SECURITY_KEY: ${{ secrets.API_SECURITY_KEY }}
@@ -82,11 +117,11 @@ jobs:
       JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL }}
       CIRCLE_CI_TOKEN: ${{ secrets.CIRCLE_CI_TOKEN }}
 
-  # Job 8: E2E testing
+  # Job 13: E2E testing
   e2e-testing:
     name: E2E Testing
     runs-on: ubuntu-latest
-    needs: [ basic-validation, validate-client, validate-server, integration-testing ]
+    needs: [ basic-validation, validate-packages-types, validate-packages-sdk, validate-client, validate-server, integration-testing ]
     if: always() && needs.basic-validation.result == 'success' && (needs.basic-validation.outputs.client-changed == 'true' || needs.basic-validation.outputs.server-changed == 'true' || needs.basic-validation.outputs.github-changed == 'true') && (needs.integration-testing.result == 'success' || needs.integration-testing.result == 'skipped') && (needs.validate-client.result == 'success' || needs.validate-client.result == 'skipped') && (needs.validate-server.result == 'success' || needs.validate-server.result == 'skipped')
     timeout-minutes: 30
     steps:
@@ -94,13 +129,10 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: ./.github/actions/setup-node
         with:
-          node-version: '22.16.0'
-          cache: 'npm'
-
-      - name: Install dependencies
-        run: npm ci
+          node-version: ${{ inputs.node-version }}
+          working-directory: ${{ github.workspace }}
 
       - name: Install Playwright browsers
         working-directory: ./tests/e2e-tests
@@ -225,31 +257,41 @@ jobs:
           sudo lsof -ti:${{ secrets.SERVER_PORT || '3000' }} | xargs -r sudo kill -9 || true
           sudo lsof -ti:${{ secrets.CLIENT_PORT || '5173' }} | xargs -r sudo kill -9 || true
 
-  # Job 9: Final validation and summary
+  # Job 14: Final validation and summary
   validation-summary:
     name: Validation Summary
     runs-on: ubuntu-latest
-    needs: [ basic-validation, validate-client, validate-server, validate-cron, validate-scripts, validate-docs, integration-testing, e2e-testing ]
+    needs: [ basic-validation, validate-packages-types, validate-packages-sdk, validate-client, validate-server, validate-mock-server, validate-cron, validate-scripts, validate-tests-integration, validate-tests-e2e, validate-docs, integration-testing, e2e-testing ]
     if: always()
     steps:
       - name: Check all validations
         run: |
           echo "=== Pull Request Validation Summary ==="
           echo "Basic validation: ${{ needs.basic-validation.result }}"
+          echo "Packages Types validation: ${{ needs.validate-packages-types.result }}"
+          echo "Packages SDK validation: ${{ needs.validate-packages-sdk.result }}"
           echo "Client validation: ${{ needs.validate-client.result }}"
           echo "Server validation: ${{ needs.validate-server.result }}"
+          echo "Mock Server validation: ${{ needs.validate-mock-server.result }}"
           echo "Cron validation: ${{ needs.validate-cron.result }}"
           echo "Scripts validation: ${{ needs.validate-scripts.result }}"
+          echo "Tests Integration validation: ${{ needs.validate-tests-integration.result }}"
+          echo "Tests E2E validation: ${{ needs.validate-tests-e2e.result }}"
           echo "Documentation validation: ${{ needs.validate-docs.result }}"
           echo "Integration testing: ${{ needs.integration-testing.result }}"
           echo "E2E testing: ${{ needs.e2e-testing.result }}"
 
           # Fail if any required job failed
           if [[ "${{ needs.basic-validation.result }}" == "failure" ]] || \
+             [[ "${{ needs.validate-packages-types.result }}" == "failure" ]] || \
+             [[ "${{ needs.validate-packages-sdk.result }}" == "failure" ]] || \
              [[ "${{ needs.validate-client.result }}" == "failure" ]] || \
              [[ "${{ needs.validate-server.result }}" == "failure" ]] || \
+             [[ "${{ needs.validate-mock-server.result }}" == "failure" ]] || \
              [[ "${{ needs.validate-cron.result }}" == "failure" ]] || \
              [[ "${{ needs.validate-scripts.result }}" == "failure" ]] || \
+             [[ "${{ needs.validate-tests-integration.result }}" == "failure" ]] || \
+             [[ "${{ needs.validate-tests-e2e.result }}" == "failure" ]] || \
              [[ "${{ needs.validate-docs.result }}" == "failure" ]] || \
              [[ "${{ needs.integration-testing.result }}" == "failure" ]] || \
              [[ "${{ needs.e2e-testing.result }}" == "failure" ]]; then
@@ -276,10 +318,15 @@ jobs:
           echo "=== Generating PR Summary ==="
           SUMMARY_MESSAGE=$(bash ${{ github.workspace }}/scripts/ci/generate-pr-summary.sh \
             "${{ needs.basic-validation.result }}" \
+            "${{ needs.validate-packages-types.result }}" \
+            "${{ needs.validate-packages-sdk.result }}" \
             "${{ needs.validate-client.result }}" \
             "${{ needs.validate-server.result }}" \
+            "${{ needs.validate-mock-server.result }}" \
             "${{ needs.validate-cron.result }}" \
             "${{ needs.validate-scripts.result }}" \
+            "${{ needs.validate-tests-integration.result }}" \
+            "${{ needs.validate-tests-e2e.result }}" \
             "${{ needs.validate-docs.result }}" \
             "${{ needs.integration-testing.result }}" \
             "${{ needs.e2e-testing.result }}")

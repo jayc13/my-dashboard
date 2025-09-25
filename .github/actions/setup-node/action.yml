@@ -4,15 +4,15 @@ inputs:
   node-version:
     description: 'Node.js version to use'
     required: false
-    default: 'v22.16.0'
+    default: 'v22.19.0'
   working-directory:
     description: 'Working directory for npm operations'
     required: false
     default: '.'
   cache-dependency-path:
-    description: 'Path to package-lock.json for cache key'
+    description: 'Path to pnpm-lock.yaml for cache key'
     required: false
-    default: 'package-lock.json'
+    default: 'pnpm-lock.yaml'
   install-dependencies:
     description: 'Whether to install dependencies'
     required: false
@@ -21,6 +21,10 @@ inputs:
     description: 'npm registry to use'
     required: false
     default: 'https://registry.npmjs.org/'
+  project:
+    description: 'Project to filter for installation (pnpm --filter). Leave empty to install everything.'
+    required: false
+    default: ''
 
 runs:
   using: 'composite'
@@ -29,12 +33,32 @@ runs:
       uses: actions/setup-node@v5
       with:
         node-version: ${{ inputs.node-version }}
-        cache: 'npm'
-        cache-dependency-path: ${{ inputs.cache-dependency-path }}
-        registry-url: ${{ inputs.registry }}
+
+    - name: Setup pnpm
+      uses: pnpm/action-setup@v4
+      with:
+        version: 10.17.1
+
+    - name: Get pnpm store directory
+      shell: bash
+      run: |
+        echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+
+    - name: Setup pnpm cache
+      uses: actions/cache@v4
+      with:
+        path: ${{ env.STORE_PATH }}
+        key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+        restore-keys: |
+          ${{ runner.os }}-pnpm-store-
 
     - name: Install dependencies
       if: inputs.install-dependencies == 'true'
       shell: bash
       working-directory: ${{ inputs.working-directory }}
-      run: npm ci --registry=${{ inputs.registry }}
+      run: |
+        if [ -z "${{ inputs.project }}" ]; then
+          pnpm install --registry=${{ inputs.registry }}
+        else
+          pnpm install --filter=${{ inputs.project }} --registry=${{ inputs.registry }}
+        fi

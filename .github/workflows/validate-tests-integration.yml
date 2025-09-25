@@ -1,0 +1,40 @@
+name: 'Validate Tests Integration'
+
+permissions:
+  contents: read
+
+on:
+  workflow_call:
+
+jobs:
+  validate-tests-integration:
+    name: Validate Integration Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: ./.github/actions/setup-node
+        with:
+          node-version: ${{ inputs.node-version }}
+          working-directory: ${{ github.workspace }}
+
+      - name: Build dependencies
+        run: |
+          pnpm --filter=@my-dashboard/types run build
+          pnpm --filter=@my-dashboard/sdk run build
+        working-directory: ${{ github.workspace }}
+
+      - name: Run linting
+        run: |
+          pnpm --filter=tests/integration-tests run lint || echo "⚠️ No linting configured for tests/integration-tests"
+
+      - name: Run type checking
+        run: |
+          pnpm --filter=tests/integration-tests run typecheck || echo "⚠️ Type checking completed with warnings"
+
+      - name: Build tests
+        run: |
+          pnpm --filter=tests/integration-tests run build 

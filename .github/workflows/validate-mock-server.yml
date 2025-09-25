@@ -1,13 +1,13 @@
-name: 'Validate Scripts'
+name: 'Validate Mock Server'
 
 on:
   workflow_call:
     inputs:
       working-directory:
-        description: 'Working directory for scripts operations'
+        description: 'Working directory for mock-server operations'
         required: false
         type: string
-        default: './scripts'
+        default: './mock-server'
       node-version:
         description: 'Node.js version to use'
         required: false
@@ -15,8 +15,8 @@ on:
         default: 'v22.19.0'
 
 jobs:
-  validate-scripts:
-    name: Validate Scripts
+  validate-mock-server:
+    name: Validate Mock Server
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -30,16 +30,13 @@ jobs:
         with:
           node-version: ${{ inputs.node-version }}
           working-directory: ${{ github.workspace }}
-          project: scripts
+          project: "mock-server"
 
-      - name: Validate scripts
-        run: |
-          echo "TODO: Implement script validation"
-          echo "TODO: Run shellcheck for shell scripts"
-          echo "TODO: Validate Node.js scripts syntax"
+      - name: Type check
+        run: pnpm --filter=mock-server run typecheck
 
-      - name: Test scripts
-        run: |
-          echo "TODO: Implement script testing"
-          echo "TODO: Test script functionality in safe environment"
-          echo "TODO: Validate script outputs"
+      - name: Run linting
+        run: pnpm --filter=mock-server run lint
+
+      - name: Build mock server
+        run: pnpm --filter=mock-server run build

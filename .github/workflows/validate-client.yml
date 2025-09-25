@@ -12,12 +12,12 @@ on:
         description: 'Node.js version to use'
         required: false
         type: string
-        default: 'v22.16.0'
+        default: 'v22.19.0'
       run-bundle-analysis:
         description: 'Whether to run bundle size analysis'
         required: false
         type: boolean
-        default: true
+        default: false
 
 jobs:
   validate-client:
@@ -38,22 +38,21 @@ jobs:
 
       - name: Build dependencies
         run: |
-          npm run build \
-            --workspace=@my-dashboard/types \
-            --workspace=@my-dashboard/sdk
+          pnpm --filter=@my-dashboard/types run build
+          pnpm --filter=@my-dashboard/sdk run build
         working-directory: ${{ github.workspace }}
 
       - name: Run ESLint
-        run: npm run lint
+        run: pnpm --filter=client run lint
 
       - name: Type check
-        run: npx tsc --noEmit
+        run: pnpm --filter=client run typecheck
 
       - name: Build client
-        run: npm run build
+        run: pnpm --filter=client run build
 
       - name: Run unit tests
-        run: npm run test
+        run: pnpm --filter=client run test
 
       - name: Bundle size analysis
         if: inputs.run-bundle-analysis

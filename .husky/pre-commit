@@ -1,5 +1,7 @@
 #!/usr/bin/env sh
 
+export HNVM_PNPM=10.17.1
+
 # =============================================================================
 # Pre-commit Hook
 # =============================================================================
@@ -16,52 +18,38 @@ cd "$(git rev-parse --show-toplevel)" || exit 1
 # Install Dependencies
 # =============================================================================
 echo "📦 Installing dependencies to ensure everything is up to date..."
-npm install --registry=https://registry.npmjs.org/
+pnpm install
 
 # =============================================================================
-# Define Workspace Directories
+# Run Quality Checks Across All Workspaces
 # =============================================================================
-# List of all workspace directories that need to be processed
-# Each directory on its own line for easy modification
-DIRS="packages/types \
-packages/sdk \
-client \
-server \
-cron \
-mock-server \
-scripts"
 
-# =============================================================================
-# Process Each Workspace Directory
-# =============================================================================
-for dir in $DIRS; do
-  echo ""
-  echo "🔄 Processing workspace: $dir"
-  echo "----------------------------------------"
+# Step 1: Run linting across all workspaces (excluding root)
+echo ""
+echo "📝 Running linting across all workspaces..."
+echo "----------------------------------------"
+pnpm -r --if-present run lint
 
-  # Step 1: Run linting
-  echo "📝 Running linting in $dir..."
-  npm run lint --workspace=$dir
+if [ $? -eq 0 ]; then
+  echo "✅ Linting passed! Running auto-fix..."
+  pnpm -r --if-present run lint-fix
+else
+  echo "❌ Linting failed! Please fix the issues before committing."
+  exit 1
+fi
 
-  if [ $? -eq 0 ]; then
-    echo "✅ Linting passed in $dir! Running auto-fix..."
-    npm run lint-fix --workspace=$dir
-  else
-    echo "❌ Linting failed in $dir! Please fix the issues before committing."
-    exit 1
-  fi
+# Step 2: Run build across all workspaces (excluding root)
+echo ""
+echo "🏗️  Running build across all workspaces..."
+echo "----------------------------------------"
+pnpm -r --if-present run build
 
-  # Step 2: Run build
-  echo "🏗️  Running build in $dir..."
-  npm run build --workspace=$dir
-
-  if [ $? -eq 0 ]; then
-    echo "✅ Build passed in $dir!"
-  else
-    echo "❌ Build failed in $dir! Please fix the issues before committing."
-    exit 1
-  fi
-done
+if [ $? -eq 0 ]; then
+  echo "✅ Build passed for all workspaces!"
+else
+  echo "❌ Build failed! Please fix the issues before committing."
+  exit 1
+fi
 
 echo ""
 echo "🎉 All pre-commit checks completed successfully!"

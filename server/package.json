@@ -6,14 +6,15 @@
   "scripts": {
     "start": "node dist/index.js",
     "dev": "ts-node-dev --respawn src/index.ts",
-    "migrate": "ts-node src/db/migrate.ts",
+    "migrate": "node dist/db/migrate.js",
     "build": "tsc",
     "lint": "eslint .",
     "lint-fix": "eslint . --fix",
-    "test": "jest"
+    "test": "jest",
+    "typecheck": "tsc --noEmit"
   },
   "engines": {
-    "node": "v22.16.0"
+    "node": "v22.19.0"
   },
   "dependencies": {
     "@my-dashboard/types": "file:../packages/types",
