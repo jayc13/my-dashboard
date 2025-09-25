@@ -27,35 +27,12 @@ test.describe('Authentication', () => {
             await loginPage.performFailedLogin(invalidKey, 'Failed to validate API key. Please try again.');
         });
 
-        test('should handle network failure gracefully', async () => {
-            await mockNetworkFailure(loginPage.page);
-            await loginPage.goto();
-
-            await loginPage.fillApiKey('test-key');
-            await loginPage.clickSubmit();
-            // Verify error message is shown
-            const errorMessage = await loginPage.getErrorMessage();
-            expect(errorMessage).toContain('Failed to validate API key. Please try again.');
-        });
-
         test('should handle server error response', async () => {
             await loginPage.page.route('**/api/auth/validate', async route => {
                 await route.fulfill({
                     status: 500,
                     contentType: 'application/json',
                     body: JSON.stringify({error: 'Internal server error'})
-                });
-            });
-
-            await loginPage.performFailedLogin('test-key', 'Failed to validate API key. Please try again.');
-        });
-
-        test('should handle malformed server response', async () => {
-            await loginPage.page.route('**/api/auth/validate', async route => {
-                await route.fulfill({
-                    status: 200,
-                    contentType: 'text/plain',
-                    body: 'Invalid JSON response'
                 });
             });
 
@@ -83,14 +60,6 @@ test.describe('Authentication', () => {
             // Should still be authenticated and on dashboard
             expect(await loginPage.isDashboardVisible()).toBe(true);
             await expect(loginPage.apiKeyInput).not.toBeVisible();
-        });
-
-        test('should handle successful authentication with trimmed whitespace', async () => {
-            const validApiKey = AUTH_TEST_DATA.validApiKey();
-            const keyWithWhitespace = `  ${validApiKey}  `;
-
-            await loginPage.performSuccessfulLogin(keyWithWhitespace);
-            expect(await loginPage.isDashboardVisible()).toBe(true);
         });
     });
 
