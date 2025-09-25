@@ -157,14 +157,14 @@ jobs:
             --workspace=client
 
       - name: Run database migrations
-        working-directory: ./server
-        run: npm run migrate
         env:
+          NODE_ENV: test
           MYSQL_HOST: localhost
           MYSQL_PORT: 3306
           MYSQL_USER: root
-          MYSQL_PASSWORD: test_db
-          MYSQL_DATABASE: test_password
+          MYSQL_PASSWORD: test_password
+          MYSQL_DATABASE: test_db
+        run: pnpm --filter=server run migrate
 
       - name: Start server in background
         working-directory: ./server
