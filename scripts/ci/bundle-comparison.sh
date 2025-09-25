@@ -32,11 +32,11 @@ if git ls-tree --name-only main | grep -q '^client$'; then
   git archive main | tar -x -C $GITHUB_WORKSPACE/tmp/main-build
   echo "Archive and extraction successful."
   cd $GITHUB_WORKSPACE/tmp/main-build
-  npm ci --silent
-  npm run build --workspace=packages/types --silent
-  npm run build --workspace=packages/sdk --silent
+  pnpm install
+  pnpm --filter=@my-dashboard/types run build
+  pnpm --filter=@my-dashboard/sdk run build
+  pnpm --filter=client run build
   cd client # Navigate to client directory
-  npm run build --silent
   # Calculate sizes in bytes
   MAIN_JS_SIZE=$(find dist/assets -name "*.js" -type f -exec wc -c {} + | tail -1 | awk '{print $1}')
   MAIN_CSS_SIZE=$(find dist/assets -name "*.css" -type f -exec wc -c {} + | tail -1 | awk '{print $1}' || echo "0")
