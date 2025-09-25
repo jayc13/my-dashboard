@@ -1,5 +1,7 @@
 #!/usr/bin/env sh
 
+export HNVM_PNPM=10.17.1
+
 # =============================================================================
 # Pre-commit Hook
 # =============================================================================
@@ -16,7 +18,7 @@ cd "$(git rev-parse --show-toplevel)" || exit 1
 # Install Dependencies
 # =============================================================================
 echo "📦 Installing dependencies to ensure everything is up to date..."
-npx pnpm install
+pnpm install &>/dev/null
 
 # =============================================================================
 # Run Quality Checks Across All Workspaces
@@ -26,11 +28,11 @@ npx pnpm install
 echo ""
 echo "📝 Running linting across all workspaces..."
 echo "----------------------------------------"
-npx pnpm -r --if-present run lint
+pnpm -r --if-present run lint
 
 if [ $? -eq 0 ]; then
   echo "✅ Linting passed! Running auto-fix..."
-  npx pnpm -r --if-present run lint-fix
+  pnpm -r --if-present run lint-fix
 else
   echo "❌ Linting failed! Please fix the issues before committing."
   exit 1
@@ -40,7 +42,7 @@ fi
 echo ""
 echo "🏗️  Running build across all workspaces..."
 echo "----------------------------------------"
-npx pnpm -r --if-present run build
+pnpm -r --if-present run build
 
 if [ $? -eq 0 ]; then
   echo "✅ Build passed for all workspaces!"

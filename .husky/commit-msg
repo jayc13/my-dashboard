@@ -1,5 +1,7 @@
 #!/usr/bin/env sh
 
+export HNVM_PNPM=10.17.1
+
 echo "📝 Validating commit message format..."
 # Run commitlint to validate the commit message using the scripts workspace
 cd scripts && npx commitlint --config="./commitlint.config.js" --edit "$1"
