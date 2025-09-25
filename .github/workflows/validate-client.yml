@@ -35,7 +35,6 @@ jobs:
         with:
           node-version: ${{ inputs.node-version }}
           working-directory: ${{ github.workspace }}
-          project: client
 
       - name: Build dependencies
         run: |

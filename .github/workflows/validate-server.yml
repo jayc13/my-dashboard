@@ -43,10 +43,9 @@ jobs:
         with:
           node-version: ${{ inputs.node-version }}
           working-directory: ${{ github.workspace }}
-          project: server
 
       - name: Build @my-dashboard/types
-        run: pnpm --filter=server run build --workspace=packages/types
+        run: pnpm run build --workspace=packages/types
         working-directory: ${{ github.workspace }}
 
       - name: Type check
