@@ -244,7 +244,7 @@ jobs:
         if: failure()
         with:
           name: e2e-test-videos
-          path: tests/e2e-tests/test-results/
+          path: tests/e2e-tests/playwright-report/
           retention-days: 3
 
       - name: Cleanup processes
