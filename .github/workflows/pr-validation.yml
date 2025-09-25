@@ -193,7 +193,7 @@ jobs:
           MYSQL_USER: root
           MYSQL_PASSWORD: test_db
           MYSQL_DATABASE: test_password
-          API_SECURITY_KEY=${{ secrets.API_SECURITY_KEY }}
+          API_SECURITY_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
           FIREBASE_PROJECT_ID=${{ secrets.FIREBASE_PROJECT_ID }}
           FIREBASE_PRIVATE_KEY="${{ secrets.FIREBASE_PRIVATE_KEY }}"
           FIREBASE_CLIENT_EMAIL=${{ secrets.FIREBASE_CLIENT_EMAIL }}
@@ -230,7 +230,7 @@ jobs:
           cat > .env << EOF
           BASE_URL=http://localhost:${{ secrets.CLIENT_PORT || '4173' }}
           API_URL=http://localhost:${{ secrets.SERVER_PORT || '3000' }}
-          API_SECURITY_KEY=${{ secrets.API_SECURITY_KEY }}
+          API_SECURITY_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
           CI=true
           EOF
 
