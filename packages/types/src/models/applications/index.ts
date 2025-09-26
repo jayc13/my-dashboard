@@ -12,8 +12,8 @@ export interface Application {
     id?: number;
     name: string;
     code: string;
-    pipeline_url?: string;
-    e2e_trigger_configuration?: string;
+    pipelineUrl?: string;
+    e2eTriggerConfiguration?: string;
     watching: boolean;
 }
 

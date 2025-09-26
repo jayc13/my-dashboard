@@ -19,8 +19,8 @@ export interface Notification {
     message: string;
     link?: string;
     type: NotificationType;
-    is_read: boolean;
-    created_at: string;
+    isRead: boolean;
+    createdAt: string;
 }
 
 /**
@@ -31,19 +31,6 @@ export interface NotificationInput {
     message: string;
     link?: string; // Optional, can be undefined
     type: NotificationType;
-    is_read?: boolean;
-    created_at?: string;
-}
-
-/**
- * Client-side notification interface (with different property names for compatibility)
- */
-export interface ClientNotification {
-    id: number;
-    title: string;
-    message: string;
-    link?: string;
-    type: string; // e.g., "info", "warning", "error"
-    read: boolean;
-    created_at: string;
+    isRead?: boolean;
+    createdAt?: string;
 }
