@@ -4,6 +4,7 @@
     <command value="install" />
     <arguments value="--registry=https://registry.npmjs.org/" />
     <node-interpreter value="project" />
+    <package-manager value="pnpm" />
     <envs />
     <method v="2" />
   </configuration>
