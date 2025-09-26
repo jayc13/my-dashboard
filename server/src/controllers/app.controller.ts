@@ -52,34 +52,34 @@ export class AppController {
 
   async create(req: Request, res: Response) {
     try {
-      const { name, code, pipeline_url, e2e_trigger_configuration, watching } = req.body;
+      const { name, code, pipelineUrl, e2eTriggerConfiguration, watching } = req.body;
             
       if (!name || !code) {
         return res.status(400).json({ error: 'Name and code are required fields' });
       }
 
-      // Validate JSON format for e2e_trigger_configuration if provided
-      if (e2e_trigger_configuration) {
+      // Validate JSON format for e2eTriggerConfiguration if provided
+      if (e2eTriggerConfiguration) {
         try {
-          JSON.parse(e2e_trigger_configuration);
+          JSON.parse(e2eTriggerConfiguration);
         } catch {
-          return res.status(400).json({ error: 'e2e_trigger_configuration must be valid JSON' });
+          return res.status(400).json({ error: 'e2eTriggerConfiguration must be valid JSON' });
         }
       }
 
-      const id = await AppService.create({
+      const newApp = await AppService.create({
         name,
         code,
-        pipeline_url,
-        e2e_trigger_configuration,
+        pipelineUrl,
+        e2eTriggerConfiguration,
         watching: !!watching,
       });
             
-      res.status(201).json({ id });
+      res.status(201).json(newApp);
     } catch (err: unknown) {
       console.error(err);
       const error = err as Error;
-      if (error.message && error.message.includes('UNIQUE constraint failed')) {
+      if (error.message && error.message.includes('Duplicate entry')) {
         res.status(409).json({ error: 'App code must be unique' });
       } else {
         res.status(500).json({ error: 'Failed to create app' });
@@ -94,22 +94,27 @@ export class AppController {
         return res.status(400).json({ error: 'Invalid app ID' });
       }
 
-      const { name, code, pipeline_url, e2e_trigger_configuration, watching } = req.body;
+      const { name, code, pipelineUrl, e2eTriggerConfiguration, watching } = req.body;
 
       // Validate JSON format for e2e_trigger_configuration if provided
-      if (e2e_trigger_configuration !== undefined && e2e_trigger_configuration !== null && e2e_trigger_configuration !== '') {
+      if (e2eTriggerConfiguration !== undefined && e2eTriggerConfiguration !== null && e2eTriggerConfiguration !== '') {
         try {
-          JSON.parse(e2e_trigger_configuration);
+          JSON.parse(e2eTriggerConfiguration);
         } catch {
-          return res.status(400).json({ error: 'e2e_trigger_configuration must be valid JSON' });
+          return res.status(400).json({ error: 'e2eTriggerConfiguration must be valid JSON' });
         }
+      }
+
+      const findExistingApp = await AppService.getById(id);
+      if (!findExistingApp) {
+        return res.status(404).json({ error: 'App not found' });
       }
 
       const updated = await AppService.update(id, {
         name,
         code,
-        pipeline_url,
-        e2e_trigger_configuration,
+        pipelineUrl,
+        e2eTriggerConfiguration,
         watching: watching !== undefined ? !!watching : undefined,
       });
 
@@ -117,7 +122,7 @@ export class AppController {
         return res.status(404).json({ error: 'App not found' });
       }
 
-      res.json({ success: true });
+      res.status(200).json(updated);
     } catch (err: unknown) {
       const error = err as Error;
       console.error(error);
