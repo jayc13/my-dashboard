@@ -415,7 +415,7 @@ describe('Apps API Integration Tests', () => {
 
                         const responseBody = await response.json();
                         expect(responseBody).toEqual({
-                            error: 'e2e_trigger_configuration must be valid JSON'
+                            error: 'e2eTriggerConfiguration must be valid JSON'
                         });
                     }
                 });
@@ -448,7 +448,7 @@ describe('Apps API Integration Tests', () => {
 
                         const responseBody = await response.json();
                         expect(responseBody).toEqual({
-                            error: 'e2e_trigger_configuration must be valid JSON'
+                            error: 'e2eTriggerConfiguration must be valid JSON'
                         });
                     }
                 });
