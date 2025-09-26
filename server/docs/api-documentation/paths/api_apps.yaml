@@ -25,14 +25,14 @@ get:
                 - id: 1
                   name: "My Web App"
                   code: "my-web-app"
-                  pipeline_url: "https://app.circleci.com/pipelines/github/myorg/my-web-app"
-                  e2e_trigger_configuration: "branch:main,schedule:daily"
+                  pipelineUrl: "https://app.circleci.com/pipelines/github/myorg/my-web-app"
+                  e2eTriggerConfiguration: "branch:main,schedule:daily"
                   watching: true
                 - id: 2
                   name: "Mobile App"
                   code: "mobile-app"
-                  pipeline_url: "https://app.circleci.com/pipelines/github/myorg/mobile-app"
-                  e2e_trigger_configuration: "branch:main"
+                  pipelineUrl: "https://app.circleci.com/pipelines/github/myorg/mobile-app"
+                  e2eTriggerConfiguration: "branch:main"
                   watching: false
     '401':
       description: Unauthorized - Invalid or missing API key
@@ -86,12 +86,12 @@ post:
               pattern: "^[a-z0-9-]+$"
               minLength: 1
               maxLength: 100
-            pipeline_url:
+            pipelineUrl:
               type: string
               format: uri
               description: URL to the CI/CD pipeline for this application
               example: "https://app.circleci.com/pipelines/github/myorg/my-new-app"
-            e2e_trigger_configuration:
+            e2eTriggerConfiguration:
               type: string
               description: Configuration for triggering E2E tests
               example: "branch:main,schedule:daily"
@@ -105,8 +105,8 @@ post:
             value:
               name: "My New App"
               code: "my-new-app"
-              pipeline_url: "https://app.circleci.com/pipelines/github/myorg/my-new-app"
-              e2e_trigger_configuration: "branch:main,schedule:daily"
+              pipelineUrl: "https://app.circleci.com/pipelines/github/myorg/my-new-app"
+              e2eTriggerConfiguration: '{"branch":"main","schedule":"daily"}'
               watching: true
   responses:
     '201':
@@ -119,8 +119,8 @@ post:
             id: 3
             name: "My New App"
             code: "my-new-app"
-            pipeline_url: "https://app.circleci.com/pipelines/github/myorg/my-new-app"
-            e2e_trigger_configuration: "branch:main,schedule:daily"
+            pipelineUrl: "https://app.circleci.com/pipelines/github/myorg/my-new-app"
+            e2eTriggerConfiguration: '{"branch":"main","schedule":"daily"}'
             watching: true
     '400':
       description: Bad request - Invalid input data

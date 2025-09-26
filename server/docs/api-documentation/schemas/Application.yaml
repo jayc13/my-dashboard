@@ -22,15 +22,15 @@ properties:
     pattern: "^[a-z0-9-]+$"
     minLength: 1
     maxLength: 100
-  pipeline_url:
+  pipelineUrl:
     type: string
     format: uri
     description: URL to the CI/CD pipeline for this application
     example: "https://app.circleci.com/pipelines/github/myorg/my-web-app"
-  e2e_trigger_configuration:
+  e2eTriggerConfiguration:
     type: string
     description: Configuration for triggering E2E tests
-    example: "branch:main,schedule:daily"
+    example: '{"branch":"main","schedule":"daily"}'
   watching:
     type: boolean
     description: Whether this application is actively monitored
