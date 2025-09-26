@@ -174,8 +174,6 @@ components:
     # Notification Models
     Notification:
       $ref: './schemas/Notification.yaml'
-    NotificationInput:
-      $ref: './schemas/NotificationInput.yaml'
 
     # Pull Request Models
     PullRequest:
@@ -208,12 +206,6 @@ components:
       $ref: './schemas/FCMTokenRequest.yaml'
     FCMTokenResponse:
       $ref: './schemas/FCMTokenResponse.yaml'
-    FCMTestNotificationRequest:
-      $ref: './schemas/FCMTestNotificationRequest.yaml'
-    FCMTestNotificationResponse:
-      $ref: './schemas/FCMTestNotificationResponse.yaml'
-    FCMTokensResponse:
-      $ref: './schemas/FCMTokensResponse.yaml'
 
     # E2E Manual Run Models
     E2EManualRun:
