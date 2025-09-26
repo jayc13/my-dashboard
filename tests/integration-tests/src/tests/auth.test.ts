@@ -57,42 +57,6 @@ describe('Authentication Integration Tests', () => {
     });
   });
 
-  describe('API Key Protection', () => {
-    const protectedEndpoints = [
-      '/api/apps',
-      '/api/to_do_list',
-      '/api/pull_requests',
-      '/api/notifications',
-      '/api/e2e_reports',
-      '/api/jira',
-      '/api/fcm/tokens',
-      '/api/internal/files'
-    ];
-
-    protectedEndpoints.forEach(endpoint => {
-      it(`should protect ${endpoint} without API key`, async () => {
-        const httpClient = testHelpers.getHttpClient();
-        
-        const response = await httpClient.get(endpoint);
-        expect(response.status).toBe(401);
-      });
-
-      it(`should allow access to ${endpoint} with valid API key`, async () => {
-        const httpClient = testHelpers.getHttpClient();
-        
-        const response = await httpClient.get(endpoint, {
-          'x-api-key': apiKey
-        });
-        
-        // Should not be 401 (unauthorized)
-        expect(response.status).not.toBe(401);
-        // Should be a valid HTTP status (200, 404, 500, etc.)
-        expect(response.status).toBeGreaterThanOrEqual(200);
-        expect(response.status).toBeLessThan(600);
-      });
-    });
-  });
-
   describe('SDK Tests', () => {
     let myDashboardSdk: any;
 

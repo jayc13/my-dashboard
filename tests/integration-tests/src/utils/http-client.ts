@@ -8,12 +8,10 @@ export interface HttpClientConfig {
 
 export class HttpClient {
   private baseUrl: string;
-  private timeout: number;
   private defaultHeaders: Record<string, string>;
 
   constructor(config: HttpClientConfig = {}) {
     this.baseUrl = config.baseUrl || 'http://localhost:3000';
-    this.timeout = config.timeout || 30 * 1000; // 30 seconds default
     this.defaultHeaders = config.defaultHeaders || {
       'Content-Type': 'application/json',
       'Accept': 'application/json',
@@ -39,26 +37,7 @@ export class HttpClient {
     };
 
     try {
-      // Use AbortController for proper timeout handling
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), this.timeout);
-
-      const requestOptionsWithTimeout: RequestInit = {
-        ...requestOptions,
-        signal: controller.signal,
-      };
-
-      try {
-        const response = await fetch(url, requestOptionsWithTimeout);
-        clearTimeout(timeoutId); // Clear timeout on successful response
-        return response;
-      } catch (error) {
-        clearTimeout(timeoutId); // Clear timeout on error
-        if (error instanceof Error && error.name === 'AbortError') {
-          throw new Error('Request timeout');
-        }
-        throw error;
-      }
+      return await fetch(url, requestOptions);
     } catch (error) {
       throw new Error(`HTTP request failed: ${error}`);
     }

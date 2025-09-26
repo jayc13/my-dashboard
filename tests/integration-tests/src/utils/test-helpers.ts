@@ -5,7 +5,6 @@ dotenv.config({ quiet: true });
 
 export interface TestConfig {
   serverUrl?: string;
-  timeout?: number;
 }
 
 export class TestHelpers {
@@ -14,7 +13,6 @@ export class TestHelpers {
   constructor(config: TestConfig = {}) {
     this.httpClient = new HttpClient({
       baseUrl: config.serverUrl || process.env.SERVER_URL || 'http://localhost:3000',
-      timeout: config.timeout || 10000,
     });
   }
 
