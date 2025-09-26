@@ -132,12 +132,6 @@ paths:
   # Firebase Cloud Messaging
   /api/fcm/register-token:
     $ref: './paths/api_fcm_register_token.yaml'
-  /api/fcm/unregister-token:
-    $ref: './paths/api_fcm_unregister_token.yaml'
-  /api/fcm/test-notification:
-    $ref: './paths/api_fcm_test_notification.yaml'
-  /api/fcm/tokens:
-    $ref: './paths/api_fcm_tokens.yaml'
 
   # E2E Manual Runs
   /api/e2e_manual_runs:
