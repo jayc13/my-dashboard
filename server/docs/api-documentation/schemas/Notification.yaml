@@ -4,8 +4,8 @@ required:
   - title
   - message
   - type
-  - is_read
-  - created_at
+  - isRead
+  - createdAt
 properties:
   id:
     type: integer
@@ -37,11 +37,11 @@ properties:
       - info
       - warning
     example: "error"
-  is_read:
+  isRead:
     type: boolean
     description: Whether the notification has been read
     example: false
-  created_at:
+  createdAt:
     type: string
     format: date-time
     description: When the notification was created

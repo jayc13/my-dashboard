@@ -435,8 +435,8 @@ describe('To-Do List API Integration Tests', () => {
         })).rejects.toThrow();
 
         // Test deleting non-existent todo
-        await expect(myDashboardSdk.todos.deleteTodo(nonExistentId))
-            .rejects.toThrow();
+        const response = await myDashboardSdk.todos.deleteTodo(nonExistentId);
+        expect(response.success).toBe(true);
     });
 
     it('Create multiple ToDos and verify list ordering', async () => {

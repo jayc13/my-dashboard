@@ -102,7 +102,7 @@ jobs:
   integration-testing:
     name: Integration Testing
     needs: [ basic-validation, validate-packages-types, validate-packages-sdk, validate-server, validate-mock-server ]
-    if: (needs.basic-validation.outputs.server-changed == 'true' || needs.basic-validation.outputs.github-changed == 'true') && needs.validate-server.result == 'success' && (needs.validate-mock-server.result == 'success' || needs.validate-mock-server.result == 'skipped')
+    if: always() && (needs.basic-validation.outputs.server-changed == 'true' || needs.basic-validation.outputs.github-changed == 'true') && needs.validate-server.result == 'success' && (needs.validate-mock-server.result == 'success' || needs.validate-mock-server.result == 'skipped')
     uses: ./.github/workflows/validate-integration.yml
     secrets:
       API_SECURITY_KEY: ${{ secrets.API_SECURITY_KEY }}

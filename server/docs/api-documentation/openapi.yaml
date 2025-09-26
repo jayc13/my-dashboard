@@ -132,12 +132,6 @@ paths:
   # Firebase Cloud Messaging
   /api/fcm/register-token:
     $ref: './paths/api_fcm_register_token.yaml'
-  /api/fcm/unregister-token:
-    $ref: './paths/api_fcm_unregister_token.yaml'
-  /api/fcm/test-notification:
-    $ref: './paths/api_fcm_test_notification.yaml'
-  /api/fcm/tokens:
-    $ref: './paths/api_fcm_tokens.yaml'
 
   # E2E Manual Runs
   /api/e2e_manual_runs:
@@ -180,8 +174,6 @@ components:
     # Notification Models
     Notification:
       $ref: './schemas/Notification.yaml'
-    NotificationInput:
-      $ref: './schemas/NotificationInput.yaml'
 
     # Pull Request Models
     PullRequest:
@@ -214,12 +206,6 @@ components:
       $ref: './schemas/FCMTokenRequest.yaml'
     FCMTokenResponse:
       $ref: './schemas/FCMTokenResponse.yaml'
-    FCMTestNotificationRequest:
-      $ref: './schemas/FCMTestNotificationRequest.yaml'
-    FCMTestNotificationResponse:
-      $ref: './schemas/FCMTestNotificationResponse.yaml'
-    FCMTokensResponse:
-      $ref: './schemas/FCMTokensResponse.yaml'
 
     # E2E Manual Run Models
     E2EManualRun:

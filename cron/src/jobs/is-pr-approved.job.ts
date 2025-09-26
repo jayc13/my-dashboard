@@ -15,22 +15,22 @@ const isPrApprovedJob = async () => {
     }
   }
 
-  if (pullRequestsReadyToMerge.length > 0) {
-    // Create a notification
-    const size = pullRequestsReadyToMerge.length;
-    await apiFetch(`${API_BASE_URL}/api/notifications`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        title: 'E2E Report',
-        message: `There ${size > 1 ? 'is ' : 'are'} ${size} pull requests ready to Merge.`,
-        link: '/pull_requests',
-        type: 'info',
-      }),
-    });
-  }
+  // if (pullRequestsReadyToMerge.length > 0) {
+  //   // Create a notification
+  //   const size = pullRequestsReadyToMerge.length;
+  //   await apiFetch(`${API_BASE_URL}/api/notifications`, {
+  //     method: 'POST',
+  //     headers: {
+  //       'Content-Type': 'application/json',
+  //     },
+  //     body: JSON.stringify({
+  //       title: 'Pull Requests Ready to Merge',
+  //       message: `There ${size > 1 ? 'is ' : 'are'} ${size} pull requests ready to Merge.`,
+  //       link: '/pull_requests',
+  //       type: 'info',
+  //     }),
+  //   });
+  // }
 };
 
 export default isPrApprovedJob;
