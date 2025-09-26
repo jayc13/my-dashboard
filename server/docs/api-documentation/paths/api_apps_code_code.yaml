@@ -17,7 +17,7 @@ get:
       schema:
         type: string
         pattern: "^[a-z0-9-]+$"
-        example: "my-web-app"
+        example: "my-new-app"
   responses:
     '200':
       description: Application retrieved successfully
@@ -27,10 +27,10 @@ get:
             $ref: '../schemas/ApplicationDetails.yaml'
           example:
             id: 1
-            name: "My Web App"
-            code: "my-web-app"
-            pipeline_url: "https://app.circleci.com/pipelines/github/myorg/my-web-app"
-            e2e_trigger_configuration: "branch:main,schedule:daily"
+            name: "My New App"
+            code: "my-new-app"
+            pipelineUrl: "https://app.circleci.com/pipelines/github/myorg/my-web-app"
+            e2eTriggerConfiguration: '{"branch":"main","schedule":"daily"}'
             watching: true
             lastRun:
               id: 123

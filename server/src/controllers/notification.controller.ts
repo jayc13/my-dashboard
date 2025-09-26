@@ -13,8 +13,8 @@ export class NotificationController {
       message,
       link,
       type,
-      is_read: false,
-      created_at: new Date().toISOString(),
+      isRead: false,
+      createdAt: new Date().toISOString(),
     };
     const notification = await NotificationService.create(newNotification);
     res.status(201).json(notification);
@@ -23,15 +23,7 @@ export class NotificationController {
   static async getAll(_req: Request, res: Response) {
     const notifications = await NotificationService.getAll();
 
-    res.json(notifications.map((n) => ({
-      id: n.id,
-      title: n.title,
-      message: n.message,
-      link: n.link,
-      type: n.type,
-      read: n.is_read,
-      created_at: n.created_at,
-    })));
+    res.json(notifications);
   }
 
   static async markAsRead(req: Request, res: Response) {

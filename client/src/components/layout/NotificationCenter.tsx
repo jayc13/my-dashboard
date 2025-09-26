@@ -58,16 +58,16 @@ const NotificationCenter = (props: NotificationCenterProps) => {
     }
 
     async function handleDeleteAll() {
-        await Promise.all(notifications.map(n => handleDelete(n.id, false)));
+        await Promise.all(notifications.map(n => handleDelete(n.id!, false)));
         refetchNotifications();
     }
 
     async function handleMarkAllAsRead() {
-        await Promise.all(notifications.map(n => handleMarkAsRead(n.id, false)));
+        await Promise.all(notifications.map(n => handleMarkAsRead(n.id!, false)));
         refetchNotifications();
     }
 
-    const unreadCount = notifications.filter(n => !n.read).length;
+    const unreadCount = notifications.filter(n => !n.isRead).length;
 
     return (
         <>
@@ -163,18 +163,18 @@ const NotificationCenter = (props: NotificationCenterProps) => {
                                         m: 0,
                                         width: '100%',
                                         cursor: !n.link ? 'default' : 'pointer',
-                                        boxShadow: n.read ? 'none' : '0 2px 8px 0 rgba(25, 118, 210, 0.08)',
+                                        boxShadow: n.isRead ? 'none' : '0 2px 8px 0 rgba(25, 118, 210, 0.08)',
                                         '& .MuiAlert-action': {
                                             alignItems: 'center',
                                         },
                                         '& .MuiAlert-message': { width: '100%' },
                                         pr: 3,
                                     }}
-                                    variant={n.read ? 'outlined' : 'filled'}
+                                    variant={n.isRead ? 'outlined' : 'filled'}
                                     onClick={(e) => {
                                         if (n.link) {
                                             e.stopPropagation();
-                                            handleMarkAsRead(n.id);
+                                            handleMarkAsRead(n.id!);
                                             if (n.link.startsWith('http')) {
                                                 window.open(n.link, '_blank');
                                             } else {
@@ -184,28 +184,28 @@ const NotificationCenter = (props: NotificationCenterProps) => {
                                     }}
                                     action={
                                         <>
-                                            {!n.read && (
+                                            {!n.isRead && (
                                                 <IconButton
                                                     size="small"
                                                     aria-label="mark as read"
                                                     className="notif-mark-read-btn"
                                                     onClick={e => {
                                                         e.stopPropagation();
-                                                        handleMarkAsRead(n.id);
+                                                        handleMarkAsRead(n.id!);
                                                     }}
                                                 >
                                                     <CheckIcon fontSize="small" />
                                                 </IconButton>
                                             )}
                                             {
-                                                n.read && (
+                                                n.isRead && (
                                                     <IconButton
                                                         size="small"
                                                         aria-label="delete"
                                                         className="notif-delete-btn"
                                                         onClick={e => {
                                                             e.stopPropagation();
-                                                            handleDelete(n.id);
+                                                            handleDelete(n.id!);
                                                         }}
                                                     >
                                                         <DeleteIcon fontSize="small" />
@@ -225,7 +225,7 @@ const NotificationCenter = (props: NotificationCenterProps) => {
                                             {n.title}
                                         </AlertTitle>
 
-                                        {!n.read && (
+                                        {!n.isRead && (
                                             <span
                                                 style={{
                                                     position: 'absolute',
@@ -249,7 +249,7 @@ const NotificationCenter = (props: NotificationCenterProps) => {
                                         )}
                                     </Stack>
                                     <Typography variant="body2" color="text.secondary" sx={{ fontSize: 12, mt: 0.5 }}>
-                                        {(DateTime.fromISO(n.created_at, { zone: 'utc' }).toLocal()).toFormat('dd/MM/yyyy HH:mm')}
+                                        {(DateTime.fromISO(n.createdAt, { zone: 'utc' }).toLocal()).toFormat('dd/MM/yyyy HH:mm')}
                                     </Typography>
                                     <Typography variant="body1" color="text.primary" sx={{ fontSize: 14, mt: 0.5 }}>
                                         {n.message}

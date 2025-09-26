@@ -86,14 +86,14 @@ export class E2EManualRunService {
         throw new Error(`App with id ${input.app_id} not found`);
       }
 
-      if (!app.e2e_trigger_configuration) {
+      if (!app.e2eTriggerConfiguration) {
         throw new Error(`App with id ${input.app_id} does not have e2e_trigger_configuration set`);
       }
 
       // Trigger Circle CI E2E runs
       const {
         id: pipeline_id,
-      } = await CircleCIService.triggerE2ERuns(app.e2e_trigger_configuration);
+      } = await CircleCIService.triggerE2ERuns(app.e2eTriggerConfiguration);
 
       const result = await db.run(
         'INSERT INTO e2e_manual_runs (app_id, pipeline_id) VALUES (?, ?)',

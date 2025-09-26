@@ -1,4 +1,4 @@
-import { db } from '../db/database';
+import { DatabaseRow, db } from '../db/database';
 import { E2EManualRunService } from './e2e_manual_run.service';
 import { CircleCIService } from './circle_ci.service';
 import type { Application, ApplicationDetails, LastApplicationRun } from '@my-dashboard/types';
@@ -7,10 +7,7 @@ export class AppService {
   static async getAll(): Promise<Application[]> {
     try {
       const rows = await db.all('SELECT * FROM apps ORDER BY name ASC');
-      return rows.map(row => ({
-        ...row,
-        watching: !!row.watching,
-      }) as Application);
+      return rows.map(fromDatabaseRowToApplication);
     } catch (error) {
       console.error('Error fetching apps:', error);
       throw error;
@@ -24,10 +21,7 @@ export class AppService {
         return undefined;
       }
 
-      const app: Application = {
-        ...row,
-        watching: !!row.watching,
-      } as Application;
+      const app: Application = fromDatabaseRowToApplication(row);
 
       return this.enrichWithRunDetails(app);
     } catch (error) {
@@ -43,10 +37,7 @@ export class AppService {
         return undefined;
       }
 
-      const app: Application = {
-        ...row,
-        watching: !!row.watching,
-      } as Application;
+      const app: Application = fromDatabaseRowToApplication(row);
 
       return this.enrichWithRunDetails(app);
     } catch (error) {
@@ -55,21 +46,25 @@ export class AppService {
     }
   }
 
-  static async create(app: Omit<Application, 'id'>): Promise<number> {
+  static async create(app: Omit<Application, 'id'>): Promise<Application> {
     try {
       const result = await db.run(
         `INSERT INTO apps (name, code, pipeline_url, e2e_trigger_configuration, watching)
                  VALUES (?, ?, ?, ?, ?)`,
-        [app.name, app.code, app.pipeline_url || null, app.e2e_trigger_configuration || null, app.watching ? 1 : 0],
+        [app.name, app.code, app.pipelineUrl || null, app.e2eTriggerConfiguration || null, app.watching ? 1 : 0],
       );
-      return result.insertId!;
+      const newApp = await this.getById(result.insertId!);
+      if (!newApp) {
+        throw new Error('Failed to retrieve the newly created app.');
+      }
+      return newApp;
     } catch (error) {
       console.error('Error creating app:', error);
       throw error;
     }
   }
 
-  static async update(id: number, app: Partial<Omit<Application, 'id'>>): Promise<boolean> {
+  static async update(id: number, app: Partial<Omit<Application, 'id'>>): Promise<Application> {
     try {
       const fields = [];
       const values = [];
@@ -82,13 +77,13 @@ export class AppService {
         fields.push('code = ?');
         values.push(app.code);
       }
-      if (app.pipeline_url !== undefined) {
+      if (app.pipelineUrl !== undefined) {
         fields.push('pipeline_url = ?');
-        values.push(app.pipeline_url || null);
+        values.push(app.pipelineUrl || null);
       }
-      if (app.e2e_trigger_configuration !== undefined) {
+      if (app.e2eTriggerConfiguration !== undefined) {
         fields.push('e2e_trigger_configuration = ?');
-        values.push(app.e2e_trigger_configuration || null);
+        values.push(app.e2eTriggerConfiguration || null);
       }
       if (app.watching !== undefined) {
         fields.push('watching = ?');
@@ -96,17 +91,26 @@ export class AppService {
       }
 
       if (fields.length === 0) {
-        return false;
+        const updatedApp = await this.getById(id);
+        if (!updatedApp) {
+          throw new Error('App not found.');
+        }
+        return updatedApp;
       }
 
       values.push(id);
 
-      const result = await db.run(
+      await db.run(
         `UPDATE apps SET ${fields.join(', ')} WHERE id = ?`,
         values,
       );
 
-      return (result.affectedRows || 0) > 0;
+      const updatedApp = await this.getById(id);
+      if (!updatedApp) {
+        throw new Error('Failed to retrieve the updated app.');
+      }
+
+      return updatedApp;
     } catch (error) {
       console.error('Error updating app:', error);
       throw error;
@@ -126,10 +130,7 @@ export class AppService {
   static async getWatching(): Promise<Application[]> {
     try {
       const rows = await db.all('SELECT * FROM apps WHERE watching = 1 ORDER BY name ASC');
-      return rows.map(row => ({
-        ...row,
-        watching: !!row.watching,
-      }) as Application);
+      return rows.map(fromDatabaseRowToApplication);
     } catch (error) {
       console.error('Error fetching watching apps:', error);
       throw error;
@@ -166,4 +167,15 @@ export class AppService {
       lastRun,
     };
   }
+}
+
+function fromDatabaseRowToApplication(row: DatabaseRow): Application {
+  return {
+    id: row.id,
+    name: row.name,
+    code: row.code,
+    pipelineUrl: row.pipeline_url,
+    e2eTriggerConfiguration: row.e2e_trigger_configuration,
+    watching: !!row.watching,
+  };
 }

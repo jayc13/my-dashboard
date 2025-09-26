@@ -7,7 +7,7 @@
 import { BaseClient } from '../base-client';
 import { 
   NotificationQueryParams,
-  ClientNotification,
+  Notification,
   CreateNotificationRequest
 } from '../types';
 
@@ -20,8 +20,8 @@ export class NotificationsService extends BaseClient {
    * @param options Query parameters for filtering notifications
    * @returns Promise resolving to array of notifications
    */
-  public async getNotifications(options: NotificationQueryParams = {}): Promise<ClientNotification[]> {
-    return this.request<ClientNotification[]>('/api/notifications', {
+  public async getNotifications(options: NotificationQueryParams = {}): Promise<Notification[]> {
+    return this.request<Notification[]>('/api/notifications', {
       method: 'GET',
       params: options,
     });
@@ -32,8 +32,8 @@ export class NotificationsService extends BaseClient {
    * @param notification Notification data
    * @returns Promise resolving to created notification
    */
-  public async createNotification(notification: CreateNotificationRequest): Promise<ClientNotification> {
-    return this.request<ClientNotification>('/api/notifications', {
+  public async createNotification(notification: CreateNotificationRequest): Promise<Notification> {
+    return this.request<Notification>('/api/notifications', {
       method: 'POST',
       body: JSON.stringify(notification),
     });

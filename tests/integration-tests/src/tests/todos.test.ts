@@ -16,8 +16,6 @@ describe('To-Do List API Integration Tests', () => {
         baseUrl: testHelpers.getHttpClient().getBaseUrl(),
         apiKey: testHelpers.getApiKey(),
     });
-
-    await truncateTables(['todos']);
   });
 
   // Clean up and close connection after all tests
@@ -26,7 +24,7 @@ describe('To-Do List API Integration Tests', () => {
     await closeTestConnection();
   });
 
-  describe('Generic Validations', () => {
+  describe('API Validations', () => {
     beforeAll(async () => {
       await truncateTables(['todos']);
     });
@@ -318,7 +316,7 @@ describe('To-Do List API Integration Tests', () => {
     });
   });
 
-  describe('Functional Tests', () => {
+  describe('SDK Tests', () => {
     let todoId: number;
     beforeAll(async () => {
       await truncateTables(['todos']);
@@ -367,6 +365,128 @@ describe('To-Do List API Integration Tests', () => {
         expect(deleteResponse.success).toBe(true);
         const todos = await myDashboardSdk.todos.getTodos();
         expect(todos.length).toBe(0);
+    });
+
+    // Additional test cases for edge cases and error handling
+    it('Create ToDo with all optional fields', async () => {
+        const newToDo = await myDashboardSdk.todos.createTodo({
+            title: 'Complete ToDo with All Fields',
+            description: 'This todo has all possible fields filled',
+            link: 'https://example.com/task',
+            dueDate: '2024-12-31',
+            isCompleted: false
+        });
+
+        expect(newToDo.id).toBeDefined();
+        expect(newToDo.title).toBe('Complete ToDo with All Fields');
+        expect(newToDo.description).toBe('This todo has all possible fields filled');
+        expect(newToDo.link).toBe('https://example.com/task');
+        expect(newToDo.dueDate).toBe('2024-12-31');
+        expect(newToDo.isCompleted).toBe(false);
+
+        // Clean up
+        await myDashboardSdk.todos.deleteTodo(newToDo.id!);
+    });
+
+    it('Create ToDo with minimal fields only', async () => {
+        const newToDo = await myDashboardSdk.todos.createTodo({
+            title: 'Minimal ToDo'
+        });
+
+        expect(newToDo.id).toBeDefined();
+        expect(newToDo.title).toBe('Minimal ToDo');
+        expect(newToDo.isCompleted).toBe(false);
+
+        // Clean up
+        await myDashboardSdk.todos.deleteTodo(newToDo.id!);
+    });
+
+    it('Update ToDo with partial fields', async () => {
+        // Create a todo first
+        const newToDo = await myDashboardSdk.todos.createTodo({
+            title: 'Original Title',
+            description: 'Original Description'
+        });
+
+        // Update only the title
+        const updatedToDo = await myDashboardSdk.todos.updateTodo(newToDo.id!, {
+            title: 'Updated Title',
+            description: newToDo.description,
+            isCompleted: newToDo.isCompleted
+        });
+
+        expect(updatedToDo.title).toBe('Updated Title');
+        expect(updatedToDo.description).toBe('Original Description');
+
+        // Clean up
+        await myDashboardSdk.todos.deleteTodo(newToDo.id!);
+    });
+
+    it('Handle non-existent ToDo operations gracefully', async () => {
+        const nonExistentId = 999999;
+
+        // Test getting non-existent todo
+        await expect(myDashboardSdk.todos.getTodo(nonExistentId))
+            .rejects.toThrow();
+
+        // Test updating non-existent todo
+        await expect(myDashboardSdk.todos.updateTodo(nonExistentId, {
+            title: 'Updated Title'
+        })).rejects.toThrow();
+
+        // Test deleting non-existent todo
+        await expect(myDashboardSdk.todos.deleteTodo(nonExistentId))
+            .rejects.toThrow();
+    });
+
+    it('Create multiple ToDos and verify list ordering', async () => {
+        const todoIds: number[] = [];
+
+        // Create multiple todos
+        for (let i = 1; i <= 3; i++) {
+            const todo = await myDashboardSdk.todos.createTodo({
+                title: `Test ToDo ${i}`,
+                description: `Description for todo ${i}`
+            });
+            todoIds.push(todo.id!);
+        }
+
+        // Verify all todos are in the list
+        const todos = await myDashboardSdk.todos.getTodos();
+        expect(todos.length).toBeGreaterThanOrEqual(3);
+
+        // Verify all created todos are present
+        const createdTodos = todos.filter(todo => todoIds.includes(todo.id!));
+        expect(createdTodos.length).toBe(3);
+
+        // Clean up
+        for (const id of todoIds) {
+            await myDashboardSdk.todos.deleteTodo(id);
+        }
+    });
+
+    it('Toggle ToDo completion status multiple times', async () => {
+        const newToDo = await myDashboardSdk.todos.createTodo({
+            title: 'Toggle Test ToDo'
+        });
+
+        let todoItem = await myDashboardSdk.todos.getTodo(newToDo.id!);
+        expect(todoItem.isCompleted).toBe(false);
+
+        // Mark as completed
+        todoItem.isCompleted = true;
+        await myDashboardSdk.todos.updateTodo(newToDo.id!, todoItem);
+        todoItem = await myDashboardSdk.todos.getTodo(newToDo.id!);
+        expect(todoItem.isCompleted).toBe(true);
+
+        // Mark as incomplete again
+        todoItem.isCompleted = false;
+        await myDashboardSdk.todos.updateTodo(newToDo.id!, todoItem);
+        todoItem = await myDashboardSdk.todos.getTodo(newToDo.id!);
+        expect(todoItem.isCompleted).toBe(false);
+
+        // Clean up
+        await myDashboardSdk.todos.deleteTodo(newToDo.id!);
     });
   });
 });

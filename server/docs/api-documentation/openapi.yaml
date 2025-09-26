@@ -55,6 +55,8 @@ info:
 servers:
   - url: http://localhost:3000
     description: Local development server
+  - url: http://localhost:4010
+    description: Proxy server
 tags:
   - name: Health Check
     description: Service health monitoring and status checks

@@ -33,8 +33,8 @@ const AppsPage = () => {
     const [formData, setFormData] = useState<Partial<Application>>({
         name: '',
         code: '',
-        pipeline_url: '',
-        e2e_trigger_configuration: '',
+        pipelineUrl: '',
+        e2eTriggerConfiguration: '',
         watching: false,
     });
 
@@ -54,8 +54,8 @@ const AppsPage = () => {
             setFormData({
                 name: '',
                 code: '',
-                pipeline_url: '',
-                e2e_trigger_configuration: '',
+                pipelineUrl: '',
+                e2eTriggerConfiguration: '',
                 watching: false,
             });
         }
@@ -68,8 +68,8 @@ const AppsPage = () => {
         setFormData({
             name: '',
             code: '',
-            pipeline_url: '',
-            e2e_trigger_configuration: '',
+            pipelineUrl: '',
+            e2eTriggerConfiguration: '',
             watching: false,
         });
     };
@@ -81,10 +81,10 @@ const AppsPage = () => {
                 return;
             }
 
-            // Validate JSON if e2e_trigger_configuration is provided
-            if (formData.e2e_trigger_configuration && formData.e2e_trigger_configuration.trim()) {
+            // Validate JSON if e2eTriggerConfiguration is provided
+            if (formData.e2eTriggerConfiguration && formData.e2eTriggerConfiguration.trim()) {
                 try {
-                    JSON.parse(formData.e2e_trigger_configuration);
+                    JSON.parse(formData.e2eTriggerConfiguration);
                 } catch {
                     enqueueSnackbar('E2E Trigger Configuration must be valid JSON', { variant: 'error' });
                     return;
@@ -149,7 +149,7 @@ const AppsPage = () => {
         { field: 'name', headerName: 'Name', flex: 1, minWidth: 150 },
         { field: 'code', headerName: 'Code', flex: 0.8, minWidth: 120 },
         {
-            field: 'pipeline_url',
+            field: 'pipelineUrl',
             headerName: 'Pipeline URL',
             flex: 1.2,
             minWidth: 180,
@@ -170,7 +170,7 @@ const AppsPage = () => {
             ),
         },
         {
-            field: 'e2e_trigger_configuration',
+            field: 'e2eTriggerConfiguration',
             headerName: 'E2E Config',
             flex: 0.6,
             minWidth: 120,
@@ -327,8 +327,8 @@ const AppsPage = () => {
                             <TextField
                                 fullWidth
                                 label="Pipeline URL"
-                                value={formData.pipeline_url || ''}
-                                onChange={(e) => setFormData({ ...formData, pipeline_url: e.target.value })}
+                                value={formData.pipelineUrl || ''}
+                                onChange={(e) => setFormData({ ...formData, pipelineUrl: e.target.value })}
                                 helperText="Optional URL to the CI/CD pipeline"
                             />
                         </Grid>
@@ -336,8 +336,8 @@ const AppsPage = () => {
                             <TextField
                                 fullWidth
                                 label="E2E Trigger Configuration"
-                                value={formData.e2e_trigger_configuration || ''}
-                                onChange={(e) => setFormData({ ...formData, e2e_trigger_configuration: e.target.value })}
+                                value={formData.e2eTriggerConfiguration || ''}
+                                onChange={(e) => setFormData({ ...formData, e2eTriggerConfiguration: e.target.value })}
                                 multiline
                                 rows={10}
                                 helperText="Optional JSON configuration for E2E test triggers"

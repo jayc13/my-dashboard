@@ -20,8 +20,8 @@ export class ApplicationsService extends BaseClient {
    * Get all applications
    * @returns Promise resolving to array of application details
    */
-  public async getApplications(): Promise<ApplicationDetails[]> {
-    return this.request<ApplicationDetails[]>('/api/apps', {
+  public async getApplications(): Promise<Application[]> {
+    return this.request<Application[]>('/api/apps', {
       method: 'GET',
     });
   }

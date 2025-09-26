@@ -29,8 +29,8 @@ get:
             id: 1
             name: "My Web App"
             code: "my-web-app"
-            pipeline_url: "https://app.circleci.com/pipelines/github/myorg/my-web-app"
-            e2e_trigger_configuration: "branch:main,schedule:daily"
+            pipelineUrl: "https://app.circleci.com/pipelines/github/myorg/my-web-app"
+            e2eTriggerConfiguration: "branch:main,schedule:daily"
             watching: true
             lastRun:
               id: 123
@@ -112,15 +112,15 @@ put:
               pattern: "^[a-z0-9-]+$"
               minLength: 1
               maxLength: 100
-            pipeline_url:
+            pipelineUrl:
               type: string
               format: uri
               description: URL to the CI/CD pipeline for this application
               example: "https://app.circleci.com/pipelines/github/myorg/my-updated-app"
-            e2e_trigger_configuration:
+            e2eTriggerConfiguration:
               type: string
               description: Configuration for triggering E2E tests
-              example: "branch:main,schedule:nightly"
+              example: '{"branch":"main","schedule":"daily"}'
             watching:
               type: boolean
               description: Whether this application should be actively monitored
@@ -131,7 +131,7 @@ put:
             value:
               name: "My Updated App"
               watching: false
-              e2e_trigger_configuration: "branch:main,schedule:nightly"
+              e2eTriggerConfiguration: '{"branch":"main","schedule":"daily"}'
   responses:
     '200':
       description: Application updated successfully
@@ -143,8 +143,8 @@ put:
             id: 1
             name: "My Updated App"
             code: "my-web-app"
-            pipeline_url: "https://app.circleci.com/pipelines/github/myorg/my-web-app"
-            e2e_trigger_configuration: "branch:main,schedule:nightly"
+            pipelineUrl: "https://app.circleci.com/pipelines/github/myorg/my-web-app"
+            e2eTriggerConfiguration: '{"branch":"main","schedule":"daily"}'
             watching: false
     '400':
       description: Bad request - Invalid input data or application ID

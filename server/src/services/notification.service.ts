@@ -1,4 +1,4 @@
-import { db } from '../db/database';
+import { DatabaseRow, db } from '../db/database';
 import { Notification, NotificationInput } from '../types';
 import { FCMService } from './fcm.service';
 
@@ -8,10 +8,7 @@ export class NotificationService {
   static async getAll(): Promise<Notification[]> {
     try {
       const rows = await db.all('SELECT * FROM notifications ORDER BY created_at DESC');
-      return rows.map((row) => ({
-        ...row,
-        is_read: Boolean(row.is_read),
-      }) as Notification);
+      return rows.map(fromDatabaseRowToNotification);
     } catch (error) {
       console.error('Error fetching notifications:', error);
       throw error;
@@ -63,7 +60,7 @@ export class NotificationService {
       if (!row) {
         throw new Error('Notification not found');
       }
-      return row as Notification;
+      return fromDatabaseRowToNotification(row);
     } catch (error) {
       console.error('Error fetching notification:', error);
       throw error;
@@ -87,4 +84,16 @@ export class NotificationService {
       throw error;
     }
   }
+}
+
+function fromDatabaseRowToNotification(row: DatabaseRow): Notification {
+  return {
+    id: row.id,
+    title: row.title,
+    message: row.message,
+    link: row.link,
+    type: row.type,
+    isRead: Boolean(row.is_read),
+    createdAt: row.created_at,
+  };
 }
