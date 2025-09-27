@@ -37,30 +37,30 @@ export class NotificationPage {
     this.page = page;
     
     // Notification Center selectors
-    this.notificationIcon = page.locator('[data-testid="notification-icon"], button[aria-label*="notification"], .MuiIconButton-root:has(svg[data-testid="NotificationsIcon"])');
-    this.notificationBadge = page.locator('.MuiBadge-badge, [data-testid="notification-badge"]');
-    this.notificationMenu = page.locator('[role="menu"], .MuiMenu-paper, [data-testid="notification-menu"]');
-    this.notificationList = page.locator('[data-testid="notification-list"], .notification-list');
-    this.emptyNotificationMessage = page.locator('text="No notifications"');
-    this.markAllAsReadButton = page.locator('text="Mark all as read", button:has-text("Mark all as read")');
-    this.deleteAllButton = page.locator('text="Delete all", button:has-text("Delete all")');
+    this.notificationIcon = page.locator('[data-testid="notification-icon"]');
+    this.notificationBadge = page.locator('[data-testid="notification-badge"]');
+    this.notificationMenu = page.locator('[data-testid="notification-menu"]');
+    this.notificationList = page.locator('[data-testid="notification-list"]');
+    this.emptyNotificationMessage = page.locator('[data-testid="empty-notifications"]');
+    this.markAllAsReadButton = page.locator('[data-testid="mark-all-as-read"]');
+    this.deleteAllButton = page.locator('[data-testid="delete-all"]');
     
     // Individual notification selectors
-    this.notificationItems = page.locator('[data-testid="notification-item"], .notification-item, .MuiAlert-root');
-    this.notificationTitle = page.locator('[data-testid="notification-title"], .notification-title, .MuiAlertTitle-root');
-    this.notificationMessage = page.locator('[data-testid="notification-message"], .notification-message, .MuiAlert-message');
-    this.notificationTime = page.locator('[data-testid="notification-time"], .notification-time');
+    this.notificationItems = page.locator('[data-testid^="notification-item-"]');
+    this.notificationTitle = page.locator('[data-testid^="notification-title-"]');
+    this.notificationMessage = page.locator('[data-testid^="notification-message-"]');
+    this.notificationTime = page.locator('[data-testid^="notification-time-"]');
     this.notificationLink = page.locator('[data-testid="notification-link"], .notification-link, a[href]');
-    this.markAsReadButton = page.locator('[data-testid="mark-as-read"], button[aria-label*="mark"], svg[data-testid="TaskAltIcon"]').first();
-    this.deleteButton = page.locator('[data-testid="delete-notification"], button[aria-label*="delete"], svg[data-testid="DeleteIcon"]').first();
+    this.markAsReadButton = page.locator('[data-testid^="mark-as-read-"]').first();
+    this.deleteButton = page.locator('[data-testid^="delete-notification-"]').first();
     
     // Permission elements
-    this.permissionAlert = page.locator('.MuiAlert-root:has-text("Enable push notifications"), [data-testid="permission-alert"]');
-    this.enableNotificationsButton = page.locator('button:has-text("Enable"), [data-testid="enable-notifications"]');
-    this.permissionDialog = page.locator('[role="dialog"]:has-text("Enable Push Notifications"), [data-testid="permission-dialog"]');
-    this.enablePermissionButton = page.locator('button:has-text("Enable Notifications"), [data-testid="enable-permission"]');
-    this.notNowButton = page.locator('button:has-text("Not Now"), [data-testid="not-now"]');
-    this.permissionSnackbar = page.locator('.MuiSnackbar-root, [data-testid="permission-snackbar"]');
+    this.permissionAlert = page.locator('[data-testid="permission-alert"]');
+    this.enableNotificationsButton = page.locator('[data-testid="enable-notifications"]');
+    this.permissionDialog = page.locator('[data-testid="permission-dialog"]');
+    this.enablePermissionButton = page.locator('[data-testid="enable-permission"]');
+    this.notNowButton = page.locator('[data-testid="not-now"]');
+    this.permissionSnackbar = page.locator('[data-testid="permission-snackbar"]');
   }
 
   /**
@@ -140,7 +140,7 @@ export class NotificationPage {
   async markNotificationAsRead(index: number = 0): Promise<void> {
     await this.openNotificationCenter();
     const notification = this.notificationItems.nth(index);
-    const markAsReadBtn = notification.locator('svg[data-testid="TaskAltIcon"]').first();
+    const markAsReadBtn = notification.locator('[data-testid^="mark-as-read-"]').first();
     await markAsReadBtn.click();
     await this.page.waitForTimeout(500); // Wait for API call
   }
@@ -151,7 +151,7 @@ export class NotificationPage {
   async deleteNotification(index: number = 0): Promise<void> {
     await this.openNotificationCenter();
     const notification = this.notificationItems.nth(index);
-    const deleteBtn = notification.locator('svg[data-testid="DeleteIcon"]').first();
+    const deleteBtn = notification.locator('[data-testid^="delete-notification-"]').first();
     await deleteBtn.click();
     await this.page.waitForTimeout(500); // Wait for API call
   }
@@ -191,9 +191,9 @@ export class NotificationPage {
     await this.openNotificationCenter();
     const notification = this.notificationItems.nth(index);
     
-    const title = await notification.locator('.MuiAlertTitle-root, [data-testid="notification-title"]').textContent() || '';
-    const message = await notification.locator('.MuiAlert-message, [data-testid="notification-message"]').textContent() || '';
-    const time = await notification.locator('[data-testid="notification-time"]').textContent() || undefined;
+    const title = await notification.locator('[data-testid^="notification-title-"]').textContent() || '';
+    const message = await notification.locator('[data-testid^="notification-message-"]').textContent() || '';
+    const time = await notification.locator('[data-testid^="notification-time-"]').textContent() || undefined;
     const hasLink = await notification.locator('a[href]').count() > 0;
     
     // Check if notification is read (usually indicated by opacity or different styling)
@@ -265,7 +265,7 @@ export class NotificationPage {
   async waitForNotificationCountChange(expectedCount: number, timeout: number = 5000): Promise<void> {
     await this.page.waitForFunction(
       async (expectedCount) => {
-        const icon = document.querySelector('[data-testid="notification-icon"], button[aria-label*="notification"], .MuiIconButton-root:has(svg[data-testid="NotificationsIcon"])');
+        const icon = document.querySelector('[data-testid="notification-icon"]');
         if (!icon) {
           return false;
         }
@@ -273,7 +273,7 @@ export class NotificationPage {
         await (icon as HTMLElement).click();
         await new Promise(resolve => setTimeout(resolve, 100));
         
-        const items = document.querySelectorAll('[data-testid="notification-item"], .notification-item, .MuiAlert-root');
+        const items = document.querySelectorAll('[data-testid^="notification-item-"]');
         const actualCount = items.length;
         
         // Close the menu
@@ -294,8 +294,8 @@ export class NotificationPage {
     const notifications = await this.getNotificationItems();
     
     for (const notification of notifications) {
-      const notificationTitle = await notification.locator('.MuiAlertTitle-root, [data-testid="notification-title"]').textContent();
-      const notificationMessage = await notification.locator('.MuiAlert-message, [data-testid="notification-message"]').textContent();
+      const notificationTitle = await notification.locator('[data-testid^="notification-title-"]').textContent();
+      const notificationMessage = await notification.locator('[data-testid^="notification-message-"]').textContent();
       
       if (notificationTitle?.includes(title) && notificationMessage?.includes(message)) {
         await this.closeNotificationCenter();

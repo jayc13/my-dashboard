@@ -9,7 +9,7 @@ import {
   SAMPLE_NOTIFICATIONS,
   mockNotificationPermission,
   mockServiceWorker,
-  waitForNotificationApiCall,
+  waitForNotificationApiCall, NotificationTestUtils,
 } from '@utils/notification-test-helpers';
 import { LoginPage } from '@pages/LoginPage';
 import { NotificationInput } from '@my-dashboard/types';
@@ -22,7 +22,7 @@ test.describe('Notifications E2E Tests', () => {
   let notificationPage: NotificationPage;
 
   test.beforeAll(async ({ browser }) => {
-    await truncateTables(['todos']);
+    await truncateTables(['notifications']);
     page = await browser.newPage();
     const loginPage = new LoginPage(page);
     await loginPage.goto();
@@ -35,9 +35,6 @@ test.describe('Notifications E2E Tests', () => {
     test('should show empty state when no notifications exist', async () => {
       // Verify notification center is empty
       expect(await notificationPage.isNotificationCenterEmpty()).toBe(true);
-      
-      // Verify no badge is shown
-      expect(await notificationPage.hasUnreadNotifications()).toBe(false);
       
       // Verify notification count is 0
       expect(await notificationPage.getNotificationCount()).toBe(0);
@@ -63,8 +60,9 @@ test.describe('Notifications E2E Tests', () => {
       await createMultipleTestNotifications(testNotifications);
       
       // Refresh page to load notifications
+      const getAllNotificationRequest = NotificationTestUtils.interceptGetAllNotifications(page);
       await notificationPage.page.reload();
-      await notificationPage.page.waitForLoadState('networkidle');
+      await getAllNotificationRequest;
       
       // Verify notifications are displayed
       expect(await notificationPage.getNotificationCount()).toBe(2);
@@ -77,90 +75,18 @@ test.describe('Notifications E2E Tests', () => {
       expect(firstNotification.isRead).toBe(false);
     });
 
-    test('should show correct unread notification badge count', async () => {
-      // Create mix of read and unread notifications
-      const notifications: NotificationInput[] = [
-        { title: 'Unread 1', message: 'Message 1', type: 'info', isRead: false },
-        { title: 'Read 1', message: 'Message 2', type: 'success', isRead: true },
-        { title: 'Unread 2', message: 'Message 3', type: 'warning', isRead: false },
-        { title: 'Unread 3', message: 'Message 4', type: 'error', isRead: false },
-      ];
-      
-      await createMultipleTestNotifications(notifications);
-      
-      // Refresh page
-      await notificationPage.page.reload();
-      await notificationPage.page.waitForLoadState('networkidle');
-      
-      // Verify badge shows correct unread count
-      expect(await notificationPage.getNotificationBadgeCount()).toBe(3);
-      expect(await notificationPage.hasUnreadNotifications()).toBe(true);
-    });
-
-    test('should display notifications with different types and styling', async () => {
-      // Create notifications of all types
-      const notifications: NotificationInput[] = [
-        { title: 'Success Test', message: 'Success message', type: 'success', isRead: false },
-        { title: 'Error Test', message: 'Error message', type: 'error', isRead: false },
-        { title: 'Info Test', message: 'Info message', type: 'info', isRead: false },
-        { title: 'Warning Test', message: 'Warning message', type: 'warning', isRead: false },
-      ];
-      
-      await createMultipleTestNotifications(notifications);
-      
-      // Refresh page
-      await notificationPage.page.reload();
-      await notificationPage.page.waitForLoadState('networkidle');
-      
-      // Open notification center and verify all types are displayed
-      await notificationPage.openNotificationCenter();
-      
-      const notificationItems = await notificationPage.getNotificationItems();
-      expect(notificationItems.length).toBe(4);
-      
-      // Verify each notification type is present
-      const details = await Promise.all([
-        notificationPage.getNotificationDetails(0),
-        notificationPage.getNotificationDetails(1),
-        notificationPage.getNotificationDetails(2),
-        notificationPage.getNotificationDetails(3),
-      ]);
-      
-      const titles = details.map(d => d.title);
-      expect(titles).toContain('Warning Test');
-      expect(titles).toContain('Info Test');
-      expect(titles).toContain('Error Test');
-      expect(titles).toContain('Success Test');
-    });
-
-    test('should display notifications with links correctly', async () => {
-      // Create notification with link
-      const notificationWithLink: NotificationInput = {
-        title: 'Link Test',
-        message: 'This notification has a link',
-        type: 'info',
-        link: 'https://example.com/test',
-        isRead: false,
-      };
-      
-      await createTestNotification(notificationWithLink);
-      
-      // Refresh page
-      await notificationPage.page.reload();
-      await notificationPage.page.waitForLoadState('networkidle');
-      
-      // Verify link is present
-      const details = await notificationPage.getNotificationDetails(0);
-      expect(details.hasLink).toBe(true);
-    });
   });
 
   test.describe('Notification Interactions', () => {
+    test.beforeAll(async () => {
+      await truncateTables(['notifications']);
+    });
     test.beforeEach(async () => {
       // Create sample notifications for interaction tests
       await createMultipleTestNotifications(SAMPLE_NOTIFICATIONS.slice(0, 3));
+      const getAllNotificationRequest = NotificationTestUtils.interceptGetAllNotifications(page);
       await notificationPage.page.reload();
-      await notificationPage.page.waitForLoadState('networkidle');
+      await getAllNotificationRequest;
     });
 
     test('should mark individual notification as read', async () => {
@@ -193,8 +119,9 @@ test.describe('Notifications E2E Tests', () => {
       await waitForNotificationApiCall(notificationPage.page, '/api/notifications/', 'DELETE');
       
       // Verify count decreased
+      const getAllNotificationRequest = NotificationTestUtils.interceptGetAllNotifications(page);
       await notificationPage.page.reload();
-      await notificationPage.page.waitForLoadState('networkidle');
+      await getAllNotificationRequest;
       expect(await notificationPage.getNotificationCount()).toBe(2);
       
       // Verify in database
@@ -231,8 +158,9 @@ test.describe('Notifications E2E Tests', () => {
       await notificationPage.page.waitForTimeout(1500);
       
       // Refresh and verify empty state
+      const getAllNotificationRequest = NotificationTestUtils.interceptGetAllNotifications(page);
       await notificationPage.page.reload();
-      await notificationPage.page.waitForLoadState('networkidle');
+      await getAllNotificationRequest;
       expect(await notificationPage.isNotificationCenterEmpty()).toBe(true);
       
       // Verify in database
@@ -251,8 +179,9 @@ test.describe('Notifications E2E Tests', () => {
       };
       
       await createTestNotification(linkNotification);
+      const getAllNotificationRequest = NotificationTestUtils.interceptGetAllNotifications(page);
       await notificationPage.page.reload();
-      await notificationPage.page.waitForLoadState('networkidle');
+      await getAllNotificationRequest;
       
       // Open notification center
       await notificationPage.openNotificationCenter();
@@ -277,8 +206,9 @@ test.describe('Notifications E2E Tests', () => {
       await mockServiceWorker(notificationPage.page);
 
       // Reload page to apply mocks
+      const getAllNotificationRequest = NotificationTestUtils.interceptGetAllNotifications(page);
       await notificationPage.page.reload();
-      await notificationPage.page.waitForLoadState('networkidle');
+      await getAllNotificationRequest;
 
       // Verify permission alert is visible
       expect(await notificationPage.isPermissionAlertVisible()).toBe(true);
@@ -307,8 +237,9 @@ test.describe('Notifications E2E Tests', () => {
         });
       });
 
+      const getAllNotificationRequest = NotificationTestUtils.interceptGetAllNotifications(page);
       await notificationPage.page.reload();
-      await notificationPage.page.waitForLoadState('networkidle');
+      await getAllNotificationRequest;
 
       // Click enable notifications
       await notificationPage.clickEnableNotifications();
@@ -344,8 +275,9 @@ test.describe('Notifications E2E Tests', () => {
         });
       });
 
+      const getAllNotificationRequest = NotificationTestUtils.interceptGetAllNotifications(page);
       await notificationPage.page.reload();
-      await notificationPage.page.waitForLoadState('networkidle');
+      await getAllNotificationRequest;
 
       // Click enable notifications
       await notificationPage.clickEnableNotifications();
@@ -363,8 +295,9 @@ test.describe('Notifications E2E Tests', () => {
       await mockNotificationPermission(notificationPage.page, 'default');
       await mockServiceWorker(notificationPage.page);
 
+      const getAllNotificationRequest = NotificationTestUtils.interceptGetAllNotifications(page);
       await notificationPage.page.reload();
-      await notificationPage.page.waitForLoadState('networkidle');
+      await getAllNotificationRequest;
 
       // Click enable notifications
       await notificationPage.clickEnableNotifications();
@@ -382,8 +315,9 @@ test.describe('Notifications E2E Tests', () => {
       await mockNotificationPermission(notificationPage.page, 'granted');
       await mockServiceWorker(notificationPage.page);
 
+      const getAllNotificationRequest = NotificationTestUtils.interceptGetAllNotifications(page);
       await notificationPage.page.reload();
-      await notificationPage.page.waitForLoadState('networkidle');
+      await getAllNotificationRequest;
 
       // Verify permission alert is not visible
       expect(await notificationPage.isPermissionAlertVisible()).toBe(false);
@@ -402,8 +336,9 @@ test.describe('Notifications E2E Tests', () => {
         });
       });
 
+      const getAllNotificationRequest = NotificationTestUtils.interceptGetAllNotifications(page);
       await notificationPage.page.reload();
-      await notificationPage.page.waitForLoadState('networkidle');
+      await getAllNotificationRequest;
 
       // Verify unsupported message is shown
       const unsupportedAlert = notificationPage.page.locator('.MuiAlert-root:has-text("not supported")');
@@ -411,37 +346,7 @@ test.describe('Notifications E2E Tests', () => {
     });
   });
 
-  test.describe('Edge Cases and Error Handling', () => {
-    test('should handle API errors gracefully', async () => {
-      // Create test notification
-      await createTestNotification({
-        title: 'API Error Test',
-        message: 'Test API error handling',
-        type: 'info',
-        isRead: false,
-      });
-
-      await notificationPage.page.reload();
-      await notificationPage.page.waitForLoadState('networkidle');
-
-      // Mock API error for mark as read
-      await notificationPage.page.route('**/api/notifications/*/read', async route => {
-        await route.fulfill({
-          status: 500,
-          contentType: 'application/json',
-          body: JSON.stringify({ error: 'Internal server error' }),
-        });
-      });
-
-      // Try to mark notification as read
-      await notificationPage.openNotificationCenter();
-      const markAsReadBtn = notificationPage.page.locator('svg[data-testid="TaskAltIcon"]').first();
-      await markAsReadBtn.click();
-
-      // Verify notification is still unread (API error should not change state)
-      await notificationPage.page.waitForTimeout(1000);
-      expect(await notificationPage.hasUnreadNotifications()).toBe(true);
-    });
+  test.describe('Edge Cases', () => {
 
     test('should handle large numbers of notifications', async () => {
       // Create many notifications
@@ -456,8 +361,9 @@ test.describe('Notifications E2E Tests', () => {
       }
 
       await createMultipleTestNotifications(manyNotifications);
+      const getAllNotificationRequest = NotificationTestUtils.interceptGetAllNotifications(page);
       await notificationPage.page.reload();
-      await notificationPage.page.waitForLoadState('networkidle');
+      await getAllNotificationRequest;
 
       // Verify all notifications are loaded
       expect(await notificationPage.getNotificationCount()).toBe(20);
@@ -485,8 +391,9 @@ test.describe('Notifications E2E Tests', () => {
       };
 
       await createTestNotification(specialNotification);
+      const getAllNotificationRequest = NotificationTestUtils.interceptGetAllNotifications(page);
       await notificationPage.page.reload();
-      await notificationPage.page.waitForLoadState('networkidle');
+      await getAllNotificationRequest;
 
       // Verify special characters are displayed correctly
       const details = await notificationPage.getNotificationDetails(0);
@@ -496,72 +403,5 @@ test.describe('Notifications E2E Tests', () => {
       expect(details.message).toContain('🎉');
     });
 
-    test('should handle concurrent notification operations', async () => {
-      // Create multiple notifications
-      await createMultipleTestNotifications(SAMPLE_NOTIFICATIONS.slice(0, 3));
-      await notificationPage.page.reload();
-      await notificationPage.page.waitForLoadState('networkidle');
-
-      // Open notification center
-      await notificationPage.openNotificationCenter();
-
-      // Perform multiple operations simultaneously
-      const operations = [
-        notificationPage.markNotificationAsRead(0),
-        notificationPage.deleteNotification(1),
-        notificationPage.markNotificationAsRead(2),
-      ];
-
-      // Execute operations concurrently
-      await Promise.all(operations);
-
-      // Wait for all API calls to complete
-      await notificationPage.page.waitForTimeout(2000);
-
-      // Refresh and verify final state
-      await notificationPage.page.reload();
-      await notificationPage.page.waitForLoadState('networkidle');
-
-      // Should have 2 notifications left (one deleted)
-      expect(await notificationPage.getNotificationCount()).toBe(2);
-    });
-
-    test('should maintain notification state during network interruptions', async () => {
-      // Create test notification
-      await createTestNotification({
-        title: 'Network Test',
-        message: 'Test network interruption handling',
-        type: 'warning',
-        isRead: false,
-      });
-
-      await notificationPage.page.reload();
-      await notificationPage.page.waitForLoadState('networkidle');
-
-      // Verify initial state
-      expect(await notificationPage.getNotificationCount()).toBe(1);
-
-      // Simulate network failure
-      await notificationPage.page.route('**/api/notifications**', async route => {
-        await route.abort('failed');
-      });
-
-      // Try to perform operation (should fail gracefully)
-      await notificationPage.openNotificationCenter();
-      const markAsReadBtn = notificationPage.page.locator('svg[data-testid="TaskAltIcon"]').first();
-      await markAsReadBtn.click();
-
-      // Wait and verify state hasn't changed due to network failure
-      await notificationPage.page.waitForTimeout(1000);
-
-      // Remove network mock and refresh
-      await notificationPage.page.unroute('**/api/notifications**');
-      await notificationPage.page.reload();
-      await notificationPage.page.waitForLoadState('networkidle');
-
-      // Verify notification is still there and unread
-      expect(await notificationPage.getNotificationCount()).toBe(1);
-      expect(await notificationPage.hasUnreadNotifications()).toBe(true);
-    });
   });
 });

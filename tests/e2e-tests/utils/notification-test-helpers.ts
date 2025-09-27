@@ -2,6 +2,7 @@ import { Page } from '@playwright/test';
 import mysql from 'mysql2/promise';
 import * as dotenv from 'dotenv';
 import { NotificationInput } from '@my-dashboard/types';
+import { wait } from '@utils/test-helpers';
 
 // Load environment variables
 dotenv.config({ quiet: true });
@@ -67,6 +68,7 @@ export async function createMultipleTestNotifications(notifications: Notificatio
   const ids: number[] = [];
   for (const notification of notifications) {
     const id = await createTestNotification(notification);
+    await wait(1000); // Wait 1 second between creations to ensure different timestamps
     ids.push(id);
   }
   return ids;
@@ -205,4 +207,14 @@ export const SAMPLE_NOTIFICATIONS: NotificationInput[] = [
   },
 ];
 
+export class NotificationTestUtils {
+  /**
+   * Wait for API request to complete
+   */
 
+  static async interceptGetAllNotifications(page: Page) {
+    return page.waitForResponse(
+      response => response.url().includes('/api/notifications') && response.request().method() === 'GET',
+    );
+  }
+}
