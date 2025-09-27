@@ -85,9 +85,6 @@ export class MyDashboardAPI extends BaseClient {
   public async getNotifications(options = {}) {
     return this.notifications.getNotifications(options); 
   }
-  public async createNotification(notification: any) {
-    return this.notifications.createNotification(notification); 
-  }
   public async markNotificationAsRead(id: number) {
     return this.notifications.markNotificationAsRead(id); 
   }
