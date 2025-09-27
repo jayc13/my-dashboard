@@ -230,6 +230,11 @@ jobs:
           BASE_URL=http://localhost:${{ secrets.CLIENT_PORT || '4173' }}
           API_URL=http://localhost:${{ secrets.SERVER_PORT || '3000' }}
           API_SECURITY_KEY=${{ secrets.API_SECURITY_KEY }}
+          MYSQL_HOST: mysql
+          MYSQL_PORT: 3306
+          MYSQL_USER: root
+          MYSQL_PASSWORD: test_password
+          MYSQL_DATABASE: test_db
           CI=true
           EOF
 
