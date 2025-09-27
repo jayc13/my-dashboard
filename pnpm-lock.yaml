@@ -355,15 +355,30 @@ importers:
 
   tests/e2e-tests:
     devDependencies:
+      '@my-dashboard/sdk':
+        specifier: file:../../packages/sdk
+        version: link:../../packages/sdk
+      '@my-dashboard/types':
+        specifier: file:../../packages/types
+        version: link:../../packages/types
       '@playwright/test':
         specifier: ^1.55.0
         version: 1.55.1
+      '@types/luxon':
+        specifier: ^3.7.1
+        version: 3.7.1
       '@types/node':
         specifier: ^24.5.2
         version: 24.5.2
       dotenv:
         specifier: ^17.2.2
         version: 17.2.2
+      luxon:
+        specifier: ^3.7.2
+        version: 3.7.2
+      mysql2:
+        specifier: ^3.14.5
+        version: 3.15.1
       typescript:
         specifier: ^5.9.2
         version: 5.9.2
