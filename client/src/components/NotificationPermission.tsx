@@ -88,16 +88,17 @@ const NotificationPermission: React.FC<NotificationPermissionProps> = ({
                 severity="info"
                 icon={<NotificationsOff/>}
                 action={
-                    <Button color="inherit" size="small" onClick={handleShowDialog}>
+                    <Button color="inherit" size="small" onClick={handleShowDialog} data-testid="enable-notifications">
                         Enable
                     </Button>
                 }
                 sx={{ mb: 2 }}
+                data-testid="permission-alert"
             >
                 Enable push notifications to receive real-time updates about your dashboard.
             </Alert>
 
-            <Dialog open={showDialog} onClose={handleCloseDialog}>
+            <Dialog open={showDialog} onClose={handleCloseDialog} data-testid="permission-dialog">
                 <DialogTitle>Enable Push Notifications</DialogTitle>
                 <DialogContent>
                     <DialogContentText>
@@ -107,10 +108,10 @@ const NotificationPermission: React.FC<NotificationPermissionProps> = ({
                     </DialogContentText>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={handleCloseDialog}>
+                    <Button onClick={handleCloseDialog} data-testid="not-now">
                         Not Now
                     </Button>
-                    <Button onClick={handleRequestPermission} variant="contained">
+                    <Button onClick={handleRequestPermission} variant="contained" data-testid="enable-permission">
                         Enable Notifications
                     </Button>
                 </DialogActions>
@@ -120,6 +121,7 @@ const NotificationPermission: React.FC<NotificationPermissionProps> = ({
                 open={showSnackbar}
                 autoHideDuration={6000}
                 onClose={handleCloseSnackbar}
+                data-testid="permission-snackbar"
             >
                 <Alert
                     onClose={handleCloseSnackbar}
