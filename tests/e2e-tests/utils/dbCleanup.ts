@@ -32,29 +32,15 @@ async function getTestConnection(): Promise<mysql.Connection> {
   return connection;
 }
 
-/**
- * Close the test database connection
- */
-export async function closeTestConnection(): Promise<void> {
-  if (connection) {
-    await connection.end();
-    connection = null;
-  }
-}
+
 
 export async function cleanupDatabase(): Promise<void> {
-  try {
-    const conn = await getTestConnection();
-    // Disable foreign key checks temporarily to avoid constraint issues
-    await conn.execute('SET FOREIGN_KEY_CHECKS = 0');
-    // Truncate todos table
-    await conn.execute('TRUNCATE TABLE todos');
-    // Re-enable foreign key checks
-    await conn.execute('SET FOREIGN_KEY_CHECKS = 1');
-  } catch (error) {
-    console.error('Error during database cleanup:', error);
-    throw error;
-  }
+  const tables = [
+    'todos',
+    'notifications',
+    'apps',
+  ];
+  return truncateTables(tables);
 }
 
 export async function truncateTables(tables: string[] = []): Promise<void> {
