@@ -44,21 +44,21 @@ jobs:
   validate-client:
     name: Client
     needs: [basic-validation, validate-packages-types, validate-packages-sdk]
-    if: needs.basic-validation.outputs.client-changed == 'true' || needs.basic-validation.outputs.github-changed == 'true'
+    if: always() && (needs.basic-validation.outputs.client-changed == 'true' || needs.basic-validation.outputs.github-changed == 'true')
     uses: ./.github/workflows/validate-client.yml
 
   # Job 5: Server validation
   validate-server:
     name: Server
     needs: [basic-validation, validate-packages-types, validate-packages-sdk]
-    if: needs.basic-validation.outputs.server-changed == 'true' || needs.basic-validation.outputs.github-changed == 'true'
+    if: always() && (needs.basic-validation.outputs.server-changed == 'true' || needs.basic-validation.outputs.github-changed == 'true')
     uses: ./.github/workflows/validate-server.yml
 
   # Job 6: Mock Server validation
   validate-mock-server:
     name: Mock Server
     needs: [basic-validation, validate-packages-types, validate-packages-sdk]
-    if: needs.basic-validation.outputs.mock-server-changed == 'true' || needs.basic-validation.outputs.github-changed == 'true'
+    if: always() && (needs.basic-validation.outputs.mock-server-changed == 'true' || needs.basic-validation.outputs.github-changed == 'true')
     uses: ./.github/workflows/validate-mock-server.yml
 
   # Job 7: Cron validation
