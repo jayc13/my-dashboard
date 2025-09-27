@@ -21,8 +21,8 @@ export class TodoDataGenerator {
   static simpleTodo(title?: string): ToDoItem {
     const counter = this.getCounter();
     return {
-      description: "", dueDate: "", isCompleted: false, link: "",
-      title: title || `Test Todo ${counter}`
+      description: '', dueDate: '', isCompleted: false, link: '',
+      title: title || `Test Todo ${counter}`,
     };
   }
 
@@ -74,25 +74,25 @@ export class TodoTestUtils {
 
   static async interceptGetAllToDoLists(page: Page) {
     return page.waitForResponse(
-        response => response.url().includes('/api/to_do_list') && response.request().method() === 'GET'
+      response => response.url().includes('/api/to_do_list') && response.request().method() === 'GET',
     );
   }
 
   static async interceptCreateToDoItem(page: Page) {
     return page.waitForResponse(
-        response => response.url().includes('/api/to_do_list') && response.request().method() === 'POST'
+      response => response.url().includes('/api/to_do_list') && response.request().method() === 'POST',
     );
   }
 
   static async interceptUpdateToDoItem(page: Page, id: number) {
     return page.waitForResponse(
-        response => response.url().includes(`/api/to_do_list/${id}`) && response.request().method() === 'PUT'
+      response => response.url().includes(`/api/to_do_list/${id}`) && response.request().method() === 'PUT',
     );
   }
 
   static async interceptDeleteToDoItem(page: Page, id: number) {
     return page.waitForResponse(
-        response => response.url().includes(`/api/to_do_list/${id}`) && response.request().method() === 'DELETE'
+      response => response.url().includes(`/api/to_do_list/${id}`) && response.request().method() === 'DELETE',
     );
   }
 

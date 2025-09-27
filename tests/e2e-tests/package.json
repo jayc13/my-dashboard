@@ -16,18 +16,25 @@
     "report": "playwright show-report",
     "install-browsers": "playwright install",
     "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "lint-fix": "eslint . --fix",
     "clean": "rm -rf test-results playwright-report"
   },
   "devDependencies": {
-    "@playwright/test": "^1.55.0",
-    "@types/node": "^24.5.2",
-    "@types/luxon": "^3.7.1",
-    "dotenv": "^17.2.2",
-    "mysql2": "^3.14.5",
-    "typescript": "^5.9.2",
-    "luxon": "^3.7.2",
+    "@eslint/js": "^9.36.0",
     "@my-dashboard/sdk": "file:../../packages/sdk",
-    "@my-dashboard/types": "file:../../packages/types"
+    "@my-dashboard/types": "file:../../packages/types",
+    "@playwright/test": "^1.55.0",
+    "@types/luxon": "^3.7.1",
+    "@types/node": "^24.5.2",
+    "@typescript-eslint/eslint-plugin": "^8.44.1",
+    "@typescript-eslint/parser": "^8.44.1",
+    "dotenv": "^17.2.2",
+    "eslint": "^9.36.0",
+    "globals": "^16.4.0",
+    "luxon": "^3.7.2",
+    "mysql2": "^3.14.5",
+    "typescript": "^5.9.2"
   },
   "engines": {
     "node": "v22.19.0"

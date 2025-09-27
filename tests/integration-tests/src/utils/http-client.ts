@@ -1,4 +1,4 @@
-import fetch, {RequestInit, Response} from 'node-fetch';
+import fetch, { RequestInit, Response } from 'node-fetch';
 
 export interface HttpClientConfig {
   baseUrl?: string;
@@ -24,7 +24,7 @@ export class HttpClient {
 
   private async makeRequest(
     endpoint: string,
-    options: RequestInit = {}
+    options: RequestInit = {},
   ): Promise<Response> {
     const url = `${this.baseUrl}${endpoint}`;
 
@@ -52,8 +52,9 @@ export class HttpClient {
 
   async post(
     endpoint: string,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     body?: any,
-    headers?: Record<string, string>
+    headers?: Record<string, string>,
   ): Promise<Response> {
     return this.makeRequest(endpoint, {
       method: 'POST',
@@ -62,10 +63,12 @@ export class HttpClient {
     });
   }
 
+
   async put(
     endpoint: string,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     body?: any,
-    headers?: Record<string, string>
+    headers?: Record<string, string>,
   ): Promise<Response> {
     return this.makeRequest(endpoint, {
       method: 'PUT',
@@ -76,8 +79,9 @@ export class HttpClient {
 
   async patch(
     endpoint: string,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     body?: any,
-    headers?: Record<string, string>
+    headers?: Record<string, string>,
   ): Promise<Response> {
     return this.makeRequest(endpoint, {
       method: 'PATCH',
@@ -94,6 +98,7 @@ export class HttpClient {
   }
 
   // Helper method to parse JSON response
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async getJson<T = any>(endpoint: string, headers?: Record<string, string>): Promise<T> {
     const response = await this.get(endpoint, headers);
     if (!response.ok) {
@@ -103,10 +108,13 @@ export class HttpClient {
   }
 
   // Helper method to post JSON and get JSON response
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async postJson<T = any>(
     endpoint: string,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     body?: any,
-    headers?: Record<string, string>
+    headers?: Record<string, string>,
   ): Promise<T> {
     const response = await this.post(endpoint, body, headers);
     if (!response.ok) {

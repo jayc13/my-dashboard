@@ -1,9 +1,9 @@
-import {test, expect, Page} from '@playwright/test';
+import { test, expect, Page } from '@playwright/test';
 import { ToDoPage } from '@pages/ToDoPage';
 import { TodoDataGenerator, TodoTestUtils } from '@utils/todo-test-helpers';
 import { setupAuthenticatedSession } from '@utils/test-helpers';
-import {LoginPage} from "@pages/LoginPage";
-import {truncateTables} from "@utils/dbCleanup";
+import { LoginPage } from '@pages/LoginPage';
+import { truncateTables } from '@utils/dbCleanup';
 
 test.describe.configure({ mode: 'serial' });
 
@@ -11,7 +11,7 @@ test.describe('ToDo Complete Test Suite - Sequential Execution', () => {
   let todoPage: ToDoPage;
   let page: Page;
 
-  test.beforeAll(async ({browser}) => {
+  test.beforeAll(async ({ browser }) => {
     await truncateTables(['todos']);
     page = await browser.newPage();
     const loginPage = new LoginPage(page);

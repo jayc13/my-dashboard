@@ -1,4 +1,4 @@
-import {Page, Locator, expect} from '@playwright/test';
+import { Page, Locator, expect } from '@playwright/test';
 
 /**
  * Page Object Model for the Login Page
@@ -67,7 +67,7 @@ export class LoginPage {
 
   async getAuthRequestPromise() {
     return this.page.waitForResponse(
-        response => response.url().includes('/api/auth/validate') && response.request().method() === 'POST'
+      response => response.url().includes('/api/auth/validate') && response.request().method() === 'POST',
     );
   }
 

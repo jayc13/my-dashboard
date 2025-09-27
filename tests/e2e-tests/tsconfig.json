@@ -25,6 +25,8 @@
     "tests/**/*",
     "utils/**/*",
     "pages/**/*",
+    "types/**/*",
+    "global-setup.ts",
     "playwright.config.ts"
   ],
   "exclude": [

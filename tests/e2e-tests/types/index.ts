@@ -1,6 +1,7 @@
 
 // Extend Playwright's Page interface with custom methods
 declare global {
+  // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace PlaywrightTest {
     interface Matchers<R> {
       toBeAccessible(): R;
