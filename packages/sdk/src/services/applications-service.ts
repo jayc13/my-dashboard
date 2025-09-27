@@ -9,7 +9,7 @@ import {
   Application,
   ApplicationDetails,
   CreateApplicationRequest,
-  UpdateApplicationRequest
+  UpdateApplicationRequest,
 } from '../types';
 
 /**

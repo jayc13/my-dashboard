@@ -8,7 +8,7 @@ import { BaseClient } from '../base-client';
 import { 
   PullRequest,
   GithubPullRequestDetails,
-  AddPullRequestRequest
+  AddPullRequestRequest,
 } from '../types';
 
 /**

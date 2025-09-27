@@ -8,7 +8,7 @@ import { BaseClient } from '../base-client';
 import { 
   NotificationQueryParams,
   Notification,
-  CreateNotificationRequest
+  CreateNotificationRequest,
 } from '../types';
 
 /**
