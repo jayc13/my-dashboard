@@ -15,7 +15,7 @@ async function globalSetup(config: FullConfig): Promise<void> {
     const page = await browser.newPage();
     
     // Try to access the application
-    await page.goto(baseURL, { timeout: 10000 });
+    await page.goto(baseURL!, { timeout: 10000 });
     
     // Check if the page loads successfully
     const title = await page.title();

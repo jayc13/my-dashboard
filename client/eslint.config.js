@@ -28,7 +28,11 @@ export default tseslint.config([
       ...reactHooks.configs.recommended.rules,
 
       // TypeScript specific rules
-      '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
+      '@typescript-eslint/no-unused-vars': ['error', {
+        argsIgnorePattern: '^_',
+        varsIgnorePattern: '^_',
+        ignoreRestSiblings: true,
+      }],
       '@typescript-eslint/no-explicit-any': 'warn',
       '@typescript-eslint/explicit-function-return-type': 'off',
       '@typescript-eslint/explicit-module-boundary-types': 'off',
@@ -36,6 +40,7 @@ export default tseslint.config([
 
       // General rules
       'no-console': 'warn', // Warn for console.log in client code
+      'no-unused-vars': 'off', // Use TypeScript version instead
       'prefer-const': 'error',
       'no-var': 'error',
       'eqeqeq': ['error', 'always'],
@@ -71,6 +76,11 @@ export default tseslint.config([
     },
     rules: {
       'no-console': 'warn',
+      'no-unused-vars': ['error', {
+        argsIgnorePattern: '^_',
+        varsIgnorePattern: '^_',
+        ignoreRestSiblings: true,
+      }],
       'prefer-const': 'error',
       'no-var': 'error',
       'eqeqeq': ['error', 'always'],
@@ -100,6 +110,11 @@ export default tseslint.config([
     },
     rules: {
       'no-console': 'off', // Allow console in service worker
+      'no-unused-vars': ['error', {
+        argsIgnorePattern: '^_',
+        varsIgnorePattern: '^_',
+        ignoreRestSiblings: true,
+      }],
       'prefer-const': 'error',
       'no-var': 'error',
       'eqeqeq': ['error', 'always'],
@@ -146,6 +161,11 @@ export default tseslint.config([
     },
     rules: {
       'no-console': 'off', // Allow console.log in scripts
+      'no-unused-vars': ['error', {
+        argsIgnorePattern: '^_',
+        varsIgnorePattern: '^_',
+        ignoreRestSiblings: true,
+      }],
     },
   },
   {

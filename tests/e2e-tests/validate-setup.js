@@ -6,7 +6,6 @@
  */
 
 const fs = require('fs');
-const path = require('path');
 const { execSync } = require('child_process');
 
 console.log('🔍 Validating E2E Test Setup');
@@ -67,7 +66,7 @@ if (fs.existsSync('node_modules/@playwright/test')) {
 try {
   execSync('npx playwright --version', { stdio: 'pipe' });
   checkSuccess('Playwright CLI is available');
-} catch (error) {
+} catch {
   checkError('Playwright CLI not available. Run: npm run install-browsers');
 }
 

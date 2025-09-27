@@ -15,6 +15,11 @@ module.exports = [
     rules: {
       // General formatting rules
       'no-console': 'off', // Allow console.log in scripts
+      'no-unused-vars': ['error', {
+        argsIgnorePattern: '^_',
+        varsIgnorePattern: '^_',
+        ignoreRestSiblings: true,
+      }],
       'prefer-const': 'error',
       'no-var': 'error',
       'eqeqeq': ['error', 'always'],

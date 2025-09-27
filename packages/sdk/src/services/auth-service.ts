@@ -7,7 +7,7 @@
 import { BaseClient } from '../base-client';
 import { 
   AuthValidationRequest,
-  AuthValidationResponse
+  AuthValidationResponse,
 } from '../types';
 
 /**

@@ -35,7 +35,7 @@ module.exports = [
       '@typescript-eslint/no-inferrable-types': 'off',
       
       // General rules
-      'no-console': 'off', // Allow console.log in server code
+      'no-console': 'off', // Allow console.log in integration tests
       'no-unused-vars': 'off', // Use TypeScript version instead
       'prefer-const': 'error',
       'no-var': 'error',
@@ -48,10 +48,6 @@ module.exports = [
       'comma-dangle': ['error', 'always-multiline'],
       'object-curly-spacing': ['error', 'always'],
       'array-bracket-spacing': ['error', 'never'],
-      
-      // Server-specific rules
-      'no-process-exit': 'error', // Avoid process.exit() in server code
-      'no-sync': 'off', // Prefer async methods in server code
     },
   },
   {
@@ -66,7 +62,7 @@ module.exports = [
     rules: {
       'no-console': 'off',
       'prefer-const': 'error',
-      'no-var': 'off',
+      'no-var': 'error',
       'eqeqeq': ['error', 'always'],
       'curly': ['error', 'all'],
       'brace-style': ['error', '1tbs'],
@@ -79,7 +75,7 @@ module.exports = [
     },
   },
   {
-    files: ['src/tests/**/*.ts', '**/*.test.ts', '**/*.spec.ts'],
+    files: ['src/tests/**/*.ts', 'src/tests/**/*.tsx', '**/*.test.ts', '**/*.test.tsx', '**/*.spec.ts', '**/*.spec.tsx', 'src/setup.ts'],
     languageOptions: {
       parser: tsparser,
       parserOptions: {
@@ -90,6 +86,8 @@ module.exports = [
       globals: {
         ...globals.node,
         ...globals.jest,
+        // Additional Jest globals
+        fail: 'readonly',
       },
     },
     plugins: {
@@ -104,6 +102,51 @@ module.exports = [
     },
   },
   {
-    ignores: ['dist/**', 'node_modules/**', 'data/**'],
+    files: ['src/utils/**/*.ts'],
+    languageOptions: {
+      parser: tsparser,
+      parserOptions: {
+        ecmaVersion: 'latest',
+        sourceType: 'module',
+        project: './tsconfig.json',
+      },
+      globals: {
+        ...globals.node,
+      },
+    },
+    plugins: {
+      '@typescript-eslint': tseslint,
+    },
+    rules: {
+      ...tseslint.configs.recommended.rules,
+      // TypeScript specific rules for utilities
+      '@typescript-eslint/no-unused-vars': ['error', {
+        argsIgnorePattern: '^_',
+        varsIgnorePattern: '^_',
+        ignoreRestSiblings: true,
+      }],
+      '@typescript-eslint/no-explicit-any': 'warn',
+      '@typescript-eslint/explicit-function-return-type': 'off',
+      '@typescript-eslint/explicit-module-boundary-types': 'off',
+      '@typescript-eslint/no-inferrable-types': 'off',
+
+      // General rules
+      'no-console': 'off', // Allow console.log in test utilities
+      'no-unused-vars': 'off', // Use TypeScript version instead
+      'prefer-const': 'error',
+      'no-var': 'error',
+      'eqeqeq': ['error', 'always'],
+      'curly': ['error', 'all'],
+      'brace-style': ['error', '1tbs'],
+      'indent': ['error', 2],
+      'quotes': ['error', 'single'],
+      'semi': ['error', 'always'],
+      'comma-dangle': ['error', 'always-multiline'],
+      'object-curly-spacing': ['error', 'always'],
+      'array-bracket-spacing': ['error', 'never'],
+    },
+  },
+  {
+    ignores: ['dist/**', 'node_modules/**', 'coverage/**'],
   },
 ];

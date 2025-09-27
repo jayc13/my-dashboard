@@ -27,7 +27,7 @@ describe('Authentication Integration Tests', () => {
 
       try {
         await httpClient.postJson('/api/auth/validate', {
-          apiKey: 'invalid-key'
+          apiKey: 'invalid-key',
         });
         fail('Expected request to fail with 401');
       } catch (error) {
@@ -39,7 +39,7 @@ describe('Authentication Integration Tests', () => {
       const httpClient = testHelpers.getHttpClient();
 
       const response = await httpClient.post('/api/auth/validate', {
-        apiKey: apiKey
+        apiKey: apiKey,
       });
 
       expect(response.status).toBe(200);
@@ -49,7 +49,7 @@ describe('Authentication Integration Tests', () => {
       const httpClient = testHelpers.getHttpClient();
 
       const response = await httpClient.postJson('/api/auth/validate', {
-        apiKey: apiKey
+        apiKey: apiKey,
       });
 
       testHelpers.validateResponseStructure(response, ['valid', 'message']);

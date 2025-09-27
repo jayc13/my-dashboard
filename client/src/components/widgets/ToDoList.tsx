@@ -136,15 +136,15 @@ const ToDoListWidget = () => {
     });
 
     return (
-        <Box>
+        <Box data-testid="todo-widget">
             {todosError && (
-                <Alert severity="error" sx={{ mb: 2 }}>
+                <Alert severity="error" sx={{ mb: 2 }} data-testid="todo-error-alert">
                     Failed to load todos: {todosError.message}
                 </Alert>
             )}
-            <List sx={{ padding: 0 }}>
+            <List sx={{ padding: 0 }} data-testid="todo-list">
                 {isLoadingList &&
-                    <Stack direction="column" spacing={2}>
+                    <Stack direction="column" spacing={2} data-testid="todo-loading">
                         <Skeleton variant="rectangular" height={50}/>
                         <Skeleton variant="rectangular" height={50}/>
                         <Skeleton variant="rectangular" height={50}/>
@@ -159,8 +159,9 @@ const ToDoListWidget = () => {
                             backgroundColor: todo.isCompleted ? 'rgba(0, 128, 0, 0.1)' : 'background.paper',
                         }}
                         variant="outlined"
+                        data-testid={`todo-item-${todo.id}`}
                         secondaryAction={
-                            <Box>
+                            <Box data-testid={`todo-actions-${todo.id}`}>
                                 {todo.link && (
                                     <Tooltip title="Open Link">
                                         <IconButton
@@ -168,6 +169,7 @@ const ToDoListWidget = () => {
                                             target="_blank"
                                             rel="noopener"
                                             size="small"
+                                            data-testid={`todo-link-button-${todo.id}`}
                                         >
                                             <LinkIcon />
                                         </IconButton>
@@ -180,6 +182,7 @@ const ToDoListWidget = () => {
                                         onClick={() => handleEditOpen(todo)}
                                         size="small"
                                         sx={{ mr: 1 }}
+                                        data-testid={`todo-edit-button-${todo.id}`}
                                     >
                                         <EditIcon sx={{ fontSize: 20 }} />
                                     </IconButton>
@@ -190,6 +193,7 @@ const ToDoListWidget = () => {
                                         aria-label="delete"
                                         onClick={() => handleDelete(todo.id!)}
                                         size="small"
+                                        data-testid={`todo-delete-button-${todo.id}`}
                                     >
                                         <DeleteIcon />
                                     </IconButton>
@@ -204,6 +208,7 @@ const ToDoListWidget = () => {
                             disableRipple
                             disabled={isToggling}
                             onChange={(_, checked) => handleToggle(todo.id!, checked)}
+                            data-testid={`todo-checkbox-${todo.id}`}
                         />
                         <ListItemText
                             primary={
@@ -215,6 +220,7 @@ const ToDoListWidget = () => {
                                             fontWeight: todo.isCompleted ? 'normal' : 'bold',
                                             mr: 1,
                                         }}
+                                        data-testid={`todo-title-${todo.id}`}
                                     >
                                         {todo.title}
                                     </Typography>
@@ -226,6 +232,7 @@ const ToDoListWidget = () => {
                                                     ? 'error'
                                                     : 'text.secondary'
                                             }
+                                            data-testid={`todo-due-date-${todo.id}`}
                                         >
                                             {DateTime.fromISO(todo.dueDate).toFormat('yyyy-MM-dd')}
                                         </Typography>
@@ -234,7 +241,7 @@ const ToDoListWidget = () => {
                             }
                             secondary={
                                 todo.description && (
-                                    <Box sx={{ mt: 0.5 }}>
+                                    <Box sx={{ mt: 0.5 }} data-testid={`todo-description-${todo.id}`}>
                                         {todo.description}
                                     </Box>
                                 )
@@ -243,10 +250,10 @@ const ToDoListWidget = () => {
                     </ListItem>
                 ))}
                 {!sortedToDoList.length && !isLoadingList && (
-                    <Alert severity="info">No To-Dos yet</Alert>
+                    <Alert severity="info" data-testid="todo-empty-state">No To-Dos yet</Alert>
                 )}
             </List>
-            <Box component="form" onSubmit={handleQuickAdd} display="flex" alignItems="center" mt={2}>
+            <Box component="form" onSubmit={handleQuickAdd} display="flex" alignItems="center" mt={2} data-testid="todo-quick-add-form">
                 <TextField
                     label="New ToDo"
                     value={quickTitle}
@@ -255,14 +262,15 @@ const ToDoListWidget = () => {
                     fullWidth
                     required
                     sx={{ mr: 1 }}
+                    data-testid="todo-quick-add-input"
                 />
-                <Button type="submit" variant="contained" color="primary" disabled={!quickTitle.trim() || isCreating}>
+                <Button type="submit" variant="contained" color="primary" disabled={!quickTitle.trim() || isCreating} data-testid="todo-quick-add-button">
                     <AddIcon />
                 </Button>
             </Box>
-            <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
-                <DialogTitle>{editId ? 'Edit To-Do' : 'Add To-Do'}</DialogTitle>
-                <form onSubmit={handleSubmit}>
+            <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth data-testid="todo-form-dialog">
+                <DialogTitle data-testid="todo-form-dialog-title">Edit To-Do</DialogTitle>
+                <form onSubmit={handleSubmit} data-testid="todo-form">
                     <DialogContent>
                         <TextField
                             margin="dense"
@@ -272,6 +280,7 @@ const ToDoListWidget = () => {
                             onChange={handleChange}
                             fullWidth
                             required
+                            data-testid="todo-form-title-input"
                         />
                         <TextField
                             margin="dense"
@@ -282,6 +291,7 @@ const ToDoListWidget = () => {
                             fullWidth
                             multiline
                             minRows={2}
+                            data-testid="todo-form-description-input"
                         />
                         <TextField
                             margin="dense"
@@ -290,6 +300,7 @@ const ToDoListWidget = () => {
                             value={form.link}
                             onChange={handleChange}
                             fullWidth
+                            data-testid="todo-form-link-input"
                         />
                         <TextField
                             margin="dense"
@@ -300,12 +311,18 @@ const ToDoListWidget = () => {
                             onChange={handleChange}
                             fullWidth
                             InputLabelProps={{ shrink: true }}
+                            data-testid="todo-form-due-date-input"
                         />
                     </DialogContent>
                     <DialogActions>
-                        <Button onClick={handleClose} disabled={isCreating || isUpdating}>Cancel</Button>
-                        <Button type="submit" variant="contained" disabled={isCreating || isUpdating}>
-                            {editId ? 'Save' : 'Add'}
+                        <Button onClick={handleClose} disabled={isUpdating} data-testid="todo-form-cancel-button">Cancel</Button>
+                        <Button
+                            type="submit"
+                            variant="contained"
+                            disabled={isUpdating}
+                            data-testid="todo-form-submit-button"
+                        >
+                            Update
                         </Button>
                     </DialogActions>
                 </form>
@@ -315,14 +332,15 @@ const ToDoListWidget = () => {
                 onClose={handleCancelDelete}
                 maxWidth="xs"
                 fullWidth
+                data-testid="todo-delete-dialog"
             >
-                <DialogTitle>Delete To-Do</DialogTitle>
+                <DialogTitle data-testid="todo-delete-dialog-title">Delete To-Do</DialogTitle>
                 <DialogContent>
-                    <Typography>Are you sure you want to delete this to-do item?</Typography>
+                    <Typography data-testid="todo-delete-dialog-message">Are you sure you want to delete this to-do item?</Typography>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={handleCancelDelete} disabled={isDeleting}>Cancel</Button>
-                    <Button onClick={handleConfirmDelete} color="error" variant="contained" disabled={isDeleting}>
+                    <Button onClick={handleCancelDelete} disabled={isDeleting} data-testid="todo-delete-cancel-button">Cancel</Button>
+                    <Button onClick={handleConfirmDelete} color="error" variant="contained" disabled={isDeleting} data-testid="todo-delete-confirm-button">
                         Delete
                     </Button>
                 </DialogActions>

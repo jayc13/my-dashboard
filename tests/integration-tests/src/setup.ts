@@ -2,7 +2,7 @@
 // This file runs before all tests
 
 // Set test environment variables
-import {cleanupDatabase} from "@utils/dbCleanup";
+import { cleanupDatabase } from '@utils/dbCleanup';
 
 process.env.NODE_ENV = 'test';
 

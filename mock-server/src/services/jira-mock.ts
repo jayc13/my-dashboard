@@ -61,9 +61,9 @@ export function createJiraMockRouter(): Router {
     }
   ];
 
-  // GET /rest/api/2/search
+  // GET /rest/api/3/search/jql
   // Search for issues using JQL
-  router.get('/rest/api/2/search', (req, res) => {
+  router.get('/rest/api/3/search/jql', (req, res) => {
     const { jql, startAt = '0', maxResults = '50' } = req.query;
 
     console.log(`[JIRA] Searching issues with JQL: ${jql}`);

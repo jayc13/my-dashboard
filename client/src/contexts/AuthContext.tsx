@@ -17,15 +17,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       try {
         const storedKey = localStorage.getItem(API_KEY_STORAGE_KEY);
         if (storedKey) {
-          // Validate the stored key with the server
-          const isValid = await validateApiKeyWithServer(storedKey);
-          if (isValid) {
-            setApiKey(storedKey);
-            setIsAuthenticated(true);
-          } else {
-            // Remove invalid key from storage
-            localStorage.removeItem(API_KEY_STORAGE_KEY);
-          }
+          setApiKey(storedKey);
+          setIsAuthenticated(true);
         }
       } catch {
         localStorage.removeItem(API_KEY_STORAGE_KEY);

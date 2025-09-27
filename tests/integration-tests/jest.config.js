@@ -9,12 +9,12 @@ module.exports = {
       tsconfig: {
         module: 'esnext',
         target: 'es2020',
-        allowJs: true
-      }
+        allowJs: true,
+      },
     }],
   },
   transformIgnorePatterns: [
-    'node_modules/(?!(@my-dashboard|@my-dashboard/sdk|@my-dashboard/types)/)'
+    'node_modules/(?!(@my-dashboard|@my-dashboard/sdk|@my-dashboard/types)/)',
   ],
   testTimeout: 30000, // 30 seconds for integration tests
   setupFilesAfterEnv: ['<rootDir>/src/setup.ts'],
@@ -27,5 +27,5 @@ module.exports = {
   },
   // Handle ES modules from @my-dashboard packages
   extensionsToTreatAsEsm: ['.ts'],
-  moduleFileExtensions: ['ts', 'js', 'json']
+  moduleFileExtensions: ['ts', 'js', 'json'],
 };

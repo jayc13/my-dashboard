@@ -31,6 +31,7 @@ export interface AuthValidationResponse {
 /**
  * Standard success response wrapper
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export interface SuccessResponse<T = any> {
     success: boolean;
     data: T;

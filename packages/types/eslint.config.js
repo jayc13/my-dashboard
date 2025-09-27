@@ -24,7 +24,7 @@ module.exports = [
     rules: {
       ...tseslint.configs.recommended.rules,
       // TypeScript specific rules
-      '@typescript-eslint/no-unused-vars': ['error', {
+      '@typescript-eslint/no-unused-vars': ['error', { 
         argsIgnorePattern: '^_',
         varsIgnorePattern: '^_',
         ignoreRestSiblings: true,
@@ -35,7 +35,7 @@ module.exports = [
       '@typescript-eslint/no-inferrable-types': 'off',
       
       // General rules
-      'no-console': 'off', // Allow console.log in server code
+      'no-console': 'off', // Allow console.log in types package
       'no-unused-vars': 'off', // Use TypeScript version instead
       'prefer-const': 'error',
       'no-var': 'error',
@@ -49,9 +49,9 @@ module.exports = [
       'object-curly-spacing': ['error', 'always'],
       'array-bracket-spacing': ['error', 'never'],
       
-      // Server-specific rules
-      'no-process-exit': 'error', // Avoid process.exit() in server code
-      'no-sync': 'off', // Prefer async methods in server code
+      // Types-specific rules
+      '@typescript-eslint/no-empty-interface': 'off', // Allow empty interfaces for type definitions
+      '@typescript-eslint/no-namespace': 'off', // Allow namespaces for type organization
     },
   },
   {
@@ -65,8 +65,13 @@ module.exports = [
     },
     rules: {
       'no-console': 'off',
+      'no-unused-vars': ['error', { 
+        argsIgnorePattern: '^_',
+        varsIgnorePattern: '^_',
+        ignoreRestSiblings: true,
+      }],
       'prefer-const': 'error',
-      'no-var': 'off',
+      'no-var': 'error',
       'eqeqeq': ['error', 'always'],
       'curly': ['error', 'all'],
       'brace-style': ['error', '1tbs'],
@@ -104,6 +109,6 @@ module.exports = [
     },
   },
   {
-    ignores: ['dist/**', 'node_modules/**', 'data/**'],
+    ignores: ['dist/**', 'node_modules/**'],
   },
 ];

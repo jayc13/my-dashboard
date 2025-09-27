@@ -51,33 +51,71 @@ export class MyDashboardAPI extends BaseClient {
   // ============================================================================
   
   // E2E Reports convenience methods
-  public async getE2EReports(options = {}) { return this.e2e.getE2EReports(options); }
-  public async getProjectReport(projectName: string, date?: string) { return this.e2e.getProjectReport(projectName, date); }
-  public async getProjectStatus(projectName: string) { return this.e2e.getProjectStatus(projectName); }
+  public async getE2EReports(options = {}) {
+    return this.e2e.getE2EReports(options); 
+  }
+  public async getProjectReport(projectName: string, date?: string) {
+    return this.e2e.getProjectReport(projectName, date); 
+  }
+  public async getProjectStatus(projectName: string) {
+    return this.e2e.getProjectStatus(projectName); 
+  }
   
   // Applications convenience methods
-  public async getApplications() { return this.applications.getApplications(); }
-  public async getApplication(id: number) { return this.applications.getApplication(id); }
-  public async getApplicationByCode(code: string) { return this.applications.getApplicationByCode(code); }
-  public async createApplication(application: any) { return this.applications.createApplication(application); }
-  public async updateApplication(id: number, updates: any) { return this.applications.updateApplication(id, updates); }
-  public async deleteApplication(id: number) { return this.applications.deleteApplication(id); }
+  public async getApplications() {
+    return this.applications.getApplications(); 
+  }
+  public async getApplication(id: number) {
+    return this.applications.getApplication(id); 
+  }
+  public async getApplicationByCode(code: string) {
+    return this.applications.getApplicationByCode(code); 
+  }
+  public async createApplication(application: any) {
+    return this.applications.createApplication(application); 
+  }
+  public async updateApplication(id: number, updates: any) {
+    return this.applications.updateApplication(id, updates); 
+  }
+  public async deleteApplication(id: number) {
+    return this.applications.deleteApplication(id); 
+  }
   
   // Notifications convenience methods
-  public async getNotifications(options = {}) { return this.notifications.getNotifications(options); }
-  public async createNotification(notification: any) { return this.notifications.createNotification(notification); }
-  public async markNotificationAsRead(id: number) { return this.notifications.markNotificationAsRead(id); }
-  public async deleteNotification(id: number) { return this.notifications.deleteNotification(id); }
+  public async getNotifications(options = {}) {
+    return this.notifications.getNotifications(options); 
+  }
+  public async createNotification(notification: any) {
+    return this.notifications.createNotification(notification); 
+  }
+  public async markNotificationAsRead(id: number) {
+    return this.notifications.markNotificationAsRead(id); 
+  }
+  public async deleteNotification(id: number) {
+    return this.notifications.deleteNotification(id); 
+  }
   
   // Pull Requests convenience methods
-  public async getPullRequests() { return this.pullRequests.getPullRequests(); }
-  public async addPullRequest(pullRequest: any) { return this.pullRequests.addPullRequest(pullRequest); }
-  public async getPullRequestDetails(id: string) { return this.pullRequests.getPullRequestDetails(id); }
-  public async deletePullRequest(id: string) { return this.pullRequests.deletePullRequest(id); }
+  public async getPullRequests() {
+    return this.pullRequests.getPullRequests(); 
+  }
+  public async addPullRequest(pullRequest: any) {
+    return this.pullRequests.addPullRequest(pullRequest); 
+  }
+  public async getPullRequestDetails(id: string) {
+    return this.pullRequests.getPullRequestDetails(id); 
+  }
+  public async deletePullRequest(id: string) {
+    return this.pullRequests.deletePullRequest(id); 
+  }
   
   // Authentication convenience methods
-  public async validateApiKey(apiKey: string) { return this.auth.validateApiKey(apiKey); }
-  public async validateCurrentApiKey() { return this.auth.validateCurrentApiKey(); }
+  public async validateApiKey(apiKey: string) {
+    return this.auth.validateApiKey(apiKey); 
+  }
+  public async validateCurrentApiKey() {
+    return this.auth.validateCurrentApiKey(); 
+  }
 
   // ============================================================================
   // Configuration Management

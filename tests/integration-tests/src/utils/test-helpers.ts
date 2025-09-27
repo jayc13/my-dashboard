@@ -33,6 +33,7 @@ export class TestHelpers {
         if (response.ok) {
           return;
         }
+        // eslint-disable-next-line no-empty
       } catch {}
 
       if (attempt === maxAttempts) {
@@ -59,6 +60,7 @@ export class TestHelpers {
   }
 
   // Helper to validate response structure
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   validateResponseStructure(response: any, expectedKeys: string[]): void {
     for (const key of expectedKeys) {
       if (!(key in response)) {

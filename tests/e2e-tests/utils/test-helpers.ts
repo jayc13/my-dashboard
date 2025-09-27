@@ -5,11 +5,11 @@ import { Page } from '@playwright/test';
  */
 
 export function getSecurityKey(): string {
-    const securityKey = process.env.API_SECURITY_KEY;
-    if (!securityKey) {
-        throw new Error('API_SECURITY_KEY environment variable is not set.');
-    }
-    return securityKey;
+  const securityKey = process.env.API_SECURITY_KEY;
+  if (!securityKey) {
+    throw new Error('API_SECURITY_KEY environment variable is not set.');
+  }
+  return securityKey;
 }
 
 /**
@@ -24,8 +24,8 @@ export const AUTH_TEST_DATA = {
     'SELECT * FROM users;',
     '../../etc/passwd',
     'null',
-    'undefined'
-  ]
+    'undefined',
+  ],
 } as const;
 
 /**
@@ -39,11 +39,11 @@ export async function isLocalStorageAvailable(page: Page): Promise<boolean> {
         localStorage.setItem(test, test);
         localStorage.removeItem(test);
         return true;
-      } catch (e) {
+      } catch {
         return false;
       }
     });
-  } catch (error) {
+  } catch {
     return false;
   }
 }
@@ -233,13 +233,13 @@ export async function setMultipleLocalStorageItems(page: Page, items: Record<str
  */
 export async function mockAuthValidationResponse(
   page: Page,
-  response: { valid: boolean; error?: string }
+  response: { valid: boolean; error?: string },
 ): Promise<void> {
   await page.route('**/api/auth/validate', async route => {
     await route.fulfill({
       status: response.valid ? 200 : 401,
       contentType: 'application/json',
-      body: JSON.stringify(response)
+      body: JSON.stringify(response),
     });
   });
 }
@@ -287,7 +287,7 @@ export async function fillField(page: Page, selector: string, value: string): Pr
 export async function clickAndWait(page: Page, selector: string): Promise<void> {
   await Promise.all([
     page.waitForLoadState('networkidle'),
-    page.click(selector)
+    page.click(selector),
   ]);
 }
 
@@ -322,7 +322,7 @@ export async function waitForElementCount(
   page: Page, 
   selector: string, 
   expectedCount: number, 
-  timeout: number = 5000
+  timeout: number = 5000,
 ): Promise<void> {
   await page.waitForFunction(
     ({ selector, expectedCount }) => {
@@ -330,7 +330,7 @@ export async function waitForElementCount(
       return elements.length === expectedCount;
     },
     { selector, expectedCount },
-    { timeout }
+    { timeout },
   );
 }
 
@@ -362,6 +362,6 @@ export const SELECTORS = {
     input: 'input',
     button: 'button',
     submit: 'button[type="submit"], input[type="submit"]',
-    form: 'form'
-  }
+    form: 'form',
+  },
 } as const;

@@ -47,7 +47,7 @@ export {
   FCMService, 
   JiraService, 
   TodosService, 
-  HealthService 
+  HealthService, 
 } from './services/additional-services';
 
 // Error classes

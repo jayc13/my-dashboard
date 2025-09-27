@@ -10,7 +10,7 @@ import {
   ProjectSummary,
   ProjectStatus,
   E2EManualRun,
-  E2EManualRunInput
+  E2EManualRunInput,
 } from '../types';
 
 /**

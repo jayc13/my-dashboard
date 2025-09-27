@@ -44,21 +44,21 @@ jobs:
   validate-client:
     name: Client
     needs: [basic-validation, validate-packages-types, validate-packages-sdk]
-    if: needs.basic-validation.outputs.client-changed == 'true' || needs.basic-validation.outputs.github-changed == 'true'
+    if: always() && (needs.basic-validation.outputs.client-changed == 'true' || needs.basic-validation.outputs.github-changed == 'true')
     uses: ./.github/workflows/validate-client.yml
 
   # Job 5: Server validation
   validate-server:
     name: Server
     needs: [basic-validation, validate-packages-types, validate-packages-sdk]
-    if: needs.basic-validation.outputs.server-changed == 'true' || needs.basic-validation.outputs.github-changed == 'true'
+    if: always() && (needs.basic-validation.outputs.server-changed == 'true' || needs.basic-validation.outputs.github-changed == 'true')
     uses: ./.github/workflows/validate-server.yml
 
   # Job 6: Mock Server validation
   validate-mock-server:
     name: Mock Server
     needs: [basic-validation, validate-packages-types, validate-packages-sdk]
-    if: needs.basic-validation.outputs.mock-server-changed == 'true' || needs.basic-validation.outputs.github-changed == 'true'
+    if: always() && (needs.basic-validation.outputs.mock-server-changed == 'true' || needs.basic-validation.outputs.github-changed == 'true')
     uses: ./.github/workflows/validate-mock-server.yml
 
   # Job 7: Cron validation
@@ -165,6 +165,7 @@ jobs:
             --workspace=packages/types \
             --workspace=packages/sdk \
             --workspace=server \
+            --workspace=mock-server \
             --workspace=client
 
       - name: Run database migrations
@@ -176,6 +177,24 @@ jobs:
           MYSQL_PASSWORD: test_password
           MYSQL_DATABASE: test_db
         run: pnpm --filter=server run migrate
+
+      - name: Start mock-server in background
+        working-directory: ./mock-server
+        run: |
+          # Set up environment variables for testing
+          cat > .env << EOF
+          PORT=3001
+          
+          # API Configuration
+          CORS_ORIGIN=http://localhost:3000
+          EOF
+
+          # Start server in background
+          npm start > mock-server.log 2>&1 &
+          echo $! > mock-server.pid
+
+          # Wait for server to be ready
+          timeout 60 bash -c 'until curl -sf http://localhost:3001/health; do sleep 2; done'
 
       - name: Start server in background
         working-directory: ./server
@@ -200,8 +219,8 @@ jobs:
           FIREBASE_CLIENT_ID=${{ secrets.FIREBASE_CLIENT_ID }}
           FIREBASE_CLIENT_CERT_URL=${{ secrets.FIREBASE_CLIENT_CERT_URL }}
           GITHUB_TOKEN=${{ secrets.SERVER_GITHUB_TOKEN }}
-          JIRA_API_TOKEN=${{ secrets.JIRA_API_TOKEN }}
-          JIRA_BASE_URL=${{ secrets.JIRA_BASE_URL }}
+          JIRA_API_TOKEN="jira-token-placeholder"
+          JIRA_BASE_URL=http://localhost:3001/jira
           CIRCLE_CI_TOKEN=${{ secrets.CIRCLE_CI_TOKEN }}
           EOF
 
@@ -212,7 +231,7 @@ jobs:
           # Wait for server to be ready
           timeout 60 bash -c 'until curl -sf http://localhost:${{ secrets.SERVER_PORT || '3000' }}/health; do sleep 2; done'
 
-      - name: Start client development server
+      - name: Start client
         working-directory: ./client
         run: |
           # Start client server in background
@@ -230,6 +249,11 @@ jobs:
           BASE_URL=http://localhost:${{ secrets.CLIENT_PORT || '4173' }}
           API_URL=http://localhost:${{ secrets.SERVER_PORT || '3000' }}
           API_SECURITY_KEY=${{ secrets.API_SECURITY_KEY }}
+          MYSQL_HOST: mysql
+          MYSQL_PORT: 3306
+          MYSQL_USER: root
+          MYSQL_PASSWORD: test_password
+          MYSQL_DATABASE: test_db
           CI=true
           EOF
 
@@ -261,10 +285,14 @@ jobs:
           if [ -f ./server/server.pid ]; then
             kill $(cat ./server/server.pid) || true
           fi
+          if [ -f ./mock-server/mock-server.pid ]; then
+            kill $(cat ./mock-server/mock-server.pid) || true
+          fi
           if [ -f ./client/client.pid ]; then
             kill $(cat ./client/client.pid) || true
           fi
           # Kill any remaining processes on the ports
+          sudo lsof -ti:3001 | xargs -r sudo kill -9 || true
           sudo lsof -ti:${{ secrets.SERVER_PORT || '3000' }} | xargs -r sudo kill -9 || true
           sudo lsof -ti:${{ secrets.CLIENT_PORT || '4173' }} | xargs -r sudo kill -9 || true
 
