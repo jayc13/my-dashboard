@@ -7,7 +7,7 @@ import { truncateTables } from '@utils/dbCleanup';
 
 test.describe.configure({ mode: 'serial' });
 
-test.describe('ToDo Complete Test Suite - Sequential Execution', () => {
+test.describe('ToDo List Test Suite', () => {
   let todoPage: ToDoPage;
   let page: Page;
 

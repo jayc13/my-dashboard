@@ -156,18 +156,6 @@ export async function mockServiceWorker(page: Page): Promise<void> {
 }
 
 /**
- * Wait for notification API call to complete
- */
-export async function waitForNotificationApiCall(page: Page, endpoint: string, method: string = 'GET'): Promise<void> {
-  await page.waitForResponse(response =>
-    response.url().includes(endpoint) &&
-    response.request().method() === method &&
-    response.status() < 400,
-  );
-}
-
-
-/**
  * Sample test notification data
  */
 export const SAMPLE_NOTIFICATIONS: NotificationInput[] = [
@@ -184,7 +172,6 @@ export const SAMPLE_NOTIFICATIONS: NotificationInput[] = [
     type: 'error',
     link: 'https://example.com/build/456',
     isRead: false,
-    createdAt: '',
   },
   {
     title: 'Deployment Ready',
@@ -207,14 +194,68 @@ export const SAMPLE_NOTIFICATIONS: NotificationInput[] = [
   },
 ];
 
-export class NotificationTestUtils {
+class NotificationTestUtils {
   /**
-   * Wait for API request to complete
+   * Wait for GET all notifications API request to complete
    */
-
   static async interceptGetAllNotifications(page: Page) {
     return page.waitForResponse(
       response => response.url().includes('/api/notifications') && response.request().method() === 'GET',
     );
   }
+
+  /**
+   * Wait for PATCH mark as read API request to complete
+   */
+  static async interceptMarkAsRead(page: Page, notificationId: number) {
+    return page.waitForResponse(
+      response => response.url().includes(`/api/notifications/${notificationId}/read`) &&
+                 response.request().method() === 'PATCH',
+    );
+  }
+
+  /**
+   * Wait for DELETE notification API request to complete
+   */
+  static async interceptDeleteNotification(page: Page, notificationId: number) {
+    return page.waitForResponse(
+      response => response.url().includes(`/api/notifications/${notificationId}`) &&
+                 response.request().method() === 'DELETE',
+    );
+  }
+
+  /**
+   * Wait for multiple DELETE requests (for delete all functionality)
+   */
+  static async interceptDeleteAllNotifications(page: Page, expectedCount: number) {
+    const responses = [];
+    for (let i = 0; i < expectedCount; i++) {
+      responses.push(
+        page.waitForResponse(
+          response => response.url().includes('/api/notifications/') &&
+                     response.request().method() === 'DELETE',
+        ),
+      );
+    }
+    return Promise.all(responses);
+  }
+
+  /**
+   * Wait for multiple PATCH requests (for mark all as read functionality)
+   */
+  static async interceptMarkAllAsRead(page: Page, expectedCount: number) {
+    const responses = [];
+    for (let i = 0; i < expectedCount; i++) {
+      responses.push(
+        page.waitForResponse(
+          response => response.url().includes('/api/notifications/') &&
+                     response.url().includes('/read') &&
+                     response.request().method() === 'PATCH',
+        ),
+      );
+    }
+    return Promise.all(responses);
+  }
 }
+
+export default NotificationTestUtils;

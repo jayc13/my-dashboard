@@ -1,12 +1,13 @@
 import { Page, Locator } from '@playwright/test';
 import { setupAuthenticatedSession } from '@utils/test-helpers';
+import NotificationTestUtils from '@utils/notification-test-helpers';
 
 /**
  * Page Object Model for Notification functionality
  */
 export class NotificationPage {
   readonly page: Page;
-  
+
   // Notification Center Elements
   readonly notificationIcon: Locator;
   readonly notificationBadge: Locator;
@@ -15,7 +16,7 @@ export class NotificationPage {
   readonly emptyNotificationMessage: Locator;
   readonly markAllAsReadButton: Locator;
   readonly deleteAllButton: Locator;
-  
+
   // Individual Notification Elements
   readonly notificationItems: Locator;
   readonly notificationTitle: Locator;
@@ -24,7 +25,7 @@ export class NotificationPage {
   readonly notificationLink: Locator;
   readonly markAsReadButton: Locator;
   readonly deleteButton: Locator;
-  
+
   // Notification Permission Elements
   readonly permissionAlert: Locator;
   readonly enableNotificationsButton: Locator;
@@ -35,25 +36,25 @@ export class NotificationPage {
 
   constructor(page: Page) {
     this.page = page;
-    
+
     // Notification Center selectors
     this.notificationIcon = page.locator('[data-testid="notification-icon"]');
-    this.notificationBadge = page.locator('[data-testid="notification-badge"]');
+    this.notificationBadge = page.locator('[data-testid="notification-badge"] > span');
     this.notificationMenu = page.locator('[data-testid="notification-menu"]');
     this.notificationList = page.locator('[data-testid="notification-list"]');
     this.emptyNotificationMessage = page.locator('[data-testid="empty-notifications"]');
     this.markAllAsReadButton = page.locator('[data-testid="mark-all-as-read"]');
     this.deleteAllButton = page.locator('[data-testid="delete-all"]');
-    
+
     // Individual notification selectors
-    this.notificationItems = page.locator('[data-testid^="notification-item-"]');
+    this.notificationItems = page.locator('[data-testid="notification-list"] > div > div');
     this.notificationTitle = page.locator('[data-testid^="notification-title-"]');
     this.notificationMessage = page.locator('[data-testid^="notification-message-"]');
     this.notificationTime = page.locator('[data-testid^="notification-time-"]');
     this.notificationLink = page.locator('[data-testid="notification-link"], .notification-link, a[href]');
     this.markAsReadButton = page.locator('[data-testid^="mark-as-read-"]').first();
     this.deleteButton = page.locator('[data-testid^="delete-notification-"]').first();
-    
+
     // Permission elements
     this.permissionAlert = page.locator('[data-testid="permission-alert"]');
     this.enableNotificationsButton = page.locator('[data-testid="enable-notifications"]');
@@ -68,15 +69,18 @@ export class NotificationPage {
    */
   async goto(): Promise<void> {
     await setupAuthenticatedSession(this.page);
+    const getAllNotificationRequest = NotificationTestUtils.interceptGetAllNotifications(this.page);
     await this.page.goto('/');
-    await this.page.waitForLoadState('networkidle');
+    await getAllNotificationRequest;
   }
 
   /**
    * Open the notification center
    */
   async openNotificationCenter(): Promise<void> {
-    await this.notificationIcon.click();
+    if (!(await this.notificationMenu.isVisible())) {
+      await this.notificationIcon.click();
+    }
     await this.notificationMenu.waitFor({ state: 'visible' });
   }
 
@@ -85,14 +89,26 @@ export class NotificationPage {
    */
   async closeNotificationCenter(): Promise<void> {
     // Click outside the menu to close it
-    await this.page.click('body', { position: { x: 0, y: 0 } });
+    await this.page.click('body', { position: { x: 0, y: 0 }, force: true });
     await this.notificationMenu.waitFor({ state: 'hidden' });
+  }
+
+  /**
+   * Check if notification badge is invisible
+   */
+  async isNotificationBadgeInvisible(): Promise<boolean> {
+    return await this.notificationBadge.evaluate(el =>
+      el.classList.contains('MuiBadge-invisible'),
+    );
   }
 
   /**
    * Get the notification badge count
    */
   async getNotificationBadgeCount(): Promise<number> {
+    if (await this.isNotificationBadgeInvisible()) {
+      return 0;
+    }
     try {
       const badgeText = await this.notificationBadge.textContent();
       return badgeText ? parseInt(badgeText, 10) : 0;
@@ -127,33 +143,72 @@ export class NotificationPage {
   /**
    * Get notification count
    */
-  async getNotificationCount(): Promise<number> {
+  async getNotificationCount(closeNotificationCenter: boolean = false): Promise<number> {
     await this.openNotificationCenter();
     const count = await this.notificationItems.count();
-    await this.closeNotificationCenter();
+    if (closeNotificationCenter) {
+      await this.closeNotificationCenter();
+    }
     return count;
+  }
+
+  /**
+   * Get unread notification count
+   */
+  async getUnreadNotificationCount(closeNotificationCenter: boolean = false): Promise<number> {
+    await this.openNotificationCenter();
+    const items = await this.getNotificationItems();
+    let unreadCount = 0;
+
+    for (const item of items) {
+      // Check if the notification has a mark-as-read button (indicates it's unread)
+      const markAsReadBtn = item.locator('[data-testid^="mark-as-read-"]');
+      if (await markAsReadBtn.count() > 0) {
+        unreadCount++;
+      }
+    }
+
+    if (closeNotificationCenter) {
+      await this.closeNotificationCenter();
+    }
+    return unreadCount;
   }
 
   /**
    * Mark a specific notification as read by index
    */
-  async markNotificationAsRead(index: number = 0): Promise<void> {
+  async markNotificationAsRead(notificationsId: number): Promise<void> {
     await this.openNotificationCenter();
-    const notification = this.notificationItems.nth(index);
-    const markAsReadBtn = notification.locator('[data-testid^="mark-as-read-"]').first();
+    const markAsReadBtn = this.page.locator(`[data-testid="mark-as-read-${notificationsId}"]`).first();
+
+    if (await markAsReadBtn.count() === 0) {
+      // Notification is already read or does not exist
+      return;
+    }
+
+    // Set up API intercept before clicking
+    const responsePromise = NotificationTestUtils.interceptMarkAsRead(this.page, notificationsId);
     await markAsReadBtn.click();
-    await this.page.waitForTimeout(500); // Wait for API call
+    await responsePromise; // Wait for API call to complete
   }
 
   /**
    * Delete a specific notification by index
    */
-  async deleteNotification(index: number = 0): Promise<void> {
+  async deleteNotification(notificationsId: number): Promise<void> {
     await this.openNotificationCenter();
-    const notification = this.notificationItems.nth(index);
-    const deleteBtn = notification.locator('[data-testid^="delete-notification-"]').first();
-    await deleteBtn.click();
-    await this.page.waitForTimeout(500); // Wait for API call
+    const markAsReadBtn = this.page.locator(`[data-testid="delete-notification-${notificationsId}"]`).first();
+
+    if (await markAsReadBtn.count() === 0) {
+      // Notification is already read or does not exist
+      return;
+    }
+
+    // Set up API intercept before clicking
+    const responsePromise = NotificationTestUtils.interceptDeleteNotification(this.page, notificationsId);
+    await this.page.locator(`[data-testid="notification-alert-${notificationsId}"]`).hover();
+    await markAsReadBtn.click();
+    await responsePromise; // Wait for API call to complete
   }
 
   /**
@@ -162,8 +217,17 @@ export class NotificationPage {
   async markAllNotificationsAsRead(): Promise<void> {
     await this.openNotificationCenter();
     if (await this.markAllAsReadButton.isVisible()) {
+      // Get the count of unread notifications to know how many API calls to expect
+      const unreadCount = await this.getUnreadNotificationCount(false);
+
+      // Set up API intercept before clicking
+      const markAllAsReadRequest = NotificationTestUtils.interceptMarkAllAsRead(this.page, unreadCount);
+      const getAllNotificationRequest = NotificationTestUtils.interceptGetAllNotifications(this.page);
       await this.markAllAsReadButton.click();
-      await this.page.waitForTimeout(1000); // Wait for API calls
+      await Promise.all([
+        markAllAsReadRequest,
+        getAllNotificationRequest,
+      ]);
     }
   }
 
@@ -173,8 +237,19 @@ export class NotificationPage {
   async deleteAllNotifications(): Promise<void> {
     await this.openNotificationCenter();
     if (await this.deleteAllButton.isVisible()) {
+      // Get the count of notifications to know how many API calls to expect
+      const notificationCount = await this.getNotificationCount();
+      await this.closeNotificationCenter();
+      await this.openNotificationCenter();
+
+      // Set up API intercept before clicking
+      const interceptDeleteAllNotifications = NotificationTestUtils.interceptDeleteAllNotifications(this.page, notificationCount);
+      const getAllNotificationRequest = NotificationTestUtils.interceptGetAllNotifications(this.page);
       await this.deleteAllButton.click();
-      await this.page.waitForTimeout(1000); // Wait for API calls
+      await Promise.all([
+        interceptDeleteAllNotifications,
+        getAllNotificationRequest,
+      ]); // Wait for all API calls to complete
     }
   }
 
@@ -185,32 +260,21 @@ export class NotificationPage {
     title: string;
     message: string;
     time?: string;
-    hasLink: boolean;
     isRead: boolean;
   }> {
     await this.openNotificationCenter();
     const notification = this.notificationItems.nth(index);
-    
+
     const title = await notification.locator('[data-testid^="notification-title-"]').textContent() || '';
     const message = await notification.locator('[data-testid^="notification-message-"]').textContent() || '';
     const time = await notification.locator('[data-testid^="notification-time-"]').textContent() || undefined;
-    const hasLink = await notification.locator('a[href]').count() > 0;
-    
+
+
     // Check if notification is read (usually indicated by opacity or different styling)
     const opacity = await notification.evaluate(el => window.getComputedStyle(el).opacity);
     const isRead = parseFloat(opacity) < 1;
-    
-    return { title, message, time, hasLink, isRead };
-  }
 
-  /**
-   * Click on a notification link
-   */
-  async clickNotificationLink(index: number = 0): Promise<void> {
-    await this.openNotificationCenter();
-    const notification = this.notificationItems.nth(index);
-    const link = notification.locator('a[href]').first();
-    await link.click();
+    return { title, message, time, isRead };
   }
 
   /**
@@ -252,58 +316,4 @@ export class NotificationPage {
     return await this.permissionSnackbar.textContent() || '';
   }
 
-  /**
-   * Check if notification center has unread notifications
-   */
-  async hasUnreadNotifications(): Promise<boolean> {
-    return await this.notificationBadge.isVisible();
-  }
-
-  /**
-   * Wait for notification count to change
-   */
-  async waitForNotificationCountChange(expectedCount: number, timeout: number = 5000): Promise<void> {
-    await this.page.waitForFunction(
-      async (expectedCount) => {
-        const icon = document.querySelector('[data-testid="notification-icon"]');
-        if (!icon) {
-          return false;
-        }
-        
-        await (icon as HTMLElement).click();
-        await new Promise(resolve => setTimeout(resolve, 100));
-        
-        const items = document.querySelectorAll('[data-testid^="notification-item-"]');
-        const actualCount = items.length;
-        
-        // Close the menu
-        document.body.click();
-        
-        return actualCount === expectedCount;
-      },
-      expectedCount,
-      { timeout },
-    );
-  }
-
-  /**
-   * Verify notification appears with specific content
-   */
-  async verifyNotificationExists(title: string, message: string): Promise<boolean> {
-    await this.openNotificationCenter();
-    const notifications = await this.getNotificationItems();
-    
-    for (const notification of notifications) {
-      const notificationTitle = await notification.locator('[data-testid^="notification-title-"]').textContent();
-      const notificationMessage = await notification.locator('[data-testid^="notification-message-"]').textContent();
-      
-      if (notificationTitle?.includes(title) && notificationMessage?.includes(message)) {
-        await this.closeNotificationCenter();
-        return true;
-      }
-    }
-    
-    await this.closeNotificationCenter();
-    return false;
-  }
 }

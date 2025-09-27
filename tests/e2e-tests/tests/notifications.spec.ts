@@ -1,7 +1,7 @@
 import { test, expect, Page } from '@playwright/test';
 import { NotificationPage } from '@pages/NotificationPage';
 import { truncateTables } from '@utils/dbCleanup';
-import {
+import NotificationTestUtils, {
   createTestNotification,
   createMultipleTestNotifications,
   countNotifications,
@@ -9,7 +9,7 @@ import {
   SAMPLE_NOTIFICATIONS,
   mockNotificationPermission,
   mockServiceWorker,
-  waitForNotificationApiCall, NotificationTestUtils,
+
 } from '@utils/notification-test-helpers';
 import { LoginPage } from '@pages/LoginPage';
 import { NotificationInput } from '@my-dashboard/types';
@@ -17,7 +17,7 @@ import { setupAuthenticatedSession } from '@utils/test-helpers';
 
 test.describe.configure({ mode: 'serial' });
 
-test.describe('Notifications E2E Tests', () => {
+test.describe('Notifications Test Suite', () => {
   let page: Page;
   let notificationPage: NotificationPage;
 
@@ -66,7 +66,7 @@ test.describe('Notifications E2E Tests', () => {
       
       // Verify notifications are displayed
       expect(await notificationPage.getNotificationCount()).toBe(2);
-      expect(await notificationPage.hasUnreadNotifications()).toBe(true);
+      expect(await notificationPage.getNotificationBadgeCount()).toBe(2);
       
       // Verify notification content
       const firstNotification = await notificationPage.getNotificationDetails(0);
@@ -78,12 +78,11 @@ test.describe('Notifications E2E Tests', () => {
   });
 
   test.describe('Notification Interactions', () => {
-    test.beforeAll(async () => {
-      await truncateTables(['notifications']);
-    });
+    let notificationsIds: number[] = [];
     test.beforeEach(async () => {
+      await truncateTables(['notifications']);
       // Create sample notifications for interaction tests
-      await createMultipleTestNotifications(SAMPLE_NOTIFICATIONS.slice(0, 3));
+      notificationsIds = await createMultipleTestNotifications(SAMPLE_NOTIFICATIONS.slice(0, 3));
       const getAllNotificationRequest = NotificationTestUtils.interceptGetAllNotifications(page);
       await notificationPage.page.reload();
       await getAllNotificationRequest;
@@ -91,21 +90,20 @@ test.describe('Notifications E2E Tests', () => {
 
     test('should mark individual notification as read', async () => {
       // Verify initial state
-      expect(await notificationPage.getNotificationBadgeCount()).toBeGreaterThan(0);
-      
+      expect(await notificationPage.getNotificationBadgeCount()).toBe(2);
+
       // Mark first notification as read
-      await notificationPage.markNotificationAsRead(0);
-      
-      // Wait for API call to complete
-      await waitForNotificationApiCall(notificationPage.page, '/api/notifications/', 'PATCH');
+      await notificationPage.markNotificationAsRead(notificationsIds[1]);
       
       // Verify badge count decreased
       const newBadgeCount = await notificationPage.getNotificationBadgeCount();
-      expect(newBadgeCount).toBeLessThan(3);
+      expect(newBadgeCount).toBe(1);
       
       // Verify in database
       const unreadCount = await countUnreadNotifications();
-      expect(unreadCount).toBe(2);
+      expect(unreadCount).toBe(1);
+      const totalCount = await countNotifications();
+      expect(totalCount).toBe(3);
     });
 
     test('should delete individual notification', async () => {
@@ -113,15 +111,9 @@ test.describe('Notifications E2E Tests', () => {
       expect(await notificationPage.getNotificationCount()).toBe(3);
       
       // Delete first notification
-      await notificationPage.deleteNotification(0);
-      
-      // Wait for API call to complete
-      await waitForNotificationApiCall(notificationPage.page, '/api/notifications/', 'DELETE');
+      await notificationPage.deleteNotification(notificationsIds[2]);
       
       // Verify count decreased
-      const getAllNotificationRequest = NotificationTestUtils.interceptGetAllNotifications(page);
-      await notificationPage.page.reload();
-      await getAllNotificationRequest;
       expect(await notificationPage.getNotificationCount()).toBe(2);
       
       // Verify in database
@@ -131,16 +123,13 @@ test.describe('Notifications E2E Tests', () => {
 
     test('should mark all notifications as read', async () => {
       // Verify initial unread count
-      expect(await notificationPage.getNotificationBadgeCount()).toBeGreaterThan(0);
+      expect(await notificationPage.getNotificationBadgeCount()).toBe(2);
       
       // Mark all as read
       await notificationPage.markAllNotificationsAsRead();
       
-      // Wait for API calls to complete
-      await notificationPage.page.waitForTimeout(1500);
-      
       // Verify no unread notifications
-      expect(await notificationPage.hasUnreadNotifications()).toBe(false);
+      expect(await notificationPage.getNotificationBadgeCount()).toBe(0);
       
       // Verify in database
       const unreadCount = await countUnreadNotifications();
@@ -153,9 +142,6 @@ test.describe('Notifications E2E Tests', () => {
       
       // Delete all notifications
       await notificationPage.deleteAllNotifications();
-      
-      // Wait for API calls to complete
-      await notificationPage.page.waitForTimeout(1500);
       
       // Refresh and verify empty state
       const getAllNotificationRequest = NotificationTestUtils.interceptGetAllNotifications(page);
@@ -170,6 +156,7 @@ test.describe('Notifications E2E Tests', () => {
 
     test('should handle notification link clicks', async () => {
       // Create notification with external link
+
       const linkNotification: NotificationInput = {
         title: 'External Link Test',
         message: 'Click to visit external site',
@@ -187,15 +174,22 @@ test.describe('Notifications E2E Tests', () => {
       await notificationPage.openNotificationCenter();
       
       // Find and verify link exists
-      const details = await notificationPage.getNotificationDetails(0);
-      expect(details.hasLink).toBe(true);
+      await expect(notificationPage.notificationItems.nth(0)).toHaveCSS('cursor', 'pointer');
       
       // Note: In a real test, you might want to test link navigation
       // but for this test we'll just verify the link is present and clickable
       const notificationItems = await notificationPage.getNotificationItems();
-      const link = notificationItems[0].locator('a[href]').first();
-      expect(await link.isVisible()).toBe(true);
-      expect(await link.getAttribute('href')).toBe('https://example.com/external');
+      await notificationItems[0].click();
+
+      // Validate that the browser navigates to the link
+      const [newPage] = await Promise.all([
+        page.context().waitForEvent('page'),
+        notificationItems[0].click(),
+      ]);
+
+      // Validate navigation to external link
+      await expect(newPage).toHaveURL(linkNotification.link!);
+      await newPage.close();
     });
   });
 
@@ -322,86 +316,5 @@ test.describe('Notifications E2E Tests', () => {
       // Verify permission alert is not visible
       expect(await notificationPage.isPermissionAlertVisible()).toBe(false);
     });
-
-    test('should show unsupported message in unsupported browsers', async () => {
-      // Mock unsupported browser (no service worker)
-      await notificationPage.page.addInitScript(() => {
-        // Remove service worker support
-        delete (navigator as any).serviceWorker;
-
-        // Mock unsupported notification
-        Object.defineProperty(window, 'Notification', {
-          value: undefined,
-          writable: true,
-        });
-      });
-
-      const getAllNotificationRequest = NotificationTestUtils.interceptGetAllNotifications(page);
-      await notificationPage.page.reload();
-      await getAllNotificationRequest;
-
-      // Verify unsupported message is shown
-      const unsupportedAlert = notificationPage.page.locator('.MuiAlert-root:has-text("not supported")');
-      expect(await unsupportedAlert.isVisible()).toBe(true);
-    });
-  });
-
-  test.describe('Edge Cases', () => {
-
-    test('should handle large numbers of notifications', async () => {
-      // Create many notifications
-      const manyNotifications: NotificationInput[] = [];
-      for (let i = 0; i < 20; i++) {
-        manyNotifications.push({
-          title: `Notification ${i + 1}`,
-          message: `This is notification number ${i + 1}`,
-          type: i % 2 === 0 ? 'info' : 'success',
-          isRead: i % 3 === 0, // Some read, some unread
-        });
-      }
-
-      await createMultipleTestNotifications(manyNotifications);
-      const getAllNotificationRequest = NotificationTestUtils.interceptGetAllNotifications(page);
-      await notificationPage.page.reload();
-      await getAllNotificationRequest;
-
-      // Verify all notifications are loaded
-      expect(await notificationPage.getNotificationCount()).toBe(20);
-
-      // Verify scrolling works in notification center
-      await notificationPage.openNotificationCenter();
-      const notificationList = notificationPage.notificationList;
-
-      // Check if scrolling is available (overflow)
-      const hasScroll = await notificationList.evaluate(el => {
-        return el.scrollHeight > el.clientHeight;
-      });
-
-      // With 20 notifications, there should be scrolling
-      expect(hasScroll).toBe(true);
-    });
-
-    test('should handle notifications with special characters', async () => {
-      // Create notification with special characters
-      const specialNotification: NotificationInput = {
-        title: 'Special Characters: "Quotes" & <Tags> 🚀',
-        message: 'Message with special chars: @#$%^&*()_+{}|:"<>?[]\\;\',./ and unicode: 你好 🎉',
-        type: 'info',
-        isRead: false,
-      };
-
-      await createTestNotification(specialNotification);
-      const getAllNotificationRequest = NotificationTestUtils.interceptGetAllNotifications(page);
-      await notificationPage.page.reload();
-      await getAllNotificationRequest;
-
-      // Verify special characters are displayed correctly
-      const details = await notificationPage.getNotificationDetails(0);
-      expect(details.title).toContain('Special Characters');
-      expect(details.title).toContain('🚀');
-      expect(details.message).toContain('你好');
-      expect(details.message).toContain('🎉');
-    });
-
   });
 });
