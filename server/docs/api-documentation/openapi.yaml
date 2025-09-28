@@ -116,8 +116,6 @@ paths:
     $ref: './paths/api_notifications.yaml'
 
   # JIRA Integration
-  /api/jira:
-    $ref: './paths/api_jira.yaml'
   /api/jira/manual_qa:
     $ref: './paths/api_jira_manual_qa.yaml'
   /api/jira/my_tickets:

@@ -4,24 +4,6 @@ import { JiraService } from '../services/jira.service';
 
 const jiraService = new JiraService();
 
-export async function getJiraIssues(req: Request, res: Response, next: NextFunction) {
-  try {
-    const jql = req.query.jql as string || '';
-
-    if (!jql) {
-      return res.status(400).json({ error: 'JQL query is required' });
-    }
-
-    const result = await jiraService.fetchIssues(jql);
-    return res.status(200 ).json({
-      total: result.total,
-      issues: result.issues.map((issue) => jiraService.formatJiraIssue(issue)),
-    });
-  } catch (error) {
-    next(error);
-  }
-}
-
 export async function getManualQATasks(req: Request, res: Response, next: NextFunction) {
   try {
     const jql = 'labels in ("manual_qa") AND "Status" NOT IN ("Done", "Ready to Release", "To Do") AND project = "Agent Client Tools" ORDER BY created DESC';
