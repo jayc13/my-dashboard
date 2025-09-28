@@ -8,10 +8,10 @@ import {
     DialogContent,
     DialogContentText,
     DialogTitle,
-    Snackbar,
 } from '@mui/material';
 import { NotificationsOff } from '@mui/icons-material';
-import { useFCM } from '../hooks/useFCM';
+import { useFCM } from '../hooks';
+import { enqueueSnackbar } from 'notistack';
 
 interface NotificationPermissionProps {
     onPermissionGranted?: () => void;
@@ -24,22 +24,22 @@ const NotificationPermission: React.FC<NotificationPermissionProps> = ({
                                                                        }) => {
     const { isSupported, isPermissionGranted, requestPermission, error } = useFCM();
     const [showDialog, setShowDialog] = useState(false);
-    const [showSnackbar, setShowSnackbar] = useState(false);
-    const [snackbarMessage, setSnackbarMessage] = useState('');
-    const [snackbarSeverity, setSnackbarSeverity] = useState<'success' | 'error'>('success');
+    const [isDismissed, setIsDismissed] = useState(false);
 
     const handleRequestPermission = async () => {
         const granted = await requestPermission();
 
         if (granted) {
-            setSnackbarMessage('Notifications enabled successfully!');
-            setSnackbarSeverity('success');
-            setShowSnackbar(true);
+            enqueueSnackbar('Notifications enabled successfully!', {
+                persist: true,
+                variant: 'success',
+            });
             onPermissionGranted?.();
         } else {
-            setSnackbarMessage('Notification permission denied. You can enable it later in browser settings.');
-            setSnackbarSeverity('error');
-            setShowSnackbar(true);
+            enqueueSnackbar('Notification permission denied. You can enable it later in browser settings.', {
+                persist: true,
+                variant: 'error',
+            });
             onPermissionDenied?.();
         }
 
@@ -54,18 +54,18 @@ const NotificationPermission: React.FC<NotificationPermissionProps> = ({
         setShowDialog(false);
     };
 
-    const handleCloseSnackbar = () => {
-        setShowSnackbar(false);
-    };
-
-    if (isPermissionGranted) {
+    if (isPermissionGranted || isDismissed) {
         return null;
     }
 
     if (!isSupported) {
         return (
             <Container maxWidth="xl" sx={{ py: 2 }}>
-                <Alert severity="warning" sx={{ mb: 2 }}>
+                <Alert
+                  severity="warning"
+                  sx={{ mb: 2 }}
+                  onClose={() => setIsDismissed(true)}
+                >
                     Push notifications are not supported in this browser.
                 </Alert>
             </Container>
@@ -74,8 +74,8 @@ const NotificationPermission: React.FC<NotificationPermissionProps> = ({
 
     if (error) {
         return (
-            <Container maxWidth="xl" sx={{ py: 2 }}>
-                <Alert severity="error" sx={{ mb: 2 }}>
+            <Container maxWidth="xl" sx={{ py: 2 }} data-testid="permission-error-alert">
+                <Alert severity="error" sx={{ mb: 2 }} onClose={() => setIsDismissed(true)}>
                     Error with notifications: {error}
                 </Alert>
             </Container>
@@ -88,16 +88,37 @@ const NotificationPermission: React.FC<NotificationPermissionProps> = ({
                 severity="info"
                 icon={<NotificationsOff/>}
                 action={
-                    <Button color="inherit" size="small" onClick={handleShowDialog}>
-                        Enable
-                    </Button>
+                    <>
+                        <Button
+                          color="primary"
+                          size="small"
+                          variant="contained"
+                          onClick={handleShowDialog}
+                          sx={{ mr: 2 }}
+                          data-testid="enable-notifications-btn"
+                        >
+                            Enable
+                        </Button>
+                        <Button
+                          color="inherit"
+                          size="small"
+                          onClick={() => {
+                              setIsDismissed(true);
+                          }}
+                          data-testid="dismiss-notifications-btn"
+                        >
+                            Dismiss
+                        </Button>
+                    </>
                 }
+                onClose={() => {}}
                 sx={{ mb: 2 }}
+                data-testid="permission-request-alert"
             >
                 Enable push notifications to receive real-time updates about your dashboard.
             </Alert>
 
-            <Dialog open={showDialog} onClose={handleCloseDialog}>
+            <Dialog open={showDialog} onClose={handleCloseDialog} data-testid="permission-dialog">
                 <DialogTitle>Enable Push Notifications</DialogTitle>
                 <DialogContent>
                     <DialogContentText>
@@ -107,28 +128,14 @@ const NotificationPermission: React.FC<NotificationPermissionProps> = ({
                     </DialogContentText>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={handleCloseDialog}>
+                    <Button onClick={handleCloseDialog} data-testid="not-now">
                         Not Now
                     </Button>
-                    <Button onClick={handleRequestPermission} variant="contained">
+                    <Button onClick={handleRequestPermission} variant="contained" data-testid="enable-permission">
                         Enable Notifications
                     </Button>
                 </DialogActions>
             </Dialog>
-
-            <Snackbar
-                open={showSnackbar}
-                autoHideDuration={6000}
-                onClose={handleCloseSnackbar}
-            >
-                <Alert
-                    onClose={handleCloseSnackbar}
-                    severity={snackbarSeverity}
-                    sx={{ width: '100%' }}
-                >
-                    {snackbarMessage}
-                </Alert>
-            </Snackbar>
         </Container>
     );
 };

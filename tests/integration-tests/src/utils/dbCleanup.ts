@@ -43,20 +43,12 @@ export async function closeTestConnection(): Promise<void> {
 }
 
 export async function cleanupDatabase(): Promise<void> {
-  try {
-    const conn = await getTestConnection();
-    // Disable foreign key checks temporarily to avoid constraint issues
-    await conn.execute('SET FOREIGN_KEY_CHECKS = 0');
-    const tables = ['todos', 'notifications'];
-    for (const table of tables) {
-      await conn.execute(`TRUNCATE TABLE ${table}`);
-    }
-    // Re-enable foreign key checks
-    await conn.execute('SET FOREIGN_KEY_CHECKS = 1');
-  } catch (error) {
-    console.error('Error during database cleanup:', error);
-    throw error;
-  }
+  const tables = [
+    'todos',
+    'notifications',
+    'apps',
+  ];
+  return truncateTables(tables);
 }
 
 export async function truncateTables(tables: string[] = []): Promise<void> {

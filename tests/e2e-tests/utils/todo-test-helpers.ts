@@ -42,27 +42,7 @@ export class TodoDataGenerator {
     return { ...baseData, ...overrides };
   }
 
-  /**
-   * Generate a todo with a past due date
-   */
-  static overdueTodo(overrides?: Partial<ToDoItem>): ToDoItem {
-    const counter = this.getCounter();
-    return this.completeTodo({
-      title: `Overdue Todo ${counter}`,
-      dueDate: DateTime.now().minus({ days: counter }).toISODate(),
-      ...overrides,
-    });
-  }
 
-  /**
-   * Generate a completed todo
-   */
-  static completedTodo(overrides?: Partial<ToDoItem>): ToDoItem {
-    return this.completeTodo({
-      isCompleted: true,
-      ...overrides,
-    });
-  }
 }
 /**
  * Utility functions for todo testing
@@ -103,19 +83,7 @@ export class TodoTestUtils {
     return DateTime.now().plus({ days: daysFromNow }).toISODate();
   }
 
-  /**
-   * Generate a past date string for testing
-   */
-  static getPastDate(daysAgo: number = 7): string {
-    return DateTime.now().minus({ days: daysAgo }).toISODate();
-  }
 
-  /**
-   * Generate today's date string
-   */
-  static getTodayDate(): string {
-    return DateTime.now().toISODate();
-  }
 
 
   /**

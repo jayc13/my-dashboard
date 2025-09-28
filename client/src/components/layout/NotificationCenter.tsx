@@ -71,15 +71,16 @@ const NotificationCenter = (props: NotificationCenterProps) => {
 
     return (
         <>
-            <IconButton color="inherit" onClick={handleOpen}>
-                <Badge badgeContent={unreadCount} color="error">
-                    <NotificationsIcon/>
+            <IconButton color="inherit" onClick={handleOpen} data-testid="notification-icon">
+                <Badge badgeContent={unreadCount} color="error" data-testid="notification-badge">
+                    <NotificationsIcon data-testid="NotificationsIcon"/>
                 </Badge>
             </IconButton>
             <Menu
                 anchorEl={anchorEl}
                 open={Boolean(anchorEl)}
                 onClose={handleClose}
+                data-testid="notification-menu"
                 slotProps={{
                     paper: {
                         sx: {
@@ -114,6 +115,7 @@ const NotificationCenter = (props: NotificationCenterProps) => {
                                 color="primary"
                                 sx={{ fontWeight: 500, fontSize: 13, p: 0, m: 0 }}
                                 onClick={handleMarkAllAsRead}
+                                data-testid="mark-all-as-read"
                             >
                                 Mark all as read
                             </Link>
@@ -125,15 +127,16 @@ const NotificationCenter = (props: NotificationCenterProps) => {
                             color="error"
                             sx={{ fontWeight: 500, fontSize: 13, p: 0, m: 0 }}
                             onClick={handleDeleteAll}
+                            data-testid="delete-all"
                         >
                             Delete all
                         </Link>
                     </Stack>
                 )}
                 {/* Notification List */}
-                <Stack sx={{ maxHeight: 320, overflowY: 'auto', p: 0 }}>
+                <Stack sx={{ maxHeight: 320, overflowY: 'auto', p: 0 }} data-testid="notification-list">
                     {!notifications || notifications?.length === 0 ? (
-                        <Stack alignItems="center" justifyContent="center" py={4} sx={{ color: 'text.secondary' }}>
+                        <Stack alignItems="center" justifyContent="center" py={4} sx={{ color: 'text.secondary' }} data-testid="empty-notifications">
                             <NotificationsIcon sx={{ fontSize: 48, mb: 1, color: 'divider' }} />
                             <Typography variant="body2">No notifications</Typography>
                         </Stack>
@@ -145,6 +148,7 @@ const NotificationCenter = (props: NotificationCenterProps) => {
                                 width="100%"
                                 spacing={1}
                                 key={n.id}
+                                data-testid={`notification-item-${n.id}`}
                                 sx={{
                                     position: 'relative',
                                     px: 2,
@@ -158,6 +162,7 @@ const NotificationCenter = (props: NotificationCenterProps) => {
                             >
                                 <Alert
                                     key={n.id}
+                                    data-testid={`notification-alert-${n.id}`}
                                     sx={{
                                         position: 'relative',
                                         m: 0,
@@ -189,12 +194,13 @@ const NotificationCenter = (props: NotificationCenterProps) => {
                                                     size="small"
                                                     aria-label="mark as read"
                                                     className="notif-mark-read-btn"
+                                                    data-testid={`mark-as-read-${n.id}`}
                                                     onClick={e => {
                                                         e.stopPropagation();
                                                         handleMarkAsRead(n.id!);
                                                     }}
                                                 >
-                                                    <CheckIcon fontSize="small" />
+                                                    <CheckIcon fontSize="small" data-testid="TaskAltIcon" />
                                                 </IconButton>
                                             )}
                                             {
@@ -203,12 +209,13 @@ const NotificationCenter = (props: NotificationCenterProps) => {
                                                         size="small"
                                                         aria-label="delete"
                                                         className="notif-delete-btn"
+                                                        data-testid={`delete-notification-${n.id}`}
                                                         onClick={e => {
                                                             e.stopPropagation();
                                                             handleDelete(n.id!);
                                                         }}
                                                     >
-                                                        <DeleteIcon fontSize="small" />
+                                                        <DeleteIcon fontSize="small" data-testid="DeleteIcon" />
                                                     </IconButton>
                                                 )
                                             }
@@ -217,11 +224,14 @@ const NotificationCenter = (props: NotificationCenterProps) => {
                                     severity={n.type as 'info' | 'warning' | 'error' | 'success' || 'info'}
                                 >
                                     <Stack direction="row" alignItems="center" justifyContent="space-between" spacing={1}>
-                                        <AlertTitle sx={{
-                                            fontSize: 16,
-                                            fontWeight: 600,
-                                            color: 'text.primary',
-                                        }}>
+                                        <AlertTitle
+                                            data-testid={`notification-title-${n.id}`}
+                                            sx={{
+                                                fontSize: 16,
+                                                fontWeight: 600,
+                                                color: 'text.primary',
+                                            }}
+                                        >
                                             {n.title}
                                         </AlertTitle>
 
@@ -248,10 +258,20 @@ const NotificationCenter = (props: NotificationCenterProps) => {
                                             />
                                         )}
                                     </Stack>
-                                    <Typography variant="body2" color="text.secondary" sx={{ fontSize: 12, mt: 0.5 }}>
+                                    <Typography
+                                        variant="body2"
+                                        color="text.secondary"
+                                        sx={{ fontSize: 12, mt: 0.5 }}
+                                        data-testid={`notification-time-${n.id}`}
+                                    >
                                         {(DateTime.fromISO(n.createdAt, { zone: 'utc' }).toLocal()).toFormat('dd/MM/yyyy HH:mm')}
                                     </Typography>
-                                    <Typography variant="body1" color="text.primary" sx={{ fontSize: 14, mt: 0.5 }}>
+                                    <Typography
+                                        variant="body1"
+                                        color="text.primary"
+                                        sx={{ fontSize: 14, mt: 0.5 }}
+                                        data-testid={`notification-message-${n.id}`}
+                                    >
                                         {n.message}
                                     </Typography>
                                 </Alert>
