@@ -113,6 +113,7 @@ const PullRequestCard = ({ pr, onDelete }: { pr: PullRequest; onDelete: (id: str
         <Card
             variant="outlined"
             sx={{ width: '100%', p: 0, borderRadius: 2 }}
+            data-testid={`pr-card-${pr.id}`}
         >
             <CardContent style={{ paddingBottom: 8, paddingTop: 8 }}>
                 <Box display="flex" justifyContent="space-between" alignItems="center">
@@ -155,6 +156,7 @@ const PullRequestCard = ({ pr, onDelete }: { pr: PullRequest; onDelete: (id: str
                             color="primary"
                             size="small"
                             sx={{ mr: 1 }}
+                            data-testid={`pr-copy-button-${pr.id}`}
                         >
                             <ContentCopyIcon/>
                         </IconButton>
@@ -171,6 +173,7 @@ const PullRequestCard = ({ pr, onDelete }: { pr: PullRequest; onDelete: (id: str
                                     color: (theme) => theme.palette.error.main,
                                 },
                             }}
+                            data-testid={`pr-delete-button-${pr.id}`}
                         >
                             <DeleteIcon/>
                         </IconButton>
@@ -271,7 +274,7 @@ const PullRequestsPage = () => {
                     </Typography>
                     {
                         pullRequestsData.length > 0 && (
-                            <Button variant="contained" color="primary" onClick={handleOpen}>
+                            <Button variant="contained" color="primary" onClick={handleOpen} data-testid="add-pr-button">
                                 Add Pull Request
                             </Button>
                         )
@@ -291,6 +294,7 @@ const PullRequestsPage = () => {
                             justifyContent="center"
                             py={6}
                             sx={{ opacity: 0.7, width: '100%' }}
+                            data-testid="pr-empty-state"
                         >
                             <Box mb={2}>
                                 <TroubleshootIcon sx={{ fontSize: 60, color: 'action.disabled' }}/>
@@ -301,13 +305,13 @@ const PullRequestsPage = () => {
                             <Typography color="textSecondary" align="center" sx={{ mb: 2 }}>
                                 Add a GitHub pull request to get started.
                             </Typography>
-                            <Button variant="outlined" color="primary" onClick={handleOpen}>
+                            <Button variant="outlined" color="primary" onClick={handleOpen} data-testid="add-pr-button-empty">
                                 Add Pull Request
                             </Button>
                         </Box>
                     )}
                 </Grid>
-                <Dialog open={open} onClose={handleClose} maxWidth="xs" fullWidth>
+                <Dialog open={open} onClose={handleClose} maxWidth="xs" fullWidth data-testid="add-pr-dialog">
                     <DialogTitle>Add Pull Request</DialogTitle>
                     <DialogContent>
                         <TextField
@@ -322,10 +326,11 @@ const PullRequestsPage = () => {
                             disabled={submitting}
                             error={!!urlError}
                             helperText={urlError || 'Example: https://github.com/org/repo/pull/123'}
+                            data-testid="pr-url-input"
                         />
                     </DialogContent>
                     <DialogActions>
-                        <Button onClick={handleClose} disabled={submitting}>
+                        <Button onClick={handleClose} disabled={submitting} data-testid="pr-cancel-button">
                             Cancel
                         </Button>
                         <Button
@@ -333,12 +338,13 @@ const PullRequestsPage = () => {
                             variant="contained"
                             color="primary"
                             disabled={!url || submitting}
+                            data-testid="pr-add-button"
                         >
                             Add
                         </Button>
                     </DialogActions>
                 </Dialog>
-                <Dialog open={confirmOpen} onClose={handleCancelDelete} maxWidth="xs" fullWidth>
+                <Dialog open={confirmOpen} onClose={handleCancelDelete} maxWidth="xs" fullWidth data-testid="delete-pr-dialog">
                     <DialogTitle>Delete Pull Request</DialogTitle>
                     <DialogContent>
                         <Typography>
@@ -346,13 +352,14 @@ const PullRequestsPage = () => {
                         </Typography>
                     </DialogContent>
                     <DialogActions>
-                        <Button onClick={handleCancelDelete}>
+                        <Button onClick={handleCancelDelete} data-testid="pr-delete-cancel-button">
                             Cancel
                         </Button>
                         <Button
                             onClick={handleConfirmDelete}
                             variant="contained"
                             color="error"
+                            data-testid="pr-delete-confirm-button"
                         >
                             Delete
                         </Button>
