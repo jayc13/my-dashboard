@@ -124,10 +124,12 @@ jobs:
           FIREBASE_PRIVATE_KEY_ID=${{ secrets.FIREBASE_PRIVATE_KEY_ID }}
           FIREBASE_CLIENT_ID=${{ secrets.FIREBASE_CLIENT_ID }}
           FIREBASE_CLIENT_CERT_URL=${{ secrets.FIREBASE_CLIENT_CERT_URL }}
-          GITHUB_TOKEN=${{ secrets.SERVER_GITHUB_TOKEN }}
-          JIRA_API_TOKEN=${{ secrets.JIRA_API_TOKEN }}
-          JIRA_BASE_URL=${{ secrets.JIRA_BASE_URL }}
-          CIRCLE_CI_TOKEN=${{ secrets.CIRCLE_CI_TOKEN }}
+          GITHUB_TOKEN=your-github-token
+          GITHUB_URL=http://localhost:3001/github
+          JIRA_API_TOKEN="jira-token-placeholder"
+          JIRA_BASE_URL=http://localhost:3001/jira
+          CIRCLE_CI_TOKEN=your-circle-ci-token
+          E2E_PIPELINE_URL=circle-ci-pipeline-url
           EOF
 
           # Start server in background

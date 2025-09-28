@@ -1,9 +1,9 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="mock-server &gt; lint:fix" type="js.build_tools.npm" folderName="Mock Server" nameIsGenerated="true">
+  <configuration default="false" name="mock-server &gt; start" type="js.build_tools.npm" folderName="Mock Server" nameIsGenerated="true">
     <package-json value="$PROJECT_DIR$/mock-server/package.json" />
     <command value="run" />
     <scripts>
-      <script value="lint:fix" />
+      <script value="start" />
     </scripts>
     <node-interpreter value="project" />
     <envs />

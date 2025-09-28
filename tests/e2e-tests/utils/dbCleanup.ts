@@ -1,36 +1,4 @@
-import mysql from 'mysql2/promise';
-import * as dotenv from 'dotenv';
-
-// Load environment variables
-dotenv.config({ quiet: true });
-
-let connection: mysql.Connection | null = null;
-
-/**
- * Get MySQL connection for test database cleanup
- */
-async function getTestConnection(): Promise<mysql.Connection> {
-  if (!connection) {
-    const config: mysql.ConnectionOptions = {
-      host: process.env.MYSQL_HOST || 'localhost',
-      port: parseInt(process.env.MYSQL_PORT || '3306'),
-      user: process.env.MYSQL_USER || 'root',
-      password: process.env.MYSQL_PASSWORD || '',
-      database: process.env.MYSQL_DATABASE || 'cypress_dashboard',
-      charset: 'utf8mb4',
-      timezone: '+00:00',
-    };
-
-    try {
-      connection = await mysql.createConnection(config);
-    } catch (error) {
-      console.error('Failed to connect to test MySQL:', error);
-      throw error;
-    }
-  }
-
-  return connection;
-}
+import { getTestConnection } from './database-connection';
 
 
 
@@ -45,7 +13,10 @@ export async function cleanupDatabase(): Promise<void> {
 
 export async function truncateTables(tables: string[] = []): Promise<void> {
   try {
-    const conn = await getTestConnection();
+    // Use cypress_dashboard as the default database for cleanup operations
+    const conn = await getTestConnection({
+      database: process.env.MYSQL_DATABASE || 'cypress_dashboard',
+    });
     // Disable foreign key checks temporarily
     await conn.execute('SET FOREIGN_KEY_CHECKS = 0');
     // Truncate each specified table
