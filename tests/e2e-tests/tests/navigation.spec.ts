@@ -48,7 +48,7 @@ test.describe('Navigation and Layout Test Suite', () => {
       
       expect(await navigationPage.isOnE2eDashboardPage()).toBe(true);
       // Verify page content specific to E2E dashboard
-      await expect(page.locator('[data-testid="e2e-dashboard"]')).toBeVisible();
+      await expect(page.locator('[data-testid="e2e-page"]')).toBeVisible();
     });
 
     test('should navigate to Pull Requests page', async () => {

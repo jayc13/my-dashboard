@@ -155,27 +155,6 @@ export class NavigationPage {
     }
   }
 
-  async verifyAllNavigationItems() {
-    await this.openNavigationDrawer();
-    
-    await this.verifyNavigationItem('home');
-    await this.verifyNavigationItem('e2e-dashboard');
-    await this.verifyNavigationItem('pull-requests');
-    await this.verifyNavigationItem('apps');
-    
-    await this.closeNavigationDrawer();
-  }
-
-  // Page title verification
-  async getPageTitle(): Promise<string> {
-    return await this.page.title();
-  }
-
-  async verifyPageTitle(expectedTitle: string) {
-    const title = await this.getPageTitle();
-    expect(title).toContain(expectedTitle);
-  }
-
   // Breadcrumb or page header verification
   async getPageHeader(): Promise<string> {
     const header = this.page.locator('h1, h2, h3, h4').first();
