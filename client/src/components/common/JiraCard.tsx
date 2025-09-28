@@ -38,19 +38,20 @@ const JiraCard = (props: JiraCardProps) => {
     return (<Card
         onClick={() => window.open(ticket.url, '_blank')} sx={{ cursor: 'pointer' }}
         variant="outlined"
+        data-testid={`jira-card-${ticket.key}`}
     >
         <CardHeader
             avatar={
-                <Avatar sx={{ bgcolor: getColorByPriority(ticket.priority) }}>
+                <Avatar sx={{ bgcolor: getColorByPriority(ticket.priority) }} data-testid={`jira-card-priority-${ticket.key}`}>
                     {getAvatarByPriority(ticket.priority)}
                 </Avatar>
             }
-            title={<strong>{ticket.key}</strong>}
-            subheader={<small>{ticket.status}</small>}
+            title={<strong data-testid={`jira-card-key-${ticket.key}`}>{ticket.key}</strong>}
+            subheader={<small data-testid={`jira-card-status-${ticket.key}`}>{ticket.status}</small>}
         />
         <CardContent style={{ paddingTop: 0 }}>
             <Stack direction="column">
-                <Typography variant="body2">
+                <Typography variant="body2" data-testid={`jira-card-summary-${ticket.key}`}>
                     {ticket.summary}
                 </Typography>
             </Stack>

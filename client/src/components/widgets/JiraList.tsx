@@ -40,7 +40,7 @@ const JiraList = (props: ManualTestingProps) => {
                 alignItems: 'center',
             }}
         >
-            <h2>{title} {
+            <h2 data-testid={`jira-list-title-${title.toLowerCase().replace(/\s+/g, '-')}`}>{title} {
                 size > 0 ? `(${size})` : ''
             } </h2>
             <Tooltip title="Refresh">
@@ -48,6 +48,7 @@ const JiraList = (props: ManualTestingProps) => {
                     size="small"
                     sx={{ ml: 1 }}
                     onClick={() => refresh()}
+                    data-testid={`jira-list-refresh-${title.toLowerCase().replace(/\s+/g, '-')}`}
                 >
                     <RefreshIcon/>
                 </IconButton>
@@ -56,9 +57,9 @@ const JiraList = (props: ManualTestingProps) => {
     };
 
     if (isLoading) {
-        return <div>
+        return <div data-testid={`jira-list-${title.toLowerCase().replace(/\s+/g, '-')}`}>
             <JiraListHeader/>
-            <Stack direction="column" spacing={2}>
+            <Stack direction="column" spacing={2} data-testid={`jira-list-loading-${title.toLowerCase().replace(/\s+/g, '-')}`}>
                 <Skeleton variant="rounded" height={115}/>
                 <Skeleton variant="rounded" height={115}/>
                 <Skeleton variant="rounded" height={115}/>
@@ -68,26 +69,26 @@ const JiraList = (props: ManualTestingProps) => {
 
     if (hasError) {
         return (
-            <div>
+            <div data-testid={`jira-list-${title.toLowerCase().replace(/\s+/g, '-')}`}>
                 <JiraListHeader/>
-                <Alert severity="error" variant="outlined">Error loading tickets</Alert>
+                <Alert severity="error" variant="outlined" data-testid={`jira-list-error-${title.toLowerCase().replace(/\s+/g, '-')}`}>Error loading tickets</Alert>
             </div>
         );
     }
 
     if (data.length === 0) {
         return (
-            <div>
+            <div data-testid={`jira-list-${title.toLowerCase().replace(/\s+/g, '-')}`}>
                 <JiraListHeader/>
-                <Alert severity="info" variant="outlined">No tickets found</Alert>
+                <Alert severity="info" variant="outlined" data-testid={`jira-list-empty-${title.toLowerCase().replace(/\s+/g, '-')}`}>No tickets found</Alert>
             </div>
         );
     }
 
     return (
-        <div>
+        <div data-testid={`jira-list-${title.toLowerCase().replace(/\s+/g, '-')}`}>
             <JiraListHeader size={data.length}/>
-            <div style={{ maxHeight: '800px', overflowY: 'auto' }}>
+            <div style={{ maxHeight: '800px', overflowY: 'auto' }} data-testid={`jira-list-container-${title.toLowerCase().replace(/\s+/g, '-')}`}>
                 <Stack direction="column" spacing={2}>
                     {data.map(ticket => (
                         <JiraCard ticket={ticket} key={ticket.key}/>

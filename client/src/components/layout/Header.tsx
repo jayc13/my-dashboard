@@ -118,6 +118,7 @@ const Header: React.FC = () => {
                                     color="inherit"
                                     onClick={handleSidebarOpen}
                                     aria-label="open menu"
+                                    data-testid="menu-button"
                                 >
                                     <MenuIcon/>
                                 </IconButton>
@@ -131,6 +132,7 @@ const Header: React.FC = () => {
                 anchor="right"
                 open={sidebarOpen}
                 onClose={handleSidebarClose}
+                data-testid="navigation-drawer"
                 sx={{
                     '& .MuiDrawer-paper': {
                         width: 280,
@@ -162,6 +164,7 @@ const Header: React.FC = () => {
                             <ListItemButton
                                 onClick={() => handleNavigation(item.path)}
                                 selected={window.location.pathname === item.path}
+                                data-testid={`nav-${item.text.toLowerCase().replace(/\s+/g, '-')}`}
                             >
                                 <ListItemIcon>
                                     {item.icon}
@@ -176,7 +179,7 @@ const Header: React.FC = () => {
 
                 <List>
                     <ListItem disablePadding>
-                        <ListItemButton onClick={handleLogout}>
+                        <ListItemButton onClick={handleLogout} data-testid="logout-button">
                             <ListItemIcon>
                                 <LogoutIcon/>
                             </ListItemIcon>

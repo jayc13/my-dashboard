@@ -248,6 +248,7 @@ const AppsPage = () => {
                         variant="contained"
                         startIcon={<Add/>}
                         onClick={() => handleOpenDialog()}
+                        data-testid="add-app-button"
                     >
                         Add App
                     </Button>
@@ -268,6 +269,7 @@ const AppsPage = () => {
                     }}
                     sx={{ width: 300 }}
                     size="small"
+                    data-testid="apps-search-input"
                 />
                 <FormControlLabel
                     control={
@@ -275,6 +277,7 @@ const AppsPage = () => {
                             checked={showOnlyWatching}
                             onChange={(e) => setShowOnlyWatching(e.target.checked)}
                             color="primary"
+                            data-testid="apps-watching-filter"
                         />
                     }
                     label="Show only watching"
@@ -294,11 +297,12 @@ const AppsPage = () => {
                         }}
                         pageSizeOptions={[5, 10, 25]}
                         disableRowSelectionOnClick
+                        data-testid="apps-data-grid"
                     />
                 </CardContent>
             </Card>
 
-            <Dialog open={openDialog} onClose={handleCloseDialog} maxWidth="md" fullWidth>
+            <Dialog open={openDialog} onClose={handleCloseDialog} maxWidth="md" fullWidth data-testid="app-dialog">
                 <DialogTitle>
                     {editingApp ? 'Edit App' : 'Add New App'}
                 </DialogTitle>
@@ -311,6 +315,7 @@ const AppsPage = () => {
                                 value={formData.name || ''}
                                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                                 required
+                                data-testid="app-name-input"
                             />
                         </Grid>
                         <Grid size={{ xs: 12, sm: 6 }}>
@@ -321,6 +326,7 @@ const AppsPage = () => {
                                 onChange={(e) => setFormData({ ...formData, code: e.target.value })}
                                 required
                                 helperText="Unique identifier for the app"
+                                data-testid="app-code-input"
                             />
                         </Grid>
                         <Grid size={{ xs: 12 }}>
@@ -330,6 +336,7 @@ const AppsPage = () => {
                                 value={formData.pipelineUrl || ''}
                                 onChange={(e) => setFormData({ ...formData, pipelineUrl: e.target.value })}
                                 helperText="Optional URL to the CI/CD pipeline"
+                                data-testid="app-pipeline-url-input"
                             />
                         </Grid>
                         <Grid size={{ xs: 12 }}>
@@ -342,6 +349,7 @@ const AppsPage = () => {
                                 rows={10}
                                 helperText="Optional JSON configuration for E2E test triggers"
                                 placeholder='{"environment": "staging", "browser": "chrome"}'
+                                data-testid="app-e2e-config-input"
                             />
                         </Grid>
                         <Grid size={{ xs: 12 }}>
@@ -351,6 +359,7 @@ const AppsPage = () => {
                                         checked={formData.watching || false}
                                         onChange={(e) => setFormData({ ...formData, watching: e.target.checked })}
                                         color="primary"
+                                        data-testid="app-watching-switch"
                                     />
                                 }
                                 label="Watching"
@@ -359,8 +368,8 @@ const AppsPage = () => {
                     </Grid>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={handleCloseDialog}>Cancel</Button>
-                    <Button onClick={handleSubmit} variant="contained">
+                    <Button onClick={handleCloseDialog} data-testid="app-cancel-button">Cancel</Button>
+                    <Button onClick={handleSubmit} variant="contained" data-testid="app-submit-button">
                         {editingApp ? 'Update' : 'Create'}
                     </Button>
                 </DialogActions>
