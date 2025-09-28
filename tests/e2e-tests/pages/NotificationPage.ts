@@ -28,11 +28,11 @@ export class NotificationPage {
 
   // Notification Permission Elements
   readonly permissionAlert: Locator;
+  readonly permissionErrorAlert: Locator;
   readonly enableNotificationsButton: Locator;
   readonly permissionDialog: Locator;
   readonly enablePermissionButton: Locator;
   readonly notNowButton: Locator;
-  readonly permissionSnackbar: Locator;
 
   constructor(page: Page) {
     this.page = page;
@@ -56,12 +56,12 @@ export class NotificationPage {
     this.deleteButton = page.locator('[data-testid^="delete-notification-"]').first();
 
     // Permission elements
-    this.permissionAlert = page.locator('[data-testid="permission-alert"]');
-    this.enableNotificationsButton = page.locator('[data-testid="enable-notifications"]');
+    this.permissionAlert = page.locator('[data-testid="permission-request-alert"]');
+    this.permissionErrorAlert = page.locator('[data-testid="permission-error-alert"]');
+    this.enableNotificationsButton = page.locator('[data-testid="enable-notifications-btn"]');
     this.permissionDialog = page.locator('[data-testid="permission-dialog"]');
     this.enablePermissionButton = page.locator('[data-testid="enable-permission"]');
     this.notNowButton = page.locator('[data-testid="not-now"]');
-    this.permissionSnackbar = page.locator('[data-testid="permission-snackbar"]');
   }
 
   /**
@@ -306,14 +306,6 @@ export class NotificationPage {
   async declineNotificationPermissions(): Promise<void> {
     await this.notNowButton.click();
     await this.permissionDialog.waitFor({ state: 'hidden' });
-  }
-
-  /**
-   * Wait for permission snackbar and get its message
-   */
-  async getPermissionSnackbarMessage(): Promise<string> {
-    await this.permissionSnackbar.waitFor({ state: 'visible' });
-    return await this.permissionSnackbar.textContent() || '';
   }
 
 }

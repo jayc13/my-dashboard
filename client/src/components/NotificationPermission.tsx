@@ -74,7 +74,7 @@ const NotificationPermission: React.FC<NotificationPermissionProps> = ({
 
     if (error) {
         return (
-            <Container maxWidth="xl" sx={{ py: 2 }}>
+            <Container maxWidth="xl" sx={{ py: 2 }} data-testid="permission-error-alert">
                 <Alert severity="error" sx={{ mb: 2 }} onClose={() => setIsDismissed(true)}>
                     Error with notifications: {error}
                 </Alert>
@@ -113,7 +113,7 @@ const NotificationPermission: React.FC<NotificationPermissionProps> = ({
                 }
                 onClose={() => {}}
                 sx={{ mb: 2 }}
-                data-testid="permission-alert"
+                data-testid="permission-request-alert"
             >
                 Enable push notifications to receive real-time updates about your dashboard.
             </Alert>
