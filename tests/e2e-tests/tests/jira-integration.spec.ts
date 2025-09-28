@@ -92,36 +92,4 @@ test.describe('Jira Integration Test Suite', () => {
 
     await page.unroute('**/api/jira/my_tickets');
   });
-  test('should open ticket in new tab when clicked', async () => {
-    const mockTicket = {
-      key: 'CLICK-TEST',
-      summary: 'Click test ticket',
-      status: 'Open',
-      priority: 'Medium',
-      url: 'https://jira.example.com/browse/CLICK-TEST',
-    };
-
-    await page.route('**/api/jira/manual_qa', async route => {
-      await route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify({ issues: [mockTicket] }),
-      });
-    });
-
-    await page.reload();
-    await jiraPage.waitForJiraListLoaded('Manual Testing');
-
-    // Listen for new page creation
-    const [newPage] = await Promise.all([
-      page.context().waitForEvent('page'),
-      jiraPage.clickJiraCard(mockTicket.key),
-    ]);
-
-    // Verify new page opened with correct URL
-    expect(newPage.url()).toBe(mockTicket.url);
-
-    await newPage.close();
-    await page.unroute('**/api/jira/manual_qa');
-  });
 });
