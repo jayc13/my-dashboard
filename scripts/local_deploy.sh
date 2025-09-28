@@ -27,7 +27,7 @@ echo "\033[1;34m🔹 Step 0: Checking if the script is run from the project root
 cd "$(git rev-parse --show-toplevel)" || exit
 
 echo "\033[1;34m🔹 Step 1: Installing dependencies...\033[0m"
-pnpm install
+pnpm install --silent
 
 echo "\033[1;33m🔸 Step 2: Running linter...\033[0m"
 pnpm --filter=client run lint &>/dev/null  || { echo -e "\033[1;31mLint failed.\033[0m"; exit 1; }
