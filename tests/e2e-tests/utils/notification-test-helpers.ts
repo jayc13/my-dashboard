@@ -1,39 +1,7 @@
 import { Page } from '@playwright/test';
-import mysql from 'mysql2/promise';
-import * as dotenv from 'dotenv';
 import { NotificationInput } from '@my-dashboard/types';
 import { wait } from '@utils/test-helpers';
-
-// Load environment variables
-dotenv.config({ quiet: true });
-
-/**
- * Database connection for notification test helpers
- */
-let testConnection: mysql.Connection | null = null;
-
-async function getTestConnection(): Promise<mysql.Connection> {
-  if (!testConnection) {
-    const config: mysql.ConnectionOptions = {
-      host: process.env.MYSQL_HOST || 'localhost',
-      port: parseInt(process.env.MYSQL_PORT || '3306'),
-      user: process.env.MYSQL_USER || 'root',
-      password: process.env.MYSQL_PASSWORD || '',
-      database: process.env.MYSQL_DATABASE || 'test_db',
-      charset: 'utf8mb4',
-      timezone: '+00:00',
-    };
-
-    try {
-      testConnection = await mysql.createConnection(config);
-    } catch (error) {
-      console.error('Failed to connect to test database:', error);
-      throw error;
-    }
-  }
-
-  return testConnection;
-}
+import { getTestConnection } from './database-connection';
 
 
 /**
