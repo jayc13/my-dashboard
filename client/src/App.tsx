@@ -8,11 +8,23 @@ import LoginPage from './pages/LoginPage.tsx';
 import AppsPage from './pages/AppsPage.tsx';
 import NotificationPermission from './components/NotificationPermission';
 import { apiFetch } from './utils/helpers';
-import { SnackbarProvider } from 'notistack';
-import { CircularProgress, Box } from '@mui/material';
+import { type SnackbarKey, SnackbarProvider, useSnackbar } from 'notistack';
+import { CircularProgress, Box, IconButton } from '@mui/material';
 import { AuthProvider } from './contexts/AuthContext';
 import { SDKProvider } from './contexts/SDKContext';
 import { useAuth } from './contexts/useAuth';
+import IconClose from '@mui/icons-material/Close';
+
+
+function SnackbarCloseButton({ snackbarKey } : { snackbarKey: SnackbarKey }) {
+  const { closeSnackbar } = useSnackbar();
+
+  return (
+    <IconButton onClick={() => closeSnackbar(snackbarKey)}>
+      <IconClose />
+    </IconButton>
+  );
+}
 
 // Protected Routes Component
 const ProtectedApp: React.FC = () => {
@@ -60,6 +72,8 @@ const ProtectedApp: React.FC = () => {
                     <SnackbarProvider
                         anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
                         autoHideDuration={2000}
+                        maxSnack={3}
+                        action={snackbarKey => <SnackbarCloseButton snackbarKey={snackbarKey} />}
                     />
                 </Layout>
             </SWRConfig>
