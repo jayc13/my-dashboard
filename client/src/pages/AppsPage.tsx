@@ -30,6 +30,8 @@ const AppsPage = () => {
     const [editingApp, setEditingApp] = useState<Application | null>(null);
     const [showOnlyWatching, setShowOnlyWatching] = useState(true); // Default to showing only watching apps
     const [searchQuery, setSearchQuery] = useState('');
+    const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
+    const [deleteAppId, setDeleteAppId] = useState<number | null>(null);
     const [formData, setFormData] = useState<Partial<Application>>({
         name: '',
         code: '',
@@ -122,13 +124,18 @@ const AppsPage = () => {
         }
     };
 
-    const handleDelete = async (id: number) => {
-        if (!window.confirm('Are you sure you want to delete this app?')) {
+    const handleDeleteClick = (id: number) => {
+        setDeleteAppId(id);
+        setConfirmDeleteOpen(true);
+    };
+
+    const handleConfirmDelete = async () => {
+        if (!deleteAppId) {
             return;
         }
 
         try {
-            const response = await apiFetch(`${API_BASE_URL}/api/apps/${id}`, {
+            const response = await apiFetch(`${API_BASE_URL}/api/apps/${deleteAppId}`, {
                 method: 'DELETE',
             });
 
@@ -141,7 +148,15 @@ const AppsPage = () => {
             mutate();
         } catch {
             enqueueSnackbar('Failed to delete app', { variant: 'error' });
+        } finally {
+            setConfirmDeleteOpen(false);
+            setDeleteAppId(null);
         }
+    };
+
+    const handleCancelDelete = () => {
+        setConfirmDeleteOpen(false);
+        setDeleteAppId(null);
     };
 
     const columns: GridColDef[] = [
@@ -210,11 +225,13 @@ const AppsPage = () => {
                     icon={<Edit/>}
                     label="Edit"
                     onClick={() => handleOpenDialog(params.row)}
+                    data-testid={`app-edit-button-${params.row.id}`}
                 />,
                 <GridActionsCellItem
                     icon={<Delete/>}
                     label="Delete"
-                    onClick={() => handleDelete(params.row.id)}
+                    onClick={() => handleDeleteClick(params.row.id)}
+                    data-testid={`app-delete-button-${params.row.id}`}
                 />,
             ],
         },
@@ -396,6 +413,28 @@ const AppsPage = () => {
                     <Button onClick={handleCloseDialog} data-testid="app-cancel-button">Cancel</Button>
                     <Button onClick={handleSubmit} variant="contained" data-testid="app-submit-button">
                         {editingApp ? 'Update' : 'Create'}
+                    </Button>
+                </DialogActions>
+            </Dialog>
+
+            <Dialog open={confirmDeleteOpen} onClose={handleCancelDelete} maxWidth="xs" fullWidth data-testid="delete-app-dialog">
+                <DialogTitle>Delete App</DialogTitle>
+                <DialogContent>
+                    <Typography>
+                        Are you sure you want to delete this app?
+                    </Typography>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleCancelDelete} data-testid="app-delete-cancel-button">
+                        Cancel
+                    </Button>
+                    <Button
+                        onClick={handleConfirmDelete}
+                        variant="contained"
+                        color="error"
+                        data-testid="app-delete-confirm-button"
+                    >
+                        Delete
                     </Button>
                 </DialogActions>
             </Dialog>
