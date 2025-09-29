@@ -30,10 +30,6 @@ export const useFCM = (): FCMHookReturn => {
 
     const generateToken = useCallback(async () => {
         try {
-            if (!messaging) {
-                throw new Error('Firebase messaging not available');
-            }
-
             if (!vapidKey) {
                 throw new Error('VAPID key is not configured');
             }
@@ -44,7 +40,7 @@ export const useFCM = (): FCMHookReturn => {
                 throw new Error('Service worker not registered');
             }
 
-            const currentToken = await getToken(messaging()!, {
+            const currentToken = await getToken(messaging, {
                 vapidKey,
                 serviceWorkerRegistration: registration,
             });
@@ -76,22 +72,20 @@ export const useFCM = (): FCMHookReturn => {
             }
 
             // Listen for foreground messages
-            if (messaging) {
-                onMessage(messaging()!, (payload) => {
-                    // Show notification manually for foreground messages
-                    if (payload.notification) {
-                        new Notification(payload.notification.title || 'New Notification', {
-                            body: payload.notification.body,
-                            icon: payload.notification.icon || '/logo.png',
-                            data: payload.data,
-                        });
-                    }
-                });
-            }
+            onMessage(messaging, (payload) => {
+                // Show notification manually for foreground messages
+                if (payload.notification) {
+                    new Notification(payload.notification.title || 'New Notification', {
+                        body: payload.notification.body,
+                        icon: payload.notification.icon || '/logo.png',
+                        data: payload.data,
+                    });
+                }
+            });
         };
 
         // Check if FCM is supported and not already initialized
-        if (!isInitializedRef.current && typeof window !== 'undefined' && 'serviceWorker' in navigator && messaging()) {
+        if (!isInitializedRef.current && typeof window !== 'undefined' && 'serviceWorker' in navigator && messaging) {
             isInitializedRef.current = true;
             setIsSupported(true);
             initializeFCM().catch(() => {

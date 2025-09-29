@@ -33,6 +33,12 @@ export default defineConfig(({ mode }) => ({
   define: {
     global: 'globalThis',
   },
+  build: {
+    commonjsOptions: {
+      include: [/node_modules/],
+      exclude: [/@my-dashboard\/(sdk|types)/],
+    },
+  },
   test: {
     globals: true,
     environment: 'jsdom',
@@ -40,10 +46,5 @@ export default defineConfig(({ mode }) => ({
     css: true,
     include: ['src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
     exclude: ['node_modules', 'dist', '.idea', '.git', '.cache'],
-    env: {
-      // Load test environment variables
-      ...process.env,
-    },
-    envDir: '.',
   },
 }));
