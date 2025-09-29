@@ -4,10 +4,11 @@ updates:
   - package-ecosystem: "npm"
     directory: "/client"
     schedule:
-      interval: "daily"
+      interval: "weekly"
       day: "monday"
       time: "09:00"
     open-pull-requests-limit: 5
+    versioning-strategy: increase
     reviewers:
       - "jayc13"
     assignees:
@@ -32,10 +33,11 @@ updates:
   - package-ecosystem: "npm"
     directory: "/server"
     schedule:
-      interval: "daily"
+      interval: "weekly"
       day: "monday"
       time: "09:00"
     open-pull-requests-limit: 5
+    versioning-strategy: increase
     reviewers:
       - "jayc13"
     assignees:
@@ -58,10 +60,11 @@ updates:
   - package-ecosystem: "npm"
     directory: "/cron"
     schedule:
-      interval: "daily"
+      interval: "weekly"
       day: "monday"
       time: "09:00"
     open-pull-requests-limit: 3
+    versioning-strategy: increase
     reviewers:
       - "jayc13"
     assignees:
@@ -80,10 +83,11 @@ updates:
   - package-ecosystem: "npm"
     directory: "/scripts"
     schedule:
-      interval: "daily"
+      interval: "weekly"
       day: "monday"
       time: "09:00"
     open-pull-requests-limit: 3
+    versioning-strategy: increase
     reviewers:
       - "jayc13"
     assignees:
@@ -98,11 +102,126 @@ updates:
       - "dependencies"
       - "scripts"
 
+  # Mock Server dependencies
+  - package-ecosystem: "npm"
+    directory: "/mock-server"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+    open-pull-requests-limit: 3
+    versioning-strategy: increase
+    reviewers:
+      - "jayc13"
+    assignees:
+      - "jayc13"
+    commit-message:
+      prefix: "deps"
+      include: "dependency-name"
+    pull-request-branch-name:
+      separator: "-"
+      include: "dependency-name"
+    labels:
+      - "dependencies"
+      - "mock-server"
+
+  # E2E Tests dependencies
+  - package-ecosystem: "npm"
+    directory: "/tests/e2e-tests"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+    open-pull-requests-limit: 3
+    versioning-strategy: increase
+    reviewers:
+      - "jayc13"
+    assignees:
+      - "jayc13"
+    commit-message:
+      prefix: "deps"
+      include: "dependency-name"
+    pull-request-branch-name:
+      separator: "-"
+      include: "dependency-name"
+    labels:
+      - "dependencies"
+      - "e2e-tests"
+
+  # Integration Tests dependencies
+  - package-ecosystem: "npm"
+    directory: "/tests/integration-tests"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+    open-pull-requests-limit: 3
+    versioning-strategy: increase
+    reviewers:
+      - "jayc13"
+    assignees:
+      - "jayc13"
+    commit-message:
+      prefix: "deps"
+      include: "dependency-name"
+    pull-request-branch-name:
+      separator: "-"
+      include: "dependency-name"
+    labels:
+      - "dependencies"
+      - "integration-tests"
+
+  # Types Package dependencies
+  - package-ecosystem: "npm"
+    directory: "/packages/types"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+    open-pull-requests-limit: 3
+    versioning-strategy: increase
+    reviewers:
+      - "jayc13"
+    assignees:
+      - "jayc13"
+    commit-message:
+      prefix: "deps"
+      include: "dependency-name"
+    pull-request-branch-name:
+      separator: "-"
+      include: "dependency-name"
+    labels:
+      - "dependencies"
+      - "types-package"
+
+  # SDK Package dependencies
+  - package-ecosystem: "npm"
+    directory: "/packages/sdk"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+    open-pull-requests-limit: 3
+    versioning-strategy: increase
+    reviewers:
+      - "jayc13"
+    assignees:
+      - "jayc13"
+    commit-message:
+      prefix: "deps"
+      include: "dependency-name"
+    pull-request-branch-name:
+      separator: "-"
+      include: "dependency-name"
+    labels:
+      - "dependencies"
+      - "sdk-package"
+
   # GitHub Actions dependencies
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
-      interval: "monthly"
+      interval: "weekly"
       day: "monday"
       time: "09:00"
     open-pull-requests-limit: 2
