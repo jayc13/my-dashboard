@@ -18,3 +18,6 @@
 # MySQL backups
 */**/mysql-backups
 /data/mysql-backups
+
+# PID files
+*.pid
