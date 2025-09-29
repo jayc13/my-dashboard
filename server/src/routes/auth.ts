@@ -14,7 +14,9 @@ export function createAuthRouter() {
   // Apply brute force protection middleware to auth routes
   router.use(securityHeaders);
   router.use(authRateLimit);
-  router.use(authSlowDown);
+  if (process.env.NODE_ENV === 'production') {
+    router.use(authSlowDown);
+  }
 
   // Validate API key endpoint with comprehensive protection
   router.post('/validate',
