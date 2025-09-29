@@ -8,7 +8,7 @@ import { BaseClient } from '../base-client';
 import {
   type Application,
   type ApplicationDetails,
-} from '@my-dashboard/types/applications';
+} from '@my-dashboard/types';
 
 /**
  * Applications management service
