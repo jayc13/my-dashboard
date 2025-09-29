@@ -82,19 +82,9 @@ export interface UpdateApplicationRequest {
 }
 
 /**
- * Input for creating notifications
- */
-export interface CreateNotificationRequest {
-  title: string;
-  message: string;
-  type: 'success' | 'error' | 'info' | 'warning';
-  link?: string;
-}
-
-/**
  * Input for adding pull requests
  */
 export interface AddPullRequestRequest {
-  pull_request_number: number;
+  pullRequestNumber: number;
   repository: string;
 }

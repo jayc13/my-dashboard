@@ -18,9 +18,9 @@ export class PullRequestController {
   // Add a new PR
   addPullRequest = async (req: Request, res: Response): Promise<void> => {
     try {
-      const { pull_request_number, repository } = req.body;
+      const { pullRequestNumber, repository } = req.body;
       const newPR = await pullRequestService.addPullRequest({
-        pullRequestNumber: pull_request_number,
+        pullRequestNumber,
         repository,
       });
       res.status(201).json(newPR);
@@ -49,7 +49,7 @@ export class PullRequestController {
     try {
       const { id } = req.params;
       await pullRequestService.deletePullRequest(id);
-      res.status(200).json({ message: 'Pull request deleted successfully' });
+      res.status(200).json({ success: true, message: 'Pull request deleted successfully' });
     } catch (error) {
       res.status(500).json({ message: 'Error deleting pull request', error });
     }
