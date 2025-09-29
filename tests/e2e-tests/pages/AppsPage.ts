@@ -129,13 +129,7 @@ export class AppsPage {
   }
 
   async editApp(code: string) {
-    const row = await this.getAppRowByCode(code);
-    await row.locator('[data-testid="EditIcon"]').click();
-    await expect(this.appDialog).toBeVisible();
-  }
-
-  async editAppById(appId: number) {
-    await (await this.getAppEditButton(appId)).click();
+    await (await this.getAppEditButton(code)).click();
     await expect(this.appDialog).toBeVisible();
   }
 
@@ -153,8 +147,8 @@ export class AppsPage {
     return this.page.locator(`[data-testid="app-delete-button-${appId}"]`);
   }
 
-  async getAppEditButton(appId: number): Promise<Locator> {
-    return this.page.locator(`[data-testid="app-edit-button-${appId}"]`);
+  async getAppEditButton(code: string): Promise<Locator> {
+    return this.page.locator(`[data-testid="app-edit-button-${code}"]`);
   }
 
   async deleteApp(appId: number) {
@@ -233,7 +227,7 @@ export class AppsPage {
       code: await cells.nth(2).textContent() || '',
       pipelineUrl: await cells.nth(3).textContent() || '',
       e2eConfig: (await cells.nth(4).textContent() || '').includes('Configured'),
-      watching: await cells.nth(5).locator('[data-testid="VisibilityIcon"]').isVisible(),
+      watching: await cells.nth(5).locator('[data-testid="watching-flag"]').isVisible(),
     };
   }
 
