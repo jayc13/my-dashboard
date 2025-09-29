@@ -84,6 +84,7 @@ jobs:
           npm run build \
             --workspace=packages/types \
             --workspace=packages/sdk \
+            --workspace=mock-server \
             --workspace=server \
             --workspace=tests/integration-tests
 
@@ -102,6 +103,25 @@ jobs:
           MYSQL_USER: ${{ secrets.MYSQL_USER || 'root' }}
           MYSQL_PASSWORD: ${{ secrets.MYSQL_PASSWORD || secrets.MYSQL_ROOT_PASSWORD || 'root' }}
           MYSQL_DATABASE: ${{ secrets.MYSQL_TEST_DATABASE || 'cypress_dashboard_test' }}
+
+      - name: Start mock-server in background
+        working-directory: ./mock-server
+        run: |
+          # Set up environment variables for testing
+          cat > .env << EOF
+          PORT=3001
+          
+          # API Configuration
+          CORS_ORIGIN=http://localhost:3000
+          EOF
+
+          # Start server in background
+          npm start > mock-server.log 2>&1 &
+          echo $! > mock-server.pid
+
+          # Wait for server to be ready
+          timeout 60 bash -c 'until curl -sf http://localhost:3001/health; do sleep 2; done'
+
       - name: Start server in background
         working-directory: ./server
         run: |
@@ -169,5 +189,9 @@ jobs:
             kill $(cat server.pid) || true
             rm server.pid
           fi
+          if [ -f ./mock-server/mock-server.pid ]; then
+            kill $(cat ./mock-server/mock-server.pid) || true
+          fi
           # Kill any remaining processes on port 3000
+          sudo lsof -ti:3001 | xargs -r sudo kill -9 || true
           sudo lsof -ti:3000 | xargs -r sudo kill -9 || true

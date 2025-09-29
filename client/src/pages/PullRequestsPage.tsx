@@ -222,13 +222,13 @@ const PullRequestsPage = () => {
                 return;
             }
             const repository = match[1];
-            const pull_request_number = Number(match[2]);
+            const pullRequestNumber = Number(match[2]);
 
             await apiFetch(`${API_BASE_URL}/api/pull_requests`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    pull_request_number,
+                    pullRequestNumber,
                     repository,
                 }),
             });
