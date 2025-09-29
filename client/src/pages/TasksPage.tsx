@@ -1,5 +1,3 @@
-import useSWR from 'swr';
-import { API_BASE_URL } from '../utils/constants';
 import ToDoListWidget from '../components/widgets/ToDoList';
 import JiraList from '../components/widgets/JiraList';
 import {
@@ -7,9 +5,10 @@ import {
     Card,
     Grid,
 } from '@mui/material';
+import { useMyJiraTickets, useManualQATasks } from '../hooks';
 import type { JiraTicket } from '../types';
 
-const sortTicketsByStatus = (tickets: JiraTicket[]) => {
+const sortTicketsByStatus = (tickets: JiraTicket[] = []) => {
     const statusOrder: Record<string, number> = Object.freeze({
         'In Progress': 1,
         'In Review': 2,
@@ -26,24 +25,16 @@ const sortTicketsByStatus = (tickets: JiraTicket[]) => {
 };
 
 const TasksPage = () => {
-    const {
-        data: myTicketsData,
-        isLoading: isLoadingMyTickets,
-        error: errorMyTickets,
-        mutate: mutateMyTickets,
-    } = useSWR(`${API_BASE_URL}/api/jira/my_tickets`);
-
-    const {
-        data: manualTestingData,
-        isLoading: isLoadingManualTesting,
-        error: errorManualTesting,
-        mutate: mutateManualTesting,
-    } = useSWR(`${API_BASE_URL}/api/jira/manual_qa`);
+    // SDK hooks
+    const { data: myTicketsData, loading: isLoadingMyTickets, error: errorMyTickets, refetch: refetchMyTickets } = useMyJiraTickets();
+    const { data: manualTestingData, loading: isLoadingManualTesting, error: errorManualTesting, refetch: refetchManualTesting } = useManualQATasks();
 
     if (errorMyTickets || errorManualTesting) {
         return (
             <Card style={{ padding: 24, marginTop: 16 }} data-testid="tasks-page">
-                <Alert severity="error">Error fetching information</Alert>
+                <Alert severity="error">
+                    Error fetching information: {errorMyTickets?.message || errorManualTesting?.message}
+                </Alert>
             </Card>
         );
     }
@@ -57,19 +48,19 @@ const TasksPage = () => {
             <Grid size={{ xs: 12, sm: 6, md: 4 }}>
                 <JiraList
                     title="Manual Testing"
-                    refresh={mutateManualTesting}
-                    data={manualTestingData?.issues ?? []}
+                    refresh={refetchManualTesting}
+                    data={manualTestingData?.issues || []}
                     isLoading={isLoadingManualTesting}
-                    hasError={errorManualTesting || !!manualTestingData?.error}
+                    hasError={!!errorManualTesting}
                 />
             </Grid>
             <Grid size={{ xs: 12, sm: 6, md: 4 }}>
                 <JiraList
                     title="My Tickets"
-                    refresh={mutateMyTickets}
-                    data={sortTicketsByStatus(myTicketsData?.issues ?? [])}
+                    refresh={refetchMyTickets}
+                    data={sortTicketsByStatus(myTicketsData?.issues || [])}
                     isLoading={isLoadingMyTickets}
-                    hasError={errorMyTickets || !!myTicketsData?.error}
+                    hasError={!!errorMyTickets}
                 />
             </Grid>
         </Grid>
