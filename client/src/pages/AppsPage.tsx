@@ -206,9 +206,9 @@ const AppsPage = () => {
                 <Box display="flex" alignItems="center" sx={{ height: '100%' }}>
                     {
                         params.value ? (
-                            <Visibility color="primary"/>
+                            <Visibility color="primary" data-testid="watching-flag"/>
                         ) : (
-                            <VisibilityOff color="disabled"/>
+                            <VisibilityOff color="disabled" data-testid="no-watching-flag"/>
                         )
                     }
                 </Box>
@@ -225,7 +225,7 @@ const AppsPage = () => {
                     icon={<Edit/>}
                     label="Edit"
                     onClick={() => handleOpenDialog(params.row)}
-                    data-testid={`app-edit-button-${params.row.id}`}
+                    data-testid={`app-edit-button-${params.row.code}`}
                 />,
                 <GridActionsCellItem
                     icon={<Delete/>}
