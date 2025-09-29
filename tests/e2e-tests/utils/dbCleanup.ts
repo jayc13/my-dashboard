@@ -7,6 +7,7 @@ export async function cleanupDatabase(): Promise<void> {
     'todos',
     'notifications',
     'apps',
+    'pull_requests',
   ];
   return truncateTables(tables);
 }
