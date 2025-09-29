@@ -12,12 +12,10 @@ import {
     Close as CloseIcon,
     Apps as AppsIcon,
 } from '@mui/icons-material';
-import useSWR from 'swr';
 import { ThemeSwitcher } from './ThemeSwitcher.tsx';
 import NotificationCenter from './NotificationCenter';
-import { API_BASE_URL } from '../../utils/constants.ts';
 import { useAuth } from '../../contexts/useAuth';
-import type { Notification } from '../../types';
+import { useNotifications } from '../../hooks';
 
 const Header: React.FC = () => {
     const { logout } = useAuth();
@@ -50,9 +48,9 @@ const Header: React.FC = () => {
 
     const {
         data: notifications,
-        mutate: refetchNotifications,
-    } = useSWR<Notification[]>(`${API_BASE_URL}/api/notifications`, {
-        refreshInterval: 10 * 60 * 1000, // Refresh every 10 minutes
+        refetch: refetchNotifications,
+    } = useNotifications({
+        refetchInterval: 10 * 60 * 1000, // Refresh every 10 minutes
     });
 
     useEffect(() => {

@@ -1,5 +1,5 @@
 import * as dotenv from 'dotenv';
-import { JiraTicket } from '../types';
+import { JiraTicket } from '@my-dashboard/types/jira';
 
 interface JiraUser {
   displayName: string;

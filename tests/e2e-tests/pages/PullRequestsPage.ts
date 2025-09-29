@@ -1,4 +1,5 @@
 import { Page, Locator, expect } from '@playwright/test';
+import PullRequestTestUtils from '@utils/pull-request-test-helpers';
 
 /**
  * Page Object Model for the Pull Requests Page
@@ -84,9 +85,16 @@ export class PullRequestsPage {
   }
 
   async addPullRequest(url: string) {
+    // Set up interceptor for the add PR API call
+    const getAllPullRequests = PullRequestTestUtils.interceptGetAllPullRequests(this.page);
+    const addPrRequest = PullRequestTestUtils.interceptAddPullRequest(this.page);
+
     await this.openAddPrDialog();
     await this.fillPrUrl(url);
     await this.submitAddPr();
+
+    // Wait for the API request to complete
+    await Promise.all([addPrRequest, getAllPullRequests]);
     await expect(this.addPrDialog).not.toBeVisible();
   }
 
@@ -95,9 +103,18 @@ export class PullRequestsPage {
   }
 
   async deletePr(prId: string) {
+    // Set up interceptor for the delete PR API call
+    const getAllPullRequests = PullRequestTestUtils.interceptGetAllPullRequests(this.page);
+    const deletePrRequest = PullRequestTestUtils.interceptDeletePullRequest(this.page, prId);
     await this.getPrDeleteButton(prId).click();
     await expect(this.deletePrDialog).toBeVisible();
     await this.prDeleteConfirmButton.click();
+
+    // Wait for the API request to complete
+    await Promise.all([
+      deletePrRequest,
+      getAllPullRequests,
+    ]);
     await expect(this.deletePrDialog).not.toBeVisible();
   }
 

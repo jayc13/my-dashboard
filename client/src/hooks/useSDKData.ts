@@ -1,5 +1,7 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useSDK } from '../contexts/useSDK';
+import { useAuth } from '../contexts/useAuth';
+import { APIError } from '@my-dashboard/sdk';
 
 interface UseSDKDataOptions {
   enabled?: boolean;
@@ -21,6 +23,7 @@ export function useSDKData<T>(
   options: UseSDKDataOptions = {},
 ): UseSDKDataResult<T> {
   const { api, isReady } = useSDK();
+  const { logout } = useAuth();
   const { enabled = true, refetchInterval } = options;
 
   const [data, setData] = useState<T | null>(null);
@@ -40,13 +43,18 @@ export function useSDKData<T>(
       setData(result);
     } catch (err) {
       const error = err instanceof Error ? err : new Error('Unknown error occurred');
+
+      // Handle 401 errors by logging out the user
+      if (err instanceof APIError && err.status === 401) {
+        logout();
+        return; // Don't set error state as user will be redirected to login
+      }
+
       setError(error);
-      // eslint-disable-next-line no-console
-      console.error('SDK data fetch error:', error);
     } finally {
       setLoading(false);
     }
-  }, [api, isReady, enabled, fetcher]);
+  }, [api, isReady, enabled, fetcher, logout]);
 
   const refetch = useCallback(async () => {
     await fetchData();
@@ -90,6 +98,7 @@ export function useSDKMutation<TData, TVariables = void>(
   reset: () => void;
 } {
   const { api, isReady } = useSDK();
+  const { logout } = useAuth();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
@@ -102,16 +111,22 @@ export function useSDKMutation<TData, TVariables = void>(
     setError(null);
 
     try {
-      const result = await mutationFn(variables);
-      return result;
+      return await mutationFn(variables);
     } catch (err) {
       const error = err instanceof Error ? err : new Error('Unknown error occurred');
+
+      // Handle 401 errors by logging out the user
+      if (err instanceof APIError && err.status === 401) {
+        logout();
+        throw err; // Still throw the error for the caller to handle
+      }
+
       setError(error);
       throw error;
     } finally {
       setLoading(false);
     }
-  }, [api, isReady, mutationFn]);
+  }, [api, isReady, mutationFn, logout]);
 
   const reset = useCallback(() => {
     setError(null);

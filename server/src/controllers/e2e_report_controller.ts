@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { E2e_reportService } from '../services/e2e_report.service';
-import { ProjectStatus } from '../types';
+import { ProjectStatus } from '@my-dashboard/types/e2e';
 
 const reportService = new E2e_reportService();
 

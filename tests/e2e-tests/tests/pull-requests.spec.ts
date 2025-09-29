@@ -125,6 +125,7 @@ test.describe('Pull Requests Test Suite', () => {
     let testPrId: string;
 
     test.beforeEach(async () => {
+      await truncateTables(['pull_requests']);
       // Ensure we have at least one PR for testing
       const prCount = await pullRequestsPage.getPrCount();
       if (prCount === 0) {

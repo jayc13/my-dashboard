@@ -7,8 +7,10 @@
  */
 export class APIError extends Error {
   public readonly status: number;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public readonly response?: any;
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   constructor(status: number, message: string, response?: any) {
     super(message);
     this.name = 'APIError';
