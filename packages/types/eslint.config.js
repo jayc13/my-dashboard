@@ -1,28 +1,24 @@
-const js = require('@eslint/js');
-const tseslint = require('@typescript-eslint/eslint-plugin');
-const tsparser = require('@typescript-eslint/parser');
-const globals = require('globals');
+import js from '@eslint/js';
+import globals from 'globals';
+import tseslint from 'typescript-eslint';
 
-module.exports = [
+export default tseslint.config([
   js.configs.recommended,
+  ...tseslint.configs.recommended,
   {
     files: ['**/*.ts', '**/*.tsx'],
     languageOptions: {
-      parser: tsparser,
+      ecmaVersion: 'latest',
+      sourceType: 'module',
       parserOptions: {
-        ecmaVersion: 'latest',
-        sourceType: 'module',
-        project: './tsconfig.json',
+        projectService: true,
+        tsconfigRootDir: import.meta.dirname,
       },
       globals: {
         ...globals.node,
       },
     },
-    plugins: {
-      '@typescript-eslint': tseslint,
-    },
     rules: {
-      ...tseslint.configs.recommended.rules,
       // TypeScript specific rules
       '@typescript-eslint/no-unused-vars': ['error', { 
         argsIgnorePattern: '^_',
@@ -55,17 +51,17 @@ module.exports = [
     },
   },
   {
-    files: ['**/*.js'],
+    files: ['**/*.js', '**/*.mjs'],
     languageOptions: {
       ecmaVersion: 'latest',
-      sourceType: 'commonjs',
+      sourceType: 'module',
       globals: {
         ...globals.node,
       },
     },
     rules: {
       'no-console': 'off',
-      'no-unused-vars': ['error', { 
+      'no-unused-vars': ['error', {
         argsIgnorePattern: '^_',
         varsIgnorePattern: '^_',
         ignoreRestSiblings: true,
@@ -86,22 +82,19 @@ module.exports = [
   {
     files: ['src/tests/**/*.ts', '**/*.test.ts', '**/*.spec.ts'],
     languageOptions: {
-      parser: tsparser,
+      ecmaVersion: 'latest',
+      sourceType: 'module',
       parserOptions: {
-        ecmaVersion: 'latest',
-        sourceType: 'module',
-        project: './tsconfig.json',
+        projectService: true,
+        tsconfigRootDir: import.meta.dirname,
       },
       globals: {
         ...globals.node,
         ...globals.jest,
+        ...globals.vitest,
       },
     },
-    plugins: {
-      '@typescript-eslint': tseslint,
-    },
     rules: {
-      ...tseslint.configs.recommended.rules,
       // Relaxed rules for test files
       'no-console': 'off', // Allow console.log in tests
       '@typescript-eslint/no-explicit-any': 'off', // Allow any in tests
@@ -109,6 +102,6 @@ module.exports = [
     },
   },
   {
-    ignores: ['dist/**', 'node_modules/**'],
+    ignores: ['dist/**', 'node_modules/**', 'build/**', 'coverage/**'],
   },
-];
+]);

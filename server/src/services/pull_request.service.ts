@@ -1,5 +1,5 @@
 import { db } from '../db/database';
-import { PullRequest } from '../types';
+import { PullRequest } from '@my-dashboard/types/pull-requests';
 
 export interface PullRequestInput {
     pullRequestNumber: number;
