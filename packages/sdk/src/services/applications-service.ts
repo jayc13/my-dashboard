@@ -5,12 +5,10 @@
  */
 
 import { BaseClient } from '../base-client';
-import { 
-  Application,
-  ApplicationDetails,
-  CreateApplicationRequest,
-  UpdateApplicationRequest,
-} from '../types';
+import {
+  type Application,
+  type ApplicationDetails,
+} from '@my-dashboard/types/applications';
 
 /**
  * Applications management service
@@ -53,7 +51,7 @@ export class ApplicationsService extends BaseClient {
    * @param application Application data
    * @returns Promise resolving to created application
    */
-  public async createApplication(application: CreateApplicationRequest): Promise<Application> {
+  public async createApplication(application: Application): Promise<Application> {
     return this.request<Application>('/api/apps', {
       method: 'POST',
       body: JSON.stringify(application),
@@ -66,7 +64,7 @@ export class ApplicationsService extends BaseClient {
    * @param updates Application updates
    * @returns Promise resolving to updated application
    */
-  public async updateApplication(id: number, updates: UpdateApplicationRequest): Promise<Application> {
+  public async updateApplication(id: number, updates: Application): Promise<Application> {
     return this.request<Application>(`/api/apps/${id}`, {
       method: 'PUT',
       body: JSON.stringify(updates),

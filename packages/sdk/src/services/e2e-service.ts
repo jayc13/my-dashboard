@@ -11,7 +11,7 @@ import {
   ProjectStatus,
   E2EManualRun,
   E2EManualRunInput,
-} from '../types';
+} from '@my-dashboard/types';
 
 /**
  * E2E Reports and Manual Runs service

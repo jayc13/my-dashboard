@@ -11,7 +11,7 @@ import { NotificationsService } from './services/notifications-service';
 import { PullRequestsService } from './services/pull-requests-service';
 import { AuthService } from './services/auth-service';
 import { FCMService, JiraService, TodosService, HealthService } from './services/additional-services';
-import { SDKConfig } from './types';
+import { SDKConfig } from '@my-dashboard/types';
 
 /**
  * Main API client for My Dashboard

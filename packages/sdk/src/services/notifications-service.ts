@@ -6,9 +6,11 @@
 
 import { BaseClient } from '../base-client';
 import { 
-  NotificationQueryParams,
-  Notification,
-} from '../types';
+  type Notification,
+} from '@my-dashboard/types/notifications';
+import {
+  type NotificationQueryParams,
+} from '@my-dashboard/types/sdk';
 
 /**
  * Notifications management service

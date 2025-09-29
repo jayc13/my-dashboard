@@ -60,28 +60,6 @@ export interface E2EReportsQueryParams extends Record<string, string | number | 
 }
 
 /**
- * Input for creating applications
- */
-export interface CreateApplicationRequest {
-  name: string;
-  code: string;
-  pipeline_url?: string;
-  e2e_trigger_configuration?: string;
-  watching?: boolean;
-}
-
-/**
- * Input for updating applications
- */
-export interface UpdateApplicationRequest {
-  name?: string;
-  code?: string;
-  pipeline_url?: string;
-  e2e_trigger_configuration?: string;
-  watching?: boolean;
-}
-
-/**
  * Input for adding pull requests
  */
 export interface AddPullRequestRequest {

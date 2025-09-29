@@ -11,7 +11,7 @@ import {
   JiraIssuesResponse,
   ToDoItem,
   ToDoItemInput,
-} from '../types';
+} from '@my-dashboard/types';
 
 /**
  * Firebase Cloud Messaging service

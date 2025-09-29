@@ -4,8 +4,6 @@ import { useSDK } from '../contexts/useSDK';
 import type { 
   Application, 
   ApplicationDetails,
-  CreateApplicationRequest,
-  UpdateApplicationRequest,
 } from '@my-dashboard/types';
 
 /**
@@ -62,7 +60,7 @@ export function useAppByCode(code: string, options?: { enabled?: boolean; refetc
 export function useCreateApp() {
   const { api } = useSDK();
 
-  const mutationFn = useCallback(async (data: CreateApplicationRequest): Promise<Application> => {
+  const mutationFn = useCallback(async (data: Application): Promise<Application> => {
     if (!api) {
       throw new Error('API not available');
     }
@@ -78,7 +76,7 @@ export function useCreateApp() {
 export function useUpdateApp() {
   const { api } = useSDK();
 
-  const mutationFn = useCallback(async ({ id, data }: { id: number; data: UpdateApplicationRequest }): Promise<Application> => {
+  const mutationFn = useCallback(async ({ id, data }: { id: number; data: Application }): Promise<Application> => {
     if (!api) {
       throw new Error('API not available');
     }

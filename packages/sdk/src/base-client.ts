@@ -6,7 +6,7 @@
  */
 
 import { APIError, NetworkError, ConfigurationError } from './errors';
-import { SDKConfig, RequestOptions } from './types';
+import { SDKConfig, RequestOptions } from '@my-dashboard/types';
 
 /**
  * Base API client with core HTTP functionality

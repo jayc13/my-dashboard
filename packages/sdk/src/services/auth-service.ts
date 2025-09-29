@@ -8,7 +8,7 @@ import { BaseClient } from '../base-client';
 import { 
   AuthValidationRequest,
   AuthValidationResponse,
-} from '../types';
+} from '@my-dashboard/types';
 
 /**
  * Authentication service

@@ -96,20 +96,20 @@ const AppsPage = () => {
                     data: {
                         name: formData.name,
                         code: formData.code,
-                        pipeline_url: formData.pipelineUrl,
-                        e2e_trigger_configuration: formData.e2eTriggerConfiguration,
+                        pipelineUrl: formData.pipelineUrl,
+                        e2eTriggerConfiguration: formData.e2eTriggerConfiguration,
                         watching: formData.watching,
-                    },
+                    } as Application,
                 });
                 enqueueSnackbar('App updated successfully', { variant: 'success' });
             } else {
                 await createApp({
                     name: formData.name!,
                     code: formData.code!,
-                    pipeline_url: formData.pipelineUrl,
-                    e2e_trigger_configuration: formData.e2eTriggerConfiguration,
+                    pipelineUrl: formData.pipelineUrl,
+                    e2eTriggerConfiguration: formData.e2eTriggerConfiguration,
                     watching: formData.watching || false,
-                });
+                } as Application);
                 enqueueSnackbar('App created successfully', { variant: 'success' });
             }
 
