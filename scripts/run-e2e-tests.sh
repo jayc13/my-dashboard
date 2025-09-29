@@ -5,6 +5,8 @@
 
 set -e
 
+export HNVM_PNPM=10.17.1
+
 # Colors for output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -15,6 +17,7 @@ NC='\033[0m' # No Color
 # Default configuration
 CLIENT_PORT=5173
 SERVER_PORT=3000
+MOCK_SERVER_PORT=3001
 HEADLESS=true
 TIMEOUT=60
 
@@ -72,17 +75,18 @@ cleanup() {
   echo -e "\n${YELLOW}🧹 Cleaning up processes...${NC}"
   
   # Kill background processes
-  if [ -f server.pid ]; then
-    kill $(cat server.pid) 2>/dev/null || true
-    rm server.pid
+  if [ -f ./server.pid ]; then
+    kill $(cat ./server.pid) || true
   fi
-  
-  if [ -f client.pid ]; then
-    kill $(cat client.pid) 2>/dev/null || true
-    rm client.pid
+  if [ -f ./mock-server.pid ]; then
+    kill $(cat ./mock-server.pid) || true
+  fi
+  if [ -f ./client.pid ]; then
+    kill $(cat ./client.pid) || true
   fi
   
   # Kill any processes on the ports
+  lsof -ti:$MOCK_SERVER_PORT | xargs -r kill -9 2>/dev/null || true
   lsof -ti:$SERVER_PORT | xargs -r kill -9 2>/dev/null || true
   lsof -ti:$CLIENT_PORT | xargs -r kill -9 2>/dev/null || true
   
@@ -92,50 +96,32 @@ cleanup() {
 # Set up cleanup trap
 trap cleanup EXIT
 
-# Check if required directories exist
-if [ ! -d "server" ] || [ ! -d "client" ] || [ ! -d "tests/e2e-tests" ]; then
-  echo -e "${RED}❌ Error: Required directories not found. Make sure you're in the project root.${NC}"
-  exit 1
-fi
+
+cd "$(git rev-parse --show-toplevel)" || exit 1
+
+cleanup
 
 echo -e "${BLUE}📦 Installing dependencies...${NC}"
 
-npx pnpm install --registry=https://registry.npmjs.org/
-
-# Install Playwright browsers
-echo -e "${YELLOW}Installing Playwright browsers...${NC}"
-cd tests/e2e-tests && npx playwright install && cd ../..
+pnpm install --registry=https://registry.npmjs.org/ --silent
 
 echo -e "${BLUE}🏗️  Building applications...${NC}"
-
-# Build client
-echo -e "${YELLOW}Building client...${NC}"
-cd client && npx pnpm run build && cd ..
-
-# Build server
-echo -e "${YELLOW}Building server...${NC}"
-cd server && npx pnpm run build && cd ..
+pnpm -r --if-present run build
 
 echo -e "${BLUE}🚀 Starting services...${NC}"
 
 # Start server
+echo -e "${YELLOW}Starting mock-server on port $MOCK_SERVER_PORT...${NC}"
+cd mock-server
+
+npm start &
+SERVER_PID=$!
+echo $SERVER_PID > ../mock-server.pid
+cd ..
+
+# Start server
 echo -e "${YELLOW}Starting server on port $SERVER_PORT...${NC}"
 cd server
-
-# Create server .env for testing
-cat > .env << EOF
-NODE_ENV=test
-PORT=$SERVER_PORT
-API_SECURITY_KEY=${API_SECURITY_KEY:-test-api-key-for-e2e}
-MYSQL_HOST=${MYSQL_HOST:-localhost}
-MYSQL_PORT=${MYSQL_PORT:-3306}
-MYSQL_USER=${MYSQL_USER:-root}
-MYSQL_PASSWORD=${MYSQL_PASSWORD:-}
-MYSQL_DATABASE=${MYSQL_DATABASE:-cypress_dashboard_test}
-FIREBASE_PROJECT_ID=${FIREBASE_PROJECT_ID:-}
-FIREBASE_PRIVATE_KEY="${FIREBASE_PRIVATE_KEY:-}"
-FIREBASE_CLIENT_EMAIL=${FIREBASE_CLIENT_EMAIL:-}
-EOF
 
 npm start &
 SERVER_PID=$!
@@ -154,17 +140,6 @@ echo -e "${GREEN}✅ Server is ready${NC}"
 echo -e "${YELLOW}Starting client on port $CLIENT_PORT...${NC}"
 cd client
 
-# Create client .env for testing
-cat > .env << EOF
-VITE_API_BASE_URL=http://localhost:$SERVER_PORT
-VITE_FIREBASE_API_KEY=${VITE_FIREBASE_API_KEY:-}
-VITE_FIREBASE_AUTH_DOMAIN=${VITE_FIREBASE_AUTH_DOMAIN:-}
-VITE_FIREBASE_PROJECT_ID=${VITE_FIREBASE_PROJECT_ID:-}
-VITE_FIREBASE_STORAGE_BUCKET=${VITE_FIREBASE_STORAGE_BUCKET:-}
-VITE_FIREBASE_MESSAGING_SENDER_ID=${VITE_FIREBASE_MESSAGING_SENDER_ID:-}
-VITE_FIREBASE_APP_ID=${VITE_FIREBASE_APP_ID:-}
-EOF
-
 npm run dev &
 CLIENT_PID=$!
 echo $CLIENT_PID > ../client.pid
@@ -182,13 +157,6 @@ echo -e "${BLUE}🧪 Running E2E tests...${NC}"
 
 # Run e2e tests
 cd tests/e2e-tests
-
-# Create e2e test .env
-cat > .env << EOF
-BASE_URL=http://localhost:$CLIENT_PORT
-API_URL=http://localhost:$SERVER_PORT
-API_SECURITY_KEY=test-api-key-for-e2e
-EOF
 
 # Run tests based on mode
 if [ "$DEBUG" = true ]; then
