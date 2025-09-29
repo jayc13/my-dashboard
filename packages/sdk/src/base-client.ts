@@ -38,6 +38,7 @@ export abstract class BaseClient {
   /**
    * Make an HTTP request with retry logic
    */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   protected async request<T = any>(endpoint: string, options: RequestOptions = {}): Promise<T> {
     const url = `${this.config.baseUrl}${endpoint}`;
     let lastError: Error;
@@ -132,6 +133,7 @@ export abstract class BaseClient {
       }
 
       if (response.status === 429) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const data = await response.json().catch(() => ({})) as any;
         const retryAfter = data.retryAfter || 60;
         throw new APIError(429, `Rate limited - retry after ${retryAfter} seconds`, data);
@@ -142,6 +144,7 @@ export abstract class BaseClient {
       }
 
       if (!response.ok) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const errorData = await response.json().catch(() => ({})) as any;
         throw new APIError(response.status, errorData.error || 'Unknown error', errorData);
       }
@@ -160,6 +163,7 @@ export abstract class BaseClient {
       }
 
       // Handle network errors
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       if (error instanceof TypeError || (error as any).name === 'AbortError') {
         throw new NetworkError(`Network error: ${(error as Error).message}`, error as Error);
       }
