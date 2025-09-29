@@ -15,10 +15,9 @@ updates:
       - "jayc13"
     commit-message:
       prefix: "deps"
-      include: "dependency-name"
+      include: "scope"
     pull-request-branch-name:
-      separator: "-"
-      include: "dependency-name"
+      separator: "/"
     labels:
       - "dependencies"
       - "client"
@@ -44,10 +43,9 @@ updates:
       - "jayc13"
     commit-message:
       prefix: "deps"
-      include: "dependency-name"
+      include: "scope"
     pull-request-branch-name:
-      separator: "-"
-      include: "dependency-name"
+      separator: "/"
     labels:
       - "dependencies"
       - "server"
@@ -71,10 +69,9 @@ updates:
       - "jayc13"
     commit-message:
       prefix: "deps"
-      include: "dependency-name"
+      include: "scope"
     pull-request-branch-name:
-      separator: "-"
-      include: "dependency-name"
+      separator: "/"
     labels:
       - "dependencies"
       - "cron"
@@ -94,10 +91,9 @@ updates:
       - "jayc13"
     commit-message:
       prefix: "deps"
-      include: "dependency-name"
+      include: "scope"
     pull-request-branch-name:
-      separator: "-"
-      include: "dependency-name"
+      separator: "/"
     labels:
       - "dependencies"
       - "scripts"
@@ -117,10 +113,9 @@ updates:
       - "jayc13"
     commit-message:
       prefix: "deps"
-      include: "dependency-name"
+      include: "scope"
     pull-request-branch-name:
-      separator: "-"
-      include: "dependency-name"
+      separator: "/"
     labels:
       - "dependencies"
       - "mock-server"
@@ -140,10 +135,9 @@ updates:
       - "jayc13"
     commit-message:
       prefix: "deps"
-      include: "dependency-name"
+      include: "scope"
     pull-request-branch-name:
-      separator: "-"
-      include: "dependency-name"
+      separator: "/"
     labels:
       - "dependencies"
       - "e2e-tests"
@@ -163,10 +157,9 @@ updates:
       - "jayc13"
     commit-message:
       prefix: "deps"
-      include: "dependency-name"
+      include: "scope"
     pull-request-branch-name:
-      separator: "-"
-      include: "dependency-name"
+      separator: "/"
     labels:
       - "dependencies"
       - "integration-tests"
@@ -186,10 +179,9 @@ updates:
       - "jayc13"
     commit-message:
       prefix: "deps"
-      include: "dependency-name"
+      include: "scope"
     pull-request-branch-name:
-      separator: "-"
-      include: "dependency-name"
+      separator: "/"
     labels:
       - "dependencies"
       - "types-package"
@@ -209,10 +201,9 @@ updates:
       - "jayc13"
     commit-message:
       prefix: "deps"
-      include: "dependency-name"
+      include: "scope"
     pull-request-branch-name:
-      separator: "-"
-      include: "dependency-name"
+      separator: "/"
     labels:
       - "dependencies"
       - "sdk-package"
@@ -231,10 +222,9 @@ updates:
       - "jayc13"
     commit-message:
       prefix: "ci"
-      include: "dependency-name"
+      include: "scope"
     pull-request-branch-name:
-      separator: "-"
-      include: "dependency-name"
+      separator: "/"
     labels:
       - "dependencies"
       - "github-actions"
