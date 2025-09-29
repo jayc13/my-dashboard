@@ -19,7 +19,7 @@ import {
     InputAdornment,
 } from '@mui/material';
 import { Add, Edit, Delete, Link as LinkIcon, Visibility, VisibilityOff, Search } from '@mui/icons-material';
-import { DataGrid, type GridColDef, GridActionsCellItem } from '@mui/x-data-grid';
+import { DataGrid, type GridColDef, GridActionsCellItem, type GridRowClassNameParams } from '@mui/x-data-grid';
 import { API_BASE_URL } from '../utils/constants';
 import { apiFetch } from '../utils/helpers';
 import type { Application } from '../types';
@@ -285,7 +285,7 @@ const AppsPage = () => {
             </Box>
 
             <Card>
-                <CardContent>
+                <CardContent data-testid="apps-data-grid">
                     <DataGrid
                         loading={isLoadingApps}
                         rows={filteredApps}
@@ -297,7 +297,32 @@ const AppsPage = () => {
                         }}
                         pageSizeOptions={[5, 10, 25]}
                         disableRowSelectionOnClick
-                        data-testid="apps-data-grid"
+                        sx={{ minHeight: 400 }}
+                        getRowClassName={(params: GridRowClassNameParams<Application>) => `app-row-${params.row.code}`}
+                        slots={{
+                            noRowsOverlay: () => (
+                                <Box
+                                    display="flex"
+                                    flexDirection="column"
+                                    alignItems="center"
+                                    justifyContent="center"
+                                    height="100%"
+                                    p={3}
+                                >
+                                    <Typography variant="h6" color="text.secondary" gutterBottom>
+                                        {apps?.length === 0 ? 'No apps found' : 'No apps match your filters'}
+                                    </Typography>
+                                    <Typography variant="body2" color="text.secondary">
+                                        {apps?.length === 0
+                                            ? 'Create your first app to get started'
+                                            : showOnlyWatching
+                                                ? 'Try turning off the "Show only watching" filter'
+                                                : 'Try adjusting your search query'
+                                        }
+                                    </Typography>
+                                </Box>
+                            ),
+                        }}
                     />
                 </CardContent>
             </Card>
