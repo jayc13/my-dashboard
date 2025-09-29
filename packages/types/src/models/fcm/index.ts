@@ -52,16 +52,6 @@ export interface FCMTestNotificationRequest {
 }
 
 /**
- * Response structure for test notification sending
- */
-export interface FCMTestNotificationResponse {
-    success: boolean;
-    message: string;
-    successCount: number;
-    failureCount: number;
-}
-
-/**
  * Response structure for getting all FCM tokens
  */
 export interface FCMTokensResponse {

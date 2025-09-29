@@ -8,10 +8,6 @@ import { BaseClient } from '../base-client';
 import { 
   FCMTokenRequest,
   FCMTokenResponse,
-  FCMTestNotificationRequest,
-  FCMTestNotificationResponse,
-  FCMTokensResponse,
-  JiraTicket,
   JiraIssuesResponse,
   ToDoItem,
   ToDoItemInput,
@@ -32,64 +28,19 @@ export class FCMService extends BaseClient {
       body: JSON.stringify(tokenRequest),
     });
   }
-
-  /**
-   * Unregister a device token
-   * @param tokenRequest FCM token unregistration request
-   * @returns Promise resolving to unregistration response
-   */
-  public async unregisterFCMToken(tokenRequest: FCMTokenRequest): Promise<FCMTokenResponse> {
-    return this.request<FCMTokenResponse>('/api/fcm/unregister-token', {
-      method: 'POST',
-      body: JSON.stringify(tokenRequest),
-    });
-  }
-
-  /**
-   * Send a test notification to all registered devices
-   * @param notification Test notification request
-   * @returns Promise resolving to test notification response
-   */
-  public async sendTestNotification(notification: FCMTestNotificationRequest): Promise<FCMTestNotificationResponse> {
-    return this.request<FCMTestNotificationResponse>('/api/fcm/test-notification', {
-      method: 'POST',
-      body: JSON.stringify(notification),
-    });
-  }
-
-  /**
-   * Get all registered FCM tokens (for debugging)
-   * @returns Promise resolving to FCM tokens response
-   */
-  public async getFCMTokens(): Promise<FCMTokensResponse> {
-    return this.request<FCMTokensResponse>('/api/fcm/tokens', {
-      method: 'GET',
-    });
-  }
 }
 
 /**
  * JIRA integration service
  */
 export class JiraService extends BaseClient {
-  /**
-   * Get JIRA issues using JQL query
-   * @param jql JQL (JIRA Query Language) query string
-   * @returns Promise resolving to JIRA issues response
-   */
-  public async getJiraIssues(jql: string): Promise<JiraIssuesResponse> {
-    return this.request<JiraIssuesResponse>('/api/jira', {
-      method: 'GET',
-      params: { jql },
-    });
-  }
 
   /**
    * Get manual QA tasks from JIRA
    * @returns Promise resolving to array of JIRA tickets
    */
-  public async getManualQATasks(): Promise<JiraTicket[]> {
-    return this.request<JiraTicket[]>('/api/jira/manual_qa', {
+  public async getManualQATasks(): Promise<JiraIssuesResponse> {
+    return this.request<JiraIssuesResponse>('/api/jira/manual_qa', {
       method: 'GET',
     });
   }
@@ -98,8 +49,8 @@ export class JiraService extends BaseClient {
    * Get my assigned JIRA tickets
    * @returns Promise resolving to array of JIRA tickets
    */
-  public async getMyJiraTickets(): Promise<JiraTicket[]> {
-    return this.request<JiraTicket[]>('/api/jira/my_tickets', {
+  public async getMyJiraTickets(): Promise<JiraIssuesResponse> {
+    return this.request<JiraIssuesResponse>('/api/jira/my_tickets', {
       method: 'GET',
     });
   }

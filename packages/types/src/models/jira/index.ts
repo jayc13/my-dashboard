@@ -28,6 +28,6 @@ export interface JiraTicket {
 export interface JiraIssuesResponse {
     issues: JiraTicket[];
     total: number;
-    startAt: number;
-    maxResults: number;
+    startAt?: number;
+    maxResults?: number;
 }
