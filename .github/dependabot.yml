@@ -18,12 +18,12 @@ updates:
       include: "scope"
     pull-request-branch-name:
       separator: "/"
-    pull-request-title:
       prefix: "deps"
-      include: "scope"
     labels:
       - "dependencies"
       - "client"
+    rebase-strategy: "auto"
+    target-branch: "main"
     ignore:
       # Ignore major version updates for React (manual review needed)
       - dependency-name: "react"
@@ -49,12 +49,12 @@ updates:
       include: "scope"
     pull-request-branch-name:
       separator: "/"
-    pull-request-title:
       prefix: "deps"
-      include: "scope"
     labels:
       - "dependencies"
       - "server"
+    rebase-strategy: "auto"
+    target-branch: "main"
     ignore:
       # Ignore major version updates for Node.js types (manual review needed)
       - dependency-name: "@types/node"
@@ -78,12 +78,12 @@ updates:
       include: "scope"
     pull-request-branch-name:
       separator: "/"
-    pull-request-title:
       prefix: "deps"
-      include: "scope"
     labels:
       - "dependencies"
       - "cron"
+    rebase-strategy: "auto"
+    target-branch: "main"
 
   # Scripts dependencies
   - package-ecosystem: "npm"
@@ -103,12 +103,12 @@ updates:
       include: "scope"
     pull-request-branch-name:
       separator: "/"
-    pull-request-title:
       prefix: "deps"
-      include: "scope"
     labels:
       - "dependencies"
       - "scripts"
+    rebase-strategy: "auto"
+    target-branch: "main"
 
   # Mock Server dependencies
   - package-ecosystem: "npm"
@@ -128,12 +128,12 @@ updates:
       include: "scope"
     pull-request-branch-name:
       separator: "/"
-    pull-request-title:
       prefix: "deps"
-      include: "scope"
     labels:
       - "dependencies"
       - "mock-server"
+    rebase-strategy: "auto"
+    target-branch: "main"
 
   # E2E Tests dependencies
   - package-ecosystem: "npm"
@@ -153,12 +153,12 @@ updates:
       include: "scope"
     pull-request-branch-name:
       separator: "/"
-    pull-request-title:
       prefix: "deps"
-      include: "scope"
     labels:
       - "dependencies"
       - "e2e-tests"
+    rebase-strategy: "auto"
+    target-branch: "main"
 
   # Integration Tests dependencies
   - package-ecosystem: "npm"
@@ -178,12 +178,12 @@ updates:
       include: "scope"
     pull-request-branch-name:
       separator: "/"
-    pull-request-title:
       prefix: "deps"
-      include: "scope"
     labels:
       - "dependencies"
       - "integration-tests"
+    rebase-strategy: "auto"
+    target-branch: "main"
 
   # Types Package dependencies
   - package-ecosystem: "npm"
@@ -203,12 +203,12 @@ updates:
       include: "scope"
     pull-request-branch-name:
       separator: "/"
-    pull-request-title:
       prefix: "deps"
-      include: "scope"
     labels:
       - "dependencies"
       - "types-package"
+    rebase-strategy: "auto"
+    target-branch: "main"
 
   # SDK Package dependencies
   - package-ecosystem: "npm"
@@ -228,12 +228,37 @@ updates:
       include: "scope"
     pull-request-branch-name:
       separator: "/"
-    pull-request-title:
       prefix: "deps"
-      include: "scope"
     labels:
       - "dependencies"
       - "sdk-package"
+    rebase-strategy: "auto"
+    target-branch: "main"
+
+  # Docs dependencies
+  - package-ecosystem: "npm"
+    directory: "/docs"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+    open-pull-requests-limit: 3
+    versioning-strategy: increase
+    reviewers:
+      - "jayc13"
+    assignees:
+      - "jayc13"
+    commit-message:
+      prefix: "deps"
+      include: "scope"
+    pull-request-branch-name:
+      separator: "/"
+      prefix: "deps"
+    labels:
+      - "dependencies"
+      - "docs"
+    rebase-strategy: "auto"
+    target-branch: "main"
 
   # GitHub Actions dependencies
   - package-ecosystem: "github-actions"
@@ -252,9 +277,9 @@ updates:
       include: "scope"
     pull-request-branch-name:
       separator: "/"
-    pull-request-title:
-      prefix: "deps"
-      include: "scope"
+      prefix: "ci"
     labels:
       - "dependencies"
       - "github-actions"
+    rebase-strategy: "auto"
+    target-branch: "main"
