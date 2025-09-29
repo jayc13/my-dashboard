@@ -14,8 +14,8 @@ export default defineConfig(({ mode }) => ({
       brotliSize: true,
     }),
   ].filter(Boolean),
-  // Use .env.test for testing to avoid loading production values
-  envDir: mode === 'test' ? false : '.',
+  // Load environment variables from .env.test for testing
+  envDir: '.',
   resolve: {
     dedupe: ['@emotion/react', '@emotion/styled'],
   },
@@ -40,5 +40,10 @@ export default defineConfig(({ mode }) => ({
     css: true,
     include: ['src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
     exclude: ['node_modules', 'dist', '.idea', '.git', '.cache'],
+    env: {
+      // Load test environment variables
+      ...process.env,
+    },
+    envDir: '.',
   },
 }));

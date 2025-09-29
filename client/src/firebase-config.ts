@@ -1,5 +1,5 @@
-import { initializeApp } from 'firebase/app';
-import { getMessaging, getToken, onMessage } from 'firebase/messaging';
+import { initializeApp, type FirebaseApp } from 'firebase/app';
+import { getMessaging, getToken, onMessage, type Messaging } from 'firebase/messaging';
 
 // Firebase config object
 const firebaseConfig = {
@@ -11,13 +11,44 @@ const firebaseConfig = {
   appId: import.meta.env.VITE_FIREBASE_APP_ID || '',
 };
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-
-// Initialize Firebase Cloud Messaging and get a reference to the service
-const messaging = getMessaging(app);
-
 // VAPID key for web push notifications - you'll need to generate this in Firebase Console
 const vapidKey = import.meta.env.VITE_FIREBASE_VAPID_KEY;
 
-export { messaging, vapidKey, getToken, onMessage };
+// Lazy initialization to avoid issues in test environment
+let app: FirebaseApp | null = null;
+let messaging: Messaging | null = null;
+
+const initializeFirebase = () => {
+  if (typeof window === 'undefined' || import.meta.env.VITEST) {
+    // Don't initialize in server-side rendering or test environment
+    return null;
+  }
+
+  if (!app) {
+    app = initializeApp(firebaseConfig);
+  }
+  return app;
+};
+
+const getMessagingInstance = () => {
+  if (typeof window === 'undefined' || import.meta.env.VITEST) {
+    // Don't initialize in server-side rendering or test environment
+    return null;
+  }
+
+  const firebaseApp = initializeFirebase();
+  if (!firebaseApp) {
+    return null;
+  }
+
+  if (!messaging) {
+    try {
+      messaging = getMessaging(firebaseApp);
+    } catch {
+      return null;
+    }
+  }
+  return messaging;
+};
+
+export { getMessagingInstance as messaging, vapidKey, getToken, onMessage, initializeFirebase };

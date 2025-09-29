@@ -6,6 +6,7 @@
 .vscode/*
 .env
 */**/.env
+*/**/.env.test
 */**/.DS_Store
 */**/dist
 */**/node_modules
