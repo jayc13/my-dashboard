@@ -245,7 +245,8 @@ test.describe('Apps Management Test Suite', () => {
       expect(await appsPage.isAppVisible('backend-service')).toBe(false);
     });
 
-    test('should search apps by name', async () => {
+    test('should search apps by name (watching=off)', async () => {
+      await appsPage.setWatchingFilter(false);
       await appsPage.searchApps('Frontend');
       
       // Should show only matching apps
@@ -258,11 +259,12 @@ test.describe('Apps Management Test Suite', () => {
       
       // Should show all apps again
       expect(await appsPage.isAppVisible('frontend-app')).toBe(true);
-      expect(await appsPage.isAppVisible('backend-service')).toBe(false);
+      expect(await appsPage.isAppVisible('backend-service')).toBe(true);
       expect(await appsPage.isAppVisible('mobile-app')).toBe(true);
     });
 
-    test('should search apps by code', async () => {
+    test('should search apps by code (watching=off)', async () => {
+      await appsPage.setWatchingFilter(false);
       await appsPage.searchApps('backend');
       
       // Should show only matching apps
