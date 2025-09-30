@@ -312,7 +312,8 @@ describe('To-Do List API Integration Tests', () => {
         });
 
         expect(deleteResponse.status).toBe(200);
-        expect(await deleteResponse.json()).toStrictEqual({ success: true });
+        const deleteBody = await deleteResponse.json();
+        expect(deleteBody).toEqual({ success: true });
       });
     });
   });
