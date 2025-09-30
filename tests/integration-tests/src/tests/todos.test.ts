@@ -1,6 +1,7 @@
 import { TestHelpers } from '@utils/test-helpers';
 import { MyDashboardAPI } from '@my-dashboard/sdk';
 import { truncateTables, closeTestConnection } from '@utils/dbCleanup';
+import { ErrorResponse } from '@my-dashboard/types';
 
 describe('To-Do List API Integration Tests', () => {
   let testHelpers: TestHelpers;
@@ -260,7 +261,7 @@ describe('To-Do List API Integration Tests', () => {
           'x-api-key': apiKey,
         });
 
-        const result = await response.json();
+        const result: ErrorResponse = await response.json() as ErrorResponse;
 
         expect(response.status).toBe(404);
         expect(result.error).toBe('ToDo item not found');
