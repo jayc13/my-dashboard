@@ -13,7 +13,7 @@ jobs:
     timeout-minutes: 20
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Setup validation environment
         uses: ./.github/actions/setup-validation
@@ -21,7 +21,7 @@ jobs:
       - name: Install dependencies
         run: |
           echo "📦 Installing dependencies for tests/e2e-tests..."
-          pnpm install --filter=tests/e2e-tests
+          pnpm install --filter=tests/e2e-tests --no-frozen-lockfile
 
       - name: Run linting
         run: |
