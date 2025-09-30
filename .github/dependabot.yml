@@ -266,7 +266,6 @@ updates:
       prefix: "ci"
     pull-request-branch-name:
       separator: "/"
-      include: "scope"
     labels:
       - "dependencies"
       - "github-actions"
