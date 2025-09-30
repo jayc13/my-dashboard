@@ -16,7 +16,7 @@
     "lint-fix": "eslint . --fix"
   },
   "dependencies": {
-    "dotenv": "^17.2.2"
+    "dotenv": "^17.2.3"
   },
   "devDependencies": {
     "husky": "^9.0.11",
