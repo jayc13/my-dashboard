@@ -93,7 +93,7 @@ export function createGitHubMockRouter(): Router {
   });
 
   // Catch-all for unhandled GitHub API endpoints
-  router.all('*', (req, res) => {
+  router.all('/*path', (req, res) => {
     console.log(`[GITHUB] Unhandled endpoint: ${req.method} ${req.path}`);
     res.status(404).json({
       message: 'Not Found',

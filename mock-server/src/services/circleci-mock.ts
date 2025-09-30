@@ -246,7 +246,7 @@ export function createCircleCIMockRouter(): Router {
   });
 
   // Catch-all for unhandled CircleCI API endpoints
-  router.all('*', (req, res) => {
+  router.all('/*path', (req, res) => {
     console.log(`[CIRCLECI] Unhandled endpoint: ${req.method} ${req.path}`);
     res.status(404).json({
       message: 'Not Found'
