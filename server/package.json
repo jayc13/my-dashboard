@@ -22,7 +22,7 @@
     "cors": "^2.8.5",
     "dotenv": "^17.2.2",
     "express": "^5.1.0",
-    "express-rate-limit": "^7.5.1",
+    "express-rate-limit": "^8.1.0",
     "express-slow-down": "^2.0.0",
     "firebase": "^12.2.1",
     "firebase-admin": "^13.5.0",
