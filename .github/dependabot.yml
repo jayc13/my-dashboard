@@ -18,7 +18,6 @@ updates:
       include: "scope"
     pull-request-branch-name:
       separator: "/"
-      prefix: "deps"
     labels:
       - "dependencies"
       - "client"
@@ -49,7 +48,6 @@ updates:
       include: "scope"
     pull-request-branch-name:
       separator: "/"
-      prefix: "deps"
     labels:
       - "dependencies"
       - "server"
@@ -78,7 +76,6 @@ updates:
       include: "scope"
     pull-request-branch-name:
       separator: "/"
-      prefix: "deps"
     labels:
       - "dependencies"
       - "cron"
@@ -103,7 +100,6 @@ updates:
       include: "scope"
     pull-request-branch-name:
       separator: "/"
-      prefix: "deps"
     labels:
       - "dependencies"
       - "scripts"
@@ -128,7 +124,6 @@ updates:
       include: "scope"
     pull-request-branch-name:
       separator: "/"
-      prefix: "deps"
     labels:
       - "dependencies"
       - "mock-server"
@@ -153,7 +148,6 @@ updates:
       include: "scope"
     pull-request-branch-name:
       separator: "/"
-      prefix: "deps"
     labels:
       - "dependencies"
       - "e2e-tests"
@@ -178,7 +172,6 @@ updates:
       include: "scope"
     pull-request-branch-name:
       separator: "/"
-      prefix: "deps"
     labels:
       - "dependencies"
       - "integration-tests"
@@ -203,7 +196,6 @@ updates:
       include: "scope"
     pull-request-branch-name:
       separator: "/"
-      prefix: "deps"
     labels:
       - "dependencies"
       - "types-package"
@@ -228,7 +220,6 @@ updates:
       include: "scope"
     pull-request-branch-name:
       separator: "/"
-      prefix: "deps"
     labels:
       - "dependencies"
       - "sdk-package"
@@ -253,7 +244,6 @@ updates:
       include: "scope"
     pull-request-branch-name:
       separator: "/"
-      prefix: "deps"
     labels:
       - "dependencies"
       - "docs"
@@ -274,10 +264,9 @@ updates:
       - "jayc13"
     commit-message:
       prefix: "ci"
-      include: "scope"
     pull-request-branch-name:
       separator: "/"
-      prefix: "ci"
+      include: "scope"
     labels:
       - "dependencies"
       - "github-actions"
