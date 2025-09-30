@@ -107,10 +107,9 @@ app.get('/', (_req, res) => {
         baseUrl: '/jira',
         description: 'Jira API mock endpoints',
         endpoints: [
-          'GET /jira/rest/api/2/search',
-          'GET /jira/rest/api/2/issue/{issueIdOrKey}',
-          'POST /jira/rest/api/2/issue',
-          'PUT /jira/rest/api/2/issue/{issueIdOrKey}'
+          'GET /jira/rest/api/3/search/jql',
+          'GET /jira/rest/api/3/issue/{issueIdOrKey}',
+          'PUT /jira/browse/{issueKey}'
         ]
       }
     },
@@ -131,7 +130,7 @@ app.get('/', (_req, res) => {
 });
 
 // 404 handler
-app.use('*', (req, res) => {
+app.use((req, res) => {
   console.log(`[MOCK-SERVER] Unhandled request: ${req.method} ${req.originalUrl}`);
   res.status(404).json({
     error: 'Endpoint not found',

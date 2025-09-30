@@ -1,7 +1,7 @@
 import { TestHelpers } from '@utils/test-helpers';
 import { MyDashboardAPI } from '@my-dashboard/sdk';
 import { truncateTables, closeTestConnection } from '@utils/dbCleanup';
-import { PullRequest } from '@my-dashboard/types';
+import { ErrorResponse, PullRequest } from '@my-dashboard/types';
 
 describe('Pull Request API Integration Tests', () => {
   let testHelpers: TestHelpers;
@@ -195,9 +195,9 @@ describe('Pull Request API Integration Tests', () => {
             });
             expect(response.status).toBe(500);
 
-            const responseBody = await response.json();
-            expect(responseBody).toHaveProperty('message');
-            expect(responseBody.message).toContain('Error creating pull request');
+            const responseBody = await response.json() as ErrorResponse;
+            expect(responseBody).toHaveProperty('error');
+            expect(responseBody.error).toContain('Error creating pull request');
           }
         });
 
@@ -222,9 +222,9 @@ describe('Pull Request API Integration Tests', () => {
             });
             expect(response.status).toBe(500);
 
-            const responseBody = await response.json();
-            expect(responseBody).toHaveProperty('message');
-            expect(responseBody.message).toContain('Error creating pull request');
+            const responseBody = await response.json() as ErrorResponse;
+            expect(responseBody).toHaveProperty('error');
+            expect(responseBody.error).toContain('Error creating pull request');
           }
         });
 
@@ -247,9 +247,9 @@ describe('Pull Request API Integration Tests', () => {
             });
             expect(response.status).toBe(500);
 
-            const responseBody = await response.json();
-            expect(responseBody).toHaveProperty('message');
-            expect(responseBody.message).toContain('Error creating pull request');
+            const responseBody = await response.json() as ErrorResponse;
+            expect(responseBody).toHaveProperty('error');
+            expect(responseBody.error).toContain('Error creating pull request');
           }
         });
 
@@ -276,9 +276,9 @@ describe('Pull Request API Integration Tests', () => {
             });
             expect(response.status).toBe(500);
 
-            const responseBody = await response.json();
-            expect(responseBody).toHaveProperty('message');
-            expect(responseBody.message).toContain('Error creating pull request');
+            const responseBody = await response.json() as ErrorResponse;
+            expect(responseBody).toHaveProperty('error');
+            expect(responseBody.error).toContain('Error creating pull request');
           }
         });
 
@@ -305,9 +305,9 @@ describe('Pull Request API Integration Tests', () => {
             });
             expect(response.status).toBe(500);
 
-            const responseBody = await response.json();
-            expect(responseBody).toHaveProperty('message');
-            expect(responseBody.message).toContain('Error creating pull request');
+            const responseBody = await response.json() as ErrorResponse;
+            expect(responseBody).toHaveProperty('error');
+            expect(responseBody.error).toContain('Error creating pull request');
           }
         });
 
@@ -442,8 +442,8 @@ describe('Pull Request API Integration Tests', () => {
           });
           expect([404, 500]).toContain(response.status);
 
-          const responseBody = await response.json();
-          expect(responseBody).toHaveProperty('message');
+          const responseBody = (await response.json()) as ErrorResponse;
+          expect(responseBody.error).toContain('Error fetching pull request');
         }
       });
 
