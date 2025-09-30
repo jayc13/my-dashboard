@@ -14,7 +14,7 @@
     "typecheck": "tsc --noEmit"
   },
   "engines": {
-    "node": "v22.19.0"
+    "node": "v22.20.0"
   },
   "dependencies": {
     "@my-dashboard/types": "file:../packages/types",

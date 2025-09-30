@@ -28,6 +28,6 @@
     "typescript": "^5.9.2"
   },
   "engines": {
-    "node": "v22.19.0"
+    "node": "v22.20.0"
   }
 }
