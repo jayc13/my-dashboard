@@ -32,7 +32,7 @@ if git ls-tree --name-only main | grep -q '^client$'; then
   git archive main | tar -x -C $GITHUB_WORKSPACE/tmp/main-build
   echo "Archive and extraction successful."
   cd $GITHUB_WORKSPACE/tmp/main-build
-  pnpm install
+  pnpm install --no-frozen-lockfile
   pnpm --filter=@my-dashboard/types run build
   pnpm --filter=@my-dashboard/sdk run build
   pnpm --filter=client run build

@@ -155,7 +155,7 @@ export function createJiraMockRouter(): Router {
 
   // GET /rest/api/2/issue/{issueIdOrKey}
   // Get a specific issue
-  router.get('/rest/api/2/issue/:issueIdOrKey', (req, res) => {
+  router.get('/rest/api/3/issue/:issueIdOrKey', (req, res) => {
     const { issueIdOrKey } = req.params;
     const { expand } = req.query;
 
@@ -220,7 +220,7 @@ export function createJiraMockRouter(): Router {
   });
 
   // Catch-all for unhandled Jira API endpoints
-  router.all('*', (req, res) => {
+  router.all('/*path', (req, res) => {
     console.log(`[JIRA] Unhandled endpoint: ${req.method} ${req.path}`);
     res.status(404).json({
       errorMessages: ['The requested resource does not exist.'],
