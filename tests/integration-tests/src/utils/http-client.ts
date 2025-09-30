@@ -1,5 +1,4 @@
-import fetch, { RequestInit, Response } from 'node-fetch';
-
+// Using native Node.js fetch (available in Node.js 18+)
 export interface HttpClientConfig {
   baseUrl?: string;
   timeout?: number;
@@ -24,11 +23,11 @@ export class HttpClient {
 
   private async makeRequest(
     endpoint: string,
-    options: RequestInit = {},
-  ): Promise<Response> {
+    options: globalThis.RequestInit = {},
+  ): Promise<globalThis.Response> {
     const url = `${this.baseUrl}${endpoint}`;
 
-    const requestOptions: RequestInit = {
+    const requestOptions: globalThis.RequestInit = {
       ...options,
       headers: {
         ...this.defaultHeaders,
@@ -43,7 +42,7 @@ export class HttpClient {
     }
   }
 
-  async get(endpoint: string, headers?: Record<string, string>): Promise<Response> {
+  async get(endpoint: string, headers?: Record<string, string>): Promise<globalThis.Response> {
     return this.makeRequest(endpoint, {
       method: 'GET',
       headers,
@@ -55,7 +54,7 @@ export class HttpClient {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     body?: any,
     headers?: Record<string, string>,
-  ): Promise<Response> {
+  ): Promise<globalThis.Response> {
     return this.makeRequest(endpoint, {
       method: 'POST',
       body: body ? JSON.stringify(body) : undefined,
@@ -69,7 +68,7 @@ export class HttpClient {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     body?: any,
     headers?: Record<string, string>,
-  ): Promise<Response> {
+  ): Promise<globalThis.Response> {
     return this.makeRequest(endpoint, {
       method: 'PUT',
       body: body ? JSON.stringify(body) : undefined,
@@ -82,7 +81,7 @@ export class HttpClient {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     body?: any,
     headers?: Record<string, string>,
-  ): Promise<Response> {
+  ): Promise<globalThis.Response> {
     return this.makeRequest(endpoint, {
       method: 'PATCH',
       body: body ? JSON.stringify(body) : undefined,
@@ -90,7 +89,7 @@ export class HttpClient {
     });
   }
 
-  async delete(endpoint: string, headers?: Record<string, string>): Promise<Response> {
+  async delete(endpoint: string, headers?: Record<string, string>): Promise<globalThis.Response> {
     return this.makeRequest(endpoint, {
       method: 'DELETE',
       headers,
