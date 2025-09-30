@@ -8,6 +8,16 @@ const config: Config = {
 
   markdown: {
     mermaid: true,
+    hooks: {
+      onBrokenMarkdownLinks: (brokenMarkdownLink) => {
+        console.warn('Broken markdown link:', brokenMarkdownLink);
+        return ''; // Return empty string to ignore the broken link
+      },
+      onBrokenMarkdownImages: (brokenMarkdownImage) => {
+        console.warn('Broken markdown image:', brokenMarkdownImage);
+        return 'https://placehold.co/600x400/png?text=Image+Not+Found';
+      },
+    }
   },
   themes: ['@docusaurus/theme-mermaid'],
   // Future flags, see https://docusaurus.io/docs/api/docusaurus-config#future
