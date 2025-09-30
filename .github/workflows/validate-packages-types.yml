@@ -21,7 +21,7 @@ jobs:
       - name: Install dependencies
         run: |
           echo "📦 Installing dependencies for packages/types..."
-          pnpm install --filter=@my-dashboard/types
+          pnpm install --filter=@my-dashboard/types --no-frozen-lockfile
 
       - name: Run linting
         run: |

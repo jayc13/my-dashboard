@@ -21,7 +21,7 @@ jobs:
       - name: Install dependencies
         run: |
           echo "📦 Installing dependencies for tests/e2e-tests..."
-          pnpm install --filter=tests/e2e-tests
+          pnpm install --filter=tests/e2e-tests --no-frozen-lockfile
 
       - name: Run linting
         run: |
