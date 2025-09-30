@@ -11,7 +11,7 @@ import { NotificationsService } from './services/notifications-service';
 import { PullRequestsService } from './services/pull-requests-service';
 import { AuthService } from './services/auth-service';
 import { FCMService, JiraService, TodosService, HealthService } from './services/additional-services';
-import { SDKConfig } from './types';
+import { SDKConfig } from '@my-dashboard/types';
 
 /**
  * Main API client for My Dashboard
@@ -71,9 +71,11 @@ export class MyDashboardAPI extends BaseClient {
   public async getApplicationByCode(code: string) {
     return this.applications.getApplicationByCode(code); 
   }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public async createApplication(application: any) {
     return this.applications.createApplication(application); 
   }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public async updateApplication(id: number, updates: any) {
     return this.applications.updateApplication(id, updates); 
   }
@@ -96,6 +98,7 @@ export class MyDashboardAPI extends BaseClient {
   public async getPullRequests() {
     return this.pullRequests.getPullRequests(); 
   }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public async addPullRequest(pullRequest: any) {
     return this.pullRequests.addPullRequest(pullRequest); 
   }

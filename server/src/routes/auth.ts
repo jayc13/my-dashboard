@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import { Router, RequestHandler } from 'express';
 import { AuthController } from '../controllers/auth.controller';
 import {
   authRateLimit,
@@ -13,8 +13,10 @@ export function createAuthRouter() {
 
   // Apply brute force protection middleware to auth routes
   router.use(securityHeaders);
-  router.use(authRateLimit);
-  router.use(authSlowDown);
+  router.use(authRateLimit as unknown as RequestHandler);
+  if (process.env.NODE_ENV === 'production') {
+    router.use(authSlowDown as unknown as RequestHandler);
+  }
 
   // Validate API key endpoint with comprehensive protection
   router.post('/validate',

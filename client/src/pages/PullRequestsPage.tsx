@@ -1,7 +1,5 @@
 import { useState } from 'react';
-import { API_BASE_URL } from '../utils/constants';
 import { DateTime } from 'luxon';
-import useSWR from 'swr';
 import {
     Card,
     CardContent,
@@ -16,14 +14,16 @@ import {
     DialogActions,
     TextField,
     IconButton,
-    Skeleton, Chip,
+    Skeleton,
+    Chip,
+    Alert,
 } from '@mui/material';
 import TroubleshootIcon from '@mui/icons-material/Troubleshoot';
 import DeleteIcon from '@mui/icons-material/Delete';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import { LuGitPullRequestClosed, LuGitPullRequestArrow } from 'react-icons/lu';
 import { FaCodeMerge } from 'react-icons/fa6';
-import { apiFetch } from '../utils/helpers';
+import { usePullRequests, useAddPullRequest, useDeletePullRequest, usePullRequestDetails } from '../hooks';
 import type { GithubPullRequestDetails, PullRequest } from '../types';
 import { enqueueSnackbar } from 'notistack';
 
@@ -78,8 +78,8 @@ const PullRequestCard = ({ pr, onDelete }: { pr: PullRequest; onDelete: (id: str
 
     const {
         data: details,
-        isLoading,
-    } = useSWR(`${API_BASE_URL}/api/pull_requests/${pr.id}`);
+        loading: isLoading,
+    } = usePullRequestDetails(pr.id);
 
     if (isLoading) {
         return (
@@ -186,17 +186,15 @@ const PullRequestCard = ({ pr, onDelete }: { pr: PullRequest; onDelete: (id: str
 
 const PullRequestsPage = () => {
         const [open, setOpen] = useState(false);
-        const [submitting, setSubmitting] = useState(false);
         const [confirmOpen, setConfirmOpen] = useState(false);
         const [deleteId, setDeleteId] = useState<string | null>(null);
         const [url, setUrl] = useState('');
         const [urlError, setUrlError] = useState<string | null>(null);
 
-        const {
-            data: pullRequestsData,
-            isLoading: loadingPullRequests,
-            mutate: mutatePullRequests,
-        } = useSWR(`${API_BASE_URL}/api/pull_requests`);
+        // SDK hooks
+        const { data: pullRequestsData, loading: loadingPullRequests, error, refetch } = usePullRequests();
+        const { mutate: addPullRequest, loading: isAdding } = useAddPullRequest();
+        const { mutate: deletePullRequest, loading: isDeleting } = useDeletePullRequest();
 
         const handleOpen = () => {
             setUrl('');
@@ -209,7 +207,6 @@ const PullRequestsPage = () => {
         };
 
         const handleAdd = async () => {
-            setSubmitting(true);
             setUrlError(null);
 
             // Regex to match GitHub PR URL and extract repo and PR number
@@ -218,23 +215,23 @@ const PullRequestsPage = () => {
             );
             if (!match) {
                 setUrlError('Invalid GitHub Pull Request URL format.');
-                setSubmitting(false);
                 return;
             }
             const repository = match[1];
-            const pull_request_number = Number(match[2]);
+            const pullRequestNumber = Number(match[2]);
 
-            await apiFetch(`${API_BASE_URL}/api/pull_requests`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    pull_request_number,
+            try {
+                await addPullRequest({
+                    pullRequestNumber,
                     repository,
-                }),
-            });
-            setSubmitting(false);
-            setOpen(false);
-            await mutatePullRequests();
+                });
+                enqueueSnackbar('Pull request added successfully', { variant: 'success' });
+                setOpen(false);
+                setUrl('');
+                await refetch();
+            } catch {
+                enqueueSnackbar('Failed to add pull request', { variant: 'error' });
+            }
         };
 
         const handleDeleteClick = (id: string) => {
@@ -244,10 +241,13 @@ const PullRequestsPage = () => {
 
         const handleConfirmDelete = async () => {
             if (deleteId) {
-                await apiFetch(`${API_BASE_URL}/api/pull_requests/${deleteId}`, {
-                    method: 'DELETE',
-                });
-                await mutatePullRequests();
+                try {
+                    await deletePullRequest(deleteId);
+                    enqueueSnackbar('Pull request deleted successfully', { variant: 'success' });
+                    await refetch();
+                } catch {
+                    enqueueSnackbar('Failed to delete pull request', { variant: 'error' });
+                }
             }
             setConfirmOpen(false);
             setDeleteId(null);
@@ -257,6 +257,14 @@ const PullRequestsPage = () => {
             setConfirmOpen(false);
             setDeleteId(null);
         };
+
+        if (error) {
+            return (
+                <Box p={3}>
+                    <Alert severity="error">Error fetching pull requests: {error.message}</Alert>
+                </Box>
+            );
+        }
 
         if (loadingPullRequests) {
             return (
@@ -273,7 +281,7 @@ const PullRequestsPage = () => {
                         Pull Requests
                     </Typography>
                     {
-                        pullRequestsData.length > 0 && (
+                        pullRequestsData && pullRequestsData.length > 0 && (
                             <Button variant="contained" color="primary" onClick={handleOpen} data-testid="add-pr-button">
                                 Add Pull Request
                             </Button>
@@ -281,12 +289,12 @@ const PullRequestsPage = () => {
                     }
                 </Box>
                 <Grid container spacing={2}>
-                    {pullRequestsData.map((pr: PullRequest) => (
+                    {pullRequestsData && pullRequestsData.map((pr: PullRequest) => (
                         <Grid key={pr.id} size={{ xs: 12 }}>
                             <PullRequestCard pr={pr} onDelete={handleDeleteClick}/>
                         </Grid>
                     ))}
-                    {pullRequestsData.length === 0 && (
+                    {(!pullRequestsData || pullRequestsData.length === 0) && (
                         <Box
                             display="flex"
                             flexDirection="column"
@@ -323,21 +331,21 @@ const PullRequestsPage = () => {
                             }}
                             fullWidth
                             margin="normal"
-                            disabled={submitting}
+                            disabled={isAdding}
                             error={!!urlError}
                             helperText={urlError || 'Example: https://github.com/org/repo/pull/123'}
                             data-testid="pr-url-input"
                         />
                     </DialogContent>
                     <DialogActions>
-                        <Button onClick={handleClose} disabled={submitting} data-testid="pr-cancel-button">
+                        <Button onClick={handleClose} disabled={isAdding} data-testid="pr-cancel-button">
                             Cancel
                         </Button>
                         <Button
                             onClick={handleAdd}
                             variant="contained"
                             color="primary"
-                            disabled={!url || submitting}
+                            disabled={!url || isAdding}
                             data-testid="pr-add-button"
                         >
                             Add
@@ -352,13 +360,14 @@ const PullRequestsPage = () => {
                         </Typography>
                     </DialogContent>
                     <DialogActions>
-                        <Button onClick={handleCancelDelete} data-testid="pr-delete-cancel-button">
+                        <Button onClick={handleCancelDelete} disabled={isDeleting} data-testid="pr-delete-cancel-button">
                             Cancel
                         </Button>
                         <Button
                             onClick={handleConfirmDelete}
                             variant="contained"
                             color="error"
+                            disabled={isDeleting}
                             data-testid="pr-delete-confirm-button"
                         >
                             Delete

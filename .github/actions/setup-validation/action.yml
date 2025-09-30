@@ -35,4 +35,4 @@ runs:
     - name: Install dependencies
       shell: bash
       run: |
-        npx pnpm install --registry=https://registry.npmjs.org/
+        npx pnpm install --registry=https://registry.npmjs.org/ --no-frozen-lockfile

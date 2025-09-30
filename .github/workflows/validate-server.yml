@@ -75,4 +75,4 @@ jobs:
           MYSQL_USER: root
           MYSQL_PASSWORD: test_password
           MYSQL_DATABASE: test_db
-        run: pnpm --filter=client run test
+        run: pnpm --filter=server run test

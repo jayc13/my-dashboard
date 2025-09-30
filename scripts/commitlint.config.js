@@ -1,5 +1,11 @@
 module.exports = {
   extends: ['@commitlint/config-conventional'],
+  ignores: [
+    (commit) => {
+      // Skip validation for commits from dependabot
+      return commit.includes('dependabot[bot] <support@github.com>');
+    },
+  ],
   rules: {
     'type-enum': [
       2,

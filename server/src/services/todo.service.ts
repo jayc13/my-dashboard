@@ -1,5 +1,5 @@
 import { DatabaseRow, db } from '../db/database';
-import type { ToDoItem, ToDoItemInput } from '@my-dashboard/types';
+import type { ToDoItem, ToDoItemInput } from '@my-dashboard/types/todos';
 
 export class TodoService {
   private static formatTodoItem(todo: DatabaseRow): ToDoItem {

@@ -1,6 +1,6 @@
 import { TestHelpers } from '@utils/test-helpers';
 import { closeTestConnection, truncateTables } from '@utils/dbCleanup';
-import { Application } from '@my-dashboard/types';
+import { Application, ErrorResponse } from '@my-dashboard/types';
 
 describe('Apps API Integration Tests', () => {
   let testHelpers: TestHelpers;
@@ -539,7 +539,7 @@ describe('Apps API Integration Tests', () => {
             });
             expect([409, 500]).toContain(response.status);
 
-            const responseBody = await response.json();
+            const responseBody = await response.json() as ErrorResponse;
             if (response.status === 409) {
               expect(responseBody).toEqual({
                 error: 'App code must be unique',

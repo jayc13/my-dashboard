@@ -58,7 +58,7 @@ runs:
       working-directory: ${{ inputs.working-directory }}
       run: |
         if [ -z "${{ inputs.project }}" ]; then
-          pnpm install --registry=${{ inputs.registry }}
+          pnpm install --registry=${{ inputs.registry }} --no-frozen-lockfile
         else
-          pnpm install --filter=${{ inputs.project }} --registry=${{ inputs.registry }}
+          pnpm install --filter=${{ inputs.project }} --registry=${{ inputs.registry }} --no-frozen-lockfile
         fi

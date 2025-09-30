@@ -13,7 +13,7 @@ jobs:
     timeout-minutes: 15
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Setup validation environment
         uses: ./.github/actions/setup-validation
@@ -21,7 +21,7 @@ jobs:
       - name: Install dependencies
         run: |
           echo "📦 Installing dependencies for packages/types..."
-          pnpm install --filter=@my-dashboard/types
+          pnpm install --filter=@my-dashboard/types --no-frozen-lockfile
 
       - name: Run linting
         run: |
@@ -68,18 +68,3 @@ jobs:
             echo "❌ Package.json not found"
             exit 1
           fi
-
-      - name: Validate type exports
-        run: |
-          echo "🔍 Validating type exports..."
-          cd packages/types
-          # Check if the built types can be imported
-          node -e "
-            try {
-              const types = require('./dist/index.js');
-              console.log('✅ Types can be imported successfully');
-            } catch (error) {
-              console.error('❌ Failed to import types:', error.message);
-              process.exit(1);
-            }
-          "

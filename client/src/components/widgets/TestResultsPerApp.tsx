@@ -50,7 +50,7 @@ interface Application {
     id?: number;
     name: string;
     code: string;
-    pipeline_url?: string;
+    pipelineUrl?: string;
     lastRun?: {
         id: number;
         url: string;
@@ -59,7 +59,7 @@ interface Application {
         createdAt: string;
     },
     e2eRunsQuantity: number; // Number of E2E runs - default to 0
-    e2e_trigger_configuration?: string;
+    e2eTriggerConfiguration?: string;
     watching: boolean;
 }
 
@@ -485,7 +485,7 @@ const TestResultsPerApp = (props: TestResultsPerAppProps) => {
                                         <Box sx={{ p: 2, bgcolor: 'background.default' }}>
                                             <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                                                 <strong>E2E Config: </strong>
-                                                {contextMenu.appDetails.e2e_trigger_configuration ? (
+                                                {contextMenu.appDetails.e2eTriggerConfiguration ? (
                                                     <>
                                                         <CheckIcon sx={{ color: 'success.main', fontSize: 16 }} />
                                                         <span style={{ color: 'green' }}>Configured</span>
@@ -516,16 +516,16 @@ const TestResultsPerApp = (props: TestResultsPerAppProps) => {
                                                 <OpenInNewIcon sx={{ mr: 1, fontSize: 20 }}/>
                                                 Open in Cypress Cloud
                                             </MenuItem>
-                                            {contextMenu.appDetails.pipeline_url && (
+                                            {contextMenu.appDetails.pipelineUrl && (
                                                 <MenuItem
-                                                    onClick={() => handleOpenUrlInNewTab(contextMenu.appDetails!.pipeline_url!)}>
+                                                    onClick={() => handleOpenUrlInNewTab(contextMenu.appDetails!.pipelineUrl!)}>
                                                     <OpenInNewIcon sx={{ mr: 1, fontSize: 20 }}/>
                                                     Open in Pipelines
                                                 </MenuItem>
                                             )}
                                             <Divider/>
                                             <MenuItem onClick={handleTriggerE2ERuns}
-                                                      disabled={!contextMenu.appDetails.e2e_trigger_configuration}>
+                                                      disabled={!contextMenu.appDetails.e2eTriggerConfiguration}>
                                                 <RocketLaunchIcon sx={{ mr: 1, fontSize: 20 }}/>
                                                 Trigger E2E Runs
                                             </MenuItem>

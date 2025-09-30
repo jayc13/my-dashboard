@@ -14,8 +14,8 @@ export default defineConfig(({ mode }) => ({
       brotliSize: true,
     }),
   ].filter(Boolean),
-  // Use .env.test for testing to avoid loading production values
-  envDir: mode === 'test' ? false : '.',
+  // Load environment variables from .env.test for testing
+  envDir: '.',
   resolve: {
     dedupe: ['@emotion/react', '@emotion/styled'],
   },
@@ -32,6 +32,12 @@ export default defineConfig(({ mode }) => ({
   },
   define: {
     global: 'globalThis',
+  },
+  build: {
+    commonjsOptions: {
+      include: [/node_modules/],
+      exclude: [/@my-dashboard\/(sdk|types)/],
+    },
   },
   test: {
     globals: true,

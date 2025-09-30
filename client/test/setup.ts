@@ -3,10 +3,12 @@ import { vi } from 'vitest';
 import type { ReactNode } from 'react';
 
 // Mock Firebase to avoid initialization issues in tests
-vi.mock('../firebase-config', () => ({
-  auth: {},
-  db: {},
-  messaging: {},
+vi.mock('../src/firebase-config', () => ({
+  messaging: null,
+  vapidKey: 'mock-vapid-key',
+  getToken: vi.fn(),
+  onMessage: vi.fn(),
+  initializeFirebase: vi.fn(() => null),
 }));
 
 // Mock SWR to avoid network requests in tests
@@ -35,6 +37,30 @@ vi.mock('notistack', () => ({
     closeSnackbar: vi.fn(),
   }),
   SnackbarProvider: ({ children }: { children: ReactNode }) => children,
+  enqueueSnackbar: vi.fn(),
+}));
+
+// Mock SDK context
+vi.mock('../src/contexts/useSDK', () => ({
+  useSDK: () => ({
+    api: {
+      notifications: {
+        getNotifications: vi.fn().mockResolvedValue([]),
+        markNotificationAsRead: vi.fn().mockResolvedValue({ success: true }),
+        deleteNotification: vi.fn().mockResolvedValue({ success: true }),
+      },
+    },
+    isReady: true,
+  }),
+}));
+
+// Mock Auth context
+vi.mock('../src/contexts/useAuth', () => ({
+  useAuth: () => ({
+    logout: vi.fn(),
+    user: null,
+    isAuthenticated: false,
+  }),
 }));
 
 // Global test utilities

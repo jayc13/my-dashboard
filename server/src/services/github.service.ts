@@ -1,5 +1,5 @@
 import { Octokit } from '@octokit/core';
-import { GithubPullRequestDetails } from '../types';
+import { GithubPullRequestDetails } from '@my-dashboard/types/pull-requests';
 
 export class GitHubService {
   private static getInstance() {

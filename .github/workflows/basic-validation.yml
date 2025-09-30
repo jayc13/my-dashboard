@@ -111,7 +111,9 @@ jobs:
             tests-e2e:
               - 'tests/e2e-tests/**'
             github:
-              - '.github/**'
+              - '.github/workflows/**'
+              - '.github/actions/**'
+              - 'scripts/ci/**'
             docs:
               - 'docs/**'
               - '**/*.md'

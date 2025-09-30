@@ -11,21 +11,23 @@ export class PullRequestController {
       const pullRequests = await pullRequestService.listPullRequests();
       res.status(200).json(pullRequests);
     } catch (error) {
-      res.status(500).json({ message: 'Error fetching pull requests', error });
+      console.error(error);
+      res.status(500).json({ error: 'Error fetching pull requests' });
     }
   };
 
   // Add a new PR
   addPullRequest = async (req: Request, res: Response): Promise<void> => {
     try {
-      const { pull_request_number, repository } = req.body;
+      const { pullRequestNumber, repository } = req.body;
       const newPR = await pullRequestService.addPullRequest({
-        pullRequestNumber: pull_request_number,
+        pullRequestNumber,
         repository,
       });
       res.status(201).json(newPR);
     } catch (error) {
-      res.status(500).json({ message: 'Error creating pull request', error });
+      console.error(error);
+      res.status(500).json({ error: 'Error creating pull request' });
     }
   };
 
@@ -40,7 +42,8 @@ export class PullRequestController {
       const details = await GitHubService.getPullRequestDetails(pullRequest.repository, pullRequest.pullRequestNumber);
       res.status(200).json(details);
     } catch (error) {
-      res.status(500).json({ message: 'Error fetching pull request details', error });
+      console.error(error);
+      res.status(500).json({ error: 'Error fetching pull request details' });
     }
   };
 
@@ -49,9 +52,10 @@ export class PullRequestController {
     try {
       const { id } = req.params;
       await pullRequestService.deletePullRequest(id);
-      res.status(200).json({ message: 'Pull request deleted successfully' });
+      res.status(200).json({ success: true, message: 'Pull request deleted successfully' });
     } catch (error) {
-      res.status(500).json({ message: 'Error deleting pull request', error });
+      console.error(error);
+      res.status(500).json({ error: 'Error deleting pull request' });
     }
   };
 }
