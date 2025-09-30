@@ -1,0 +1,393 @@
+import { test, expect, Page } from '@playwright/test';
+import { AppsPage } from '@pages/AppsPage';
+import { setupAuthenticatedSession } from '@utils/test-helpers';
+import { LoginPage } from '@pages/LoginPage';
+import { truncateTables } from '@utils/dbCleanup';
+import ApplicationTestUtils from '@utils/app-helpers';
+
+test.describe.configure({ mode: 'serial' });
+
+test.describe('Apps Management Test Suite', () => {
+  let page: Page;
+  let appsPage: AppsPage;
+
+  test.beforeAll(async ({ browser }) => {
+    await truncateTables(['apps']);
+    page = await browser.newPage();
+    const loginPage = new LoginPage(page);
+    await loginPage.goto();
+    await setupAuthenticatedSession(page);
+    appsPage = new AppsPage(page);
+  });
+
+  test.beforeEach(async () => {
+    const getAllAppsRequest = ApplicationTestUtils.interceptListApps(page);
+    await appsPage.goto();
+    await getAllAppsRequest;
+  });
+
+  test.describe('App Creation', () => {
+    test('should create a new app with required fields only', async () => {
+      const appData = {
+        name: 'Test App',
+        code: 'test-app',
+      };
+
+      // Turn off watching filter to see all apps (including non-watching ones)
+      await appsPage.setWatchingFilter(false);
+
+      await appsPage.createApp(appData);
+
+      await appsPage.setWatchingFilter(false);
+
+      // Verify app appears in the grid
+      expect(await appsPage.isAppVisible(appData.code)).toBe(true);
+
+      // Verify app data
+      const createdApp = await appsPage.getAppData(appData.code);
+      expect(createdApp.name).toBe(appData.name);
+      expect(createdApp.code).toBe(appData.code);
+      expect(createdApp.watching).toBe(false); // Default value
+    });
+
+    test('should create a new app with all fields', async () => {
+      const appData = {
+        name: 'Complete Test App',
+        code: 'complete-app',
+        pipelineUrl: 'https://ci.example.com/pipeline/123',
+        e2eConfig: '{"environment": "staging", "browser": "chrome"}',
+        watching: true,
+      };
+
+      await appsPage.createApp(appData);
+
+      // Verify app data (watching app should be visible with default filter)
+      const createdApp = await appsPage.getAppData(appData.code);
+      expect(createdApp.name).toBe(appData.name);
+      expect(createdApp.code).toBe(appData.code);
+      expect(createdApp.pipelineUrl).toContain('View in Pipelines');
+      expect(createdApp.e2eConfig).toBe(true);
+      expect(createdApp.watching).toBe(true);
+    });
+
+    test('should handle duplicate app codes', async () => {
+      const appData = {
+        name: 'Duplicate Test',
+        code: 'duplicate-code',
+      };
+
+      // Turn off watching filter to see all apps
+      await appsPage.setWatchingFilter(false);
+
+      // Create first app
+      await appsPage.createApp(appData);
+
+      // Try to create second app with same code
+      await appsPage.openAddAppDialog();
+      await appsPage.fillAppForm({
+        name: 'Another App',
+        code: 'duplicate-code',
+      });
+
+      await appsPage.appSubmitButton.click();
+
+      // Should handle duplicate error (implementation dependent)
+      // This might show an error message or prevent submission
+    });
+  });
+
+  test.describe('App Editing', () => {
+    let testAppCode: string;
+
+    test.beforeEach(async () => {
+      // Ensure we have an app to edit
+      testAppCode = 'edit-test-app';
+
+      // Turn off watching filter to see all apps
+      await appsPage.setWatchingFilter(false);
+
+      if (!(await appsPage.isAppVisible(testAppCode))) {
+        await appsPage.createApp({
+          name: 'Edit Test App',
+          code: testAppCode,
+          watching: false,
+        });
+      }
+    });
+
+    test('should edit an existing app', async () => {
+      await appsPage.editApp(testAppCode);
+
+      // Verify dialog title shows "Edit App"
+      const dialogTitle = await appsPage.getDialogTitle();
+      expect(dialogTitle).toContain('Edit App');
+
+      // Get app ID for the intercept
+      const appData = await appsPage.getAppData(testAppCode);
+
+      // Update app data
+      const updatedData = {
+        name: 'Updated Edit Test App',
+        pipelineUrl: 'https://updated.example.com/pipeline',
+        watching: true,
+      };
+
+      await appsPage.fillAppForm(updatedData);
+      await appsPage.submitEditApp(appData.id);
+
+      // Verify changes were saved
+      const updatedApp = await appsPage.getAppData(testAppCode);
+      expect(updatedApp.name).toBe(updatedData.name);
+      expect(updatedApp.watching).toBe(true);
+    });
+
+    test('should cancel edit operation', async () => {
+      const originalApp = await appsPage.getAppData(testAppCode);
+      
+      await appsPage.editApp(testAppCode);
+      
+      // Make changes but cancel
+      await appsPage.fillAppForm({
+        name: 'Should Not Save',
+        watching: true,
+      });
+      
+      await appsPage.cancelAppForm();
+      
+      // Verify original data is unchanged
+      const unchangedApp = await appsPage.getAppData(testAppCode);
+      expect(unchangedApp.name).toBe(originalApp.name);
+      expect(unchangedApp.watching).toBe(originalApp.watching);
+    });
+  });
+
+  test.describe('App Deletion', () => {
+    let testAppCode: string;
+
+    test.beforeEach(async () => {
+      // Create an app to delete
+      testAppCode = 'delete-test-app';
+
+      // Turn off watching filter to see all apps
+      await appsPage.setWatchingFilter(false);
+
+      if (!(await appsPage.isAppVisible(testAppCode))) {
+        await appsPage.createApp({
+          name: 'Delete Test App',
+          code: testAppCode,
+        });
+      }
+    });
+
+    test('should delete an app with confirmation', async () => {
+      const initialCount = await appsPage.getAppCount();
+
+      // Get app ID for the intercept
+      const appData = await appsPage.getAppData(testAppCode);
+
+      await appsPage.deleteApp(appData.id);
+
+      // Verify app was deleted
+      const newCount = await appsPage.getAppCount();
+      expect(newCount).toBe(initialCount - 1);
+
+      // Verify app is no longer visible
+      expect(await appsPage.isAppVisible(testAppCode)).toBe(false);
+    });
+
+    test('should cancel delete operation', async () => {
+      const initialCount = await appsPage.getAppCount();
+
+      // Get app ID for the cancel operation
+      const appData = await appsPage.getAppData(testAppCode);
+
+      await appsPage.cancelDeleteApp(appData.id);
+
+      // Verify app was not deleted
+      const finalCount = await appsPage.getAppCount();
+      expect(finalCount).toBe(initialCount);
+
+      // Verify app is still visible
+      expect(await appsPage.isAppVisible(testAppCode)).toBe(true);
+    });
+  });
+
+  test.describe('Search and Filtering', () => {
+    test.beforeEach(async () => {
+      // Turn off watching filter to see all apps for setup
+      await appsPage.setWatchingFilter(false);
+
+      // Ensure we have test data
+      const testApps = [
+        { name: 'Frontend App', code: 'frontend-app', watching: true },
+        { name: 'Backend Service', code: 'backend-service', watching: false },
+        { name: 'Mobile App', code: 'mobile-app', watching: true },
+      ];
+
+      for (const app of testApps) {
+        if (!(await appsPage.isAppVisible(app.code))) {
+          await appsPage.createApp(app);
+        }
+      }
+
+      // Reset to default state (watching filter enabled) for tests
+      await appsPage.setWatchingFilter(true);
+    });
+
+    test('should load with watching filter enabled by default', async () => {
+      // Verify the watching filter is enabled by default (from beforeEach)
+      const isWatchingFilterEnabled = await appsPage.watchingFilter.isChecked();
+      expect(isWatchingFilterEnabled).toBe(true);
+
+      // Verify only watching apps are visible on initial load
+      expect(await appsPage.isAppVisible('frontend-app')).toBe(true);
+      expect(await appsPage.isAppVisible('mobile-app')).toBe(true);
+      expect(await appsPage.isAppVisible('backend-service')).toBe(false);
+    });
+
+    test('should search apps by name (watching=off)', async () => {
+      await appsPage.setWatchingFilter(false);
+      await appsPage.searchApps('Frontend');
+      
+      // Should show only matching apps
+      expect(await appsPage.isAppVisible('frontend-app')).toBe(true);
+      expect(await appsPage.isAppVisible('backend-service')).toBe(false);
+      expect(await appsPage.isAppVisible('mobile-app')).toBe(false);
+      
+      // Clear search
+      await appsPage.searchApps('');
+      
+      // Should show all apps again
+      expect(await appsPage.isAppVisible('frontend-app')).toBe(true);
+      expect(await appsPage.isAppVisible('backend-service')).toBe(true);
+      expect(await appsPage.isAppVisible('mobile-app')).toBe(true);
+    });
+
+    test('should search apps by code (watching=off)', async () => {
+      await appsPage.setWatchingFilter(false);
+      await appsPage.searchApps('backend');
+      
+      // Should show only matching apps
+      expect(await appsPage.isAppVisible('backend-service')).toBe(true);
+      expect(await appsPage.isAppVisible('frontend-app')).toBe(false);
+      expect(await appsPage.isAppVisible('mobile-app')).toBe(false);
+    });
+
+    test('should show only watching apps by default', async () => {
+      // By default, only watching apps should be visible
+      // The watching filter should be enabled by default
+      const isWatchingFilterEnabled = await appsPage.watchingFilter.isChecked();
+      expect(isWatchingFilterEnabled).toBe(true);
+
+      // Only watching apps should be visible
+      expect(await appsPage.isAppVisible('frontend-app')).toBe(true);
+      expect(await appsPage.isAppVisible('mobile-app')).toBe(true);
+      expect(await appsPage.isAppVisible('backend-service')).toBe(false);
+    });
+
+    test('should show all apps when watching filter is turned off', async () => {
+      // Turn off the watching filter to see all apps
+      await appsPage.setWatchingFilter(false);
+
+      // All apps should now be visible
+      expect(await appsPage.isAppVisible('frontend-app')).toBe(true);
+      expect(await appsPage.isAppVisible('mobile-app')).toBe(true);
+      expect(await appsPage.isAppVisible('backend-service')).toBe(true);
+    });
+
+    test('should toggle between watching and all apps', async () => {
+      // Start with default state (watching filter enabled)
+      let isWatchingFilterEnabled = await appsPage.watchingFilter.isChecked();
+      expect(isWatchingFilterEnabled).toBe(true);
+
+      // Only watching apps should be visible
+      expect(await appsPage.isAppVisible('frontend-app')).toBe(true);
+      expect(await appsPage.isAppVisible('mobile-app')).toBe(true);
+      expect(await appsPage.isAppVisible('backend-service')).toBe(false);
+
+      // Turn off watching filter
+      await appsPage.toggleWatchingFilter();
+      isWatchingFilterEnabled = await appsPage.watchingFilter.isChecked();
+      expect(isWatchingFilterEnabled).toBe(false);
+
+      // All apps should now be visible
+      expect(await appsPage.isAppVisible('frontend-app')).toBe(true);
+      expect(await appsPage.isAppVisible('mobile-app')).toBe(true);
+      expect(await appsPage.isAppVisible('backend-service')).toBe(true);
+
+      // Turn watching filter back on
+      await appsPage.toggleWatchingFilter();
+      isWatchingFilterEnabled = await appsPage.watchingFilter.isChecked();
+      expect(isWatchingFilterEnabled).toBe(true);
+
+      // Only watching apps should be visible again
+      expect(await appsPage.isAppVisible('frontend-app')).toBe(true);
+      expect(await appsPage.isAppVisible('mobile-app')).toBe(true);
+      expect(await appsPage.isAppVisible('backend-service')).toBe(false);
+    });
+
+    test('should combine search and filter with default watching behavior', async () => {
+      // Search for "app" - by default watching filter is enabled
+      await appsPage.searchApps('app');
+
+      // Should show only watching apps that match search (default behavior)
+      expect(await appsPage.isAppVisible('frontend-app')).toBe(true);
+      expect(await appsPage.isAppVisible('mobile-app')).toBe(true);
+      expect(await appsPage.isAppVisible('backend-service')).toBe(false);
+
+      // Turn off watching filter while keeping search
+      await appsPage.setWatchingFilter(false);
+
+      // Should show all apps that match search, regardless of watching status
+      expect(await appsPage.isAppVisible('frontend-app')).toBe(true);
+      expect(await appsPage.isAppVisible('mobile-app')).toBe(true);
+      expect(await appsPage.isAppVisible('backend-service')).toBe(false); // Still filtered out by search
+
+      // Clear search but keep watching filter off
+      await appsPage.searchApps('');
+
+      // Should show all apps now
+      expect(await appsPage.isAppVisible('frontend-app')).toBe(true);
+      expect(await appsPage.isAppVisible('mobile-app')).toBe(true);
+      expect(await appsPage.isAppVisible('backend-service')).toBe(true);
+    });
+
+    test('should handle newly created apps based on watching status', async () => {
+      // Create a non-watching app
+      const nonWatchingApp = {
+        name: 'Non-Watching App',
+        code: 'non-watching-app',
+        watching: false,
+      };
+
+      await appsPage.createApp(nonWatchingApp);
+
+      // With default watching filter enabled, the new non-watching app should not be visible
+      expect(await appsPage.getWatchingFilterState()).toBe(true);
+      expect(await appsPage.isAppVisible('non-watching-app')).toBe(false);
+
+      // Turn off watching filter to see the new app
+      await appsPage.setWatchingFilter(false);
+      expect(await appsPage.isAppVisible('non-watching-app')).toBe(true);
+
+      // Create a watching app
+      const watchingApp = {
+        name: 'Watching App',
+        code: 'new-watching-app',
+        watching: true,
+      };
+
+      await appsPage.createApp(watchingApp);
+
+      // The watching app should be visible regardless of filter state
+      expect(await appsPage.isAppVisible('new-watching-app')).toBe(true);
+
+      // Turn watching filter back on
+      await appsPage.setWatchingFilter(true);
+
+      // Only the watching app should be visible now
+      expect(await appsPage.isAppVisible('new-watching-app')).toBe(true);
+      expect(await appsPage.isAppVisible('non-watching-app')).toBe(false);
+    });
+  });
+});

@@ -1,7 +1,7 @@
 import { DatabaseRow, db } from '../db/database';
 import { E2EManualRunService } from './e2e_manual_run.service';
 import { CircleCIService } from './circle_ci.service';
-import type { Application, ApplicationDetails, LastApplicationRun } from '@my-dashboard/types';
+import type { Application, ApplicationDetails, LastApplicationRun } from '@my-dashboard/types/applications';
 
 export class AppService {
   static async getAll(): Promise<Application[]> {

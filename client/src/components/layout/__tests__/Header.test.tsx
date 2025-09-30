@@ -16,6 +16,16 @@ vi.mock('../../../utils/constants', () => ({
   API_BASE_URL: 'http://localhost:3000',
 }));
 
+// Mock the hooks
+vi.mock('../../../hooks', () => ({
+  useNotifications: () => ({
+    data: [],
+    refetch: vi.fn(),
+    loading: false,
+    error: null,
+  }),
+}));
+
 // Mock the child components
 vi.mock('../ThemeSwitcher', () => ({
   ThemeSwitcher: () => <div data-testid="theme-switcher">Theme Switcher</div>,

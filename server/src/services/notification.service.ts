@@ -1,5 +1,5 @@
 import { DatabaseRow, db } from '../db/database';
-import { Notification, NotificationInput } from '../types';
+import { Notification, NotificationInput } from '@my-dashboard/types/notifications';
 import { FCMService } from './fcm.service';
 
 export class NotificationService {

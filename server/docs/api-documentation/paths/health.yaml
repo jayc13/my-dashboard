@@ -14,4 +14,35 @@ get:
             properties:
               status:
                 type: string
+                description: Health status of the service
+                example: "ok"
+              service:
+                type: string
+                description: Name of the service
+                example: "My Dashboard Server"
+              dbConnected:
+                type: boolean
+                description: Database connection status
+                example: true
+              timestamp:
+                type: string
+                format: date-time
+                description: ISO timestamp when the health check was performed
+                example: "2025-09-29T20:18:16.952Z"
+              uptime:
+                type: number
+                description: Server uptime in seconds
+                example: 25676.503119294
+            required:
+              - status
+              - service
+              - dbConnected
+              - timestamp
+              - uptime
+          example:
+            status: "ok"
+            service: "My Dashboard Server"
+            dbConnected: true
+            timestamp: "2025-09-29T20:18:16.952Z"
+            uptime: 25676.503119294
   security: []

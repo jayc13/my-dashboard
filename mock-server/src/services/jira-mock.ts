@@ -214,6 +214,11 @@ export function createJiraMockRouter(): Router {
     }, delay);
   });
 
+  router.get('/browse/:issueKey', (req, res) => {
+    const { issueKey } = req.params;
+    res.status(200).send(`<html><body><h1>Jira Issue: ${issueKey}</h1></body></html>`);
+  });
+
   // Catch-all for unhandled Jira API endpoints
   router.all('*', (req, res) => {
     console.log(`[JIRA] Unhandled endpoint: ${req.method} ${req.path}`);

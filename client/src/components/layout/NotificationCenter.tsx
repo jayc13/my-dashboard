@@ -12,13 +12,13 @@ import {
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import DeleteIcon from '@mui/icons-material/Delete';
 import CheckIcon from '@mui/icons-material/TaskAlt';
-import { API_BASE_URL } from '../../utils/constants.ts';
 import type { Notification } from '../../types';
 import { DateTime } from 'luxon';
-import { apiFetch } from '../../utils/helpers';
+import { useMarkNotificationAsRead, useDeleteNotification } from '../../hooks';
+import { enqueueSnackbar } from 'notistack';
 
 export interface NotificationCenterProps {
-    notifications: Notification[] | undefined;
+    notifications: Notification[] | undefined | null;
     refetchNotifications: () => void;
 }
 
@@ -29,8 +29,13 @@ const NotificationCenter = (props: NotificationCenterProps) => {
     } = props;
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
+    // SDK hooks
+    const { mutate: markAsRead } = useMarkNotificationAsRead();
+    const { mutate: deleteNotification } = useDeleteNotification();
+
     const handleOpen = (event: React.MouseEvent<HTMLElement>) => {
         setAnchorEl(event.currentTarget);
+        refetchNotifications();
     };
 
     const handleClose = () => {
@@ -38,36 +43,42 @@ const NotificationCenter = (props: NotificationCenterProps) => {
     };
 
     async function handleMarkAsRead(notificationId: number, doRefetch: boolean = true) {
-        await apiFetch(`${API_BASE_URL}/api/notifications/${notificationId}/read`, {
-            method: 'PATCH',
-            headers: { 'Content-Type': 'application/json' },
-        });
-        if (doRefetch) {
-            refetchNotifications();
+        try {
+            await markAsRead(notificationId);
+            if (doRefetch) {
+                refetchNotifications();
+            }
+        } catch {
+            enqueueSnackbar('Failed to mark notification as read', { variant: 'error' });
         }
     }
 
     async function handleDelete(notificationId: number, doRefetch: boolean = true) {
-        await apiFetch(`${API_BASE_URL}/api/notifications/${notificationId}`, {
-            method: 'DELETE',
-            headers: { 'Content-Type': 'application/json' },
-        });
-        if (doRefetch) {
-            refetchNotifications();
+        try {
+            await deleteNotification(notificationId);
+            if (doRefetch) {
+                refetchNotifications();
+            }
+        } catch {
+            enqueueSnackbar('Failed to delete notification', { variant: 'error' });
         }
     }
 
     async function handleDeleteAll() {
-        await Promise.all(notifications.map(n => handleDelete(n.id!, false)));
-        refetchNotifications();
+        if (notifications) {
+            await Promise.all(notifications.map(n => handleDelete(n.id!, false)));
+            refetchNotifications();
+        }
     }
 
     async function handleMarkAllAsRead() {
-        await Promise.all(notifications.map(n => handleMarkAsRead(n.id!, false)));
-        refetchNotifications();
+        if (notifications) {
+            await Promise.all(notifications.map(n => handleMarkAsRead(n.id!, false)));
+            refetchNotifications();
+        }
     }
 
-    const unreadCount = notifications.filter(n => !n.isRead).length;
+    const unreadCount = notifications ? notifications.filter(n => !n.isRead).length : 0;
 
     return (
         <>

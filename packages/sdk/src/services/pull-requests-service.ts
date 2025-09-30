@@ -9,7 +9,7 @@ import {
   PullRequest,
   GithubPullRequestDetails,
   AddPullRequestRequest,
-} from '../types';
+} from '@my-dashboard/types';
 
 /**
  * Pull requests management service

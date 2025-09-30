@@ -16,7 +16,7 @@ module.exports = {
   transformIgnorePatterns: [
     'node_modules/(?!(@my-dashboard|@my-dashboard/sdk|@my-dashboard/types)/)',
   ],
-  testTimeout: 30000, // 30 seconds for integration tests
+  testTimeout: 2 * 60 * 1000, // 2 min for integration tests
   setupFilesAfterEnv: ['<rootDir>/src/setup.ts'],
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',

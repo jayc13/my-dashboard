@@ -1,6 +1,6 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import { CypressRun, ProjectStatus, ProjectSummary } from '../types';
+import { CypressRun, ProjectStatus, ProjectSummary } from '@my-dashboard/types/e2e';
 import { CypressDashboardAPI } from './cypress.service';
 import { AppService } from './app.service';
 

@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import useSWR from 'swr';
 import {
     Alert,
     Box,
@@ -19,9 +18,8 @@ import {
     InputAdornment,
 } from '@mui/material';
 import { Add, Edit, Delete, Link as LinkIcon, Visibility, VisibilityOff, Search } from '@mui/icons-material';
-import { DataGrid, type GridColDef, GridActionsCellItem } from '@mui/x-data-grid';
-import { API_BASE_URL } from '../utils/constants';
-import { apiFetch } from '../utils/helpers';
+import { DataGrid, type GridColDef, GridActionsCellItem, type GridRowClassNameParams } from '@mui/x-data-grid';
+import { useApps, useCreateApp, useUpdateApp, useDeleteApp } from '../hooks';
 import type { Application } from '../types';
 import { enqueueSnackbar } from 'notistack';
 
@@ -30,6 +28,8 @@ const AppsPage = () => {
     const [editingApp, setEditingApp] = useState<Application | null>(null);
     const [showOnlyWatching, setShowOnlyWatching] = useState(true); // Default to showing only watching apps
     const [searchQuery, setSearchQuery] = useState('');
+    const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
+    const [deleteAppId, setDeleteAppId] = useState<number | null>(null);
     const [formData, setFormData] = useState<Partial<Application>>({
         name: '',
         code: '',
@@ -38,12 +38,11 @@ const AppsPage = () => {
         watching: false,
     });
 
-    const {
-        data: apps,
-        isLoading: isLoadingApps,
-        error,
-        mutate,
-    } = useSWR<Application[]>(`${API_BASE_URL}/api/apps`);
+    // SDK hooks
+    const { data: apps, loading: isLoadingApps, error, refetch } = useApps();
+    const { mutate: createApp, loading: isCreating } = useCreateApp();
+    const { mutate: updateApp, loading: isUpdating } = useUpdateApp();
+    const { mutate: deleteApp, loading: isDeleting } = useDeleteApp();
 
     const handleOpenDialog = (app?: Application) => {
         if (app) {
@@ -91,57 +90,61 @@ const AppsPage = () => {
                 }
             }
 
-            const url = editingApp
-                ? `${API_BASE_URL}/api/apps/${editingApp.id}`
-                : `${API_BASE_URL}/api/apps`;
-
-            const method = editingApp ? 'PUT' : 'POST';
-
-            const response = await apiFetch(url, {
-                method,
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(formData),
-            });
-
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.error || 'Failed to save app');
+            if (editingApp && editingApp.id) {
+                await updateApp({
+                    id: editingApp.id,
+                    data: {
+                        name: formData.name,
+                        code: formData.code,
+                        pipelineUrl: formData.pipelineUrl,
+                        e2eTriggerConfiguration: formData.e2eTriggerConfiguration,
+                        watching: formData.watching,
+                    } as Application,
+                });
+                enqueueSnackbar('App updated successfully', { variant: 'success' });
+            } else {
+                await createApp({
+                    name: formData.name!,
+                    code: formData.code!,
+                    pipelineUrl: formData.pipelineUrl,
+                    e2eTriggerConfiguration: formData.e2eTriggerConfiguration,
+                    watching: formData.watching || false,
+                } as Application);
+                enqueueSnackbar('App created successfully', { variant: 'success' });
             }
 
-            enqueueSnackbar(
-                editingApp ? 'App updated successfully' : 'App created successfully',
-                { variant: 'success' },
-            );
-
-            mutate();
+            await refetch();
             handleCloseDialog();
         } catch {
             enqueueSnackbar('Failed to save app', { variant: 'error' });
         }
     };
 
-    const handleDelete = async (id: number) => {
-        if (!window.confirm('Are you sure you want to delete this app?')) {
+    const handleDeleteClick = (id: number) => {
+        setDeleteAppId(id);
+        setConfirmDeleteOpen(true);
+    };
+
+    const handleConfirmDelete = async () => {
+        if (!deleteAppId) {
             return;
         }
 
         try {
-            const response = await apiFetch(`${API_BASE_URL}/api/apps/${id}`, {
-                method: 'DELETE',
-            });
-
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.error || 'Failed to delete app');
-            }
-
+            await deleteApp(deleteAppId);
             enqueueSnackbar('App deleted successfully', { variant: 'success' });
-            mutate();
+            await refetch();
         } catch {
             enqueueSnackbar('Failed to delete app', { variant: 'error' });
+        } finally {
+            setConfirmDeleteOpen(false);
+            setDeleteAppId(null);
         }
+    };
+
+    const handleCancelDelete = () => {
+        setConfirmDeleteOpen(false);
+        setDeleteAppId(null);
     };
 
     const columns: GridColDef[] = [
@@ -191,9 +194,9 @@ const AppsPage = () => {
                 <Box display="flex" alignItems="center" sx={{ height: '100%' }}>
                     {
                         params.value ? (
-                            <Visibility color="primary"/>
+                            <Visibility color="primary" data-testid="watching-flag"/>
                         ) : (
-                            <VisibilityOff color="disabled"/>
+                            <VisibilityOff color="disabled" data-testid="no-watching-flag"/>
                         )
                     }
                 </Box>
@@ -210,11 +213,13 @@ const AppsPage = () => {
                     icon={<Edit/>}
                     label="Edit"
                     onClick={() => handleOpenDialog(params.row)}
+                    data-testid={`app-edit-button-${params.row.code}`}
                 />,
                 <GridActionsCellItem
                     icon={<Delete/>}
                     label="Delete"
-                    onClick={() => handleDelete(params.row.id)}
+                    onClick={() => handleDeleteClick(params.row.id)}
+                    data-testid={`app-delete-button-${params.row.id}`}
                 />,
             ],
         },
@@ -223,7 +228,7 @@ const AppsPage = () => {
     if (error) {
         return (
             <Card style={{ padding: 24, marginTop: 16 }}>
-                <Alert severity="error">Error fetching apps</Alert>
+                <Alert severity="error">Error fetching apps: {error.message}</Alert>
             </Card>
         );
     }
@@ -285,7 +290,7 @@ const AppsPage = () => {
             </Box>
 
             <Card>
-                <CardContent>
+                <CardContent data-testid="apps-data-grid">
                     <DataGrid
                         loading={isLoadingApps}
                         rows={filteredApps}
@@ -297,7 +302,32 @@ const AppsPage = () => {
                         }}
                         pageSizeOptions={[5, 10, 25]}
                         disableRowSelectionOnClick
-                        data-testid="apps-data-grid"
+                        sx={{ minHeight: 400 }}
+                        getRowClassName={(params: GridRowClassNameParams<Application>) => `app-row-${params.row.code}`}
+                        slots={{
+                            noRowsOverlay: () => (
+                                <Box
+                                    display="flex"
+                                    flexDirection="column"
+                                    alignItems="center"
+                                    justifyContent="center"
+                                    height="100%"
+                                    p={3}
+                                >
+                                    <Typography variant="h6" color="text.secondary" gutterBottom>
+                                        {apps?.length === 0 ? 'No apps found' : 'No apps match your filters'}
+                                    </Typography>
+                                    <Typography variant="body2" color="text.secondary">
+                                        {apps?.length === 0
+                                            ? 'Create your first app to get started'
+                                            : showOnlyWatching
+                                                ? 'Try turning off the "Show only watching" filter'
+                                                : 'Try adjusting your search query'
+                                        }
+                                    </Typography>
+                                </Box>
+                            ),
+                        }}
                     />
                 </CardContent>
             </Card>
@@ -368,9 +398,37 @@ const AppsPage = () => {
                     </Grid>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={handleCloseDialog} data-testid="app-cancel-button">Cancel</Button>
-                    <Button onClick={handleSubmit} variant="contained" data-testid="app-submit-button">
+                    <Button onClick={handleCloseDialog} disabled={isCreating || isUpdating} data-testid="app-cancel-button">Cancel</Button>
+                    <Button
+                        onClick={handleSubmit}
+                        variant="contained"
+                        disabled={isCreating || isUpdating}
+                        data-testid="app-submit-button"
+                    >
                         {editingApp ? 'Update' : 'Create'}
+                    </Button>
+                </DialogActions>
+            </Dialog>
+
+            <Dialog open={confirmDeleteOpen} onClose={handleCancelDelete} maxWidth="xs" fullWidth data-testid="delete-app-dialog">
+                <DialogTitle>Delete App</DialogTitle>
+                <DialogContent>
+                    <Typography>
+                        Are you sure you want to delete this app?
+                    </Typography>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleCancelDelete} disabled={isDeleting} data-testid="app-delete-cancel-button">
+                        Cancel
+                    </Button>
+                    <Button
+                        onClick={handleConfirmDelete}
+                        variant="contained"
+                        color="error"
+                        disabled={isDeleting}
+                        data-testid="app-delete-confirm-button"
+                    >
+                        Delete
                     </Button>
                 </DialogActions>
             </Dialog>

@@ -6,6 +6,7 @@
 .vscode/*
 .env
 */**/.env
+*/**/.env.test
 */**/.DS_Store
 */**/dist
 */**/node_modules
@@ -18,3 +19,6 @@
 # MySQL backups
 */**/mysql-backups
 /data/mysql-backups
+
+# PID files
+*.pid
