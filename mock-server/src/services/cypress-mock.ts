@@ -221,7 +221,7 @@ export function createCypressMockRouter(): Router {
   });
 
   // Catch-all for unhandled Cypress API endpoints
-  router.all('*', (req, res) => {
+  router.all('/*path', (req, res) => {
     console.log(`[CYPRESS] Unhandled endpoint: ${req.method} ${req.path}`);
     res.status(404).json({
       message: 'Not Found'
