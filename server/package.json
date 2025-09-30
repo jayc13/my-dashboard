@@ -1,7 +1,7 @@
 {
   "name": "server",
   "version": "1.0.0",
-  "description": "TypeScript server for Cypress dashboard data",
+  "description": "TypeScript server for My dashboard data",
   "main": "dist/index.js",
   "scripts": {
     "start": "node dist/index.js",
