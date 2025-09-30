@@ -7,7 +7,7 @@ on:
         description: 'Node.js version to use'
         required: false
         type: string
-        default: 'v22.19.0'
+        default: 'v22.20.0'
 
     secrets:
       API_SECURITY_KEY:
