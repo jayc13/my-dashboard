@@ -3,19 +3,10 @@ import { getRedisSubscriber, getRedisClient } from '../config/redis';
 import { E2ERunReportService } from '../services/e2e_run_report.service';
 import { AppService } from '../services/app.service';
 import { CypressDashboardAPI } from '../services/cypress.service';
-import { CypressRun } from '@my-dashboard/types/e2e';
+import { CypressRun, E2EReportMessage } from '@my-dashboard/types/e2e';
 import * as dotenv from 'dotenv';
 
 dotenv.config({ quiet: true });
-
-/**
- * Message payload for E2E report generation
- */
-export interface E2EReportMessage {
-  date: string; // ISO date string in 'YYYY-MM-DD' format
-  requestId?: string; // Optional request ID for tracking
-  retryCount?: number; // Number of retry attempts
-}
 
 /**
  * E2E Report Processor
