@@ -1,26 +1,27 @@
 import * as cron from 'node-cron';
 import * as dotenv from 'dotenv';
 import config from 'config';
-// import runReportE2EJob from './jobs/report-e2e.job';
+import runReportE2EJob from './jobs/report-e2e.job';
 // import isPrApprovedJob from './jobs/is-pr-approved.job';
 // import manualTicketsReminderJob from './jobs/manualTicketsReminder.job';
 import cleanUpDataFilesJob from './jobs/clean-up-data-files.job';
+import { testRedisConnection } from './utils/redis';
 
 dotenv.config({ quiet: true });
 
 // Get cron schedule from config
-// const reportE2ESchedule: string = config.get('jobs.report_e2e.schedule');
+const reportE2ESchedule: string = config.get('jobs.report_e2e.schedule');
 // const isPrApprovedSchedule: string = config.get('jobs.is_pr_approved.schedule');
 // const manualTicketsReminderSchedule: string = config.get('jobs.manual_tickets_reminder.schedule');
 const cleanUpDataFilesSchedule: string = config.get('jobs.clean_up_old_reports.schedule');
 
 
-/*console.log(`Starting E2E Report cron job with schedule: ${reportE2ESchedule}`);
+console.log(`Starting E2E Report cron job with schedule: ${reportE2ESchedule}`);
 // Schedule the report job
 cron.schedule(reportE2ESchedule, async () => {
   console.log(`Running E2E Report job at ${new Date().toISOString()}`);
   await runReportE2EJob();
-});*/
+});
 
 /*console.log(`Starting checking for PRs approved cron job with schedule: ${isPrApprovedSchedule}`);
 // Schedule the report job
@@ -61,4 +62,17 @@ const healthCheckAPI = async () => {
   }
 };
 
+const validateRedisConnection = async () => {
+  const isConnectionSuccessful = await testRedisConnection();
+  if (isConnectionSuccessful) {
+    console.log('Redis connection successful');
+  } else {
+    console.log('Redis connection failure');
+  }
+};
+
 healthCheckAPI().then();
+validateRedisConnection().then();
+
+
+runReportE2EJob().then();

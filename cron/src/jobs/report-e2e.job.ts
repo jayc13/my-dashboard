@@ -1,65 +1,38 @@
-import { API_BASE_URL } from '../utils/constants';
-import { apiFetch } from '../utils/helpers';
+import { E2EReportMessage } from '@my-dashboard/types';
+import { DateTime } from 'luxon';
+import { getRedisClient } from '../utils/redis';
+import { v4 as uuidv4 } from 'uuid';
 
-const MAX_RETRIES = 5;
-const RETRY_DELAY_MS = 60 * 1000;
+/**
+ * Publish a message to generate an E2E report
+ */
+export async function publishE2EReportRequest(date: string, requestId?: string): Promise<void> {
+  const client = getRedisClient();
+  const message: E2EReportMessage = {
+    date,
+    requestId,
+  };
 
-const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+  await client.publish('e2e:report:generate', JSON.stringify(message));
+  console.log(`[E2E Report Publisher] Published report request for date: ${date}`);
+}
 
-const reportE2eJob = async (attempt = 1): Promise<void> => {
-  console.log(`Report E2E job started (attempt: ${attempt})`);
-  async function retryAfterDelay(): Promise<void> {
-    if (attempt < MAX_RETRIES) {
-      await sleep(RETRY_DELAY_MS);
-      await reportE2eJob(attempt + 1);
-    } else {
-      console.error('Max retries reached. E2E Report job failed.');
-    }
-  }
-  try {
-    const res = await apiFetch(`${API_BASE_URL}/api/e2e_reports`);
-    if (!res.ok) {
-      console.log(res);
-      console.error(`Error running E2E Report job (attempt ${attempt})`);
-      await retryAfterDelay();
-    }
-    // Create a notification saying the E2E Report job was successful
-    // const today = new Date().toISOString().split('T')[0];
-    // await apiFetch(`${API_BASE_URL}/api/notifications`, {
-    //   method: 'POST',
-    //   headers: {
-    //     'Content-Type': 'application/json',
-    //   },
-    //   body: JSON.stringify({
-    //     title: 'E2E Report',
-    //     message: `The E2E report for ${today} has been generated successfully`,
-    //     link: '/e2e-dashboard',
-    //     type: 'success',
-    //   }),
-    // });
-    const result = await res.json();
-    if (result && result.length > 0) {
-      for (const project of result) {
-        if (project.lastRunStatus === 'failed') {
-          // await apiFetch(`${API_BASE_URL}/api/notifications`, {
-          //   method: 'POST',
-          //   headers: {
-          //     'Content-Type': 'application/json',
-          //   },
-          //   body: JSON.stringify({
-          //     title: `E2E Report for ${project.projectName}`,
-          //     message: `The latest E2E run for ${project.projectName} has failed. Please check the dashboard for details.`,
-          //     link: `https://cloud.cypress.io/projects/${project.projectCode}/runs`,
-          //     type: 'error',
-          //   }),
-          // });
-        }
-      }
-    }
-    console.log('E2E Report job completed successfully');
+const reportE2eJob = async (): Promise<void> => {
+  try{
+    const requestId = uuidv4();
+
+    const date:string = DateTime.now().toUTC().toISODate().slice(0, 10);
+
+    console.log('='.repeat(60));
+    console.log('Publishing E2E Report Request');
+    console.log('='.repeat(60));
+    console.log(`Date: ${date}`);
+    console.log(`Request ID: ${requestId}`);
+    console.log('='.repeat(60));
+    
+    await publishE2EReportRequest(date, requestId);
   } catch (error) {
-    console.error(`Error running E2E Report job (attempt ${attempt}):`, error);
-    await retryAfterDelay();
+    console.error('Error running E2E Report job:', error);
   }
   return;
 };
