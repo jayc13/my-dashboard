@@ -1,6 +1,50 @@
 import { Router } from 'express';
-import { CypressRun } from '../types';
 import { createRegistryMiddleware } from '../middleware/registry-middleware';
+
+const getMockSpecDetailsStatus = (project: string) => {
+  let status = Math.random() > 0.3 ? 'passed' : 'failed';
+
+  if (project === 'app-passing') {
+    status = 'passed';
+  }
+
+  if (project === 'app-failing') {
+    status = 'failed';
+  }
+  return status;
+}
+
+const getMockSpecDetailsResponse = (project: string) => {
+
+  if (project === 'project-with-no-runs') {
+    return [];
+  }
+
+  return (new Array(Math.floor(Math.random() * 100)))
+    .fill(null).map((_, index) => ({
+      project_name: project,
+      created_at: "2025-09-29T03:23:58Z",
+      run_number: index + 1,
+      commit_author_name: "Developer Name",
+      spec: `cypress/e2e/test-suite-${index + 1}.cy.ts`,
+      status: getMockSpecDetailsStatus(project),
+      total_tests: 7,
+      pass_tests: 7,
+      flaky_tests: 0,
+      fail_tests: 0,
+      parallel_enabled: true,
+      commit_branch: "master",
+      group_name: null,
+      run_tags: "[gamma]",
+      failed_spec_prioritized: null,
+      spec_duration: 22277,
+      browser_name: "Electron",
+      browser_version: "136.0.7103.149",
+      os_name: "linux",
+      os_version: "Debian GNU/Linux - 12"
+    }));
+}
+
 
 /**
  * Mock Cypress Dashboard API endpoints
@@ -12,212 +56,40 @@ export function createCypressMockRouter(): Router {
   // Apply registry middleware to all Cypress API calls
   router.use(createRegistryMiddleware('cypress'));
 
-  // Mock data
-  const mockRuns: CypressRun[] = [
-    {
-      runId: 'run-1',
-      status: 'passed',
-      totalTests: 25,
-      totalPassed: 25,
-      totalFailed: 0,
-      totalPending: 0,
-      createdAt: '2024-01-15T10:00:00Z',
-      completedAt: '2024-01-15T10:15:00Z'
-    },
-    {
-      runId: 'run-2',
-      status: 'failed',
-      totalTests: 30,
-      totalPassed: 27,
-      totalFailed: 3,
-      totalPending: 0,
-      createdAt: '2024-01-15T09:00:00Z',
-      completedAt: '2024-01-15T09:18:00Z'
-    },
-    {
-      runId: 'run-3',
-      status: 'running',
-      totalTests: 20,
-      totalPassed: 15,
-      totalFailed: 0,
-      totalPending: 5,
-      createdAt: '2024-01-15T11:00:00Z'
-    }
-  ];
+  // Accept requests from the parent path "/cypress" as well as the root
+  router.get('/', (req, res) => {
+    const reportId = req.query.report_id as string;
 
-  // GET /projects/{projectId}/runs
-  // List runs for a project
-  router.get('/projects/:projectId/runs', (req, res) => {
-    const { projectId } = req.params;
-    const { branch, status, limit = '20', offset = '0' } = req.query;
+    const ALLOWED_REPORT_IDS = ['spec-details'];
 
-    console.log(`[CYPRESS] Listing runs for project ${projectId}${branch ? ` (branch: ${branch})` : ''}${status ? ` (status: ${status})` : ''}`);
-
-    let filteredRuns = [...mockRuns];
-    
-    // Filter by status if specified
-    if (status && status !== 'all') {
-      filteredRuns = filteredRuns.filter(run => run.status === status);
+    if (!reportId || !ALLOWED_REPORT_IDS.includes(reportId)) {
+      return res.status(400).json({
+        message: 'Invalid or missing report_id parameter. Allowed values: ' + ALLOWED_REPORT_IDS.join(', ')
+      });
     }
 
-    // Pagination
-    const limitNum = parseInt(limit as string, 10);
-    const offsetNum = parseInt(offset as string, 10);
-    const paginatedRuns = filteredRuns.slice(offsetNum, offsetNum + limitNum);
+    if (reportId === 'spec-details') {
+      const projects = req.query.projects;
+      if (!projects) {
+        return res.status(400).json({
+          message: 'Missing projects parameter'
+        });
+      }
 
-    const delay = parseInt(process.env.DEFAULT_DELAY_MS || '100', 10);
-    setTimeout(() => {
-      res.json({
-        runs: paginatedRuns.map(run => ({
-          ...run,
-          projectId,
-          branch: branch || 'main',
-          commit: {
-            sha: 'abc123def456',
-            branch: branch || 'main',
-            message: 'Mock commit message',
-            authorName: 'Mock Author',
-            authorEmail: 'mock@example.com'
-          },
-          specs: [
-            {
-              name: 'cypress/e2e/login.cy.ts',
-              tests: Math.floor(run.totalTests * 0.4),
-              passing: Math.floor(run.totalPassed * 0.4),
-              failing: Math.floor(run.totalFailed * 0.4),
-              pending: Math.floor(run.totalPending * 0.4)
-            },
-            {
-              name: 'cypress/e2e/dashboard.cy.ts',
-              tests: Math.floor(run.totalTests * 0.6),
-              passing: Math.floor(run.totalPassed * 0.6),
-              failing: Math.floor(run.totalFailed * 0.6),
-              pending: Math.floor(run.totalPending * 0.6)
-            }
-          ]
-        })),
-        totalCount: filteredRuns.length,
-        hasMore: offsetNum + limitNum < filteredRuns.length
-      });
-    }, delay);
-  });
+      // For simplicity, return a static mock response
 
-  // GET /projects/{projectId}/runs/{runId}
-  // Get a specific run
-  router.get('/projects/:projectId/runs/:runId', (req, res) => {
-    const { projectId, runId } = req.params;
+      const projectList = Array.isArray(projects) ? projects : [projects];
+      const response = projectList.map(proj => getMockSpecDetailsResponse(proj as string)).flat();
 
-    console.log(`[CYPRESS] Fetching run ${runId} for project ${projectId}`);
+      return res.status(200).json(response);
 
-    const run = mockRuns.find(r => r.runId === runId);
-    
-    if (!run) {
-      res.status(404).json({
-        message: 'Run not found'
-      });
-      return;
     }
 
-    const delay = parseInt(process.env.DEFAULT_DELAY_MS || '100', 10);
-    setTimeout(() => {
-      res.json({
-        ...run,
-        projectId,
-        branch: 'main',
-        commit: {
-          sha: 'abc123def456',
-          branch: 'main',
-          message: 'Mock commit message',
-          authorName: 'Mock Author',
-          authorEmail: 'mock@example.com'
-        },
-        specs: [
-          {
-            name: 'cypress/e2e/login.cy.ts',
-            tests: Math.floor(run.totalTests * 0.4),
-            passing: Math.floor(run.totalPassed * 0.4),
-            failing: Math.floor(run.totalFailed * 0.4),
-            pending: Math.floor(run.totalPending * 0.4),
-            duration: 45000,
-            screenshots: run.totalFailed > 0 ? [
-              {
-                name: 'login failure screenshot',
-                url: 'https://mock-cypress-dashboard.com/screenshots/login-failure.png'
-              }
-            ] : []
-          },
-          {
-            name: 'cypress/e2e/dashboard.cy.ts',
-            tests: Math.floor(run.totalTests * 0.6),
-            passing: Math.floor(run.totalPassed * 0.6),
-            failing: Math.floor(run.totalFailed * 0.6),
-            pending: Math.floor(run.totalPending * 0.6),
-            duration: 67000,
-            screenshots: []
-          }
-        ],
-        duration: run.completedAt ? 
-          new Date(run.completedAt).getTime() - new Date(run.createdAt).getTime() : 
-          null
-      });
-    }, delay);
-  });
-
-  // GET /projects/{projectId}
-  // Get project information
-  router.get('/projects/:projectId', (req, res) => {
-    const { projectId } = req.params;
-
-    console.log(`[CYPRESS] Fetching project info for ${projectId}`);
-
-    const delay = parseInt(process.env.DEFAULT_DELAY_MS || '100', 10);
-    setTimeout(() => {
-      res.json({
-        projectId,
-        name: 'My Dashboard E2E Tests',
-        public: false,
-        orgId: 'org-12345',
-        createdAt: '2023-01-01T00:00:00Z',
-        updatedAt: new Date().toISOString(),
-        defaultBranch: 'main',
-        recentRuns: mockRuns.slice(0, 5).map(run => ({
-          runId: run.runId,
-          status: run.status,
-          createdAt: run.createdAt,
-          completedAt: run.completedAt
-        }))
-      });
-    }, delay);
-  });
-
-  // GET /projects
-  // List projects
-  router.get('/projects', (_req, res) => {
-    console.log('[CYPRESS] Listing projects');
-
-    const delay = parseInt(process.env.DEFAULT_DELAY_MS || '100', 10);
-    setTimeout(() => {
-      res.json([
-        {
-          projectId: 'proj-12345',
-          name: 'My Dashboard E2E Tests',
-          public: false,
-          orgId: 'org-12345',
-          createdAt: '2023-01-01T00:00:00Z',
-          updatedAt: new Date().toISOString(),
-          defaultBranch: 'main'
-        },
-        {
-          projectId: 'proj-67890',
-          name: 'Mobile App E2E Tests',
-          public: false,
-          orgId: 'org-12345',
-          createdAt: '2023-02-01T00:00:00Z',
-          updatedAt: new Date().toISOString(),
-          defaultBranch: 'main'
-        }
-      ]);
-    }, delay);
+    return res.json({
+      message: 'Cypress Dashboard API Mock',
+      query: req.query,
+      allowedReportIds: ALLOWED_REPORT_IDS
+    });
   });
 
   // Catch-all for unhandled Cypress API endpoints

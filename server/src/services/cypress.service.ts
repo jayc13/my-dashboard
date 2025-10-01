@@ -1,3 +1,7 @@
+import dotenv from 'dotenv';
+
+dotenv.config({ quiet: true });
+
 interface GetReportOptions {
     projects?: string[]; // Optional array of project names
     startDate?: string; // ISO date string
@@ -22,7 +26,15 @@ export class CypressDashboardAPI {
       branch = 'master',
     } = options || {};
 
-    const baseUrl = 'https://cloud.cypress.io/enterprise-reporting/report';
+    const baseUrl = process.env.CYPRESS_BASE_URL;
+
+    if (!baseUrl) {
+      throw new Error('CYPRESS_BASE_URL environment variable is not set.');
+    }
+
+    if (!this.apiKey) {
+      throw new Error('CYPRESS_API_KEY environment variable is not set.');
+    }
 
     const url = new URL(baseUrl);
     url.searchParams.append('report_id', reportName);
