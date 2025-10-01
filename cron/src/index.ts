@@ -73,6 +73,3 @@ const validateRedisConnection = async () => {
 
 healthCheckAPI().then();
 validateRedisConnection().then();
-
-
-runReportE2EJob().then();
