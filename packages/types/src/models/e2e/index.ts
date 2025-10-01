@@ -54,3 +54,26 @@ export interface ProjectStatus {
     lastRunStatus: string;
     createdAt: string;
 }
+
+export interface E2EReportSummary {
+    id: number;
+    date: string; // ISO date string in 'YYYY-MM-DD' format (UTC)
+    status: 'ready' | 'pending' | 'failed';
+    totalRuns: number;
+    passedRuns: number;
+    failedRuns: number;
+    successRate: number; // Value between 0 and 1
+}
+
+export interface E2EReportDetail {
+    id: number;
+    reportSummaryId: number;
+    appId: number;
+    totalRuns: number;
+    passedRuns: number;
+    failedRuns: number;
+    successRate: number; // Value between 0 and 1
+    lastRunStatus: string;
+    lastFailedRunAt: string | null; // ISO date string or null
+    lastRunAt: string; // ISO date string
+}
