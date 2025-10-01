@@ -16,6 +16,7 @@ import { createE2EManualRunsRouter } from './routes/e2e_manual_runs';
 import { createInternalRouter } from './routes/internal';
 import apiKeyValidator from './middleware/api_key_validator';
 import { testMySQLConnection } from './db/mysql';
+import { startProcessor } from './processor/start-processor';
 
 // Load environment variables
 dotenv.config({ quiet: true });
@@ -83,6 +84,11 @@ app.use(errorHandler);
 // Start server
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
+});
+
+// Start the E2E report processor
+startProcessor().catch((err: Error) => {
+  console.error('Failed to start E2E Report Processor:', err);
 });
 
 export default app;
