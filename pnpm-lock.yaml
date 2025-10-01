@@ -122,15 +122,27 @@ importers:
 
   cron:
     dependencies:
+      '@my-dashboard/types':
+        specifier: file:../packages/types
+        version: link:../packages/types
       config:
         specifier: ^4.1.1
         version: 4.1.1
       dotenv:
         specifier: ^17.2.2
         version: 17.2.2
+      ioredis:
+        specifier: ^5.8.0
+        version: 5.8.0
+      luxon:
+        specifier: ^3.7.2
+        version: 3.7.2
       node-cron:
         specifier: ^4.2.1
         version: 4.2.1
+      uuid:
+        specifier: ^11.1.0
+        version: 11.1.0
     devDependencies:
       '@eslint/js':
         specifier: ^9.36.0
@@ -138,6 +150,9 @@ importers:
       '@types/config':
         specifier: ^3.3.0
         version: 3.3.5
+      '@types/luxon':
+        specifier: ^3.7.1
+        version: 3.7.1
       '@types/node':
         specifier: ^24.6.0
         version: 24.6.0
