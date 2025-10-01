@@ -77,3 +77,12 @@ export interface E2EReportDetail {
     lastFailedRunAt: string | null; // ISO date string or null
     lastRunAt: string; // ISO date string
 }
+
+/**
+ * Message payload for E2E report generation
+ */
+export interface E2EReportMessage {
+    date: string; // ISO date string in 'YYYY-MM-DD' format
+    requestId?: string; // Optional request ID for tracking
+    retryCount?: number; // Number of retry attempts
+}
