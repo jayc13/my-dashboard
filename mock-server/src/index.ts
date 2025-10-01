@@ -97,10 +97,7 @@ app.get('/', (_req, res) => {
         baseUrl: '/cypress',
         description: 'Cypress Dashboard API mock endpoints',
         endpoints: [
-          'GET /cypress/projects/{projectId}/runs',
-          'GET /cypress/projects/{projectId}/runs/{runId}',
-          'POST /cypress/projects/{projectId}/runs',
-          'GET /cypress/projects/{projectId}'
+          'GET /cypress'
         ]
       },
       jira: {
