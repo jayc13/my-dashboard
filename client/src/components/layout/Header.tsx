@@ -14,8 +14,8 @@ import {
 } from '@mui/icons-material';
 import { ThemeSwitcher } from './ThemeSwitcher.tsx';
 import NotificationCenter from './NotificationCenter';
-import { useAuth } from '../../contexts/useAuth';
-import { useNotifications } from '../../hooks';
+import { useAuth } from '@/contexts/useAuth.ts';
+import { useNotifications } from '@/hooks';
 
 const Header: React.FC = () => {
     const { logout } = useAuth();

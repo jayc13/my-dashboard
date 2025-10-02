@@ -1,33 +1,13 @@
 import { Card, CardContent, Chip, Divider, Grid, Skeleton, Stack, Typography } from '@mui/material';
 import TrendDownIcon from '@mui/icons-material/TrendingDown';
 import TrendUpIcon from '@mui/icons-material/TrendingUp';
-
-interface TestResult {
-    projectName: string;
-    totalRuns: number;
-    passedRuns: number;
-    failedRuns: number;
-    successRate: number;
-}
+import type { E2EReportSummary } from '@my-dashboard/types';
 
 interface E2EGeneralMetricsProps {
-    data: TestResult[];
-    prevData: TestResult[];
+    data?: E2EReportSummary;
+    prevData?: E2EReportSummary;
     isLoading?: boolean;
 }
-
-const parseTestResult = (results: TestResult[]) => {
-    const passedRuns = results.reduce((acc, entry) => acc + entry.passedRuns, 0);
-    const failedRuns = results.reduce((acc, entry) => acc + entry.failedRuns, 0);
-    const totalRuns = passedRuns + failedRuns;
-    const passingRate = totalRuns > 0 ? (passedRuns / totalRuns) * 100 : 0;
-    return {
-        totalRuns,
-        passedRuns,
-        failedRuns,
-        passingRate,
-    };
-};
 
 const getLabelsColors = (trend: string, inverseTrend: boolean = false): 'success' | 'error' | 'default' | 'primary' | 'secondary' | 'info' | 'warning' => {
     switch (trend) {
@@ -48,44 +28,49 @@ const getTrendIcon = (trend: string) => {
     }
 };
 
-const E2EGeneralMetrics = (props: E2EGeneralMetricsProps) => {
-    const {
-        data = [],
-        prevData = [],
-        isLoading = false,
-    } = props;
+const getStats = (data?: E2EReportSummary, prevData?: E2EReportSummary) => {
+    if (!data) {
+        return [];
+    }
 
-    const actualParsedResults = parseTestResult(data);
-    const prevParsedResults = parseTestResult(prevData);
-
-    const stats = [
+    return [
         {
             label: 'Total Runs',
-            value: actualParsedResults.totalRuns,
-            prevValue: prevParsedResults.totalRuns,
+            value: data.totalRuns,
+            prevValue: prevData?.totalRuns,
             hasTrend: false,
         },
         {
             label: 'Passed',
-            value: actualParsedResults.passedRuns,
-            prevValue: prevParsedResults.passedRuns,
+            value: data.passedRuns,
+            prevValue: prevData?.passedRuns,
             hasTrend: false,
         },
         {
             label: 'Failed',
-            value: actualParsedResults.failedRuns,
-            prevValue: prevParsedResults.failedRuns,
+            value: data.failedRuns,
+            prevValue: prevData?.failedRuns,
             hasTrend: false,
             inverseTrend: true,
         },
         {
             label: 'Passing Rate',
-            value: actualParsedResults.passingRate,
-            prevValue: prevParsedResults.passingRate,
+            value: data.successRate,
+            prevValue: prevData?.successRate,
             hasTrend: true,
             formattedValue: (value: number) => Math.abs(value).toFixed(2) + '%',
         },
     ];
+};
+
+const E2EGeneralMetrics = (props: E2EGeneralMetricsProps) => {
+    const {
+        data,
+        prevData,
+        isLoading = false,
+    } = props;
+
+    const stats = getStats(data, prevData);
 
     if (isLoading) {
         return (
@@ -145,6 +130,7 @@ const E2EGeneralMetrics = (props: E2EGeneralMetricsProps) => {
                                     <strong>{s.label}</strong>
                                 </Typography>
                                 {
+                                    (!!s.prevValue) &&
                                     <Chip
                                         label={trendLabel}
                                         icon={getTrendIcon(trend)}
@@ -159,18 +145,23 @@ const E2EGeneralMetrics = (props: E2EGeneralMetricsProps) => {
                                 {s.formattedValue ? s.formattedValue(s.value) : s.value}
                             </Typography>
                         </Stack>
-                        <Divider sx={{ my: 2 }}/>
-                        <Stack
-                            direction="row"
-                            sx={{ justifyContent: 'space-between', alignItems: 'center' }}
-                        >
-                            <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-                                vs last 14 days
-                            </Typography>
-                            <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-                                <strong>{s.formattedValue ? s.formattedValue(s.prevValue) : s.prevValue}</strong>
-                            </Typography>
-                        </Stack>
+                        {
+                          (!!s.prevValue) &&
+                          <>
+                              <Divider sx={{ my: 2 }}/>
+                              <Stack
+                                direction="row"
+                                sx={{ justifyContent: 'space-between', alignItems: 'center' }}
+                              >
+                                  <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+                                      vs last 14 days
+                                  </Typography>
+                                  <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+                                      <strong>{s.formattedValue ? s.formattedValue(s.prevValue) : s.prevValue}</strong>
+                                  </Typography>
+                              </Stack>
+                          </>
+                        }
                     </CardContent>
                 </Card>
             </Grid>;

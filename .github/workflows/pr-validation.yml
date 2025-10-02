@@ -258,7 +258,7 @@ jobs:
           CIRCLE_CI_TOKEN="your-circle-ci-token"
 
           # Redis Configuration
-          REDIS_URL=redis://localhost:6379
+          REDIS_URL=redis://redis:6379
           EOF
 
           # Start server in background

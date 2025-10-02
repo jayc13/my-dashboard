@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { visualizer } from 'rollup-plugin-visualizer';
+import path from 'path';
 
 // https://vite.dev/config/
 export default defineConfig(({ mode }) => ({
@@ -17,6 +18,16 @@ export default defineConfig(({ mode }) => ({
   // Load environment variables from .env.test for testing
   envDir: '.',
   resolve: {
+    alias: {
+      '@': path.resolve(__dirname, './src'),
+      '@components': path.resolve(__dirname, './src/components'),
+      '@hooks': path.resolve(__dirname, './src/hooks'),
+      '@contexts': path.resolve(__dirname, './src/contexts'),
+      '@utils': path.resolve(__dirname, './src/utils'),
+      '@types': path.resolve(__dirname, './src/types'),
+      '@pages': path.resolve(__dirname, './src/pages'),
+      '@sections': path.resolve(__dirname, './src/sections'),
+    },
     dedupe: ['@emotion/react', '@emotion/styled'],
   },
   optimizeDeps: {
@@ -24,8 +35,6 @@ export default defineConfig(({ mode }) => ({
       '@emotion/react',
       '@emotion/styled',
       '@mui/material',
-      '@mui/system',
-      '@mui/styled-engine',
       '@my-dashboard/sdk',
       '@my-dashboard/types',
     ],

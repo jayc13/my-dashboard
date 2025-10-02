@@ -1,13 +1,11 @@
-import { SWRConfig } from 'swr';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Layout from './components/layout/Layout';
-import E2EPage from './pages/E2EPage.tsx';
+import E2EPage from '@/sections/e2e-page';
 import PullRequestsPage from './pages/PullRequestsPage.tsx';
 import TasksPage from './pages/TasksPage.tsx';
 import LoginPage from './pages/LoginPage.tsx';
 import AppsPage from './pages/AppsPage.tsx';
 import NotificationPermission from './components/NotificationPermission';
-import { apiFetch } from './utils/helpers';
 import { type SnackbarKey, SnackbarProvider, useSnackbar } from 'notistack';
 import { CircularProgress, Box, IconButton } from '@mui/material';
 import { AuthProvider } from './contexts/AuthContext';
@@ -51,32 +49,21 @@ const ProtectedApp: React.FC = () => {
 
     return (
         <SDKProvider>
-            <SWRConfig
-                value={{
-                    fetcher: (resource, init) => apiFetch(resource, init).then(res => {
-                        if (!res.ok) {
-                            throw new Error(`HTTP error! status: ${res.status}`);
-                        }
-                        return res.json();
-                    }),
-                }}
-            >
-                <Layout>
-                    <NotificationPermission/>
-                    <Routes>
-                        <Route index element={<TasksPage/>}/>
-                        <Route path="/e2e-dashboard" element={<E2EPage/>}/>
-                        <Route path="/pull_requests" element={<PullRequestsPage/>}/>
-                        <Route path="/apps" element={<AppsPage/>}/>
-                    </Routes>
-                    <SnackbarProvider
-                        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-                        autoHideDuration={2000}
-                        maxSnack={3}
-                        action={snackbarKey => <SnackbarCloseButton snackbarKey={snackbarKey} />}
-                    />
-                </Layout>
-            </SWRConfig>
+              <Layout>
+                  <NotificationPermission/>
+                  <Routes>
+                      <Route index element={<TasksPage/>}/>
+                      <Route path="/e2e-dashboard" element={<E2EPage/>}/>
+                      <Route path="/pull_requests" element={<PullRequestsPage/>}/>
+                      <Route path="/apps" element={<AppsPage/>}/>
+                  </Routes>
+                  <SnackbarProvider
+                      anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+                      autoHideDuration={2000}
+                      maxSnack={3}
+                      action={snackbarKey => <SnackbarCloseButton snackbarKey={snackbarKey} />}
+                  />
+              </Layout>
         </SDKProvider>
     );
 };

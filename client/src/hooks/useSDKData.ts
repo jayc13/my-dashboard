@@ -9,7 +9,7 @@ interface UseSDKDataOptions {
 }
 
 interface UseSDKDataResult<T> {
-  data: T | null;
+  data: T | null | undefined;
   loading: boolean;
   error: Error | null;
   refetch: () => Promise<void>;
@@ -26,7 +26,8 @@ export function useSDKData<T>(
   const { logout } = useAuth();
   const { enabled = true, refetchInterval } = options;
 
-  const [data, setData] = useState<T | null>(null);
+  // Undefined means not yet fetched, null means no data
+  const [data, setData] = useState<T | undefined | null>(undefined);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
