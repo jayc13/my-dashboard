@@ -5,11 +5,11 @@
  */
 
 import { BaseClient } from './base-client';
-import { E2EService } from './services/e2e-service';
 import { ApplicationsService } from './services/applications-service';
 import { NotificationsService } from './services/notifications-service';
 import { PullRequestsService } from './services/pull-requests-service';
 import { AuthService } from './services/auth-service';
+import { E2ERunService } from './services/e2e-run-service';
 import { FCMService, JiraService, TodosService, HealthService } from './services/additional-services';
 import { SDKConfig } from '@my-dashboard/types';
 
@@ -21,7 +21,7 @@ import { SDKConfig } from '@my-dashboard/types';
  */
 export class MyDashboardAPI extends BaseClient {
   // Service instances
-  public readonly e2e: E2EService;
+  public readonly e2e: E2ERunService;
   public readonly applications: ApplicationsService;
   public readonly notifications: NotificationsService;
   public readonly pullRequests: PullRequestsService;
@@ -35,7 +35,7 @@ export class MyDashboardAPI extends BaseClient {
     super(config);
 
     // Initialize all services with the same configuration
-    this.e2e = new E2EService(config);
+    this.e2e = new E2ERunService(config);
     this.applications = new ApplicationsService(config);
     this.notifications = new NotificationsService(config);
     this.pullRequests = new PullRequestsService(config);
@@ -49,6 +49,11 @@ export class MyDashboardAPI extends BaseClient {
   // ============================================================================
   // Convenience Methods - Delegate to Services
   // ============================================================================
+  
+  // E2E Reports convenience methods
+  public async getE2EReport(options = {}) {
+    return this.e2e.getE2EReport(options);
+  }
   
   // Applications convenience methods
   public async getApplications() {
