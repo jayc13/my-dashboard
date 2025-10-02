@@ -89,6 +89,10 @@ paths:
   /api/auth/validate:
     $ref: './paths/api_auth_validate.yaml'
 
+  # E2E Run Reports
+  /api/e2e_run_report:
+    $ref: './paths/api_e2e_run_report.yaml'
+
   # E2E Reports
   /api/e2e_reports:
     $ref: './paths/api_e2e_reports.yaml'
@@ -152,7 +156,7 @@ components:
       type: apiKey
       in: header
       name: x-api-key
-      description: API key authentication using x-api-key header
+      description: "API key authentication using `x-api-key` header. Example: `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...`"
 
   schemas:
     # Core Data Models
