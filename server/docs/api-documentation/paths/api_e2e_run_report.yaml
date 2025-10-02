@@ -1,0 +1,30 @@
+get:
+  operationId: get-e2e-run-reports
+  summary: Get E2E test reports
+  description: |
+    Retrieve Cypress end-to-end test execution reports for all monitored projects.
+    
+    Returns a summary of test runs including success rates, total runs, and status information
+    for the current day or a specified date.
+  tags:
+    - E2E Reports
+  security:
+    - ApiKeyAuth: []
+  parameters:
+    - name: date
+      in: query
+      description: Report date in YYYY-MM-DD format (defaults to current date)
+      required: false
+      schema:
+        type: string
+        format: date
+        example: "2025-12-13"
+  responses:
+    '200':
+      description: E2E reports retrieved successfully
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: '../schemas/ProjectSummary.yaml'

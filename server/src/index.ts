@@ -17,6 +17,7 @@ import { createInternalRouter } from './routes/internal';
 import apiKeyValidator from './middleware/api_key_validator';
 import { testMySQLConnection } from './db/mysql';
 import { startProcessor } from './processors/start-processor';
+import { createE2ERunReportRouter } from './routes/e2e_run_report';
 
 // Load environment variables
 dotenv.config({ quiet: true });
@@ -57,6 +58,7 @@ app.use('/api/auth', createAuthRouter()); // Auth routes don't need API key vali
 app.use('/api', apiKeyValidator);
 
 app.use('/api/e2e_reports', createE2EReportRouter());
+app.use('/api/e2e_run_report', createE2ERunReportRouter());
 app.use('/api/jira', createJiraRouter());
 app.use('/api/pull_requests', createPullRequestRouter());
 app.use('/api/to_do_list', createToDoListRouter());
