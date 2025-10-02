@@ -377,21 +377,21 @@ jobs:
           echo "Integration testing: ${{ needs.integration-testing.result }}"
           echo "E2E testing: ${{ needs.e2e-testing.result }}"
 
-          # Fail if any required job failed
-          if [[ "${{ needs.basic-validation.result }}" == "failure" ]] || \
-             [[ "${{ needs.validate-packages-types.result }}" == "failure" ]] || \
-             [[ "${{ needs.validate-packages-sdk.result }}" == "failure" ]] || \
-             [[ "${{ needs.validate-client.result }}" == "failure" ]] || \
-             [[ "${{ needs.validate-server.result }}" == "failure" ]] || \
-             [[ "${{ needs.validate-mock-server.result }}" == "failure" ]] || \
-             [[ "${{ needs.validate-cron.result }}" == "failure" ]] || \
-             [[ "${{ needs.validate-scripts.result }}" == "failure" ]] || \
-             [[ "${{ needs.validate-tests-integration.result }}" == "failure" ]] || \
-             [[ "${{ needs.validate-tests-e2e.result }}" == "failure" ]] || \
-             [[ "${{ needs.validate-docs.result }}" == "failure" ]] || \
-             [[ "${{ needs.integration-testing.result }}" == "failure" ]] || \
-             [[ "${{ needs.e2e-testing.result }}" == "failure" ]]; then
-            echo "❌ One or more validations failed"
+          # Fail if any required job failed or was cancelled
+          if [[ "${{ needs.basic-validation.result }}" == "failure" || "${{ needs.basic-validation.result }}" == "cancelled" ]] || \
+             [[ "${{ needs.validate-packages-types.result }}" == "failure" || "${{ needs.validate-packages-types.result }}" == "cancelled" ]] || \
+             [[ "${{ needs.validate-packages-sdk.result }}" == "failure" || "${{ needs.validate-packages-sdk.result }}" == "cancelled" ]] || \
+             [[ "${{ needs.validate-client.result }}" == "failure" || "${{ needs.validate-client.result }}" == "cancelled" ]] || \
+             [[ "${{ needs.validate-server.result }}" == "failure" || "${{ needs.validate-server.result }}" == "cancelled" ]] || \
+             [[ "${{ needs.validate-mock-server.result }}" == "failure" || "${{ needs.validate-mock-server.result }}" == "cancelled" ]] || \
+             [[ "${{ needs.validate-cron.result }}" == "failure" || "${{ needs.validate-cron.result }}" == "cancelled" ]] || \
+             [[ "${{ needs.validate-scripts.result }}" == "failure" || "${{ needs.validate-scripts.result }}" == "cancelled" ]] || \
+             [[ "${{ needs.validate-tests-integration.result }}" == "failure" || "${{ needs.validate-tests-integration.result }}" == "cancelled" ]] || \
+             [[ "${{ needs.validate-tests-e2e.result }}" == "failure" || "${{ needs.validate-tests-e2e.result }}" == "cancelled" ]] || \
+             [[ "${{ needs.validate-docs.result }}" == "failure" || "${{ needs.validate-docs.result }}" == "cancelled" ]] || \
+             [[ "${{ needs.integration-testing.result }}" == "failure" || "${{ needs.integration-testing.result }}" == "cancelled" ]] || \
+             [[ "${{ needs.e2e-testing.result }}" == "failure" || "${{ needs.e2e-testing.result }}" == "cancelled" ]]; then
+            echo "❌ One or more validations failed or were cancelled"
             exit 1
           else
             echo "✅ All validations passed"

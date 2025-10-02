@@ -62,7 +62,7 @@ export interface E2EReportDetail {
     passedRuns: number;
     failedRuns: number;
     successRate: number; // Value between 0 and 1
-    lastRunStatus: string;
+    lastRunStatus: 'passed' | 'failed';
     lastFailedRunAt: string | null; // ISO date string or null
     lastRunAt: string; // ISO date string
 }
@@ -77,16 +77,16 @@ export interface E2EReportMessage {
 }
 
 export interface AppDetailedE2EReportDetail extends ApplicationDetails {
-    manualRuns: E2EManualRun[]
+    manualRuns?: E2EManualRun[]
 }
 
 export interface DetailedE2EReportDetail extends E2EReportDetail {
-    app: AppDetailedE2EReportDetail
+    app?: AppDetailedE2EReportDetail
 }
 
 export interface DetailedE2EReport {
     summary: E2EReportSummary;
-    details: DetailedE2EReportDetail[];
+    details?: DetailedE2EReportDetail[];
     message?: string; // Optional message, e.g., for pending status
 }
 
@@ -106,4 +106,15 @@ export interface E2EManualRunOptions {
         from?: string; // ISO date string
         to?: string;   // ISO date string
     };
+}
+
+export interface DetailedE2EReportEnrichments {
+    includeDetails?: boolean; // Include detailed report entries
+    includeAppInfo?: boolean; // Include application details
+    includeManualRuns?: boolean; // Include manual runs for each application
+}
+
+export interface DetailedE2EReportOptions {
+    date?: string;
+    enrichments?: DetailedE2EReportEnrichments;
 }

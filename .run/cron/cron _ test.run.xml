@@ -9,4 +9,24 @@
     <envs />
     <method v="2" />
   </configuration>
+  <configuration default="false" name="cron &gt; test" type="js.build_tools.npm" folderName="Cron" nameIsGenerated="true">
+    <package-json value="$PROJECT_DIR$/cron/package.json" />
+    <command value="run" />
+    <scripts>
+      <script value="test" />
+    </scripts>
+    <node-interpreter value="project" />
+    <envs />
+    <method v="2" />
+  </configuration>
+  <configuration default="false" name="cron &gt; test" type="js.build_tools.npm" folderName="Cron" nameIsGenerated="true">
+    <package-json value="$PROJECT_DIR$/cron/package.json" />
+    <command value="run" />
+    <scripts>
+      <script value="test" />
+    </scripts>
+    <node-interpreter value="project" />
+    <envs />
+    <method v="2" />
+  </configuration>
 </component>

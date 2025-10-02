@@ -7,7 +7,7 @@
 import { BaseClient } from '../base-client';
 import {
   DetailedE2EReport,
-  E2EReportsQueryParams,
+  DetailedE2EReportOptions,
 } from '@my-dashboard/types';
 
 /**
@@ -23,12 +23,12 @@ export class E2ERunService extends BaseClient {
    * @param options Query parameters for filtering reports
    * @returns Promise resolving to array of project summaries
    */
-  public async getE2EReport(options: E2EReportsQueryParams = {}): Promise<DetailedE2EReport> {
+  public async getE2EReport(options: DetailedE2EReportOptions = {}): Promise<DetailedE2EReport> {
     return this.request<DetailedE2EReport>('/api/e2e_run_report', {
       method: 'GET',
       params: {
-        reportDate: options.reportDate,
         date: options.date,
+        enrichments: options.enrichments ? JSON.stringify(options.enrichments) : undefined,
       },
     });
   }

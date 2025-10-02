@@ -4,14 +4,39 @@ import { AppService } from '../services/app.service';
 import { E2EManualRunService } from '../services/e2e_manual_run.service';
 import { DateTime } from 'luxon';
 import { publishE2EReportRequest } from '../processors/e2e_report.processor';
+import {
+  AppDetailedE2EReportDetail,
+  DetailedE2EReportDetail,
+  DetailedE2EReportEnrichments,
+} from '@my-dashboard/types/e2e';
 
 
 export async function getReport(req: Request, res: Response) {
   const {
     date = DateTime.now().toUTC().toISODate().slice(0, 10),
+    enrichments = '{}',
   } = req.query;
 
-  console.log(date);
+  let enrichmentsObj: DetailedE2EReportEnrichments = {
+    includeDetails: true,
+    includeAppInfo: true,
+    includeManualRuns: true,
+  };
+
+  console.log({ enrichments });
+
+  try {
+    enrichmentsObj = {
+      ...enrichmentsObj,
+      ...JSON.parse(enrichments as string),
+    };
+  } catch {
+    return res.status(400).send({
+      error: 'Invalid enrichments format. Expected JSON string',
+    });
+  }
+
+  console.log({ enrichmentsObj });
 
   // Validate date format
   const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
@@ -21,16 +46,15 @@ export async function getReport(req: Request, res: Response) {
     });
   }
   
-  const {
-    summary,
-    details,
-  } = await E2ERunReportService.getSummaryByDateWithDetails(date as string);
+  const summary = await E2ERunReportService.getSummaryByDate(date as string);
 
   // If there is no summary, return a 202 Accepted status and trigger the generation of the report
   if (!summary) {
-    
-    await publishE2EReportRequest(date as string);
-    
+    publishE2EReportRequest(date as string);
+  }
+
+
+  if (!summary || summary.status === 'pending') {
     return res.status(202).send({
       summary: {
         date,
@@ -45,23 +69,32 @@ export async function getReport(req: Request, res: Response) {
     });
   }
 
-  const detailsWithAppInfo = [];
+  let detailsWithAppInfo: DetailedE2EReportDetail[] | undefined  = [];
 
-  for (const detail of details) {
-    const appInfo = await AppService.getById(detail.appId);
-    if (!appInfo) {
-      continue;
+  if (enrichmentsObj.includeDetails) {
+    const details = await E2ERunReportService.getDetailsBySummaryId(summary.id);
+
+    for (const detail of details) {
+      const enrichedDetail: DetailedE2EReportDetail = { ...detail };
+
+      if (enrichmentsObj.includeAppInfo) {
+        const appInfo = await AppService.getById(detail.appId);
+        if (!appInfo) {
+          continue;
+        }
+
+        enrichedDetail.app = {
+          ...appInfo,
+          manualRuns: (
+            enrichmentsObj.includeManualRuns ? (await E2EManualRunService.getByAppId(detail.appId)) : undefined
+          ),
+        } as AppDetailedE2EReportDetail;
+      }
+
+      detailsWithAppInfo.push(enrichedDetail);
     }
-
-    const manualRuns = await E2EManualRunService.getByAppId(detail.appId);
-
-    detailsWithAppInfo.push({
-      ...detail,
-      app: {
-        ...appInfo,
-        manualRuns,
-      },
-    });
+  } else {
+    detailsWithAppInfo = undefined;
   }
   
   return res.status(200).send({

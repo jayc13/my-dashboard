@@ -351,7 +351,7 @@ describe('E2ERunReportService', () => {
         lastRunStatus: 'passed',
         lastFailedRunAt: null,
         lastRunAt: '2025-10-01T10:00:00.000Z',
-      };
+      } as E2EReportDetail;
 
       mockQuery.mockResolvedValue({ insertId: 1 });
 
@@ -362,8 +362,8 @@ describe('E2ERunReportService', () => {
         [1, 1, 10, 9, 1, 0.9, 'passed', null, '2025-10-01T10:00:00.000Z'],
       );
       expect(result).toEqual({
-        id: 1,
         ...newDetail,
+        id: 1,
       });
     });
   });
