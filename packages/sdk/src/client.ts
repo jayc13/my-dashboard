@@ -50,17 +50,6 @@ export class MyDashboardAPI extends BaseClient {
   // Convenience Methods - Delegate to Services
   // ============================================================================
   
-  // E2E Reports convenience methods
-  public async getE2EReports(options = {}) {
-    return this.e2e.getE2EReports(options); 
-  }
-  public async getProjectReport(projectName: string, date?: string) {
-    return this.e2e.getProjectReport(projectName, date); 
-  }
-  public async getProjectStatus(projectName: string) {
-    return this.e2e.getProjectStatus(projectName); 
-  }
-  
   // Applications convenience methods
   public async getApplications() {
     return this.applications.getApplications(); 
