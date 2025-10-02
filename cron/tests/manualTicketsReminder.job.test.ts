@@ -61,3 +61,4 @@ describe('Manual Tickets Reminder Job', () => {
   });
 });
 
+export {};
