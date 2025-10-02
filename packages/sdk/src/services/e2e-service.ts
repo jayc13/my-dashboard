@@ -5,10 +5,7 @@
  */
 
 import { BaseClient } from '../base-client';
-import { 
-  E2EReportsQueryParams,
-  ProjectSummary,
-  ProjectStatus,
+import {
   E2EManualRun,
   E2EManualRunInput,
 } from '@my-dashboard/types';
@@ -17,49 +14,6 @@ import {
  * E2E Reports and Manual Runs service
  */
 export class E2EService extends BaseClient {
-  // ============================================================================
-  // E2E Reports API Methods
-  // ============================================================================
-
-  /**
-   * Get all E2E test reports
-   * @param options Query parameters for filtering reports
-   * @returns Promise resolving to array of project summaries
-   */
-  public async getE2EReports(options: E2EReportsQueryParams = {}): Promise<ProjectSummary[]> {
-    return this.request<ProjectSummary[]>('/api/e2e_reports', {
-      method: 'GET',
-      params: {
-        reportDate: options.reportDate,
-        date: options.date,
-      },
-    });
-  }
-
-  /**
-   * Get E2E report for a specific project
-   * @param projectName Name of the project
-   * @param date Optional date filter (YYYY-MM-DD format)
-   * @returns Promise resolving to project summary
-   */
-  public async getProjectReport(projectName: string, date?: string): Promise<ProjectSummary> {
-    const params = date ? { date } : {};
-    return this.request<ProjectSummary>(`/api/e2e_reports/report/${encodeURIComponent(projectName)}`, {
-      method: 'GET',
-      params,
-    });
-  }
-
-  /**
-   * Get current status of a project's test runs
-   * @param projectName Name of the project
-   * @returns Promise resolving to project status
-   */
-  public async getProjectStatus(projectName: string): Promise<ProjectStatus> {
-    return this.request<ProjectStatus>(`/api/e2e_reports/project_status/${encodeURIComponent(projectName)}`, {
-      method: 'GET',
-    });
-  }
 
   // ============================================================================
   // E2E Manual Runs API Methods

@@ -1,8 +1,22 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import { CypressRun, ProjectStatus, ProjectSummary } from '@my-dashboard/types/e2e';
+import { CypressRun, ProjectStatus } from '@my-dashboard/types/e2e';
 import { CypressDashboardAPI } from './cypress.service';
 import { AppService } from './app.service';
+
+/**
+ * Summary statistics for an E2E test project
+ */
+export interface ProjectSummary {
+  projectName: string;
+  projectCode: string | null;
+  lastUpdated: string | null;
+  lastRunStatus: string;
+  totalRuns: number;
+  passedRuns: number;
+  failedRuns: number;
+  successRate: number;
+}
 
 export function saveDataToFile(data: string, filePath: string) {
   // Ensure the directory exists

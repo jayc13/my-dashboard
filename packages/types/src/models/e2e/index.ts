@@ -1,3 +1,5 @@
+import { ApplicationDetails } from '../applications';
+
 /**
  * E2E Testing Entity Definitions
  * 
@@ -5,19 +7,6 @@
  * including Cypress test runs, project summaries, and test status information.
  */
 
-/**
- * Summary statistics for an E2E test project
- */
-export interface ProjectSummary {
-    projectName: string;
-    projectCode: string | null;
-    lastUpdated: string | null;
-    lastRunStatus: string;
-    totalRuns: number;
-    passedRuns: number;
-    failedRuns: number;
-    successRate: number;
-}
 
 /**
  * Individual Cypress test run details
@@ -85,4 +74,36 @@ export interface E2EReportMessage {
     date: string; // ISO date string in 'YYYY-MM-DD' format
     requestId?: string; // Optional request ID for tracking
     retryCount?: number; // Number of retry attempts
+}
+
+export interface AppDetailedE2EReportDetail extends ApplicationDetails {
+    manualRuns: E2EManualRun[]
+}
+
+export interface DetailedE2EReportDetail extends E2EReportDetail {
+    app: AppDetailedE2EReportDetail
+}
+
+export interface DetailedE2EReport {
+    summary: E2EReportSummary;
+    details: DetailedE2EReportDetail[];
+    message?: string; // Optional message, e.g., for pending status
+}
+
+export interface E2EManualRun {
+    id?: number;
+    appId: number;
+    pipelineId: string;
+    createdAt?: string;
+}
+
+export interface E2EManualRunInput {
+    appId: number;
+}
+
+export interface E2EManualRunOptions {
+    filter?: {
+        from?: string; // ISO date string
+        to?: string;   // ISO date string
+    };
 }
