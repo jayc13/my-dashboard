@@ -13,6 +13,9 @@
 */**/data
 */**/reports
 
+# Jest coverage directory
+*/**/.coverage-report
+
 /data
 /reports
 
