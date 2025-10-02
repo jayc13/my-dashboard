@@ -16,7 +16,7 @@ import { createE2EManualRunsRouter } from './routes/e2e_manual_runs';
 import { createInternalRouter } from './routes/internal';
 import apiKeyValidator from './middleware/api_key_validator';
 import { testMySQLConnection } from './db/mysql';
-import { startProcessor } from './processor/start-processor';
+import { startProcessor } from './processors/start-processor';
 
 // Load environment variables
 dotenv.config({ quiet: true });
