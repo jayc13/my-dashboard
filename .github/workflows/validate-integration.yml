@@ -138,9 +138,11 @@ jobs:
           timeout 60 bash -c 'until curl -sf http://localhost:3001/health; do sleep 2; done'
 
           # Verify health check status is "ok"
-          HEALTH_STATUS=$(curl -sf http://localhost:3001/health | jq -r '.status')
+          HEALTH_RESPONSE=$(curl -sf http://localhost:3001/health)
+          HEALTH_STATUS=$(echo "$HEALTH_RESPONSE" | grep -o '"status":"[^"]*"' | cut -d'"' -f4)
           if [ "$HEALTH_STATUS" != "ok" ]; then
             echo "❌ Mock server health check failed. Status: $HEALTH_STATUS"
+            echo "Health response: $HEALTH_RESPONSE"
             echo "Mock server logs:"
             cat mock-server.log
             exit 1
@@ -199,9 +201,11 @@ jobs:
           timeout 60 bash -c 'until curl -sf http://localhost:3000/health; do sleep 2; done'
 
           # Verify health check status is "ok"
-          HEALTH_STATUS=$(curl -sf http://localhost:3000/health | jq -r '.status')
+          HEALTH_RESPONSE=$(curl -sf http://localhost:3000/health)
+          HEALTH_STATUS=$(echo "$HEALTH_RESPONSE" | grep -o '"status":"[^"]*"' | cut -d'"' -f4)
           if [ "$HEALTH_STATUS" != "ok" ]; then
             echo "❌ Server health check failed. Status: $HEALTH_STATUS"
+            echo "Health response: $HEALTH_RESPONSE"
             echo "Server logs:"
             tail -n 100 server.log 2>/dev/null || echo "No server logs available"
             exit 1
