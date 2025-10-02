@@ -35,7 +35,7 @@ describe('Helpers Utility', () => {
           headers: {
             'x-api-key': 'test-api-key',
           },
-        }
+        },
       );
     });
 
@@ -58,7 +58,7 @@ describe('Helpers Utility', () => {
             'Custom-Header': 'custom-value',
             'x-api-key': 'test-api-key',
           },
-        }
+        },
       );
     });
 
@@ -82,7 +82,7 @@ describe('Helpers Utility', () => {
             'custom-header': 'custom-value',
             'x-api-key': 'test-api-key',
           },
-        }
+        },
       );
     });
 
@@ -105,7 +105,7 @@ describe('Helpers Utility', () => {
             'Custom-Header': 'custom-value',
             'x-api-key': 'test-api-key',
           },
-        }
+        },
       );
     });
 
@@ -126,7 +126,7 @@ describe('Helpers Utility', () => {
           headers: {
             'Content-Type': 'application/json',
           },
-        }
+        },
       );
     });
 
@@ -147,7 +147,7 @@ describe('Helpers Utility', () => {
           headers: {
             'Content-Type': 'application/json',
           },
-        }
+        },
       );
     });
 
@@ -172,7 +172,7 @@ describe('Helpers Utility', () => {
             'Content-Type': 'application/json',
             'x-api-key': 'test-api-key',
           },
-        }
+        },
       );
     });
 
@@ -204,7 +204,7 @@ describe('Helpers Utility', () => {
           headers: {
             'x-api-key': 'test-api-key',
           },
-        }
+        },
       );
     });
   });

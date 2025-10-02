@@ -58,7 +58,7 @@ describe('Clean Up Data Files Job', () => {
           headers: {
             'Content-Type': 'application/json',
           },
-        }
+        },
       );
     });
 
@@ -69,7 +69,7 @@ describe('Clean Up Data Files Job', () => {
 
       expect(console.error).toHaveBeenCalledWith(
         'Error running clean-up-data-files job:',
-        expect.any(Error)
+        expect.any(Error),
       );
     });
 
@@ -177,7 +177,7 @@ describe('Clean Up Data Files Job', () => {
           headers: {
             'Content-Type': 'application/json',
           },
-        }
+        },
       );
     });
 
@@ -271,7 +271,7 @@ describe('Clean Up Data Files Job', () => {
       await cleanUpDataFilesJob();
 
       expect(console.log).toHaveBeenCalledWith(
-        expect.stringContaining('Deleted files: 1')
+        expect.stringContaining('Deleted files: 1'),
       );
     });
 
@@ -305,7 +305,7 @@ describe('Clean Up Data Files Job', () => {
       await cleanUpDataFilesJob();
 
       expect(console.log).toHaveBeenCalledWith(
-        expect.stringContaining('Failed deletions: 1')
+        expect.stringContaining('Failed deletions: 1'),
       );
     });
 
@@ -337,7 +337,7 @@ describe('Clean Up Data Files Job', () => {
 
       expect(console.error).toHaveBeenCalledWith(
         expect.stringContaining('Error deleting folder'),
-        expect.any(Error)
+        expect.any(Error),
       );
     });
 
@@ -372,7 +372,7 @@ describe('Clean Up Data Files Job', () => {
       await cleanUpDataFilesJob();
 
       expect(console.log).toHaveBeenCalledWith(
-        expect.stringContaining('Deleted files: 2')
+        expect.stringContaining('Deleted files: 2'),
       );
     });
 
@@ -407,7 +407,7 @@ describe('Clean Up Data Files Job', () => {
       await cleanUpDataFilesJob();
 
       expect(console.log).toHaveBeenCalledWith(
-        expect.stringContaining('Deleted files: 1, Failed deletions: 1')
+        expect.stringContaining('Deleted files: 1, Failed deletions: 1'),
       );
     });
   });

@@ -57,7 +57,7 @@ describe('Report E2E Job', () => {
         JSON.stringify({
           date,
           requestId,
-        })
+        }),
       );
     });
 
@@ -71,7 +71,7 @@ describe('Report E2E Job', () => {
         JSON.stringify({
           date,
           requestId: undefined,
-        })
+        }),
       );
     });
 
@@ -86,7 +86,7 @@ describe('Report E2E Job', () => {
         JSON.stringify({
           date,
           requestId,
-        })
+        }),
       );
     });
 
@@ -94,7 +94,7 @@ describe('Report E2E Job', () => {
       mockPublish.mockRejectedValueOnce(new Error('Redis connection failed'));
 
       await expect(publishE2EReportRequest('2025-10-01', 'test-123')).rejects.toThrow(
-        'Redis connection failed'
+        'Redis connection failed',
       );
     });
   });
@@ -106,12 +106,13 @@ describe('Report E2E Job', () => {
       expect(mockPublish).toHaveBeenCalledTimes(1);
       expect(mockPublish).toHaveBeenCalledWith(
         'e2e:report:generate',
-        expect.stringContaining('test-uuid-1234')
+        expect.stringContaining('test-uuid-1234'),
       );
     });
 
     it('should use current date in ISO format', async () => {
       const mockDate = DateTime.fromISO('2025-10-02T15:30:00Z');
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       jest.spyOn(DateTime, 'now').mockReturnValue(mockDate as any);
 
       await reportE2eJob();
@@ -133,7 +134,7 @@ describe('Report E2E Job', () => {
       await expect(reportE2eJob()).resolves.not.toThrow();
       expect(console.error).toHaveBeenCalledWith(
         'Error running E2E Report job:',
-        expect.any(Error)
+        expect.any(Error),
       );
     });
 
@@ -154,6 +155,7 @@ describe('Report E2E Job', () => {
 
     it('should handle timezone correctly', async () => {
       const mockDate = DateTime.fromISO('2025-10-02T23:59:59-05:00');
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       jest.spyOn(DateTime, 'now').mockReturnValue(mockDate as any);
 
       await reportE2eJob();
@@ -168,7 +170,7 @@ describe('Report E2E Job', () => {
 
       expect(mockPublish).toHaveBeenCalledWith(
         'e2e:report:generate',
-        expect.any(String)
+        expect.any(String),
       );
     });
 
