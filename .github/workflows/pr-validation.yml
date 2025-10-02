@@ -37,7 +37,7 @@ jobs:
   validate-packages-sdk:
     name: Packages SDK
     needs: [basic-validation, validate-packages-types]
-    if: needs.basic-validation.outputs.packages-sdk-changed == 'true' || needs.basic-validation.outputs.github-changed == 'true'
+    if: always() && (needs.basic-validation.outputs.packages-sdk-changed == 'true' || needs.basic-validation.outputs.github-changed == 'true')
     uses: ./.github/workflows/validate-packages-sdk.yml
 
   # Job 4: Client validation
@@ -65,35 +65,35 @@ jobs:
   validate-cron:
     name: Cron
     needs: [basic-validation, validate-packages-types, validate-packages-sdk]
-    if: needs.basic-validation.outputs.cron-changed == 'true' || needs.basic-validation.outputs.github-changed == 'true'
+    if: always() && (needs.basic-validation.outputs.cron-changed == 'true' || needs.basic-validation.outputs.github-changed == 'true')
     uses: ./.github/workflows/validate-cron.yml
 
   # Job 8: Scripts validation
   validate-scripts:
     name: Scripts
     needs: basic-validation
-    if: needs.basic-validation.outputs.scripts-changed == 'true' || needs.basic-validation.outputs.github-changed == 'true'
+    if: always() && (needs.basic-validation.outputs.scripts-changed == 'true' || needs.basic-validation.outputs.github-changed == 'true')
     uses: ./.github/workflows/validate-scripts.yml
 
   # Job 9: Tests Integration validation
   validate-tests-integration:
     name: Tests Integration
     needs: [basic-validation, validate-packages-types, validate-packages-sdk]
-    if: needs.basic-validation.outputs.tests-integration-changed == 'true' || needs.basic-validation.outputs.github-changed == 'true'
+    if: always() && (needs.basic-validation.outputs.tests-integration-changed == 'true' || needs.basic-validation.outputs.github-changed == 'true')
     uses: ./.github/workflows/validate-tests-integration.yml
 
   # Job 10: Tests E2E validation
   validate-tests-e2e:
     name: Tests E2E
     needs: [basic-validation, validate-packages-types, validate-packages-sdk]
-    if: needs.basic-validation.outputs.tests-e2e-changed == 'true' || needs.basic-validation.outputs.github-changed == 'true'
+    if: always() && (needs.basic-validation.outputs.tests-e2e-changed == 'true' || needs.basic-validation.outputs.github-changed == 'true')
     uses: ./.github/workflows/validate-tests-e2e.yml
 
   # Job 11: Documentation validation
   validate-docs:
     name: Documentation
     needs: basic-validation
-    if: needs.basic-validation.outputs.docs-changed == 'true' || needs.basic-validation.outputs.github-changed == 'true'
+    if: always() && (needs.basic-validation.outputs.docs-changed == 'true' || needs.basic-validation.outputs.github-changed == 'true')
     uses: ./.github/workflows/validate-docs.yml
     with:
       docs-changed: ${{ needs.basic-validation.outputs.docs-changed == 'true' }}
@@ -102,7 +102,7 @@ jobs:
   integration-testing:
     name: Integration Testing
     needs: [ basic-validation, validate-packages-types, validate-packages-sdk, validate-server, validate-mock-server ]
-    if: (needs.basic-validation.outputs.tests-integration-changed == 'true' || needs.basic-validation.outputs.server-changed == 'true' || needs.basic-validation.outputs.github-changed == 'true') && needs.validate-server.result == 'success' && (needs.validate-mock-server.result == 'success' || needs.validate-mock-server.result == 'skipped')
+    if: (!cancelled()) && always() && (needs.basic-validation.outputs.tests-integration-changed == 'true' || needs.basic-validation.outputs.server-changed == 'true' || needs.basic-validation.outputs.github-changed == 'true') && needs.validate-server.result == 'success' && (needs.validate-mock-server.result == 'success' || needs.validate-mock-server.result == 'skipped')
     uses: ./.github/workflows/validate-integration.yml
     secrets:
       API_SECURITY_KEY: ${{ secrets.API_SECURITY_KEY }}
@@ -123,7 +123,7 @@ jobs:
     container: mcr.microsoft.com/playwright:v1.55.1-noble
     runs-on: ubuntu-latest
     needs: [ basic-validation, validate-packages-types, validate-packages-sdk, validate-client, validate-server, integration-testing ]
-    if: (needs.basic-validation.result == 'success' || needs.basic-validation.outputs.tests-e2e-changed ) && (needs.basic-validation.outputs.client-changed == 'true' || needs.basic-validation.outputs.server-changed == 'true' || needs.basic-validation.outputs.github-changed == 'true') && (needs.integration-testing.result == 'success' || needs.integration-testing.result == 'skipped') && (needs.validate-client.result == 'success' || needs.validate-client.result == 'skipped') && (needs.validate-server.result == 'success' || needs.validate-server.result == 'skipped')
+    if: (!cancelled()) && always() && (needs.basic-validation.result == 'success' || needs.basic-validation.outputs.tests-e2e-changed ) && (needs.basic-validation.outputs.client-changed == 'true' || needs.basic-validation.outputs.server-changed == 'true' || needs.basic-validation.outputs.github-changed == 'true') && (needs.integration-testing.result == 'success' || needs.integration-testing.result == 'skipped') && (needs.validate-client.result == 'success' || needs.validate-client.result == 'skipped') && (needs.validate-server.result == 'success' || needs.validate-server.result == 'skipped')
     timeout-minutes: 30
     services:
       mysql:
