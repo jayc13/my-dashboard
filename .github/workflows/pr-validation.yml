@@ -180,7 +180,7 @@ jobs:
       - name: Run database migrations
         env:
           NODE_ENV: test
-          MYSQL_HOST: localhost
+          MYSQL_HOST: mysql
           MYSQL_PORT: 3306
           MYSQL_USER: root
           MYSQL_PASSWORD: test_password
@@ -218,7 +218,7 @@ jobs:
           API_SECURITY_KEY=${{ secrets.API_SECURITY_KEY }}
           
           # MySQL Configuration
-          MYSQL_HOST=localhost
+          MYSQL_HOST=mysql
           MYSQL_PORT="3306"
           MYSQL_USER="root"
           MYSQL_PASSWORD="test_password"
