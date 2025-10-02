@@ -45,13 +45,7 @@ jobs:
         run: pnpm --filter=cron run build
 
       - name: Run tests
-        run: |
-          echo "TODO: Implement cron job tests"
-          echo "TODO: Add unit tests for cron job logic"
-          echo "TODO: Test cron schedule validation"
+        run: pnpm --filter=cron run test
 
-      - name: Validate cron configuration
-        run: |
-          echo "TODO: Implement cron configuration validation"
-          echo "TODO: Validate cron expressions"
-          echo "TODO: Check for proper error handling"
+      - name: Run tests with coverage
+        run: pnpm --filter=cron run test:coverage
