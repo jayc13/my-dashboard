@@ -70,34 +70,6 @@ export interface RateLimitResponse {
 }
 
 // ============================================================================
-// E2E Manual Runs API
-// ============================================================================
-
-/**
- * E2E manual test run record with CircleCI pipeline information
- */
-export interface E2EManualRun {
-    id?: number; // Auto-generated, read-only
-    app_id: number;
-    pipeline_id: string;
-    created_at?: string; // Auto-generated, read-only
-}
-
-/**
- * Input data for creating an E2E manual run
- */
-export interface E2EManualRunInput {
-    app_id: number;
-}
-
-/**
- * Response after successfully updating or deleting an E2E manual run
- */
-export interface E2EManualRunUpdateResponse {
-    success: boolean;
-}
-
-// ============================================================================
 // Health Check API
 // ============================================================================
 

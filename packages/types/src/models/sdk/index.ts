@@ -53,8 +53,6 @@ export interface NotificationQueryParams extends Record<string, string | number 
  * Query parameters for E2E reports endpoint
  */
 export interface E2EReportsQueryParams extends Record<string, string | number | boolean | undefined> {
-  /** Filter by specific date (YYYY-MM-DD format) */
-  date?: string;
   /** Filter by report date */
   reportDate?: string;
 }
