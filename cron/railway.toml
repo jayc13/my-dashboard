@@ -1,5 +1,5 @@
 [build]
-buildCommand = "./scripts/railway-cron-build.sh"
+buildCommand = "./scripts/deployment/railway-cron-build.sh"
 watchPatterns = ["cron/**"]
 
 [source]
