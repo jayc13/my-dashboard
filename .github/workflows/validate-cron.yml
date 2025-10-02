@@ -30,7 +30,10 @@ jobs:
         with:
           node-version: ${{ inputs.node-version }}
           working-directory: ${{ github.workspace }}
-          project: cron
+
+      - name: Build @my-dashboard/types
+        run: pnpm --filter=@my-dashboard/types run build
+        working-directory: ${{ github.workspace }}
 
       - name: Type check
         run: pnpm --filter=cron run typecheck
