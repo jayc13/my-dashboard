@@ -10,8 +10,8 @@ import {
     DialogTitle,
 } from '@mui/material';
 import { NotificationsOff } from '@mui/icons-material';
-import { useFCM } from '../hooks';
 import { enqueueSnackbar } from 'notistack';
+import { useFCM } from '@/hooks';
 
 interface NotificationPermissionProps {
     onPermissionGranted?: () => void;

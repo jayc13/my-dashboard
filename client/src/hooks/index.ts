@@ -7,6 +7,7 @@ export * from './useApps';
 export * from './usePullRequests';
 export * from './useJira';
 export * from './useNotifications';
+export * from './useE2ERun';
 
 // Other hooks
 export * from './useFCM';
