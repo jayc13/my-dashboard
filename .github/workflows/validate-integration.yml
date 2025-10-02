@@ -151,10 +151,10 @@ jobs:
           
           # MySQL Configuration
           MYSQL_HOST=localhost
-          MYSQL_PORT="3306"
-          MYSQL_USER="root"
-          MYSQL_PASSWORD="test_password"
-          MYSQL_DATABASE="test_db"
+          MYSQL_PORT=3306
+          MYSQL_USER="root
+          MYSQL_PASSWORD=test_password
+          MYSQL_DATABASE=test_db
           
           # Firebase Configuration
           FIREBASE_PROJECT_ID=${{ secrets.FIREBASE_PROJECT_ID }}
@@ -198,11 +198,12 @@ jobs:
           API_SECURITY_KEY=${{ secrets.API_SECURITY_KEY }}
           CI=true
           
-          MYSQL_HOST=${{ secrets.MYSQL_HOST || 'localhost' }}
-          MYSQL_PORT=${{ secrets.MYSQL_PORT || '3306' }}
-          MYSQL_USER=${{ secrets.MYSQL_USER || 'root' }}
-          MYSQL_PASSWORD=${{ secrets.MYSQL_PASSWORD || secrets.MYSQL_ROOT_PASSWORD || 'root' }}
-          MYSQL_DATABASE=${{ secrets.MYSQL_TEST_DATABASE || 'cypress_dashboard_test' }}
+          # MySQL Configuration
+          MYSQL_HOST=localhost
+          MYSQL_PORT=3306
+          MYSQL_USER="root
+          MYSQL_PASSWORD=test_password
+          MYSQL_DATABASE=test_db
           
           EOF
 
