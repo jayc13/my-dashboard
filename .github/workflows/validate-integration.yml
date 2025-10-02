@@ -95,6 +95,14 @@ jobs:
           # Create test database
           mysql -u root -p${{ secrets.MYSQL_ROOT_PASSWORD || 'root' }} -e "CREATE DATABASE IF NOT EXISTS ${{ secrets.MYSQL_TEST_DATABASE || 'cypress_dashboard_test' }};"
 
+      - name: Start Redis server
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y redis-server
+          sudo systemctl start redis-server
+          # Wait for Redis to be ready
+          timeout 30 bash -c 'until redis-cli ping | grep PONG; do sleep 1; done'
+
       - name: Run database migrations
         run: npm run migrate --workspace=server
         env:
@@ -131,25 +139,40 @@ jobs:
           DATA_DIR=./data
           BRUTE_FORCE_WINDOW_MS=600000
           BRUTE_FORCE_MAX_ATTEMPTS=100
-          PORT=3000
-          MYSQL_HOST=${{ secrets.MYSQL_HOST || 'localhost' }}
-          MYSQL_PORT=${{ secrets.MYSQL_PORT || '3306' }}
-          MYSQL_USER=${{ secrets.MYSQL_USER || 'root' }}
-          MYSQL_PASSWORD=${{ secrets.MYSQL_PASSWORD || secrets.MYSQL_ROOT_PASSWORD || 'root' }}
-          MYSQL_DATABASE=${{ secrets.MYSQL_TEST_DATABASE || 'cypress_dashboard_test' }}
+          PORT=${{ secrets.SERVER_PORT || '3000' }}
+          
+          # MySQL Configuration
+          MYSQL_HOST: mysql
+          MYSQL_PORT: 3306
+          MYSQL_USER: root
+          MYSQL_PASSWORD: test_password
+          MYSQL_DATABASE: test_db
+          
           API_SECURITY_KEY=${{ secrets.API_SECURITY_KEY }}
+          
+          # Firebase Configuration
           FIREBASE_PROJECT_ID=${{ secrets.FIREBASE_PROJECT_ID }}
           FIREBASE_PRIVATE_KEY="${{ secrets.FIREBASE_PRIVATE_KEY }}"
           FIREBASE_CLIENT_EMAIL=${{ secrets.FIREBASE_CLIENT_EMAIL }}
           FIREBASE_PRIVATE_KEY_ID=${{ secrets.FIREBASE_PRIVATE_KEY_ID }}
           FIREBASE_CLIENT_ID=${{ secrets.FIREBASE_CLIENT_ID }}
           FIREBASE_CLIENT_CERT_URL=${{ secrets.FIREBASE_CLIENT_CERT_URL }}
+          
+          # GitHub Integration
           GITHUB_TOKEN=your-github-token
           GITHUB_URL=http://localhost:3001/github
-          JIRA_API_TOKEN="jira-token-placeholder"
+          
+          # Jira Integration
           JIRA_BASE_URL=http://localhost:3001/jira
-          CIRCLE_CI_TOKEN=your-circle-ci-token
-          E2E_PIPELINE_URL=circle-ci-pipeline-url
+          JIRA_API_TOKEN="jira-token-placeholder"
+          
+          # CircleCI Integration
+          CIRCLE_CI_BASE_URL=http://localhost:3001/circleci
+          CIRCLE_CI_PROJECT_PATH="jayc13/my-dashboard"
+          CIRCLE_CI_TOKEN="your-circle-ci-token"
+          
+          # Redis Configuration
+          REDIS_URL=redis://localhost:6379
           EOF
 
           # Start server in background
