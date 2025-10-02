@@ -193,7 +193,7 @@ jobs:
           # Set up environment variables for testing
           cat > .env << EOF
           PORT=3001
-          
+
           # API Configuration
           CORS_ORIGIN=http://localhost:3000
           EOF
@@ -204,6 +204,16 @@ jobs:
 
           # Wait for server to be ready
           timeout 60 bash -c 'until curl -sf http://localhost:3001/health; do sleep 2; done'
+
+          # Verify health check status is "ok"
+          HEALTH_STATUS=$(curl -sf http://localhost:3001/health | jq -r '.status')
+          if [ "$HEALTH_STATUS" != "ok" ]; then
+            echo "❌ Mock server health check failed. Status: $HEALTH_STATUS"
+            echo "Mock server logs:"
+            cat mock-server.log
+            exit 1
+          fi
+          echo "✅ Mock server health check passed. Status: $HEALTH_STATUS"
 
       - name: Start server in background
         working-directory: ./server
@@ -216,14 +226,14 @@ jobs:
           BRUTE_FORCE_MAX_ATTEMPTS=100
           PORT=${{ secrets.SERVER_PORT || '3000' }}
           API_SECURITY_KEY=${{ secrets.API_SECURITY_KEY }}
-          
+
           # MySQL Configuration
           MYSQL_HOST=mysql
           MYSQL_PORT="3306"
           MYSQL_USER="root"
           MYSQL_PASSWORD="test_password"
           MYSQL_DATABASE="test_db"
-          
+
           # Firebase Configuration
           FIREBASE_PROJECT_ID=${{ secrets.FIREBASE_PROJECT_ID }}
           FIREBASE_PRIVATE_KEY="${{ secrets.FIREBASE_PRIVATE_KEY }}"
@@ -231,20 +241,20 @@ jobs:
           FIREBASE_PRIVATE_KEY_ID=${{ secrets.FIREBASE_PRIVATE_KEY_ID }}
           FIREBASE_CLIENT_ID=${{ secrets.FIREBASE_CLIENT_ID }}
           FIREBASE_CLIENT_CERT_URL=${{ secrets.FIREBASE_CLIENT_CERT_URL }}
-          
+
           # GitHub Configuration
           GITHUB_TOKEN=your-github-token
           GITHUB_URL=http://localhost:3001/github
-          
+
           # Jira Configuration
           JIRA_BASE_URL=http://localhost:3001/jira
           JIRA_API_TOKEN="jira-token-placeholder"
-          
+
           # CircleCI Configuration
           CIRCLE_CI_BASE_URL=http://localhost:3001/circleci
           CIRCLE_CI_PROJECT_PATH="jayc13/my-dashboard"
           CIRCLE_CI_TOKEN="your-circle-ci-token"
-          
+
           # Redis Configuration
           REDIS_URL=redis://localhost:6379
           EOF
@@ -255,6 +265,16 @@ jobs:
 
           # Wait for server to be ready
           timeout 60 bash -c 'until curl -sf http://localhost:${{ secrets.SERVER_PORT || '3000' }}/health; do sleep 2; done'
+
+          # Verify health check status is "ok"
+          HEALTH_STATUS=$(curl -sf http://localhost:${{ secrets.SERVER_PORT || '3000' }}/health | jq -r '.status')
+          if [ "$HEALTH_STATUS" != "ok" ]; then
+            echo "❌ Server health check failed. Status: $HEALTH_STATUS"
+            echo "Server logs:"
+            cat server.log
+            exit 1
+          fi
+          echo "✅ Server health check passed. Status: $HEALTH_STATUS"
 
       - name: Start client
         working-directory: ./client
