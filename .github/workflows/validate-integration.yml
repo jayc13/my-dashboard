@@ -152,7 +152,7 @@ jobs:
           # MySQL Configuration
           MYSQL_HOST=localhost
           MYSQL_PORT=3306
-          MYSQL_USER="root
+          MYSQL_USER="root"
           MYSQL_PASSWORD=test_password
           MYSQL_DATABASE=test_db
           
@@ -201,7 +201,7 @@ jobs:
           # MySQL Configuration
           MYSQL_HOST=localhost
           MYSQL_PORT=3306
-          MYSQL_USER="root
+          MYSQL_USER="root"
           MYSQL_PASSWORD=test_password
           MYSQL_DATABASE=test_db
           
