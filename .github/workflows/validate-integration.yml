@@ -113,7 +113,7 @@ jobs:
       - name: Run database migrations
         run: npm run migrate --workspace=server
         env:
-          MYSQL_HOST: mysql
+          MYSQL_HOST: localhost
           MYSQL_PORT: 3306
           MYSQL_USER: root
           MYSQL_PASSWORD: test_password
@@ -147,26 +147,38 @@ jobs:
           BRUTE_FORCE_WINDOW_MS=600000
           BRUTE_FORCE_MAX_ATTEMPTS=100
           PORT=${{ secrets.SERVER_PORT || '3000' }}
-          MYSQL_HOST="mysql"
+          API_SECURITY_KEY=${{ secrets.API_SECURITY_KEY }}
+          
+          # MySQL Configuration
+          MYSQL_HOST=localhost
           MYSQL_PORT="3306"
           MYSQL_USER="root"
           MYSQL_PASSWORD="test_password"
           MYSQL_DATABASE="test_db"
-          API_SECURITY_KEY=${{ secrets.API_SECURITY_KEY }}
+          
+          # Firebase Configuration
           FIREBASE_PROJECT_ID=${{ secrets.FIREBASE_PROJECT_ID }}
           FIREBASE_PRIVATE_KEY="${{ secrets.FIREBASE_PRIVATE_KEY }}"
           FIREBASE_CLIENT_EMAIL=${{ secrets.FIREBASE_CLIENT_EMAIL }}
           FIREBASE_PRIVATE_KEY_ID=${{ secrets.FIREBASE_PRIVATE_KEY_ID }}
           FIREBASE_CLIENT_ID=${{ secrets.FIREBASE_CLIENT_ID }}
           FIREBASE_CLIENT_CERT_URL=${{ secrets.FIREBASE_CLIENT_CERT_URL }}
+          
+          # GitHub Configuration
           GITHUB_TOKEN=your-github-token
           GITHUB_URL=http://localhost:3001/github
+          
+          # Jira Configuration
           JIRA_BASE_URL=http://localhost:3001/jira
           JIRA_API_TOKEN="jira-token-placeholder"
+          
+          # CircleCI Configuration
           CIRCLE_CI_BASE_URL=http://localhost:3001/circleci
           CIRCLE_CI_PROJECT_PATH="jayc13/my-dashboard"
           CIRCLE_CI_TOKEN="your-circle-ci-token"
-          REDIS_URL=redis://redis:6379
+          
+          # Redis Configuration
+          REDIS_URL=redis://localhost:6379
           EOF
 
           # Start server in background
