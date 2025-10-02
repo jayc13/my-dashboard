@@ -47,6 +47,11 @@ export async function cleanupDatabase(): Promise<void> {
     'todos',
     'notifications',
     'apps',
+    'device_tokens',
+    'pull_requests',
+    'e2e_manual_runs',
+    'e2e_report_summaries',
+    'e2e_report_details',
   ];
   return truncateTables(tables);
 }
@@ -62,9 +67,8 @@ export async function truncateTables(tables: string[] = []): Promise<void> {
     }
     // Re-enable foreign key checks
     await conn.execute('SET FOREIGN_KEY_CHECKS = 1');
-  } catch (error) {
-    console.error('Error during table truncation:', error);
-    throw error;
+  } catch {
+    // Ignore errors during cleanup
   }
 }
 

@@ -35,15 +35,19 @@ export class CircleCIService {
      */
   static async triggerE2ERuns(requestBodyJson: string): Promise<CircleCIPipelineResponse> {
     const circleToken = process.env.CIRCLE_CI_TOKEN;
+    const baseUrl = process.env.CIRCLE_CI_BASE_URL;
+    const projectPath = process.env.CIRCLE_CI_PROJECT_PATH;
 
     if (!circleToken) {
       throw new Error('CIRCLE_CI_TOKEN environment variable is required');
     }
 
-    const pipelineUrl = process.env.E2E_PIPELINE_URL;
+    if (!baseUrl) {
+      throw new Error('CIRCLE_CI_BASE_URL environment variable is required');
+    }
 
-    if (!pipelineUrl) {
-      throw new Error('E2E_PIPELINE_URL environment variable is required');
+    if (!projectPath) {
+      throw new Error('CIRCLE_CI_PROJECT_PATH environment variable is required');
     }
 
     // Validate and parse the JSON request body
@@ -55,6 +59,8 @@ export class CircleCIService {
 
     try {
       console.log('Triggering Circle CI E2E pipeline...');
+
+      const pipelineUrl = `${baseUrl}/v2/project/github/${projectPath}/pipeline`;
 
       const response = await fetch(pipelineUrl, {
         method: 'POST',
@@ -83,6 +89,7 @@ export class CircleCIService {
 
   static async getPipelineLatestWorkflow(pipelineId: string): Promise<CircleCIWorkflow> {
     const circleToken = process.env.CIRCLE_CI_TOKEN;
+    const baseUrl = process.env.CIRCLE_CI_BASE_URL;
 
     if (!circleToken) {
       throw new Error('CIRCLE_CI_TOKEN environment variable is required');
@@ -92,7 +99,11 @@ export class CircleCIService {
       throw new Error('Pipeline ID is required');
     }
 
-    const apiUrl = `https://circleci.com/api/v2/pipeline/${pipelineId}/workflow`;
+    if (!baseUrl) {
+      throw new Error('CIRCLE_CI_BASE_URL environment variable is required');
+    }
+
+    const apiUrl = `${baseUrl}/v2/pipeline/${pipelineId}/workflow`;
 
     try {
       console.log(`Getting Circle CI pipeline status for ID: ${pipelineId}`);

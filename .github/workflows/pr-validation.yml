@@ -138,6 +138,15 @@ jobs:
           --health-interval=10s
           --health-timeout=5s
           --health-retries=3
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd="redis-cli ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
     steps:
       - name: Checkout repository
         uses: actions/checkout@v5
@@ -184,7 +193,7 @@ jobs:
           # Set up environment variables for testing
           cat > .env << EOF
           PORT=3001
-          
+
           # API Configuration
           CORS_ORIGIN=http://localhost:3000
           EOF
@@ -196,6 +205,18 @@ jobs:
           # Wait for server to be ready
           timeout 60 bash -c 'until curl -sf http://localhost:3001/health; do sleep 2; done'
 
+          # Verify health check status is "ok"
+          HEALTH_RESPONSE=$(curl -sf http://localhost:3001/health)
+          HEALTH_STATUS=$(echo "$HEALTH_RESPONSE" | grep -o '"status":"[^"]*"' | cut -d'"' -f4)
+          if [ "$HEALTH_STATUS" != "ok" ]; then
+            echo "❌ Mock server health check failed. Status: $HEALTH_STATUS"
+            echo "Health response: $HEALTH_RESPONSE"
+            echo "Mock server logs:"
+            cat mock-server.log
+            exit 1
+          fi
+          echo "✅ Mock server health check passed. Status: $HEALTH_STATUS"
+
       - name: Start server in background
         working-directory: ./server
         run: |
@@ -206,24 +227,38 @@ jobs:
           BRUTE_FORCE_WINDOW_MS=600000
           BRUTE_FORCE_MAX_ATTEMPTS=100
           PORT=${{ secrets.SERVER_PORT || '3000' }}
-          MYSQL_HOST: mysql
-          MYSQL_PORT: 3306
-          MYSQL_USER: root
-          MYSQL_PASSWORD: test_password
-          MYSQL_DATABASE: test_db
           API_SECURITY_KEY=${{ secrets.API_SECURITY_KEY }}
+
+          # MySQL Configuration
+          MYSQL_HOST=mysql
+          MYSQL_PORT="3306"
+          MYSQL_USER="root"
+          MYSQL_PASSWORD="test_password"
+          MYSQL_DATABASE="test_db"
+
+          # Firebase Configuration
           FIREBASE_PROJECT_ID=${{ secrets.FIREBASE_PROJECT_ID }}
           FIREBASE_PRIVATE_KEY="${{ secrets.FIREBASE_PRIVATE_KEY }}"
           FIREBASE_CLIENT_EMAIL=${{ secrets.FIREBASE_CLIENT_EMAIL }}
           FIREBASE_PRIVATE_KEY_ID=${{ secrets.FIREBASE_PRIVATE_KEY_ID }}
           FIREBASE_CLIENT_ID=${{ secrets.FIREBASE_CLIENT_ID }}
           FIREBASE_CLIENT_CERT_URL=${{ secrets.FIREBASE_CLIENT_CERT_URL }}
+
+          # GitHub Configuration
           GITHUB_TOKEN=your-github-token
           GITHUB_URL=http://localhost:3001/github
-          JIRA_API_TOKEN="jira-token-placeholder"
+
+          # Jira Configuration
           JIRA_BASE_URL=http://localhost:3001/jira
-          CIRCLE_CI_TOKEN=your-circle-ci-token
-          E2E_PIPELINE_URL=circle-ci-pipeline-url
+          JIRA_API_TOKEN="jira-token-placeholder"
+
+          # CircleCI Configuration
+          CIRCLE_CI_BASE_URL=http://localhost:3001/circleci
+          CIRCLE_CI_PROJECT_PATH="jayc13/my-dashboard"
+          CIRCLE_CI_TOKEN="your-circle-ci-token"
+
+          # Redis Configuration
+          REDIS_URL=redis://localhost:6379
           EOF
 
           # Start server in background
@@ -232,6 +267,18 @@ jobs:
 
           # Wait for server to be ready
           timeout 60 bash -c 'until curl -sf http://localhost:${{ secrets.SERVER_PORT || '3000' }}/health; do sleep 2; done'
+
+          # Verify health check status is "ok"
+          HEALTH_RESPONSE=$(curl -sf http://localhost:${{ secrets.SERVER_PORT || '3000' }}/health)
+          HEALTH_STATUS=$(echo "$HEALTH_RESPONSE" | grep -o '"status":"[^"]*"' | cut -d'"' -f4)
+          if [ "$HEALTH_STATUS" != "ok" ]; then
+            echo "❌ Server health check failed. Status: $HEALTH_STATUS"
+            echo "Health response: $HEALTH_RESPONSE"
+            echo "Server logs:"
+            cat server.log
+            exit 1
+          fi
+          echo "✅ Server health check passed. Status: $HEALTH_STATUS"
 
       - name: Start client
         working-directory: ./client

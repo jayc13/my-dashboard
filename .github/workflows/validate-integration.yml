@@ -70,6 +70,28 @@ jobs:
     name: Validate Integration Tests
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: test_password
+          MYSQL_DATABASE: test_db
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd="redis-cli ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
     steps:
       - name: Checkout code
         uses: actions/checkout@v5
@@ -88,21 +110,14 @@ jobs:
             --workspace=server \
             --workspace=tests/integration-tests
 
-      - name: Setup test database
-        run: |
-          # Start MySQL service
-          sudo systemctl start mysql
-          # Create test database
-          mysql -u root -p${{ secrets.MYSQL_ROOT_PASSWORD || 'root' }} -e "CREATE DATABASE IF NOT EXISTS ${{ secrets.MYSQL_TEST_DATABASE || 'cypress_dashboard_test' }};"
-
       - name: Run database migrations
         run: npm run migrate --workspace=server
         env:
-          MYSQL_HOST: ${{ secrets.MYSQL_HOST || 'localhost' }}
-          MYSQL_PORT: ${{ secrets.MYSQL_PORT || '3306' }}
-          MYSQL_USER: ${{ secrets.MYSQL_USER || 'root' }}
-          MYSQL_PASSWORD: ${{ secrets.MYSQL_PASSWORD || secrets.MYSQL_ROOT_PASSWORD || 'root' }}
-          MYSQL_DATABASE: ${{ secrets.MYSQL_TEST_DATABASE || 'cypress_dashboard_test' }}
+          MYSQL_HOST: localhost
+          MYSQL_PORT: 3306
+          MYSQL_USER: root
+          MYSQL_PASSWORD: test_password
+          MYSQL_DATABASE: test_db
 
       - name: Start mock-server in background
         working-directory: ./mock-server
@@ -110,7 +125,7 @@ jobs:
           # Set up environment variables for testing
           cat > .env << EOF
           PORT=3001
-          
+
           # API Configuration
           CORS_ORIGIN=http://localhost:3000
           EOF
@@ -122,6 +137,18 @@ jobs:
           # Wait for server to be ready
           timeout 60 bash -c 'until curl -sf http://localhost:3001/health; do sleep 2; done'
 
+          # Verify health check status is "ok"
+          HEALTH_RESPONSE=$(curl -sf http://localhost:3001/health)
+          HEALTH_STATUS=$(echo "$HEALTH_RESPONSE" | grep -o '"status":"[^"]*"' | cut -d'"' -f4)
+          if [ "$HEALTH_STATUS" != "ok" ]; then
+            echo "❌ Mock server health check failed. Status: $HEALTH_STATUS"
+            echo "Health response: $HEALTH_RESPONSE"
+            echo "Mock server logs:"
+            cat mock-server.log
+            exit 1
+          fi
+          echo "✅ Mock server health check passed. Status: $HEALTH_STATUS"
+
       - name: Start server in background
         working-directory: ./server
         run: |
@@ -131,25 +158,39 @@ jobs:
           DATA_DIR=./data
           BRUTE_FORCE_WINDOW_MS=600000
           BRUTE_FORCE_MAX_ATTEMPTS=100
-          PORT=3000
-          MYSQL_HOST=${{ secrets.MYSQL_HOST || 'localhost' }}
-          MYSQL_PORT=${{ secrets.MYSQL_PORT || '3306' }}
-          MYSQL_USER=${{ secrets.MYSQL_USER || 'root' }}
-          MYSQL_PASSWORD=${{ secrets.MYSQL_PASSWORD || secrets.MYSQL_ROOT_PASSWORD || 'root' }}
-          MYSQL_DATABASE=${{ secrets.MYSQL_TEST_DATABASE || 'cypress_dashboard_test' }}
+          PORT=${{ secrets.SERVER_PORT || '3000' }}
           API_SECURITY_KEY=${{ secrets.API_SECURITY_KEY }}
+
+          # MySQL Configuration
+          MYSQL_HOST=localhost
+          MYSQL_PORT=3306
+          MYSQL_USER="root"
+          MYSQL_PASSWORD=test_password
+          MYSQL_DATABASE=test_db
+
+          # Firebase Configuration
           FIREBASE_PROJECT_ID=${{ secrets.FIREBASE_PROJECT_ID }}
           FIREBASE_PRIVATE_KEY="${{ secrets.FIREBASE_PRIVATE_KEY }}"
           FIREBASE_CLIENT_EMAIL=${{ secrets.FIREBASE_CLIENT_EMAIL }}
           FIREBASE_PRIVATE_KEY_ID=${{ secrets.FIREBASE_PRIVATE_KEY_ID }}
           FIREBASE_CLIENT_ID=${{ secrets.FIREBASE_CLIENT_ID }}
           FIREBASE_CLIENT_CERT_URL=${{ secrets.FIREBASE_CLIENT_CERT_URL }}
+
+          # GitHub Configuration
           GITHUB_TOKEN=your-github-token
           GITHUB_URL=http://localhost:3001/github
-          JIRA_API_TOKEN="jira-token-placeholder"
+
+          # Jira Configuration
           JIRA_BASE_URL=http://localhost:3001/jira
-          CIRCLE_CI_TOKEN=your-circle-ci-token
-          E2E_PIPELINE_URL=circle-ci-pipeline-url
+          JIRA_API_TOKEN="jira-token-placeholder"
+
+          # CircleCI Configuration
+          CIRCLE_CI_BASE_URL=http://localhost:3001/circleci
+          CIRCLE_CI_PROJECT_PATH="jayc13/my-dashboard"
+          CIRCLE_CI_TOKEN="your-circle-ci-token"
+
+          # Redis Configuration
+          REDIS_URL=redis://localhost:6379
           EOF
 
           # Start server in background
@@ -158,6 +199,18 @@ jobs:
 
           # Wait for server to be ready
           timeout 60 bash -c 'until curl -sf http://localhost:3000/health; do sleep 2; done'
+
+          # Verify health check status is "ok"
+          HEALTH_RESPONSE=$(curl -sf http://localhost:3000/health)
+          HEALTH_STATUS=$(echo "$HEALTH_RESPONSE" | grep -o '"status":"[^"]*"' | cut -d'"' -f4)
+          if [ "$HEALTH_STATUS" != "ok" ]; then
+            echo "❌ Server health check failed. Status: $HEALTH_STATUS"
+            echo "Health response: $HEALTH_RESPONSE"
+            echo "Server logs:"
+            tail -n 100 server.log 2>/dev/null || echo "No server logs available"
+            exit 1
+          fi
+          echo "✅ Server health check passed. Status: $HEALTH_STATUS"
 
       - name: Run integration tests
         working-directory: ./tests/integration-tests
@@ -169,11 +222,12 @@ jobs:
           API_SECURITY_KEY=${{ secrets.API_SECURITY_KEY }}
           CI=true
           
-          MYSQL_HOST=${{ secrets.MYSQL_HOST || 'localhost' }}
-          MYSQL_PORT=${{ secrets.MYSQL_PORT || '3306' }}
-          MYSQL_USER=${{ secrets.MYSQL_USER || 'root' }}
-          MYSQL_PASSWORD=${{ secrets.MYSQL_PASSWORD || secrets.MYSQL_ROOT_PASSWORD || 'root' }}
-          MYSQL_DATABASE=${{ secrets.MYSQL_TEST_DATABASE || 'cypress_dashboard_test' }}
+          # MySQL Configuration
+          MYSQL_HOST=localhost
+          MYSQL_PORT=3306
+          MYSQL_USER="root"
+          MYSQL_PASSWORD=test_password
+          MYSQL_DATABASE=test_db
           
           EOF
 
@@ -195,3 +249,6 @@ jobs:
           # Kill any remaining processes on port 3000
           sudo lsof -ti:3001 | xargs -r sudo kill -9 || true
           sudo lsof -ti:3000 | xargs -r sudo kill -9 || true
+          # Stop and remove Redis Docker container
+          docker stop redis || true
+          docker rm redis || true
