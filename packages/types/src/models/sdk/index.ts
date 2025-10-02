@@ -50,14 +50,6 @@ export interface NotificationQueryParams extends Record<string, string | number 
 }
 
 /**
- * Query parameters for E2E reports endpoint
- */
-export interface E2EReportsQueryParams extends Record<string, string | number | boolean | undefined> {
-  /** Filter by report date */
-  reportDate?: string;
-}
-
-/**
  * Input for adding pull requests
  */
 export interface AddPullRequestRequest {
