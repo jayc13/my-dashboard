@@ -23,13 +23,20 @@ export async function getReport(req: Request, res: Response) {
     includeManualRuns: true,
   };
 
+  console.log({ enrichments });
+
   try {
-    enrichmentsObj = JSON.parse(enrichments as string);
+    enrichmentsObj = {
+      ...enrichmentsObj,
+      ...JSON.parse(enrichments as string),
+    };
   } catch {
     return res.status(400).send({
       error: 'Invalid enrichments format. Expected JSON string',
     });
   }
+
+  console.log({ enrichmentsObj });
 
   // Validate date format
   const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
