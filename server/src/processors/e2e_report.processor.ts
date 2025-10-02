@@ -285,7 +285,7 @@ export class E2EReportProcessor {
           passedRuns: appData.passedRuns,
           failedRuns: appData.failedRuns,
           successRate: appData.successRate,
-          lastRunStatus: appData.lastRunStatus,
+          lastRunStatus: appData.lastRunStatus as 'passed' | 'failed',
           lastFailedRunAt: appData.lastFailedRunAt ? DateTime.fromISO(appData.lastFailedRunAt).toISODate() : null,
           lastRunAt: DateTime.fromISO(appData.lastRunAt).toISODate()!,
         });
