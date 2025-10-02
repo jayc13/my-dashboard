@@ -138,6 +138,15 @@ jobs:
           --health-interval=10s
           --health-timeout=5s
           --health-retries=3
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd="redis-cli ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
     steps:
       - name: Checkout repository
         uses: actions/checkout@v5
@@ -177,13 +186,6 @@ jobs:
           MYSQL_PASSWORD: test_password
           MYSQL_DATABASE: test_db
         run: pnpm --filter=server run migrate
-
-      - name: Start Redis server
-        run: |
-          # Start Redis using Docker
-          docker run -d --name redis -p 6379:6379 redis:7-alpine
-          # Wait for Redis to be ready
-          timeout 30 bash -c 'until docker exec redis redis-cli ping | grep PONG; do sleep 1; done'
 
       - name: Start mock-server in background
         working-directory: ./mock-server
@@ -232,7 +234,7 @@ jobs:
           CIRCLE_CI_BASE_URL=http://localhost:3001/circleci
           CIRCLE_CI_PROJECT_PATH="jayc13/my-dashboard"
           CIRCLE_CI_TOKEN="your-circle-ci-token"
-          REDIS_URL=redis://localhost:6379
+          REDIS_URL=redis://redis:6379
           EOF
 
           # Start server in background
