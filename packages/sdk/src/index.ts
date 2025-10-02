@@ -38,16 +38,16 @@ export { MyDashboardAPI } from './client';
 export { BaseClient } from './base-client';
 
 // Individual services for advanced usage
-export { E2EService } from './services/e2e-service';
 export { E2ERunService } from './services/e2e-run-service';
 export { ApplicationsService } from './services/applications-service';
 export { NotificationsService } from './services/notifications-service';
 export { PullRequestsService } from './services/pull-requests-service';
 export { AuthService } from './services/auth-service';
+export { TodosService } from './services/todo-list-service';
+// Additional services
 export { 
   FCMService, 
-  JiraService, 
-  TodosService, 
+  JiraService,
   HealthService, 
 } from './services/additional-services';
 

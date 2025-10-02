@@ -10,7 +10,8 @@ import { NotificationsService } from './services/notifications-service';
 import { PullRequestsService } from './services/pull-requests-service';
 import { AuthService } from './services/auth-service';
 import { E2ERunService } from './services/e2e-run-service';
-import { FCMService, JiraService, TodosService, HealthService } from './services/additional-services';
+import { TodosService } from './services/todo-list-service';
+import { FCMService, JiraService, HealthService } from './services/additional-services';
 import { SDKConfig } from '@my-dashboard/types';
 
 /**
