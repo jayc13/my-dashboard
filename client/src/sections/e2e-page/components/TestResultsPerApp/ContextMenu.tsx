@@ -16,7 +16,7 @@ import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import RocketLaunchIcon from '@mui/icons-material/RocketLaunch';
 import CheckIcon from '@mui/icons-material/Check';
 import CloseIcon from '@mui/icons-material/Close';
-import LastRunStatus from '../TestResultsPerApp/LastRunStatus.tsx';
+import LastRunStatus from './LastRunStatus.tsx';
 import type { AppDetailedE2EReportDetail } from '@my-dashboard/types';
 
 interface ContextMenuProps {

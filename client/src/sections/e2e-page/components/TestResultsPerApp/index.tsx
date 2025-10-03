@@ -4,11 +4,13 @@ import { enqueueSnackbar } from 'notistack';
 import { API_BASE_URL } from '@/utils/constants.ts';
 import { apiFetch } from '@/utils/helpers.ts';
 import type { AppDetailedE2EReportDetail, DetailedE2EReportDetail } from '@my-dashboard/types';
+import { useTriggerManualRun } from '@/hooks/useE2ERun';
+import { useSDK } from '@/contexts/useSDK';
 import { PAGE_SIZE } from './constants';
 import LoadingState from './LoadingState';
 import { AllTestsPassing, NoTestResults } from './EmptyStates';
 import ProjectCard from './ProjectCard';
-import ContextMenu from '../ContextMenu/ContextMenu.tsx';
+import ContextMenu from './ContextMenu.tsx';
 
 
 export interface TestResultsPerAppProps {
@@ -24,6 +26,8 @@ const TestResultsPerApp = (props: TestResultsPerAppProps) => {
         refetchData,
     } = props;
 
+    const { api } = useSDK();
+    const { mutate: triggerManualRun } = useTriggerManualRun();
     const [page, setPage] = useState(1);
     const [contextMenu, setContextMenu] = useState<{
         mouseX: number;
@@ -33,12 +37,11 @@ const TestResultsPerApp = (props: TestResultsPerAppProps) => {
     } | null>(null);
 
     const fetchAppDetails = async (appId: number): Promise<AppDetailedE2EReportDetail | null> => {
-        try {
-            const response = await apiFetch(`${API_BASE_URL}/api/apps/${appId}`);
-            return await response.json();
-        } catch {
+        if (!api) {
+            enqueueSnackbar('API is not available.', { variant: 'error' });
             return null;
         }
+        return await api.applications.getApplication(appId);
     };
 
     const handleContextMenu = async (event: React.MouseEvent, result: AppDetailedE2EReportDetail) => {
@@ -96,25 +99,12 @@ const TestResultsPerApp = (props: TestResultsPerAppProps) => {
             }
             handleCloseContextMenu();
             try {
-                const response = await apiFetch(`${API_BASE_URL}/api/e2e_manual_runs`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        appId,
-                    }),
-                });
-
-                if (response.ok) {
-                    const appName = contextMenu.result!.name;
-                    enqueueSnackbar(`E2E run for ${appName} were triggered successfully!`, { variant: 'success', autoHideDuration: 10 * 1000 });
-                } else {
-                    const errorData = await response.json();
-                    enqueueSnackbar(`Failed to trigger E2E runs: ${errorData.error || response.statusText}`, { variant: 'error' });
-                }
-            } catch {
-                enqueueSnackbar('Failed to trigger E2E runs due to a network error.', { variant: 'error' });
+                await triggerManualRun(appId);
+                const appName = contextMenu.result!.name;
+                enqueueSnackbar(`E2E run for ${appName} were triggered successfully!`, { variant: 'success', autoHideDuration: 10 * 1000 });
+            } catch (error) {
+                const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+                enqueueSnackbar(`Failed to trigger E2E runs: ${errorMessage}`, { variant: 'error' });
             }
         }
     };
