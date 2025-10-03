@@ -1,6 +1,7 @@
 import { DatabaseRow, db } from '../db/database';
 import { E2EReportSummary, E2EReportDetail } from '@my-dashboard/types/e2e';
 import { CypressAppReportData, E2EReportProcessor } from '../processors/e2e_report.processor';
+import { DateTime } from 'luxon';
 
 /**
  * Service for managing E2E Report Summaries and Details
@@ -393,8 +394,8 @@ export class E2ERunReportService {
     const updatedStatus = updatedStatuses[0];
 
     const updatedDetail = await this.updateDetail(detailRun.id, {
-      lastRunAt: updatedStatus.lastRunAt,
-      lastFailedRunAt: updatedStatus.lastFailedRunAt,
+      lastRunAt: DateTime.fromISO(updatedStatus.lastRunAt).toISODate()!,
+      lastFailedRunAt: updatedStatus.lastFailedRunAt ? DateTime.fromISO(updatedStatus.lastFailedRunAt).toISODate() : null,
       lastRunStatus: updatedStatus.lastRunStatus as 'passed' | 'failed',
       totalRuns: updatedStatus.totalRuns,
       passedRuns: updatedStatus.passedRuns,

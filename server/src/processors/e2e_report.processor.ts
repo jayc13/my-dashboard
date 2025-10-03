@@ -359,6 +359,7 @@ export class E2EReportProcessor {
 
     if (!appIds) {
       // Get watching apps from database
+      console.log('[E2E Report Processor] No app IDs provided, fetching all watching apps');
       requestedApplications = await AppService.getWatching();
     } else {
       const receivedApps = await Promise.all(appIds.map(async appId => AppService.getById(appId)));
