@@ -1,146 +1,137 @@
-openapi: 3.0.0
-info:
-  title: Application API
-  description: API for managing applications
-  version: 1.0.0
-servers:
-  - url: https://api.example.com/v1
-paths:
-  /api/apps/{id}:
-    get:
-      operationId: get-app-by-id
-      summary: Get application by ID
-      description: |
-        Retrieve detailed information about a specific application by its ID.
-        
-        Returns extended application information including recent run details and statistics.
-      tags:
-        - Applications
-      security:
-        - ApiKeyAuth: []
-      parameters:
-        - name: id
-          in: path
-          description: Application ID
-          required: true
+get:
+  operationId: get-app-by-id
+  summary: Get application by ID
+  description: |
+    Retrieve detailed information about a specific application by its ID.
+    
+    Returns extended application information including recent run details and statistics.
+  tags:
+    - Applications
+  security:
+    - ApiKeyAuth: []
+  parameters:
+    - name: id
+      in: path
+      description: Application ID
+      required: true
+      schema:
+        type: integer
+        minimum: 1
+        example: 1
+  responses:
+    '200':
+      description: Application retrieved successfully
+      content:
+        application/json:
           schema:
-            type: integer
-            minimum: 1
-            example: 1
-      responses:
-        '200':
-          description: Application retrieved successfully
-          content:
-            application/json:
-              schema:
-                $ref: '../schemas/ApplicationDetails.yaml'
-              example:
-                id: 1
-                name: "My Web App"
-                code: "my-web-app"
-                pipelineUrl: "https://app.circleci.com/pipelines/github/myorg/my-web-app"
-                e2eTriggerConfiguration: "branch:main,schedule:daily"
-                watching: true
-                lastRun:
-                  id: 123
-                  status: "success"
-                  url: "https://app.circleci.com/pipelines/github/myorg/my-web-app/123/workflows/456"
-                  pipelineId: "abc123-def456-ghi789"
-                  createdAt: "2025-09-20T10:30:00.000Z"
-                e2eRunsQuantity: 42
-        '400':
-          description: Bad request - Invalid application ID
-          content:
-            application/json:
-              schema:
-                $ref: '../schemas/ValidationError.yaml'
-              example:
-                error: "Invalid app ID"
-        '404':
-          description: Application not found
-          content:
-            application/json:
-              schema:
-                $ref: '../schemas/ValidationError.yaml'
-              example:
-                error: "App not found"
-        '401':
-          description: Unauthorized - Invalid or missing API key
-          content:
-            application/json:
-              schema:
-                $ref: '../schemas/ValidationError.yaml'
-              example:
-                error: "Unauthorized: Invalid or missing API key"
-        '500':
-          description: Internal server error
-          content:
-            application/json:
-              schema:
-                $ref: '../schemas/ValidationError.yaml'
-              example:
-                error: "Failed to fetch app"
+            $ref: '../schemas/ApplicationDetails.yaml'
+          example:
+            id: 1
+            name: "My Web App"
+            code: "my-web-app"
+            pipelineUrl: "https://app.circleci.com/pipelines/github/myorg/my-web-app"
+            e2eTriggerConfiguration: "branch:main,schedule:daily"
+            watching: true
+            lastRun:
+              id: 123
+              status: "success"
+              url: "https://app.circleci.com/pipelines/github/myorg/my-web-app/123/workflows/456"
+              pipelineId: "abc123-def456-ghi789"
+              createdAt: "2025-09-20T10:30:00.000Z"
+            e2eRunsQuantity: 42
+    '400':
+      description: Bad request - Invalid application ID
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/ValidationError.yaml'
+          example:
+            error: "Invalid app ID"
+    '404':
+      description: Application not found
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/ValidationError.yaml'
+          example:
+            error: "App not found"
+    '401':
+      description: Unauthorized - Invalid or missing API key
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/ValidationError.yaml'
+          example:
+            error: "Unauthorized: Invalid or missing API key"
+    '500':
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/ValidationError.yaml'
+          example:
+            error: "Failed to fetch app"
 
-    put:
-      operationId: update-app
-      summary: Update an application
-      description: Update an existing application by its ID.
-      tags:
-        - Applications
-      security:
-        - ApiKeyAuth: []
-      parameters:
-        - name: id
-          in: path
-          required: true
+put:
+  operationId: update-app
+  summary: Update an application
+  description: Update an existing application by its ID.
+  tags:
+    - Applications
+  security:
+    - ApiKeyAuth: []
+  parameters:
+    - name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: '../schemas/Application.yaml'
+  responses:
+    '200':
+      description: Application updated successfully
+      content:
+        application/json:
           schema:
-            type: integer
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '../schemas/Application.yaml'
-      responses:
-        '200':
-          description: Application updated successfully
-          content:
-            application/json:
-              schema:
-                $ref: '../schemas/ApplicationDetails.yaml'
-        '400':
-          description: Bad request
-          content:
-            application/json:
-              schema:
-                $ref: '../schemas/ValidationError.yaml'
-        '404':
-          description: Application not found
-          content:
-            application/json:
-              schema:
-                $ref: '../schemas/ValidationError.yaml'
+            $ref: '../schemas/ApplicationDetails.yaml'
+    '400':
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/ValidationError.yaml'
+    '404':
+      description: Application not found
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/ValidationError.yaml'
 
-    delete:
-      operationId: delete-app
-      summary: Delete an application
-      description: Delete an application by its ID.
-      tags:
-        - Applications
-      security:
-        - ApiKeyAuth: []
-      parameters:
-        - name: id
-          in: path
-          required: true
+delete:
+  operationId: delete-app
+  summary: Delete an application
+  description: Delete an application by its ID.
+  tags:
+    - Applications
+  security:
+    - ApiKeyAuth: []
+  parameters:
+    - name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+  responses:
+    '204':
+      description: Application deleted
+    '404':
+      description: Application not found
+      content:
+        application/json:
           schema:
-            type: integer
-      responses:
-        '204':
-          description: Application deleted
-        '404':
-          description: Application not found
-          content:
-            application/json:
-              schema:
-                $ref: '../schemas/ValidationError.yaml'
+            $ref: '../schemas/ValidationError.yaml'

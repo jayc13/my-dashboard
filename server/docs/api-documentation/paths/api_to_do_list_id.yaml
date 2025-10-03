@@ -1,128 +1,119 @@
-openapi: 3.0.0
-info:
-  title: To-Do List API
-  description: API for managing to-do lists
-  version: 1.0.0
-servers:
-  - url: https://api.example.com/v1
-paths:
-  /api/to_do_list/{id}:
-    get:
-      tags:
-        - To-Do Lists
-      summary: Get a specific to-do item by ID
-      description: Retrieve a single to-do item by its unique identifier.
-      parameters:
-        - name: id
-          in: path
-          required: true
-          description: The unique identifier of the to-do item
+get:
+  tags:
+    - To-Do Lists
+  summary: Get a specific to-do item by ID
+  description: Retrieve a single to-do item by its unique identifier.
+  parameters:
+    - name: id
+      in: path
+      required: true
+      description: The unique identifier of the to-do item
+      schema:
+        type: integer
+        minimum: 1
+        example: 123
+  responses:
+    '200':
+      description: Successfully retrieved the to-do item
+      content:
+        application/json:
           schema:
-            type: integer
-            minimum: 1
-            example: 123
-      responses:
-        '200':
-          description: Successfully retrieved the to-do item
-          content:
-            application/json:
-              schema:
-                $ref: '../schemas/TodoItem.yaml'
-              examples:
-                success:
-                  summary: Successful retrieval
-                  value:
-                    id: 123
-                    title: "Complete API documentation"
-                    description: "Write comprehensive OpenAPI documentation for all endpoints"
-                    link: "https://github.com/company/project/issues/123"
-                    dueDate: "2024-01-20T23:59:59.000Z"
-                    isCompleted: false
-        '404':
-          description: To-do item not found
-          content:
-            application/json:
-              schema:
-                $ref: '../schemas/ErrorResponse.yaml'
-              examples:
-                not_found:
-                  summary: Item not found
-                  value:
-                    error: "Todo not found"
-        '401':
-          description: Unauthorized - Invalid or missing API key
-          content:
-            application/json:
-              schema:
-                $ref: '../schemas/ErrorResponse.yaml'
-        '500':
-          description: Internal server error
-          content:
-            application/json:
-              schema:
-                $ref: '../schemas/ErrorResponse.yaml'
-              examples:
-                fetch_error:
-                  summary: Database error during fetch
-                  value:
-                    error: "Failed to fetch todo"
-      security:
-        - ApiKeyAuth: []
+            $ref: '../schemas/TodoItem.yaml'
+          examples:
+            success:
+              summary: Successful retrieval
+              value:
+                id: 123
+                title: "Complete API documentation"
+                description: "Write comprehensive OpenAPI documentation for all endpoints"
+                link: "https://github.com/company/project/issues/123"
+                dueDate: "2024-01-20T23:59:59.000Z"
+                isCompleted: false
+    '404':
+      description: To-do item not found
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/ErrorResponse.yaml'
+          examples:
+            not_found:
+              summary: Item not found
+              value:
+                error: "Todo not found"
+    '401':
+      description: Unauthorized - Invalid or missing API key
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/ErrorResponse.yaml'
+    '500':
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/ErrorResponse.yaml'
+          examples:
+            fetch_error:
+              summary: Database error during fetch
+              value:
+                error: "Failed to fetch todo"
+  security:
+    - ApiKeyAuth: []
 
-    put:
-      tags:
-        - To-Do Lists
-      summary: Update a to-do item
-      description: Update an existing to-do item by its ID.
-      parameters:
-        - name: id
-          in: path
-          required: true
+put:
+  tags:
+    - To-Do Lists
+  summary: Update a to-do item
+  description: Update an existing to-do item by its ID.
+  parameters:
+    - name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: '../schemas/TodoInput.yaml'
+  responses:
+    '200':
+      description: To-do item updated
+      content:
+        application/json:
           schema:
-            type: integer
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '../schemas/TodoInput.yaml'
-      responses:
-        '200':
-          description: To-do item updated
-          content:
-            application/json:
-              schema:
-                $ref: '../schemas/ToDoItem.yaml'
-        '400':
-          description: Bad request
-          content:
-            application/json:
-              schema:
-                $ref: '../schemas/ErrorResponse.yaml'
-        '404':
-          description: To-do item not found
-          content:
-            application/json:
-              schema:
-                $ref: '../schemas/ErrorResponse.yaml'
+            $ref: '../schemas/ToDoItem.yaml'
+    '400':
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/ErrorResponse.yaml'
+    '404':
+      description: To-do item not found
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/ErrorResponse.yaml'
 
-    delete:
-      tags:
-        - To-Do Lists
-      summary: Delete a to-do item
-      description: Delete a to-do item by its ID.
-      parameters:
-        - name: id
-          in: path
-          required: true
+delete:
+  tags:
+    - To-Do Lists
+  summary: Delete a to-do item
+  description: Delete a to-do item by its ID.
+  parameters:
+    - name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+  responses:
+    '204':
+      description: To-do item deleted
+    '404':
+      description: To-do item not found
+      content:
+        application/json:
           schema:
-            type: integer
-      responses:
-        '204':
-          description: To-do item deleted
-        '404':
-          description: To-do item not found
-          content:
-            application/json:
-              schema:
-                $ref: '../schemas/ErrorResponse.yaml'
+            $ref: '../schemas/ErrorResponse.yaml'
