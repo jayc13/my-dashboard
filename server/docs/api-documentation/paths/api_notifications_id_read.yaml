@@ -1,0 +1,30 @@
+patch:
+  tags:
+    - Notifications
+  summary: Mark a notification as read
+  operationId: markNotificationAsRead
+  parameters:
+    - name: id
+      in: path
+      required: true
+      schema:
+        type: string
+  responses:
+    '200':
+      description: Notification marked as read
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/SuccessResponse.yaml'
+    '404':
+      description: Not found
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/ErrorResponse.yaml'
+    '401':
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/ErrorResponse.yaml'

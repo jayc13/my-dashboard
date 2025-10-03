@@ -1,0 +1,38 @@
+post:
+  tags:
+    - E2E Manual Runs
+  summary: Create a new manual E2E test run
+  operationId: createE2EManualRun
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            appId:
+              type: string
+            runConfig:
+              type: object
+          required:
+            - appId
+  responses:
+    '201':
+      description: Manual E2E run created
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/SuccessResponse.yaml'
+    '400':
+      description: Invalid input
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/ValidationError.yaml'
+    '401':
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/ErrorResponse.yaml'
+

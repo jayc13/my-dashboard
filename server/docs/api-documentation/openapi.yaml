@@ -89,9 +89,15 @@ paths:
   /api/auth/validate:
     $ref: './paths/api_auth_validate.yaml'
 
+  # E2E Manual Runs
+  /api/e2e_manual_runs:
+    $ref: './paths/api_e2e_manual_runs.yaml'
+
   # E2E Run Reports
   /api/e2e_run_report:
     $ref: './paths/api_e2e_run_report.yaml'
+  /api/e2e_run_report/{summaryId}/{appId}:
+    $ref: './paths/api_e2e_run_report_summaryId_appId.yaml'
 
   # Applications
   /api/apps:
@@ -110,6 +116,10 @@ paths:
   # Notifications
   /api/notifications:
     $ref: './paths/api_notifications.yaml'
+  /api/notifications/{id}:
+    $ref: './paths/api_notifications_id.yaml'
+  /api/notifications/{id}/read:
+    $ref: './paths/api_notifications_id_read.yaml'
 
   # JIRA Integration
   /api/jira/manual_qa:
