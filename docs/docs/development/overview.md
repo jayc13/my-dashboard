@@ -48,18 +48,11 @@ cd my-dashboard
 ```bash
 # Server (.env)
 API_SECURITY_KEY=your-api-key-here
-DATA_DIR=./data
 CYPRESS_API_KEY=your-cypress-key
 GITHUB_TOKEN=your-github-token
 
 # Client (.env.local)
 VITE_API_BASE_URL=http://localhost:3000
-```
-
-**Database Setup:**
-```bash
-# Server uses SQLite by default
-# Database file created automatically at DATA_DIR/database.sqlite
 ```
 
 ## 🎯 Code Quality Standards

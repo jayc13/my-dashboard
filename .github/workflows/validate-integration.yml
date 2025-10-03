@@ -155,7 +155,6 @@ jobs:
           # Set up environment variables for testing
           cat > .env << EOF
           NODE_ENV=test
-          DATA_DIR=./data
           BRUTE_FORCE_WINDOW_MS=600000
           BRUTE_FORCE_MAX_ATTEMPTS=100
           PORT=${{ secrets.SERVER_PORT || '3000' }}
