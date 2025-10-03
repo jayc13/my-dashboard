@@ -1,9 +1,0 @@
-type: object
-description: Response after successfully updating or deleting an E2E manual run
-required:
-  - success
-properties:
-  success:
-    type: boolean
-    description: Indicates whether the operation was successful
-    example: true

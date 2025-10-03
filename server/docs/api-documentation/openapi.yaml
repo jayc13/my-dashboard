@@ -93,14 +93,6 @@ paths:
   /api/e2e_run_report:
     $ref: './paths/api_e2e_run_report.yaml'
 
-  # E2E Reports
-  /api/e2e_reports:
-    $ref: './paths/api_e2e_reports.yaml'
-  /api/e2e_reports/report/{id}:
-    $ref: './paths/api_e2e_reports_report_id.yaml'
-  /api/e2e_reports/project_status/{projectName}:
-    $ref: './paths/api_e2e_reports_project_status_projectName.yaml'
-
   # Applications
   /api/apps:
     $ref: './paths/api_apps.yaml'
@@ -135,21 +127,6 @@ paths:
   /api/fcm/register-token:
     $ref: './paths/api_fcm_register_token.yaml'
 
-  # E2E Manual Runs
-  /api/e2e_manual_runs:
-    $ref: './paths/api_e2e_manual_runs.yaml'
-  /api/e2e_manual_runs/{id}:
-    $ref: './paths/api_e2e_manual_runs_id.yaml'
-  /api/e2e_manual_runs/app/{appId}:
-    $ref: './paths/api_e2e_manual_runs_app_appId.yaml'
-  /api/e2e_manual_runs/app-code/{appCode}:
-    $ref: './paths/api_e2e_manual_runs_app_code_appCode.yaml'
-
-  # Internal File System
-  /api/internal/files:
-    $ref: './paths/api_internal_files.yaml'
-  /api/internal/files/info:
-    $ref: './paths/api_internal_files_info.yaml'
 components:
   securitySchemes:
     ApiKeyAuth:
@@ -164,8 +141,6 @@ components:
       $ref: './schemas/Application.yaml'
     ApplicationDetails:
       $ref: './schemas/ApplicationDetails.yaml'
-    LastApplicationRun:
-      $ref: './schemas/LastApplicationRun.yaml'
 
     # E2E Testing Models
     ProjectSummary:
@@ -185,12 +160,6 @@ components:
     GithubPullRequestDetails:
       $ref: './schemas/GithubPullRequestDetails.yaml'
 
-    # File System Models
-    FileSystemItem:
-      $ref: './schemas/FileSystemItem.yaml'
-    DirectoryListing:
-      $ref: './schemas/DirectoryListing.yaml'
-
     # JIRA Models
     JiraTicket:
       $ref: './schemas/JiraTicket.yaml'
@@ -208,14 +177,6 @@ components:
       $ref: './schemas/FCMTokenRequest.yaml'
     FCMTokenResponse:
       $ref: './schemas/FCMTokenResponse.yaml'
-
-    # E2E Manual Run Models
-    E2EManualRun:
-      $ref: './schemas/E2EManualRun.yaml'
-    E2EManualRunInput:
-      $ref: './schemas/E2EManualRunInput.yaml'
-    E2EManualRunUpdateResponse:
-      $ref: './schemas/E2EManualRunUpdateResponse.yaml'
 
     # Response Models
     SuccessResponse:

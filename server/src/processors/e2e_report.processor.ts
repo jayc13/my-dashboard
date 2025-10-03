@@ -8,6 +8,21 @@ import * as dotenv from 'dotenv';
 
 dotenv.config({ quiet: true });
 
+export interface CypressAppReportData {
+  appId: number;
+  totalRuns: number;
+  passedRuns: number;
+  failedRuns: number;
+  successRate: number;
+  lastRunStatus: string;
+  lastFailedRunAt: string | null;
+  lastRunAt: string;
+}
+
+interface FetchCypressDataOptions {
+  appIds?: number[];
+}
+
 /**
  * E2E Report Processor
  *
@@ -266,7 +281,7 @@ export class E2EReportProcessor {
       }
 
       // Fetch data from Cypress API
-      const reportData = await this.fetchCypressData(date);
+      const reportData = await E2EReportProcessor.fetchCypressData(date);
       console.log(`${logPrefix} [E2E Report Processor] Fetched ${reportData.length} apps data`);
 
       // Delete existing details for this summary
@@ -329,31 +344,34 @@ export class E2EReportProcessor {
   /**
    * Fetch Cypress data for the given date
    */
-  private async fetchCypressData(date: string): Promise<Array<{
-    appId: number;
-    totalRuns: number;
-    passedRuns: number;
-    failedRuns: number;
-    successRate: number;
-    lastRunStatus: string;
-    lastFailedRunAt: string | null;
-    lastRunAt: string;
-  }>> {
+  static async fetchCypressData(date: string, options?: FetchCypressDataOptions): Promise<Array<CypressAppReportData>> {
     const apiKey = process.env.CYPRESS_API_KEY;
+
+    const {
+      appIds,
+    } = options || {};
 
     if (!apiKey) {
       throw new Error('CYPRESS_API_KEY environment variable is not set');
     }
 
-    // Get watching apps from database
-    const watchingApps = await AppService.getWatching();
+    let requestedApplications;
 
-    if (watchingApps.length === 0) {
+    if (!appIds) {
+      // Get watching apps from database
+      requestedApplications = await AppService.getWatching();
+    } else {
+      const receivedApps = await Promise.all(appIds.map(async appId => AppService.getById(appId)));
+      requestedApplications = receivedApps.filter(app => app !== null) as NonNullable<typeof receivedApps[number]>[];
+    }
+
+    if (!requestedApplications || requestedApplications.length === 0) {
       console.log('[E2E Report Processor] No watching apps found');
       return [];
     }
 
-    const projectNames = watchingApps.map(app => app.name);
+    const projectNames = requestedApplications.map(app => app.name);
+
     const api = new CypressDashboardAPI(apiKey);
 
     // Calculate date range (14 days back from the target date)
@@ -383,7 +401,7 @@ export class E2EReportProcessor {
     const results = [];
 
     for (const projectName in groupedResults) {
-      const app = watchingApps.find(a => a.name === projectName);
+      const app = requestedApplications.find(n => n.name === projectName);
       if (!app || !app.id) {
         console.warn(`[E2E Report Processor] App not found for project: ${projectName}`);
         continue;
@@ -455,7 +473,7 @@ export class E2EReportProcessor {
   /**
    * Determine run status from a group of runs
    */
-  private getRunStatus(runs: CypressRun[]): string {
+  static getRunStatus(runs: CypressRun[]): string {
     return runs
       .filter((run) => run.status !== 'noTests')
       .every(r => r.status === 'passed') ? 'passed' : 'failed';

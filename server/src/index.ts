@@ -3,7 +3,6 @@ import { Request, Response } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import * as dotenv from 'dotenv';
-import { createE2EReportRouter } from './routes/e2e_report';
 import { errorHandler } from './middleware/error_handler';
 import { createJiraRouter } from './routes/jira';
 import { createPullRequestRouter } from './routes/pull_requests';
@@ -13,11 +12,10 @@ import { createFCMRouter } from './routes/fcm';
 import { createAuthRouter } from './routes/auth';
 import { createAppsRouter } from './routes/apps';
 import { createE2EManualRunsRouter } from './routes/e2e_manual_runs';
-import { createInternalRouter } from './routes/internal';
-import apiKeyValidator from './middleware/api_key_validator';
 import { testMySQLConnection } from './db/mysql';
 import { startProcessor } from './processors/start-processor';
 import { createE2ERunReportRouter } from './routes/e2e_run_report';
+import apiKeyValidator from './middleware/api_key_validator';
 
 // Load environment variables
 dotenv.config({ quiet: true });
@@ -57,7 +55,6 @@ app.use('/api/auth', createAuthRouter()); // Auth routes don't need API key vali
 // Apply API key validation to all other routes
 app.use('/api', apiKeyValidator);
 
-app.use('/api/e2e_reports', createE2EReportRouter());
 app.use('/api/e2e_run_report', createE2ERunReportRouter());
 app.use('/api/jira', createJiraRouter());
 app.use('/api/pull_requests', createPullRequestRouter());
@@ -66,7 +63,6 @@ app.use('/api/notifications', createNotificationRouter());
 app.use('/api/fcm', createFCMRouter());
 app.use('/api/apps', createAppsRouter());
 app.use('/api/e2e_manual_runs', createE2EManualRunsRouter());
-app.use('/api/internal', createInternalRouter());
 
 // Health check endpoint
 app.get('/health', async (req: Request, res: Response) => {

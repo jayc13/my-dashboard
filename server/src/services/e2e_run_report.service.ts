@@ -1,5 +1,6 @@
 import { DatabaseRow, db } from '../db/database';
 import { E2EReportSummary, E2EReportDetail } from '@my-dashboard/types/e2e';
+import { CypressAppReportData, E2EReportProcessor } from '../processors/e2e_report.processor';
 
 /**
  * Service for managing E2E Report Summaries and Details
@@ -373,6 +374,35 @@ export class E2ERunReportService {
       console.error('Error fetching summary by date with details:', error);
       throw error;
     }
+  }
+
+  static async getLastProjectStatus(summaryId: number, appId: number): Promise<E2EReportDetail | null> {
+    const detailRun = await this.getDetailBySummaryAndApp(summaryId, appId);
+
+    if (!detailRun) {
+      return null;
+    }
+
+    const summary = (await this.getSummaryById(summaryId))!;
+
+    // Fetch latest Cypress data to ensure up-to-date status
+    const updatedStatuses: CypressAppReportData[] = await E2EReportProcessor.fetchCypressData(summary.date, {
+      appIds: [appId],
+    });
+
+    const updatedStatus = updatedStatuses[0];
+
+    const updatedDetail = await this.updateDetail(detailRun.id, {
+      lastRunAt: updatedStatus.lastRunAt,
+      lastFailedRunAt: updatedStatus.lastFailedRunAt,
+      lastRunStatus: updatedStatus.lastRunStatus as 'passed' | 'failed',
+      totalRuns: updatedStatus.totalRuns,
+      passedRuns: updatedStatus.passedRuns,
+      failedRuns: updatedStatus.failedRuns,
+      successRate: updatedStatus.successRate,
+    });
+
+    return updatedDetail || null;
   }
 }
 

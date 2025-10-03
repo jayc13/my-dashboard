@@ -31,25 +31,6 @@ export class AppController {
     }
   }
 
-  async getByCode(req: Request, res: Response) {
-    try {
-      const code = req.params.code;
-      if (!code) {
-        return res.status(400).json({ error: 'App code is required' });
-      }
-
-      const app = await AppService.getByCode(code);
-      if (!app) {
-        return res.status(404).json({ error: 'App not found' });
-      }
-
-      res.json(app);
-    } catch (err) {
-      console.error(err);
-      res.status(500).json({ error: 'Failed to fetch app' });
-    }
-  }
-
   async create(req: Request, res: Response) {
     try {
       const { name, code, pipelineUrl, e2eTriggerConfiguration, watching } = req.body;
@@ -58,10 +39,12 @@ export class AppController {
         return res.status(400).json({ error: 'Name and code are required fields' });
       }
 
+      let formattedE2ETriggerConfig: string | undefined = undefined;
+
       // Validate JSON format for e2eTriggerConfiguration if provided
       if (e2eTriggerConfiguration) {
         try {
-          JSON.parse(e2eTriggerConfiguration);
+          formattedE2ETriggerConfig = JSON.stringify(JSON.parse(e2eTriggerConfiguration), null, 2);
         } catch {
           return res.status(400).json({ error: 'e2eTriggerConfiguration must be valid JSON' });
         }
@@ -71,7 +54,7 @@ export class AppController {
         name,
         code,
         pipelineUrl,
-        e2eTriggerConfiguration,
+        e2eTriggerConfiguration: formattedE2ETriggerConfig,
         watching: !!watching,
       });
             

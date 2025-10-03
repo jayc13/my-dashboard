@@ -2,6 +2,7 @@ import { DatabaseRow, db } from '../db/database';
 import { E2EManualRunService } from './e2e_manual_run.service';
 import { CircleCIService } from './circle_ci.service';
 import type { Application, ApplicationDetails, LastApplicationRun } from '@my-dashboard/types/applications';
+import { AppDetailedE2EReportDetail } from '@my-dashboard/types/e2e';
 
 export class AppService {
   static async getAll(): Promise<Application[]> {
@@ -24,6 +25,22 @@ export class AppService {
       const app: Application = fromDatabaseRowToApplication(row);
 
       return this.enrichWithRunDetails(app);
+    } catch (error) {
+      console.error('Error fetching app by id:', error);
+      throw error;
+    }
+  }
+
+  static async getAppWithDetailsById(id: number): Promise<AppDetailedE2EReportDetail | undefined> {
+    try {
+      const row = await db.get('SELECT * FROM apps WHERE id = ?', [id]);
+      if (!row) {
+        return undefined;
+      }
+
+      const app: Application = fromDatabaseRowToApplication(row);
+
+      return await this.enrichWithRunDetails(app) as AppDetailedE2EReportDetail;
     } catch (error) {
       console.error('Error fetching app by id:', error);
       throw error;

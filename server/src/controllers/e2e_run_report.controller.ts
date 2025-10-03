@@ -1,4 +1,4 @@
-import { Request, Response } from 'express';
+import { NextFunction, Request, Response } from 'express';
 import { E2ERunReportService } from '../services/e2e_run_report.service';
 import { AppService } from '../services/app.service';
 import { E2EManualRunService } from '../services/e2e_manual_run.service';
@@ -8,6 +8,7 @@ import {
   AppDetailedE2EReportDetail,
   DetailedE2EReportDetail,
   DetailedE2EReportEnrichments,
+  E2EReportDetail,
 } from '@my-dashboard/types/e2e';
 
 
@@ -23,8 +24,6 @@ export async function getReport(req: Request, res: Response) {
     includeManualRuns: true,
   };
 
-  console.log({ enrichments });
-
   try {
     enrichmentsObj = {
       ...enrichmentsObj,
@@ -35,8 +34,6 @@ export async function getReport(req: Request, res: Response) {
       error: 'Invalid enrichments format. Expected JSON string',
     });
   }
-
-  console.log({ enrichmentsObj });
 
   // Validate date format
   const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
@@ -83,10 +80,13 @@ export async function getReport(req: Request, res: Response) {
           continue;
         }
 
+        const fromDate = DateTime.fromISO(date as string, { zone: 'utc' }).startOf('day').toISO()!;
+        const toDate = DateTime.fromISO(date as string, { zone: 'utc' }).endOf('day').toISO()!;
+
         enrichedDetail.app = {
           ...appInfo,
           manualRuns: (
-            enrichmentsObj.includeManualRuns ? (await E2EManualRunService.getByAppId(detail.appId)) : undefined
+            enrichmentsObj.includeManualRuns ? (await E2EManualRunService.getByAppId(detail.appId, { filter: { from: fromDate, to: toDate } })) : undefined
           ),
         } as AppDetailedE2EReportDetail;
       }
@@ -101,4 +101,24 @@ export async function getReport(req: Request, res: Response) {
     summary,
     details: detailsWithAppInfo,
   });
+}
+
+export async function getLastProjectStatus(req: Request, res: Response, next: NextFunction) {
+  const appId: string = req.params.appId;
+  const summaryId: string = req.params.summaryId;
+
+  if (!appId || isNaN(Number(appId))) {
+    return res.status(400).send({ error: 'Invalid or missing appId parameter' });
+  }
+
+  if (!summaryId || isNaN(Number(summaryId))) {
+    return res.status(400).send({ error: 'Invalid or missing summaryId parameter' });
+  }
+
+  try {
+    const result: E2EReportDetail | null = await E2ERunReportService.getLastProjectStatus(Number(summaryId), Number(appId));
+    res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
 }
