@@ -120,11 +120,21 @@ jobs:
               - 'server/docs/**'
             mock-server:
               - 'mock-server/**'
+      - name: Fetch latest PR title
+        id: fetch_pr_title
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          pr_title=$(curl -s -H "Authorization: Bearer $GITHUB_TOKEN" \
+            -H "Accept: application/vnd.github.v3+json" \
+            "https://api.github.com/repos/${{ github.repository }}/pulls/${{ inputs.pr-number }}" | jq -r .title)
+          echo "pr_title=$pr_title" >> $GITHUB_OUTPUT
 
       - name: Validate PR title
         shell: bash
         run: |
-          ${{ github.workspace }}/scripts/ci/pr-title-validation.sh "${{ inputs.pr-title }}"
+          ${{ github.workspace }}/scripts/ci/pr-title-validation.sh "${{ steps.fetch_pr_title.outputs.pr_title }}"
 
       - name: Check for TODO and FIXME comments
         shell: bash
