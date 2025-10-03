@@ -73,11 +73,8 @@ get:
 
 delete:
   operationId: delete-pull-request
-  summary: Delete pull request
-  description: |
-    Remove a pull request from the tracking system.
-    
-    **Note**: This only removes the pull request from the local tracking system, not from GitHub.
+  summary: Delete a pull request
+  description: Delete a pull request by its tracking ID.
   tags:
     - Pull Requests
   security:
@@ -85,22 +82,12 @@ delete:
   parameters:
     - name: id
       in: path
-      description: Pull request tracking ID
       required: true
       schema:
         type: string
-        example: "1"
   responses:
-    '200':
-      description: Pull request deleted successfully
-      content:
-        application/json:
-          schema:
-            type: object
-            properties:
-              message:
-                type: string
-                example: "Pull request deleted successfully"
+    '204':
+      description: Pull request deleted
     '404':
       description: Pull request not found
       content:

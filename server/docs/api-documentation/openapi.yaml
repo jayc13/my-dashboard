@@ -78,8 +78,6 @@ tags:
     description: Firebase Cloud Messaging for push notifications
   - name: E2E Manual Runs
     description: Manual execution of end-to-end test runs
-  - name: Internal
-    description: Internal system endpoints for file management and administration
 paths:
   # Health Check
   /health:
@@ -89,17 +87,21 @@ paths:
   /api/auth/validate:
     $ref: './paths/api_auth_validate.yaml'
 
+  # E2E Manual Runs
+  /api/e2e_manual_runs:
+    $ref: './paths/api_e2e_manual_runs.yaml'
+
   # E2E Run Reports
   /api/e2e_run_report:
     $ref: './paths/api_e2e_run_report.yaml'
+  /api/e2e_run_report/{summaryId}/{appId}:
+    $ref: './paths/api_e2e_run_report_summaryId_appId.yaml'
 
   # Applications
   /api/apps:
     $ref: './paths/api_apps.yaml'
   /api/apps/{id}:
     $ref: './paths/api_apps_id.yaml'
-  /api/apps/code/{code}:
-    $ref: './paths/api_apps_code_code.yaml'
 
   # Pull Requests
   /api/pull_requests:
@@ -110,6 +112,10 @@ paths:
   # Notifications
   /api/notifications:
     $ref: './paths/api_notifications.yaml'
+  /api/notifications/{id}:
+    $ref: './paths/api_notifications_id.yaml'
+  /api/notifications/{id}/read:
+    $ref: './paths/api_notifications_id_read.yaml'
 
   # JIRA Integration
   /api/jira/manual_qa:

@@ -64,63 +64,28 @@ put:
   tags:
     - To-Do Lists
   summary: Update a to-do item
-  description: |
-    Update an existing to-do item. All fields are optional in the request body - only provided fields will be updated.
-    
-    **Partial Updates Supported:**
-    - You can update any combination of fields
-    - Omitted fields will remain unchanged
-    - Empty strings are valid values for optional fields
+  description: Update an existing to-do item by its ID.
   parameters:
     - name: id
       in: path
       required: true
-      description: The unique identifier of the to-do item to update
       schema:
         type: integer
-        minimum: 1
-        example: 123
   requestBody:
     required: true
     content:
       application/json:
         schema:
-          schema:
-            $ref: '../schemas/ToDoInput.yaml'
-        examples:
-          full_update:
-            summary: Update all fields
-            value:
-              title: "Updated task title"
-              description: "Updated description with more details"
-              link: "https://updated-link.com"
-              dueDate: "2024-01-25T23:59:59.000Z"
-              isCompleted: true
+          $ref: '../schemas/TodoInput.yaml'
   responses:
     '200':
-      description: Successfully updated the to-do item
+      description: To-do item updated
       content:
         application/json:
           schema:
-            $ref: '../schemas/TodoItem.yaml'
-          examples:
-            success:
-              summary: Successful update
-              value:
-                id: 123
-                title: "Complete API documentation"
-                description: "Write comprehensive OpenAPI documentation for all endpoints"
-                link: "https://github.com/company/project/issues/123"
-                dueDate: "2024-01-20T23:59:59.000Z"
-                isCompleted: false
+            $ref: '../schemas/ToDoItem.yaml'
     '400':
-      description: Bad request - Invalid data format
-      content:
-        application/json:
-          schema:
-            $ref: '../schemas/ErrorResponse.yaml'
-    '401':
-      description: Unauthorized - Invalid or missing API key
+      description: Bad request
       content:
         application/json:
           schema:
@@ -131,68 +96,24 @@ put:
         application/json:
           schema:
             $ref: '../schemas/ErrorResponse.yaml'
-    '500':
-      description: Internal server error
-      content:
-        application/json:
-          schema:
-            $ref: '../schemas/ErrorResponse.yaml'
-          examples:
-            update_error:
-              summary: Database error during update
-              value:
-                error: "Failed to update todo"
-  security:
-    - ApiKeyAuth: []
 
 delete:
   tags:
     - To-Do Lists
   summary: Delete a to-do item
-  description: Permanently delete a to-do item by its ID. This action cannot be undone.
+  description: Delete a to-do item by its ID.
   parameters:
     - name: id
       in: path
       required: true
-      description: The unique identifier of the to-do item to delete
       schema:
         type: integer
-        minimum: 1
-        example: 123
   responses:
-    '200':
-      description: To-do item deleted successfully (no content returned)
-      content:
-        application/json:
-          schema:
-            type: object
-            properties:
-              success:
-                type: boolean
-          example:
-            success: true
-    '401':
-      description: Unauthorized - Invalid or missing API key
-      content:
-        application/json:
-          schema:
-            $ref: '../schemas/ErrorResponse.yaml'
+    '204':
+      description: To-do item deleted
     '404':
-      description: To-do item not found (may have already been deleted)
+      description: To-do item not found
       content:
         application/json:
           schema:
             $ref: '../schemas/ErrorResponse.yaml'
-    '500':
-      description: Internal server error
-      content:
-        application/json:
-          schema:
-            $ref: '../schemas/ErrorResponse.yaml'
-          examples:
-            delete_error:
-              summary: Database error during deletion
-              value:
-                error: "Failed to delete todo"
-  security:
-    - ApiKeyAuth: []

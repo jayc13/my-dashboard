@@ -1,0 +1,27 @@
+delete:
+  tags:
+    - Notifications
+  summary: Delete a notification
+  operationId: deleteNotification
+  parameters:
+    - name: id
+      in: path
+      required: true
+      schema:
+        type: string
+  responses:
+    '204':
+      description: Notification deleted
+    '404':
+      description: Not found
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/ErrorResponse.yaml'
+    '401':
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/ErrorResponse.yaml'
+

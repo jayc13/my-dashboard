@@ -74,11 +74,8 @@ get:
 
 put:
   operationId: update-app
-  summary: Update application
-  description: |
-    Update an existing application's configuration and settings.
-    
-    Allows modification of application properties including name, monitoring status, and pipeline configuration.
+  summary: Update an application
+  description: Update an existing application by its ID.
   tags:
     - Applications
   security:
@@ -86,121 +83,39 @@ put:
   parameters:
     - name: id
       in: path
-      description: Application ID
       required: true
       schema:
         type: integer
-        minimum: 1
-        example: 1
   requestBody:
     required: true
     content:
       application/json:
         schema:
-          type: object
-          properties:
-            name:
-              type: string
-              description: Human-readable name of the application
-              example: "My Updated App"
-              minLength: 1
-              maxLength: 255
-            code:
-              type: string
-              description: Unique code identifier for the application
-              example: "my-updated-app"
-              pattern: "^[a-z0-9-]+$"
-              minLength: 1
-              maxLength: 100
-            pipelineUrl:
-              type: string
-              format: uri
-              description: URL to the CI/CD pipeline for this application
-              example: "https://app.circleci.com/pipelines/github/myorg/my-updated-app"
-            e2eTriggerConfiguration:
-              type: string
-              description: Configuration for triggering E2E tests
-              example: '{"branch":"main","schedule":"daily"}'
-            watching:
-              type: boolean
-              description: Whether this application should be actively monitored
-              example: false
-        examples:
-          update_app:
-            summary: Update application settings
-            value:
-              name: "My Updated App"
-              watching: false
-              e2eTriggerConfiguration: '{"branch":"main","schedule":"daily"}'
+          $ref: '../schemas/Application.yaml'
   responses:
     '200':
       description: Application updated successfully
       content:
         application/json:
           schema:
-            $ref: '../schemas/Application.yaml'
-          example:
-            id: 1
-            name: "My Updated App"
-            code: "my-web-app"
-            pipelineUrl: "https://app.circleci.com/pipelines/github/myorg/my-web-app"
-            e2eTriggerConfiguration: '{"branch":"main","schedule":"daily"}'
-            watching: false
+            $ref: '../schemas/ApplicationDetails.yaml'
     '400':
-      description: Bad request - Invalid input data or application ID
+      description: Bad request
       content:
         application/json:
           schema:
             $ref: '../schemas/ValidationError.yaml'
-          examples:
-            invalid_id:
-              summary: Invalid application ID
-              value:
-                error: "Invalid app ID"
-            invalid_data:
-              summary: Invalid input data
-              value:
-                error: "Invalid application data"
     '404':
       description: Application not found
       content:
         application/json:
           schema:
             $ref: '../schemas/ValidationError.yaml'
-          example:
-            error: "App not found"
-    '401':
-      description: Unauthorized - Invalid or missing API key
-      content:
-        application/json:
-          schema:
-            $ref: '../schemas/ValidationError.yaml'
-          example:
-            error: "Unauthorized: Invalid or missing API key"
-    '409':
-      description: Conflict - Application code already exists
-      content:
-        application/json:
-          schema:
-            $ref: '../schemas/ValidationError.yaml'
-          example:
-            error: "Application with this code already exists"
-    '500':
-      description: Internal server error
-      content:
-        application/json:
-          schema:
-            $ref: '../schemas/ValidationError.yaml'
-          example:
-            error: "Failed to update app"
 
 delete:
   operationId: delete-app
-  summary: Delete application
-  description: |
-    Remove an application from the system.
-    
-    **Warning**: This action is irreversible and will remove all associated data.
+  summary: Delete an application
+  description: Delete an application by its ID.
   tags:
     - Applications
   security:
@@ -208,52 +123,15 @@ delete:
   parameters:
     - name: id
       in: path
-      description: Application ID
       required: true
       schema:
         type: integer
-        minimum: 1
-        example: 1
   responses:
-    '200':
-      description: Application deleted successfully
-      content:
-        application/json:
-          schema:
-            type: object
-            properties:
-              message:
-                type: string
-                example: "Application deleted successfully"
-    '400':
-      description: Bad request - Invalid application ID
-      content:
-        application/json:
-          schema:
-            $ref: '../schemas/ValidationError.yaml'
-          example:
-            error: "Invalid app ID"
+    '204':
+      description: Application deleted
     '404':
       description: Application not found
       content:
         application/json:
           schema:
             $ref: '../schemas/ValidationError.yaml'
-          example:
-            error: "App not found"
-    '401':
-      description: Unauthorized - Invalid or missing API key
-      content:
-        application/json:
-          schema:
-            $ref: '../schemas/ValidationError.yaml'
-          example:
-            error: "Unauthorized: Invalid or missing API key"
-    '500':
-      description: Internal server error
-      content:
-        application/json:
-          schema:
-            $ref: '../schemas/ValidationError.yaml'
-          example:
-            error: "Failed to delete app"
