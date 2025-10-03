@@ -14,6 +14,7 @@ import CancelIcon from '@mui/icons-material/Cancel';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import { getColorByPassingRate, getLastRunStatusIcon, getTooltipByPassingRate } from './utils';
 import type { AppDetailedE2EReportDetail, DetailedE2EReportDetail } from '@my-dashboard/types';
+import { DateTime } from 'luxon';
 
 interface ProjectCardProps {
     result: DetailedE2EReportDetail;
@@ -109,11 +110,27 @@ const ProjectCard = ({ result, onUpdate, onContextMenu }: ProjectCardProps) => {
                                 spacing={2}
                             >
                                 <CheckCircleIcon sx={{ color: 'success.main', fontSize: 20 }}/>
-                                <Typography variant="subtitle1"
-                                            color="success.main">{result.passedRuns}</Typography>
+                                <Typography
+                                  variant="subtitle1"
+                                  color="success.main"
+                                  sx={{ cursor: 'default' }}
+                                >
+                                  {result.passedRuns}
+                                </Typography>
                                 <CancelIcon sx={{ color: 'error.main', fontSize: 20 }}/>
-                                <Typography variant="subtitle1"
-                                            color="error.main">{result.failedRuns}</Typography>
+                                <Tooltip
+                                  title={`Last failed at ${DateTime.fromISO(result.lastFailedRunAt!).toRelative()}`}
+                                  placement="left"
+                                  arrow
+                                >
+                                  <Typography
+                                    variant="subtitle1"
+                                    color="error.main"
+                                    sx={{ cursor: 'default' }}
+                                  >
+                                    {result.failedRuns}
+                                  </Typography>
+                                </Tooltip>
                             </Stack>
                             <Stack
                                 direction="row"
@@ -127,6 +144,7 @@ const ProjectCard = ({ result, onUpdate, onContextMenu }: ProjectCardProps) => {
                                     sx={{
                                         color: getColorByPassingRate(result.successRate),
                                         fontWeight: 600,
+                                        cursor: 'default',
                                     }}
                                 >
                                     {rate}

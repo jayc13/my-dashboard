@@ -35,7 +35,7 @@ export const getTooltipByPassingRate = (passedRuns: number, totalRuns: number, p
             </span>;
     }
 
-    return <Tooltip title={tooltipText} style={{ marginLeft: '4px', cursor: 'pointer' }} placement="left" arrow>
+    return <Tooltip title={tooltipText} style={{ marginLeft: '4px', cursor: 'default' }} placement="left" arrow>
         <InfoOutlineIcon sx={{ fontSize: 15 }}/>
     </Tooltip>;
 };
