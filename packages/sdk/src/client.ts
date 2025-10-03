@@ -58,6 +58,9 @@ export class MyDashboardAPI extends BaseClient {
   public async triggerManualRun(appId: number) {
     return this.e2e.triggerManualRun(appId);
   }
+  public async getAppLastStatus(summaryId: number, appId: number) {
+    return this.e2e.getAppLastStatus(summaryId, appId);
+  }
   
   // Applications convenience methods
   public async getApplications() {

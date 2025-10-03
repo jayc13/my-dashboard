@@ -8,7 +8,7 @@ import { BaseClient } from '../base-client';
 import {
   DetailedE2EReport,
   DetailedE2EReportOptions,
-  E2EManualRun,
+  E2EManualRun, E2EReportDetail,
 } from '@my-dashboard/types';
 
 /**
@@ -42,4 +42,11 @@ export class E2ERunService extends BaseClient {
       }),
     });
   }
+
+  public async getAppLastStatus(summaryId: number, appId: number): Promise<E2EReportDetail> {
+    return this.request<E2EReportDetail>(`/api/e2e_run_report/${summaryId}/${appId}`, {
+      method: 'GET',
+    });
+  }
+
 }

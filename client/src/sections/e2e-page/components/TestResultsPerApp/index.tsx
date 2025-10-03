@@ -1,10 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Box, Grid, Pagination } from '@mui/material';
 import { enqueueSnackbar } from 'notistack';
-import { API_BASE_URL } from '@/utils/constants.ts';
-import { apiFetch } from '@/utils/helpers.ts';
 import type { AppDetailedE2EReportDetail, DetailedE2EReportDetail } from '@my-dashboard/types';
-import { useTriggerManualRun } from '@/hooks/useE2ERun';
+import { useTriggerManualRun, useGetAppLastStatus } from '@/hooks/useE2ERun';
 import { useSDK } from '@/contexts/useSDK';
 import { PAGE_SIZE } from './constants';
 import LoadingState from './LoadingState';
@@ -28,6 +26,7 @@ const TestResultsPerApp = (props: TestResultsPerAppProps) => {
 
     const { api } = useSDK();
     const { mutate: triggerManualRun } = useTriggerManualRun();
+    const { mutate: getAppLastStatus } = useGetAppLastStatus();
     const [page, setPage] = useState(1);
     const [contextMenu, setContextMenu] = useState<{
         mouseX: number;
@@ -157,8 +156,8 @@ const TestResultsPerApp = (props: TestResultsPerAppProps) => {
         return <AllTestsPassing />;
     }
 
-    const updateLastRunStatus = async (projectName: string) => {
-        await apiFetch(`${API_BASE_URL}/api/e2e_reports/project_status/${projectName}`);
+    const updateLastRunStatus = async (summaryId: number, appId: number) => {
+        await getAppLastStatus({ summaryId, appId });
         await refetchData();
     };
 
@@ -178,7 +177,7 @@ const TestResultsPerApp = (props: TestResultsPerAppProps) => {
                         key={idx}
                         result={result}
                         previousValue={previousValue}
-                        onUpdate={() => updateLastRunStatus(result.app!.code)}
+                        onUpdate={() => updateLastRunStatus(result.reportSummaryId, result.appId)}
                         onContextMenu={handleContextMenu}
                     />;
                 })}
