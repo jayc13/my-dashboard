@@ -13,13 +13,13 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CancelIcon from '@mui/icons-material/Cancel';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import { getColorByPassingRate, getLastRunStatusIcon, getTooltipByPassingRate } from './utils';
-import type { DetailedE2EReportDetail } from '@my-dashboard/types';
+import type { AppDetailedE2EReportDetail, DetailedE2EReportDetail } from '@my-dashboard/types';
 
 interface ProjectCardProps {
     result: DetailedE2EReportDetail;
     previousValue: DetailedE2EReportDetail | null;
     onUpdate: (projectName: string) => Promise<void>;
-    onContextMenu: (event: React.MouseEvent, result: DetailedE2EReportDetail) => void;
+    onContextMenu: (event: React.MouseEvent, result: AppDetailedE2EReportDetail) => void;
 }
 
 const ProjectCard = ({ result, onUpdate, onContextMenu }: ProjectCardProps) => {
@@ -28,7 +28,7 @@ const ProjectCard = ({ result, onUpdate, onContextMenu }: ProjectCardProps) => {
     const rate = (result.successRate * 100).toFixed(2) + '%';
 
     const handleContextMenuClick = (event: React.MouseEvent) => {
-        onContextMenu(event, result);
+        onContextMenu(event, result.app!);
     };
 
     if (!result.app) {

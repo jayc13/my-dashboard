@@ -3,12 +3,14 @@ import { Box, Grid, Pagination } from '@mui/material';
 import { enqueueSnackbar } from 'notistack';
 import { API_BASE_URL } from '@/utils/constants.ts';
 import { apiFetch } from '@/utils/helpers.ts';
-import type { Application, DetailedE2EReportDetail } from '@my-dashboard/types';
+import type { AppDetailedE2EReportDetail, DetailedE2EReportDetail } from '@my-dashboard/types';
+import { useTriggerManualRun } from '@/hooks/useE2ERun';
+import { useSDK } from '@/contexts/useSDK';
 import { PAGE_SIZE } from './constants';
 import LoadingState from './LoadingState';
 import { AllTestsPassing, NoTestResults } from './EmptyStates';
 import ProjectCard from './ProjectCard';
-import ContextMenu from './ContextMenu';
+import ContextMenu from './ContextMenu.tsx';
 
 
 export interface TestResultsPerAppProps {
@@ -24,24 +26,25 @@ const TestResultsPerApp = (props: TestResultsPerAppProps) => {
         refetchData,
     } = props;
 
+    const { api } = useSDK();
+    const { mutate: triggerManualRun } = useTriggerManualRun();
     const [page, setPage] = useState(1);
     const [contextMenu, setContextMenu] = useState<{
         mouseX: number;
         mouseY: number;
-        result: DetailedE2EReportDetail;
+        result?: AppDetailedE2EReportDetail;
         loadingAppDetails: boolean;
     } | null>(null);
 
-    const fetchAppDetails = async (projectCode: string): Promise<Application | null> => {
-        try {
-            const response = await apiFetch(`${API_BASE_URL}/api/apps/code/${projectCode}`);
-            return await response.json();
-        } catch {
+    const fetchAppDetails = async (appId: number): Promise<AppDetailedE2EReportDetail | null> => {
+        if (!api) {
+            enqueueSnackbar('API is not available.', { variant: 'error' });
             return null;
         }
+        return await api.applications.getApplication(appId);
     };
 
-    const handleContextMenu = async (event: React.MouseEvent, result: DetailedE2EReportDetail) => {
+    const handleContextMenu = async (event: React.MouseEvent, result: AppDetailedE2EReportDetail) => {
         event.preventDefault();
 
         // Set initial context menu state with loading
@@ -53,12 +56,18 @@ const TestResultsPerApp = (props: TestResultsPerAppProps) => {
         });
 
         // Fetch app details
-        const appDetails = await fetchAppDetails(result.app!.code);
+        const appDetails: AppDetailedE2EReportDetail | null = await fetchAppDetails(result!.id!);
+
+        if (!appDetails) {
+            enqueueSnackbar('Failed to fetch application details.', { variant: 'error' });
+            handleCloseContextMenu();
+            return;
+        }
 
         // Update context menu with app details
         setContextMenu(prev => prev ? {
             ...prev,
-            appDetails,
+            result: appDetails,
             loadingAppDetails: false,
         } : null);
     };
@@ -76,46 +85,33 @@ const TestResultsPerApp = (props: TestResultsPerAppProps) => {
 
     const handleCopyProjectName = async () => {
         if (contextMenu) {
-            await navigator.clipboard.writeText(contextMenu.result.app!.name);
+            await navigator.clipboard.writeText(contextMenu.result!.name!);
             handleCloseContextMenu();
         }
     };
 
     const handleTriggerE2ERuns = async () => {
         if (contextMenu) {
-            const app_id = contextMenu.result.app?.id;
-            if (!app_id) {
+            const appId: number = contextMenu.result!.id!;
+            if (!appId) {
                 enqueueSnackbar('App ID is missing. Cannot trigger E2E runs.', { variant: 'error' });
                 return;
             }
             handleCloseContextMenu();
             try {
-                const response = await apiFetch(`${API_BASE_URL}/api/e2e_manual_runs`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        app_id,
-                    }),
-                });
-
-                if (response.ok) {
-                    const appName = contextMenu.result.app!.name;
-                    enqueueSnackbar(`E2E run for ${appName} were triggered successfully!`, { variant: 'success', autoHideDuration: 10 * 1000 });
-                } else {
-                    const errorData = await response.json();
-                    enqueueSnackbar(`Failed to trigger E2E runs: ${errorData.error || response.statusText}`, { variant: 'error' });
-                }
-            } catch {
-                enqueueSnackbar('Failed to trigger E2E runs due to a network error.', { variant: 'error' });
+                await triggerManualRun(appId);
+                const appName = contextMenu.result!.name;
+                enqueueSnackbar(`E2E run for ${appName} were triggered successfully!`, { variant: 'success', autoHideDuration: 10 * 1000 });
+            } catch (error) {
+                const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+                enqueueSnackbar(`Failed to trigger E2E runs: ${errorMessage}`, { variant: 'error' });
             }
         }
     };
 
     const handleCopyProjectCode = async () => {
         if (contextMenu) {
-            await navigator.clipboard.writeText(contextMenu.result.app!.code);
+            await navigator.clipboard.writeText(contextMenu.result!.code);
             handleCloseContextMenu();
         }
     };
@@ -128,7 +124,7 @@ const TestResultsPerApp = (props: TestResultsPerAppProps) => {
                 const target = event.target as Element;
                 // Check if the right-click is on a different project card
                 const clickedCard = target.closest('[data-project-card]');
-                const currentCard = document.querySelector(`[data-project-card="${contextMenu.result.app!.name}"]`);
+                const currentCard = document.querySelector(`[data-project-card="${contextMenu.result!.name}"]`);
 
                 if (clickedCard && clickedCard !== currentCard) {
                     // Right-clicked on a different card, close current menu

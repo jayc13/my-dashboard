@@ -10,7 +10,8 @@ import { NotificationsService } from './services/notifications-service';
 import { PullRequestsService } from './services/pull-requests-service';
 import { AuthService } from './services/auth-service';
 import { E2ERunService } from './services/e2e-run-service';
-import { FCMService, JiraService, TodosService, HealthService } from './services/additional-services';
+import { TodosService } from './services/todo-list-service';
+import { FCMService, JiraService, HealthService } from './services/additional-services';
 import { SDKConfig } from '@my-dashboard/types';
 
 /**
@@ -54,6 +55,9 @@ export class MyDashboardAPI extends BaseClient {
   public async getE2EReport(options = {}) {
     return this.e2e.getE2EReport(options);
   }
+  public async triggerManualRun(appId: number) {
+    return this.e2e.triggerManualRun(appId);
+  }
   
   // Applications convenience methods
   public async getApplications() {
@@ -61,9 +65,6 @@ export class MyDashboardAPI extends BaseClient {
   }
   public async getApplication(id: number) {
     return this.applications.getApplication(id); 
-  }
-  public async getApplicationByCode(code: string) {
-    return this.applications.getApplicationByCode(code); 
   }
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public async createApplication(application: any) {

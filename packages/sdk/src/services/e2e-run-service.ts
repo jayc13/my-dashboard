@@ -8,6 +8,7 @@ import { BaseClient } from '../base-client';
 import {
   DetailedE2EReport,
   DetailedE2EReportOptions,
+  E2EManualRun,
 } from '@my-dashboard/types';
 
 /**
@@ -30,6 +31,15 @@ export class E2ERunService extends BaseClient {
         date: options.date,
         enrichments: options.enrichments ? JSON.stringify(options.enrichments) : undefined,
       },
+    });
+  }
+
+  public async triggerManualRun(appId: number): Promise<E2EManualRun> {
+    return this.request<E2EManualRun>('/api/e2e_manual_runs', {
+      method: 'POST',
+      body: JSON.stringify({
+        appId,
+      }),
     });
   }
 }

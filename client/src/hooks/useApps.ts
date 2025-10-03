@@ -39,22 +39,6 @@ export function useApp(id: number, options?: { enabled?: boolean; refetchInterva
 }
 
 /**
- * Hook for app data by code
- */
-export function useAppByCode(code: string, options?: { enabled?: boolean; refetchInterval?: number }) {
-  const { api } = useSDK();
-
-  const fetcher = useCallback(async (): Promise<ApplicationDetails> => {
-    if (!api) {
-      throw new Error('API not available');
-    }
-    return api.applications.getApplicationByCode(code);
-  }, [api, code]);
-
-  return useSDKData(fetcher, { ...options, enabled: options?.enabled !== false && !!code });
-}
-
-/**
  * Hook for creating apps
  */
 export function useCreateApp() {
