@@ -79,7 +79,7 @@ jobs:
   validate-tests-integration:
     name: Tests Integration
     needs: [basic-validation, validate-packages-types, validate-packages-sdk]
-    if: (!cancelled()) && always() && (needs.basic-validation.outputs.packages-types-changed == 'true' ||needs.basic-validation.outputs.tests-integration-changed == 'true' || needs.basic-validation.outputs.github-changed == 'true')
+    if: (!cancelled()) && always() && (needs.basic-validation.outputs.packages-types-changed == 'true' || needs.basic-validation.outputs.tests-integration-changed == 'true' || needs.basic-validation.outputs.github-changed == 'true')
     uses: ./.github/workflows/validate-tests-integration.yml
 
   # Job 10: Tests E2E validation
@@ -102,7 +102,7 @@ jobs:
   integration-testing:
     name: Integration Testing
     needs: [ basic-validation, validate-packages-types, validate-packages-sdk, validate-server, validate-mock-server ]
-    if: (!cancelled()) && always() && (needs.basic-validation.outputs.packages-types-changed == 'true' ||needs.basic-validation.outputs.tests-integration-changed == 'true' || needs.basic-validation.outputs.server-changed == 'true' || needs.basic-validation.outputs.github-changed == 'true') && needs.validate-server.result == 'success' && (needs.validate-mock-server.result == 'success' || needs.validate-mock-server.result == 'skipped')
+    if: (!cancelled()) && always() && (needs.basic-validation.outputs.packages-types-changed == 'true' || needs.basic-validation.outputs.tests-integration-changed == 'true' || needs.basic-validation.outputs.server-changed == 'true' || needs.basic-validation.outputs.github-changed == 'true') && (needs.validate-server.result == 'success' || needs.validate-server.result == 'skipped') && (needs.validate-mock-server.result == 'success' || needs.validate-mock-server.result == 'skipped')
     uses: ./.github/workflows/run-integration-tests.yml
     secrets:
       API_SECURITY_KEY: ${{ secrets.API_SECURITY_KEY }}
