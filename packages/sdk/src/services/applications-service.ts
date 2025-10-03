@@ -36,17 +36,6 @@ export class ApplicationsService extends BaseClient {
   }
 
   /**
-   * Get application by code
-   * @param code Application code
-   * @returns Promise resolving to application details
-   */
-  public async getApplicationByCode(code: string): Promise<ApplicationDetails> {
-    return this.request<ApplicationDetails>(`/api/apps/code/${encodeURIComponent(code)}`, {
-      method: 'GET',
-    });
-  }
-
-  /**
    * Create a new application
    * @param application Application data
    * @returns Promise resolving to created application

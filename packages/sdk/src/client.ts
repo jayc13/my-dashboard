@@ -55,6 +55,9 @@ export class MyDashboardAPI extends BaseClient {
   public async getE2EReport(options = {}) {
     return this.e2e.getE2EReport(options);
   }
+  public async triggerManualRun(appId: number) {
+    return this.e2e.triggerManualRun(appId);
+  }
   
   // Applications convenience methods
   public async getApplications() {
@@ -62,9 +65,6 @@ export class MyDashboardAPI extends BaseClient {
   }
   public async getApplication(id: number) {
     return this.applications.getApplication(id); 
-  }
-  public async getApplicationByCode(code: string) {
-    return this.applications.getApplicationByCode(code); 
   }
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public async createApplication(application: any) {
