@@ -34,7 +34,8 @@ describe('Report E2E Job', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    jest.resetModules();
+    // Don't reset modules here - it breaks DateTime mocking
+    // jest.resetModules();
 
     const jobModule = require('../src/jobs/report-e2e.job');
     reportE2eJob = jobModule.default;
@@ -111,14 +112,19 @@ describe('Report E2E Job', () => {
     });
 
     it('should use current date in ISO format', async () => {
+      // Mock DateTime.now() to return a specific date in UTC
       const mockDate = DateTime.fromISO('2025-10-02T15:30:00Z');
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      jest.spyOn(DateTime, 'now').mockReturnValue(mockDate as any);
+      const nowSpy = jest.spyOn(DateTime, 'now').mockReturnValue(mockDate as any);
 
       await reportE2eJob();
 
       const publishedMessage = JSON.parse(mockPublish.mock.calls[0][1]);
+      // Since the mock date is 2025-10-02T15:30:00Z (already in UTC),
+      // calling toUTC() should keep it as 2025-10-02
       expect(publishedMessage.date).toBe('2025-10-02');
+
+      nowSpy.mockRestore();
     });
 
     it('should include requestId in published message', async () => {
@@ -154,15 +160,19 @@ describe('Report E2E Job', () => {
     });
 
     it('should handle timezone correctly', async () => {
+      // Mock DateTime.now() to return a date in EST (UTC-5)
+      // 2025-10-02T23:59:59-05:00 is 2025-10-03T04:59:59Z in UTC
       const mockDate = DateTime.fromISO('2025-10-02T23:59:59-05:00');
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      jest.spyOn(DateTime, 'now').mockReturnValue(mockDate as any);
+      const nowSpy = jest.spyOn(DateTime, 'now').mockReturnValue(mockDate as any);
 
       await reportE2eJob();
 
       const publishedMessage = JSON.parse(mockPublish.mock.calls[0][1]);
-      // Should convert to UTC and extract date
-      expect(publishedMessage.date).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+      // Should convert to UTC (2025-10-03) and extract date
+      expect(publishedMessage.date).toBe('2025-10-03');
+
+      nowSpy.mockRestore();
     });
 
     it('should publish to correct Redis channel', async () => {
