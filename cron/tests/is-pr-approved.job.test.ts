@@ -1,6 +1,6 @@
 /**
  * Is PR Approved Job Tests
- * 
+ *
  * Tests for the PR approval checking job including:
  * - Fetching pull requests
  * - Checking PR details
@@ -14,6 +14,12 @@ jest.mock('../src/utils/helpers', () => ({
   apiFetch: mockApiFetch,
 }));
 
+// Mock publishNotificationRequest
+const mockPublishNotificationRequest = jest.fn();
+jest.mock('../src/jobs/notification.job', () => ({
+  publishNotificationRequest: mockPublishNotificationRequest,
+}));
+
 jest.mock('../src/utils/constants', () => ({
   API_BASE_URL: 'http://localhost:3000',
 }));
@@ -24,6 +30,9 @@ describe('Is PR Approved Job', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     jest.resetModules();
+
+    // Setup default mock for publishNotificationRequest
+    mockPublishNotificationRequest.mockResolvedValue(undefined);
 
     const jobModule = require('../src/jobs/is-pr-approved.job');
     isPrApprovedJob = jobModule.default;

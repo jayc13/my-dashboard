@@ -2,16 +2,16 @@ import * as cron from 'node-cron';
 import * as dotenv from 'dotenv';
 import config from 'config';
 import runReportE2EJob from './jobs/report-e2e.job';
-// import isPrApprovedJob from './jobs/is-pr-approved.job';
-// import manualTicketsReminderJob from './jobs/manualTicketsReminder.job';
+import isPrApprovedJob from './jobs/is-pr-approved.job';
+import manualTicketsReminderJob from './jobs/manualTicketsReminder.job';
 import { testRedisConnection } from './utils/redis';
 
 dotenv.config({ quiet: true });
 
 // Get cron schedule from config
 const reportE2ESchedule: string = config.get('jobs.report_e2e.schedule');
-// const isPrApprovedSchedule: string = config.get('jobs.is_pr_approved.schedule');
-// const manualTicketsReminderSchedule: string = config.get('jobs.manual_tickets_reminder.schedule');
+const isPrApprovedSchedule: string = config.get('jobs.is_pr_approved.schedule');
+const manualTicketsReminderSchedule: string = config.get('jobs.manual_tickets_reminder.schedule');
 
 
 console.log(`Starting E2E Report cron job with schedule: ${reportE2ESchedule}`);
@@ -21,19 +21,19 @@ cron.schedule(reportE2ESchedule, async () => {
   await runReportE2EJob();
 });
 
-/*console.log(`Starting checking for PRs approved cron job with schedule: ${isPrApprovedSchedule}`);
+console.log(`Starting checking for PRs approved cron job with schedule: ${isPrApprovedSchedule}`);
 // Schedule the report job
 cron.schedule(isPrApprovedSchedule, async () => {
   console.log(`Checking if there are PRs approved at ${new Date().toISOString()}`);
   await isPrApprovedJob();
-});*/
+});
 
-/*console.log(`Starting checking for Manual Testing tickets job with schedule: ${isPrApprovedSchedule}`);
+console.log(`Starting checking for Manual Testing tickets job with schedule: ${isPrApprovedSchedule}`);
 // Schedule the report job
 cron.schedule(manualTicketsReminderSchedule, async () => {
   console.log(`Checking if there are Manual Testing to do today: ${new Date().toISOString()}`);
   await manualTicketsReminderJob();
-});*/
+});
 
 const healthCheckAPI = async () => {
   console.log('API Health Check started');
