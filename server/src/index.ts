@@ -84,9 +84,9 @@ app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
 
-// Start the E2E report processor
+// Start all processors (E2E Report and Notification)
 startProcessor().catch((err: Error) => {
-  console.error('Failed to start E2E Report Processor:', err);
+  console.error('Failed to start processors:', err);
 });
 
 export default app;
