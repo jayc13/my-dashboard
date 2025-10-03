@@ -1,5 +1,5 @@
 import TestResultsPerApp from '@/sections/e2e-page/components/TestResultsPerApp';
-import E2EGeneralMetrics from './components/E2EGeneralMetrics.tsx';
+import E2EGeneralMetrics from './components/E2EGeneralMetrics';
 import LoadingBackdrop from './components/LoadingBackdrop.tsx';
 import { Alert, Card, Grid, Stack, IconButton, Tooltip } from '@mui/material';
 import RefreshIcon from '@mui/icons-material/Refresh';
