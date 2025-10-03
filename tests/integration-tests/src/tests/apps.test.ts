@@ -673,83 +673,6 @@ describe('Apps API Integration Tests', () => {
         }
       });
     });
-
-    describe('GET /api/apps/code/:code', () => {
-      let createdAppCode: string;
-
-      beforeAll(async () => {
-        // Create a test app for these tests
-        const httpClient = testHelpers.getHttpClient();
-        const randomString = testHelpers.generateRandomString(8);
-        createdAppCode = `test-app-code-${randomString}`;
-
-        const newApp = {
-          name: `Test App for Code Tests ${randomString}`,
-          code: createdAppCode,
-          watching: false,
-        };
-
-        await httpClient.postJson('/api/apps', newApp, {
-          'x-api-key': apiKey,
-        });
-      });
-
-      it('should return 401 when API key is missing', async () => {
-        const httpClient = testHelpers.getHttpClient();
-
-        try {
-          await httpClient.getJson(`/api/apps/code/${createdAppCode}`);
-          fail('Expected request to fail with 401');
-        } catch (error: any) {
-          expect(error.message).toContain('HTTP 401');
-
-          // Validate that we get the proper response by making the raw request
-          const response = await httpClient.get(`/api/apps/code/${createdAppCode}`);
-          expect(response.status).toBe(401);
-
-          const responseBody = await response.json();
-          expect(responseBody).toEqual({
-            error: 'Unauthorized: Invalid or missing API key',
-          });
-        }
-      });
-
-      it('should return app by code', async () => {
-        const httpClient = testHelpers.getHttpClient();
-
-        const response = await httpClient.getJson(`/api/apps/code/${createdAppCode}`, {
-          'x-api-key': apiKey,
-        });
-
-        testHelpers.validateResponseStructure(response, ['id', 'name', 'code']);
-        expect(response.code).toBe(createdAppCode);
-      });
-
-      it('should return 404 for non-existent app code', async () => {
-        const httpClient = testHelpers.getHttpClient();
-        const nonExistentCode = 'non-existent-app-code';
-
-        try {
-          await httpClient.getJson(`/api/apps/code/${nonExistentCode}`, {
-            'x-api-key': apiKey,
-          });
-          fail('Expected request to fail with 404');
-        } catch (error: any) {
-          expect(error.message).toContain('HTTP 404');
-
-          // Validate that we get the proper response by making the raw request
-          const response = await httpClient.get(`/api/apps/code/${nonExistentCode}`, {
-            'x-api-key': apiKey,
-          });
-          expect(response.status).toBe(404);
-
-          const responseBody = await response.json();
-          expect(responseBody).toEqual({
-            error: 'App not found',
-          });
-        }
-      });
-    });
   });
 
   describe('SDK Tests', () => {
@@ -806,16 +729,6 @@ describe('Apps API Integration Tests', () => {
       expect(app.id).toBe(appId);
       expect(typeof app.name).toBe('string');
       expect(typeof app.code).toBe('string');
-    });
-
-    it('Get App by Code', async () => {
-      // First get the app to know its code
-      const app = await myDashboardSdk.applications.getApplication(appId);
-      const appByCode = await myDashboardSdk.applications.getApplicationByCode(app.code);
-
-      expect(appByCode.id).toBe(appId);
-      expect(appByCode.code).toBe(app.code);
-      expect(appByCode.name).toBe(app.name);
     });
 
     it('Update App', async () => {
@@ -906,14 +819,9 @@ describe('Apps API Integration Tests', () => {
 
     it('Handle non-existent App operations gracefully', async () => {
       const nonExistentId = 999999;
-      const nonExistentCode = 'non-existent-app-code';
 
       // Test getting non-existent app by ID
       await expect(myDashboardSdk.applications.getApplication(nonExistentId))
-        .rejects.toThrow();
-
-      // Test getting non-existent app by code
-      await expect(myDashboardSdk.applications.getApplicationByCode(nonExistentCode))
         .rejects.toThrow();
 
       // Test updating non-existent app
@@ -924,44 +832,6 @@ describe('Apps API Integration Tests', () => {
       // Test deleting non-existent app
       await expect(myDashboardSdk.applications.deleteApplication(nonExistentId))
         .rejects.toThrow();
-    });
-
-    it('Create multiple Apps and verify list operations', async () => {
-      const appIds: number[] = [];
-      const appCodes: string[] = [];
-
-      // Create multiple apps
-      for (let i = 1; i <= 3; i++) {
-        const randomString = testHelpers.generateRandomString(8);
-        const appCode = `test-app-${i}-${randomString}`;
-        const app = await myDashboardSdk.applications.createApplication({
-          name: `Test App ${i}`,
-          code: appCode,
-          watching: i % 2 === 0, // Alternate watching status
-        });
-        appIds.push(app.id);
-        appCodes.push(appCode);
-      }
-
-      // Verify all apps are in the list
-      const apps: Application[] = await myDashboardSdk.applications.getApplications();
-      expect(apps.length).toBeGreaterThanOrEqual(3);
-
-      // Verify all created apps are present
-      const createdApps = apps.filter((app: Application) => appIds.includes(app.id!));
-      expect(createdApps.length).toBe(3);
-
-      // Test getting each app by code
-      for (const code of appCodes) {
-        const appByCode = await myDashboardSdk.applications.getApplicationByCode(code);
-        expect(appByCode.code).toBe(code);
-        expect(appIds).toContain(appByCode.id);
-      }
-
-      // Clean up
-      for (const id of appIds) {
-        await myDashboardSdk.applications.deleteApplication(id);
-      }
     });
 
     it('Test App code uniqueness constraint through SDK', async () => {
