@@ -121,13 +121,11 @@ export function createCircleCIMockRouter(): Router {
 
     console.log(`[CIRCLECI] Fetching workflows for pipeline ${pipeline_id}`);
 
-    const pipeline = mockPipelines.find(p => p.id === pipeline_id);
-    
-    if (!pipeline) {
-      res.status(404).json({
-        message: 'Pipeline not found'
-      });
-      return;
+    const pipeline = mockPipelines[Math.floor(Math.random() * mockPipelines.length)]!;
+
+    const getRandomStatus = () => {
+      const statuses = ['success', 'failed', 'running'];
+      return statuses[Math.floor(Math.random() * statuses.length)];
     }
 
     const delay = parseInt(process.env.DEFAULT_DELAY_MS || '100', 10);
@@ -137,7 +135,7 @@ export function createCircleCIMockRouter(): Router {
           {
             id: `workflow-${pipeline_id}-1`,
             name: 'build-and-test',
-            status: pipeline.state === 'success' ? 'success' : pipeline.state === 'failed' ? 'failed' : 'running',
+            status: getRandomStatus(),
             created_at: pipeline.created_at,
             stopped_at: pipeline.state === 'running' ? null : pipeline.updated_at,
             pipeline_id: pipeline_id,
