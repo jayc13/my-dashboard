@@ -6,11 +6,9 @@ import {
     Card,
     Typography,
     Checkbox,
-    IconButton,
     List,
     ListItem,
     ListItemText,
-    Tooltip,
     Box,
     Button,
     Dialog,
@@ -19,6 +17,7 @@ import {
     DialogActions,
     TextField, Stack, Skeleton,
 } from '@mui/material';
+import { TooltipIconButton } from '../common';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
 import LinkIcon from '@mui/icons-material/Link';
@@ -163,41 +162,38 @@ const ToDoListWidget = () => {
                         secondaryAction={
                             <Box data-testid={`todo-actions-${todo.id}`}>
                                 {todo.link && (
-                                    <Tooltip title="Open Link">
-                                        <IconButton
-                                            href={todo.link}
-                                            target="_blank"
-                                            rel="noopener"
-                                            size="small"
-                                            data-testid={`todo-link-button-${todo.id}`}
-                                        >
-                                            <LinkIcon />
-                                        </IconButton>
-                                    </Tooltip>
+                                    <TooltipIconButton
+                                        tooltip="Open Link"
+                                        href={todo.link}
+                                        target="_blank"
+                                        rel="noopener"
+                                        size="small"
+                                        data-testid={`todo-link-button-${todo.id}`}
+                                    >
+                                        <LinkIcon />
+                                    </TooltipIconButton>
                                 )}
-                                <Tooltip title="Edit">
-                                    <IconButton
-                                        edge="end"
-                                        aria-label="edit"
-                                        onClick={() => handleEditOpen(todo)}
-                                        size="small"
-                                        sx={{ mr: 1 }}
-                                        data-testid={`todo-edit-button-${todo.id}`}
-                                    >
-                                        <EditIcon sx={{ fontSize: 20 }} />
-                                    </IconButton>
-                                </Tooltip>
-                                <Tooltip title="Delete">
-                                    <IconButton
-                                        edge="end"
-                                        aria-label="delete"
-                                        onClick={() => handleDelete(todo.id!)}
-                                        size="small"
-                                        data-testid={`todo-delete-button-${todo.id}`}
-                                    >
-                                        <DeleteIcon />
-                                    </IconButton>
-                                </Tooltip>
+                                <TooltipIconButton
+                                    tooltip="Edit"
+                                    edge="end"
+                                    aria-label="edit"
+                                    onClick={() => handleEditOpen(todo)}
+                                    size="small"
+                                    sx={{ mr: 1 }}
+                                    data-testid={`todo-edit-button-${todo.id}`}
+                                >
+                                    <EditIcon sx={{ fontSize: 20 }} />
+                                </TooltipIconButton>
+                                <TooltipIconButton
+                                    tooltip="Delete"
+                                    edge="end"
+                                    aria-label="delete"
+                                    onClick={() => handleDelete(todo.id!)}
+                                    size="small"
+                                    data-testid={`todo-delete-button-${todo.id}`}
+                                >
+                                    <DeleteIcon />
+                                </TooltipIconButton>
                             </Box>
                         }
                     >

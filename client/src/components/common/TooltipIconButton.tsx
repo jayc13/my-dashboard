@@ -2,7 +2,9 @@ import { IconButton, Tooltip } from '@mui/material';
 import type { IconButtonProps, TooltipProps } from '@mui/material';
 import type { ReactElement } from 'react';
 
-export interface TooltipIconButtonProps extends Omit<IconButtonProps, 'onClick'> {
+type BaseIconButtonProps = Omit<IconButtonProps, 'onClick'>;
+
+export interface TooltipIconButtonProps extends BaseIconButtonProps {
     /**
      * Optional tooltip title. If not provided, no tooltip will be shown.
      */
@@ -20,7 +22,7 @@ export interface TooltipIconButtonProps extends Omit<IconButtonProps, 'onClick'>
      */
     children: ReactElement;
     /**
-     * Optional href for link buttons
+     * Optional href for link buttons (renders as anchor tag)
      */
     href?: string;
     /**
@@ -31,6 +33,10 @@ export interface TooltipIconButtonProps extends Omit<IconButtonProps, 'onClick'>
      * Optional rel for link buttons
      */
     rel?: string;
+    /**
+     * Optional component override
+     */
+    component?: React.ElementType;
 }
 
 const TooltipIconButton = ({
@@ -41,17 +47,24 @@ const TooltipIconButton = ({
     href,
     target,
     rel,
+    component,
     ...iconButtonProps
 }: TooltipIconButtonProps) => {
+    const buttonProps: any = {
+        onClick,
+        ...iconButtonProps,
+    };
+
+    // Add link-specific props when href is provided
+    if (href) {
+        buttonProps.href = href;
+        buttonProps.target = target;
+        buttonProps.rel = rel;
+        buttonProps.component = component || 'a';
+    }
+
     const button = (
-        <IconButton
-            onClick={onClick}
-            href={href}
-            target={target}
-            rel={rel}
-            component={href ? 'a' : 'button'}
-            {...iconButtonProps}
-        >
+        <IconButton {...buttonProps}>
             {children}
         </IconButton>
     );
