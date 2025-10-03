@@ -16,13 +16,13 @@ import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import RocketLaunchIcon from '@mui/icons-material/RocketLaunch';
 import CheckIcon from '@mui/icons-material/Check';
 import CloseIcon from '@mui/icons-material/Close';
-import LastRunStatus from './LastRunStatus';
-import type { DetailedE2EReportDetail } from '@my-dashboard/types';
+import LastRunStatus from '../TestResultsPerApp/LastRunStatus.tsx';
+import type { AppDetailedE2EReportDetail } from '@my-dashboard/types';
 
 interface ContextMenuProps {
     mouseX: number;
     mouseY: number;
-    result: DetailedE2EReportDetail;
+    result?: AppDetailedE2EReportDetail;
     loadingAppDetails: boolean;
     onOpenUrl: (url: string) => void;
     onCopyProjectName: () => void;
@@ -40,6 +40,11 @@ const ContextMenu = ({
     onCopyProjectCode,
     onTriggerE2ERuns,
 }: ContextMenuProps) => {
+
+    if (!result && !loadingAppDetails) {
+        return null;
+    }
+
     return (
         <Card
             sx={{
@@ -62,7 +67,7 @@ const ContextMenu = ({
                     py: 1,
                     m: 0,
                 }}>
-                    {result.app!.name}
+                    {result?.name || 'Loading...'}
                 </ListSubheader>
                 <Divider/>
 
@@ -72,12 +77,12 @@ const ContextMenu = ({
                         <Box display="flex" alignItems="center" justifyContent="center" gap={2} padding={2}>
                             <CircularProgress size={32}/>
                         </Box>
-                    ) : result.app! ? (
+                    ) : result ? (
                         <Box>
                             <Box sx={{ p: 2, bgcolor: 'background.default' }}>
-                                <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center', gap: 1,  lineHeight: '34px' }}>
                                     <strong>E2E Config: </strong>
-                                    {result.app!.e2eTriggerConfiguration ? (
+                                    {result.e2eTriggerConfiguration ? (
                                         <>
                                             <CheckIcon sx={{ color: 'success.main', fontSize: 16 }} />
                                             <span style={{ color: 'green' }}>Configured</span>
@@ -89,35 +94,37 @@ const ContextMenu = ({
                                         </>
                                     )}
                                 </Typography>
-                                <Typography variant="body2">
-                                    <strong>Today's Runs:</strong> {result.app!.e2eRunsQuantity || 0}
+                                <Typography variant="body2" sx={{ lineHeight: '34px' }}>
+                                    <strong>Today's Runs:</strong> {result.e2eRunsQuantity || 0}
                                 </Typography>
-                                {result.app!.lastRun && <Typography variant="body2">
-                                    <strong>Last Run Status:</strong>
+                                {result.lastRun && <Box display="flex" alignItems="center">
+                                    <Typography variant="body2">
+                                        <strong>Last Run Status:</strong>
+                                    </Typography>
                                     <LastRunStatus
-                                        status={result.app!.lastRun.status}
+                                        status={result.lastRun.status}
                                     />
-                                    <IconButton onClick={() => onOpenUrl(result.app!.lastRun!.url)}>
+                                    <IconButton onClick={() => onOpenUrl(result.lastRun!.url)}>
                                         <OpenInNewIcon sx={{ fontSize: 18 }}/>
                                     </IconButton>
-                                </Typography>}
+                                </Box>}
                             </Box>
                             <MenuList dense>
                                 <MenuItem
-                                    onClick={() => onOpenUrl(`https://cloud.cypress.io/projects/${result.app!.code}/runs`)}>
+                                    onClick={() => onOpenUrl(`https://cloud.cypress.io/projects/${result.code}/runs`)}>
                                     <OpenInNewIcon sx={{ mr: 1, fontSize: 20 }}/>
                                     Open in Cypress Cloud
                                 </MenuItem>
-                                {result.app!.pipelineUrl && (
+                                {result.pipelineUrl && (
                                     <MenuItem
-                                        onClick={() => onOpenUrl(result.app!.pipelineUrl!)}>
+                                        onClick={() => onOpenUrl(result.pipelineUrl!)}>
                                         <OpenInNewIcon sx={{ mr: 1, fontSize: 20 }}/>
                                         Open in Pipelines
                                     </MenuItem>
                                 )}
                                 <Divider/>
                                 <MenuItem onClick={onTriggerE2ERuns}
-                                          disabled={!result.app!.e2eTriggerConfiguration}>
+                                          disabled={!result.e2eTriggerConfiguration || result.lastRun?.status === 'running'}>
                                     <RocketLaunchIcon sx={{ mr: 1, fontSize: 20 }}/>
                                     Trigger E2E Runs
                                 </MenuItem>
