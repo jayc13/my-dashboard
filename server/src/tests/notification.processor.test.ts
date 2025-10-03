@@ -1,6 +1,6 @@
 /**
  * Notification Processor Tests
- * 
+ *
  * Tests for the Notification Processor functionality including:
  * - Message processing from Redis pub/sub
  * - Notification creation
@@ -15,15 +15,9 @@ interface NotificationInput {
   type: 'success' | 'error' | 'info' | 'warning';
 }
 
-// Mock Redis client
-const mockRedisClient = {
+// Mock Redis client for notification processor
+const mockNotificationRedisClient = {
   publish: jest.fn(),
-  quit: jest.fn().mockResolvedValue(undefined),
-  on: jest.fn(),
-};
-
-// Mock Redis subscriber
-const mockRedisSubscriber = {
   subscribe: jest.fn().mockResolvedValue(undefined),
   unsubscribe: jest.fn().mockResolvedValue(undefined),
   on: jest.fn(),
@@ -41,7 +35,7 @@ const mockNotificationService = {
 
 // Mock modules
 jest.mock('ioredis', () => {
-  return jest.fn().mockImplementation(() => mockRedisClient);
+  return jest.fn().mockImplementation(() => mockNotificationRedisClient);
 });
 
 jest.mock('../services/notification.service', () => ({
@@ -174,7 +168,7 @@ describe('NotificationProcessor', () => {
       const type = 'info';
       const link = '/test';
 
-      mockRedisClient.publish.mockResolvedValue(1);
+      mockNotificationRedisClient.publish.mockResolvedValue(1);
 
       const notification: NotificationInput = {
         title,
