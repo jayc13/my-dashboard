@@ -107,10 +107,8 @@ export async function testRedisConnection(): Promise<boolean> {
   try {
     const client = getRedisClient();
     await client.ping();
-    console.log('Redis connection test successful');
     return true;
-  } catch (error) {
-    console.error('Redis connection test failed:', error);
+  } catch {
     return false;
   }
 }
