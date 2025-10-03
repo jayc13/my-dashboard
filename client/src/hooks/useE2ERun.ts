@@ -1,7 +1,12 @@
 import { useCallback, useMemo } from 'react';
 import { useSDKData, useSDKMutation } from './useSDKData';
 import { useSDK } from '../contexts/useSDK';
-import type { DetailedE2EReport, DetailedE2EReportOptions, E2EManualRun } from '@my-dashboard/types';
+import type {
+  DetailedE2EReport,
+  DetailedE2EReportOptions,
+  E2EManualRun,
+  E2EReportDetail,
+} from '@my-dashboard/types';
 
 
 interface UseE2ERunReportOptions {
@@ -26,7 +31,7 @@ export function useE2ERunReport(options?: UseE2ERunReportOptions) {
       throw new Error('API not available');
     }
 
-    return api.e2e.getE2EReport(params);
+    return api.getE2EReport(params);
   }, [api, params]);
 
   return useSDKData(fetcher, options);
@@ -42,7 +47,23 @@ export function useTriggerManualRun() {
     if (!api) {
       throw new Error('API not available');
     }
-    return api.e2e.triggerManualRun(appId);
+    return api.triggerManualRun(appId);
+  }, [api]);
+
+  return useSDKMutation(mutationFn);
+}
+
+/**
+ * Hook for creating manual runs
+ */
+export function useGetAppLastStatus() {
+  const { api } = useSDK();
+
+  const mutationFn = useCallback(async (data: {summaryId: number; appId: number}): Promise<E2EReportDetail> => {
+    if (!api) {
+      throw new Error('API not available');
+    }
+    return api.getAppLastStatus(data.summaryId, data.appId);
   }, [api]);
 
   return useSDKMutation(mutationFn);
