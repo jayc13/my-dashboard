@@ -1,7 +1,19 @@
 import React, { useEffect, useState } from 'react';
 import {
-    AppBar, Box, Stack, Toolbar, IconButton, Tooltip,
-    Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Divider, Typography, ListSubheader,
+    AppBar,
+    Box,
+    Stack,
+    Toolbar,
+    Drawer,
+    List,
+    ListItem,
+    ListItemButton,
+    ListItemIcon,
+    ListItemText,
+    Divider,
+    Typography,
+    ListSubheader,
+    IconButton,
 } from '@mui/material';
 import {
     Menu as MenuIcon,
@@ -12,6 +24,7 @@ import {
     Close as CloseIcon,
     Apps as AppsIcon,
 } from '@mui/icons-material';
+import { TooltipIconButton } from '../common';
 import { ThemeSwitcher } from './ThemeSwitcher.tsx';
 import NotificationCenter from './NotificationCenter';
 import { useAuth } from '@/contexts/useAuth.ts';
@@ -111,16 +124,15 @@ const Header: React.FC = () => {
                             <NotificationCenter notifications={notifications}
                                                 refetchNotifications={refetchNotifications}/>
                             <ThemeSwitcher/>
-                            <Tooltip title="Menu">
-                                <IconButton
-                                    color="inherit"
-                                    onClick={handleSidebarOpen}
-                                    aria-label="open menu"
-                                    data-testid="menu-button"
-                                >
-                                    <MenuIcon/>
-                                </IconButton>
-                            </Tooltip>
+                            <TooltipIconButton
+                                tooltip="Menu"
+                                color="inherit"
+                                onClick={handleSidebarOpen}
+                                aria-label="open menu"
+                                data-testid="menu-button"
+                            >
+                                <MenuIcon/>
+                            </TooltipIconButton>
                         </Stack>
                     </Stack>
                 </Stack>

@@ -1,7 +1,8 @@
 import TestResultsPerApp from '@/sections/e2e-page/components/TestResultsPerApp';
-import E2EGeneralMetrics from './components/E2EGeneralMetrics.tsx';
+import E2EGeneralMetrics from './components/E2EGeneralMetrics';
 import LoadingBackdrop from './components/LoadingBackdrop.tsx';
-import { Alert, Card, Grid, Stack, IconButton, Tooltip } from '@mui/material';
+import { TooltipIconButton } from '@/components/common';
+import { Alert, Card, Grid, Stack } from '@mui/material';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import type { DetailedE2EReport } from '@my-dashboard/types';
 
@@ -42,15 +43,14 @@ const E2EPage = (props: E2EPageProps) => {
           }}
         >
           <h2>E2E Tests</h2>
-          <Tooltip title="Refresh">
-            <IconButton
-              size="small"
-              sx={{ ml: 1 }}
-              onClick={() => refetch()}
-            >
-              <RefreshIcon/>
-            </IconButton>
-          </Tooltip>
+          <TooltipIconButton
+            tooltip="Refresh"
+            size="small"
+            sx={{ ml: 1 }}
+            onClick={() => refetch()}
+          >
+            <RefreshIcon/>
+          </TooltipIconButton>
         </Grid>
         <E2EGeneralMetrics
           data={data?.summary}

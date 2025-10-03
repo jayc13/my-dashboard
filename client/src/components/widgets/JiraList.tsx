@@ -1,12 +1,11 @@
 import {
     Alert,
     Grid,
-    IconButton,
     Skeleton,
     Stack,
-    Tooltip,
 } from '@mui/material';
 import JiraCard from '../common/JiraCard';
+import { TooltipIconButton } from '../common';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import type { JiraTicket } from '../../types';
 
@@ -43,16 +42,15 @@ const JiraList = (props: ManualTestingProps) => {
             <h2 data-testid={`jira-list-title-${title.toLowerCase().replace(/\s+/g, '-')}`}>{title} {
                 size > 0 ? `(${size})` : ''
             } </h2>
-            <Tooltip title="Refresh">
-                <IconButton
-                    size="small"
-                    sx={{ ml: 1 }}
-                    onClick={() => refresh()}
-                    data-testid={`jira-list-refresh-${title.toLowerCase().replace(/\s+/g, '-')}`}
-                >
-                    <RefreshIcon/>
-                </IconButton>
-            </Tooltip>
+            <TooltipIconButton
+                tooltip="Refresh"
+                size="small"
+                sx={{ ml: 1 }}
+                onClick={() => refresh()}
+                data-testid={`jira-list-refresh-${title.toLowerCase().replace(/\s+/g, '-')}`}
+            >
+                <RefreshIcon/>
+            </TooltipIconButton>
         </Grid>;
     };
 
