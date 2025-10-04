@@ -134,10 +134,10 @@ describe('E2E Manual Runs API Integration Tests', () => {
         'x-api-key': apiKey,
       });
 
-      testHelpers.validateResponseStructure(response, ['id', 'app_id', 'pipeline_id', 'created_at']);
-      expect(response.app_id).toBe(testAppId);
-      expect(typeof response.pipeline_id).toBe('string');
-      expect(response.pipeline_id.length).toBeGreaterThan(0);
+      testHelpers.validateResponseStructure(response, ['id', 'appId', 'pipelineId', 'createdAt']);
+      expect(response.appId).toBe(testAppId);
+      expect(typeof response.pipelineId).toBe('string');
+      expect(response.pipelineId.length).toBeGreaterThan(0);
     });
 
     it('should return 409 when a manual run is already in progress', async () => {
