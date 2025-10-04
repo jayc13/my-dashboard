@@ -193,8 +193,8 @@ jobs:
           EOF
 
           # Start server in background
-          npm start > mock-server.log 2>&1 &
-          echo $! > mock-server.pid
+          npm start > server.log 2>&1 &
+          echo $! > server.pid
           
           # Wait for server to be ready
           timeout 60 bash -c 'until curl -sf http://localhost:3000/health; do sleep 2; done'
