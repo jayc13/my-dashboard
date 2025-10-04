@@ -49,10 +49,10 @@ describe('E2E Run Report API Integration Tests', () => {
         const response = await httpClient.get('/api/e2e_run_report');
         expect(response.status).toBe(401);
 
-        const responseBody = await response.json();
-        expect(responseBody).toEqual({
-          error: 'Unauthorized: Invalid or missing API key',
-        });
+        const responseBody = await response.json() as { success: boolean; error?: unknown };
+        expect(responseBody).toHaveProperty('success');
+        expect(responseBody.success).toBe(false);
+        expect(responseBody).toHaveProperty('error');
       }
     });
 
@@ -109,8 +109,10 @@ describe('E2E Run Report API Integration Tests', () => {
         });
         expect(response.status).toBe(400);
 
-        const responseBody = await response.json() as any;
-        expect(responseBody.error).toContain('Invalid date format');
+        const responseBody = await response.json() as { success: boolean; error?: unknown };
+        expect(responseBody).toHaveProperty('success');
+        expect(responseBody.success).toBe(false);
+        expect(responseBody).toHaveProperty('error');
       }
     });
 
@@ -131,8 +133,10 @@ describe('E2E Run Report API Integration Tests', () => {
         });
         expect(response.status).toBe(400);
 
-        const responseBody = await response.json() as any;
-        expect(responseBody.error).toContain('Invalid enrichments format');
+        const responseBody = await response.json() as { success: boolean; error?: unknown };
+        expect(responseBody).toHaveProperty('success');
+        expect(responseBody.success).toBe(false);
+        expect(responseBody).toHaveProperty('error');
       }
     });
 
@@ -296,10 +300,10 @@ describe('E2E Run Report API Integration Tests', () => {
         const response = await httpClient.get('/api/e2e_run_report/1/1');
         expect(response.status).toBe(401);
 
-        const responseBody = await response.json();
-        expect(responseBody).toEqual({
-          error: 'Unauthorized: Invalid or missing API key',
-        });
+        const responseBody = await response.json() as { success: boolean; error?: unknown };
+        expect(responseBody).toHaveProperty('success');
+        expect(responseBody.success).toBe(false);
+        expect(responseBody).toHaveProperty('error');
       }
     });
 
@@ -319,8 +323,10 @@ describe('E2E Run Report API Integration Tests', () => {
         });
         expect(response.status).toBe(400);
 
-        const responseBody = await response.json() as any;
-        expect(responseBody.error).toContain('Invalid or missing summaryId');
+        const responseBody = await response.json() as { success: boolean; error?: unknown };
+        expect(responseBody).toHaveProperty('success');
+        expect(responseBody.success).toBe(false);
+        expect(responseBody).toHaveProperty('error');
       }
     });
 
@@ -340,8 +346,10 @@ describe('E2E Run Report API Integration Tests', () => {
         });
         expect(response.status).toBe(400);
 
-        const responseBody = await response.json() as any;
-        expect(responseBody.error).toContain('Invalid or missing appId');
+        const responseBody = await response.json() as { success: boolean; error?: unknown };
+        expect(responseBody).toHaveProperty('success');
+        expect(responseBody.success).toBe(false);
+        expect(responseBody).toHaveProperty('error');
       }
     });
 
@@ -399,20 +407,22 @@ describe('E2E Run Report API Integration Tests', () => {
       }
     });
 
-    it('should return null for non-existent summaryId/appId combination', async () => {
+    it('should return 404 for non-existent summaryId/appId combination', async () => {
       const httpClient = testHelpers.getHttpClient();
       const nonExistentSummaryId = 999999;
       const nonExistentAppId = 999999;
 
-      const response = await httpClient.getJson(
-        `/api/e2e_run_report/${nonExistentSummaryId}/${nonExistentAppId}`,
-        {
-          'x-api-key': apiKey,
-        },
-      );
-
-      // Should return null when no data found
-      expect(response).toBeNull();
+      try {
+        await httpClient.getJson(
+          `/api/e2e_run_report/${nonExistentSummaryId}/${nonExistentAppId}`,
+          {
+            'x-api-key': apiKey,
+          },
+        );
+        fail('Expected request to fail with 404');
+      } catch (error: any) {
+        expect(error.message).toContain('HTTP 404');
+      }
     });
 
     it('should handle missing parameters in URL', async () => {

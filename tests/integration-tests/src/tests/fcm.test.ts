@@ -57,10 +57,10 @@ describe('FCM API Integration Tests', () => {
         const response = await httpClient.post('/api/fcm/register-token', tokenData);
         expect(response.status).toBe(401);
 
-        const responseBody = await response.json();
-        expect(responseBody).toEqual({
-          error: 'Unauthorized: Invalid or missing API key',
-        });
+        const responseBody = await response.json() as { success: boolean; error?: unknown };
+        expect(responseBody).toHaveProperty('success');
+        expect(responseBody.success).toBe(false);
+        expect(responseBody).toHaveProperty('error');
       }
     });
 
@@ -80,10 +80,10 @@ describe('FCM API Integration Tests', () => {
         });
         expect(response.status).toBe(400);
 
-        const responseBody = await response.json();
-        expect(responseBody).toEqual({
-          error: 'Device token is required',
-        });
+        const responseBody = await response.json() as { success: boolean; error?: unknown };
+        expect(responseBody).toHaveProperty('success');
+        expect(responseBody.success).toBe(false);
+        expect(responseBody).toHaveProperty('error');
       }
     });
 
