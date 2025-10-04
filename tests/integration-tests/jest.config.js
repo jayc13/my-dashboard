@@ -3,6 +3,7 @@ module.exports = {
   testEnvironment: 'node',
   roots: ['<rootDir>/src'],
   testMatch: ['**/__tests__/**/*.ts', '**/?(*.)+(spec|test).ts'],
+  bail: true, // Stop test execution on first failure
   transform: {
     '^.+\\.ts$': ['ts-jest', {
       useESM: true,

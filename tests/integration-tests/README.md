@@ -39,7 +39,7 @@ src/
 # Build TypeScript files
 npm run build
 
-# Run all tests
+# Run all tests (with fail-fast enabled - stops on first failure)
 npm test
 
 # Run tests in watch mode (re-runs on file changes)
@@ -60,6 +60,14 @@ npm run dev
 # Run API proxy validator
 npm run proxy-validator
 ```
+
+### Fail-Fast Behavior
+
+The integration tests are configured with **fail-fast** behavior enabled by default. This means:
+- When any test fails, Jest will immediately stop executing remaining tests
+- This helps identify issues quickly and saves CI/CD time
+- Test results and reports are still generated for the tests that ran before the failure
+- In CI/CD (GitHub Actions), test results are automatically uploaded as artifacts when tests fail
 
 ### Test Reports
 
