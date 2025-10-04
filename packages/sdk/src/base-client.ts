@@ -146,7 +146,18 @@ export abstract class BaseClient {
       if (!response.ok) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const errorData = await response.json().catch(() => ({})) as any;
-        throw new APIError(response.status, errorData.error || 'Unknown error', errorData);
+
+        // Extract error message from new format { success: false, error: { message: ... } }
+        let errorMessage = 'Unknown error';
+        if (errorData.error) {
+          if (typeof errorData.error === 'string') {
+            errorMessage = errorData.error;
+          } else if (errorData.error.message) {
+            errorMessage = errorData.error.message;
+          }
+        }
+
+        throw new APIError(response.status, errorMessage, errorData);
       }
 
       // Handle empty responses
@@ -155,7 +166,15 @@ export abstract class BaseClient {
         return {} as T;
       }
 
-      return await response.json() as T;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const json = await response.json() as any;
+
+      // Extract data from new response format { success: true, data: ... }
+      if (json && typeof json === 'object' && 'success' in json && 'data' in json) {
+        return json.data as T;
+      }
+
+      return json as T;
 
     } catch (error) {
       if (error instanceof APIError) {
