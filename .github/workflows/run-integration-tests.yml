@@ -187,15 +187,19 @@ jobs:
           CIRCLE_CI_BASE_URL=http://localhost:3001/circleci
           CIRCLE_CI_PROJECT_PATH="jayc13/my-dashboard"
           CIRCLE_CI_TOKEN="your-circle-ci-token"
+          
+          # Cypress Configuration
+          CYPRESS_BASE_URL=http://localhost:3001/cypress
+          CYPRESS_API_KEY=your-cypress-api-key
 
           # Redis Configuration
           REDIS_URL=redis://localhost:6379
           EOF
 
           # Start server in background
-          npm start &
+          npm start > server.log 2>&1 &
           echo $! > server.pid
-
+          
           # Wait for server to be ready
           timeout 60 bash -c 'until curl -sf http://localhost:3000/health; do sleep 2; done'
 
@@ -220,18 +224,34 @@ jobs:
           SERVER_URL=http://localhost:3000
           API_SECURITY_KEY=${{ secrets.API_SECURITY_KEY }}
           CI=true
-          
+
           # MySQL Configuration
           MYSQL_HOST=localhost
           MYSQL_PORT=3306
           MYSQL_USER="root"
           MYSQL_PASSWORD=test_password
           MYSQL_DATABASE=test_db
-          
+
           EOF
 
-          # Run the integration tests
-          npm test
+          # Run the integration tests with fail-fast (bail on first failure)
+          npm test -- --bail
+
+      - name: Upload test results
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: integration-test-results
+          path: tests/integration-tests/test-results/
+          retention-days: 30
+
+      - name: Upload server logs
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: server-logs
+          path: server/server.log
+          retention-days: 1
 
       - name: Cleanup server process
         if: always()
@@ -248,6 +268,3 @@ jobs:
           # Kill any remaining processes on port 3000
           sudo lsof -ti:3001 | xargs -r sudo kill -9 || true
           sudo lsof -ti:3000 | xargs -r sudo kill -9 || true
-          # Stop and remove Redis Docker container
-          docker stop redis || true
-          docker rm redis || true

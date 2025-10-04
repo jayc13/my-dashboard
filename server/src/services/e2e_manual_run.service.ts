@@ -54,6 +54,35 @@ export class E2EManualRunService {
         throw new Error(`App with id ${input.appId} does not have e2e_trigger_configuration set`);
       }
 
+      // Check for existing manual runs in progress
+      // Only check the latest run since that's the only one that could be in progress
+      const existingRuns = await this.getByAppId(input.appId);
+
+      if (existingRuns.length > 0) {
+        const latestRun = existingRuns[0]; // Runs are ordered by created_at DESC
+
+        try {
+          const workflow = await CircleCIService.getPipelineLatestWorkflow(latestRun.pipeline_id);
+
+          // CircleCI workflow statuses that indicate "in progress":
+          // - "running": workflow is currently executing
+          // - "on_hold": workflow is paused waiting for approval
+          // - "failing": workflow is running but has failing jobs
+          const inProgressStatuses = ['running', 'on_hold', 'failing'];
+
+          if (inProgressStatuses.includes(workflow.status)) {
+            throw new Error('A manual run is already in progress for this app. Please wait for it to complete before starting a new one.');
+          }
+        } catch (error) {
+          // If we can't get the workflow status, log it but continue
+          // This could happen if the pipeline is very old or deleted
+          if (error instanceof Error && error.message.includes('manual run is already in progress')) {
+            throw error; // Re-throw our validation error
+          }
+          console.warn(`Could not check status for pipeline ${latestRun.pipeline_id}:`, error);
+        }
+      }
+
       // Trigger Circle CI E2E runs
       const {
         id: pipelineId,

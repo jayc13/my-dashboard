@@ -39,7 +39,7 @@ src/
 # Build TypeScript files
 npm run build
 
-# Run all tests
+# Run all tests (with fail-fast enabled - stops on first failure)
 npm test
 
 # Run tests in watch mode (re-runs on file changes)
@@ -47,6 +47,9 @@ npm run test:watch
 
 # Run tests with verbose output
 npm run test:verbose
+
+# Run tests with JUnit XML and HTML reports
+npm run test:report
 
 # Run tests with coverage report
 npm run test:coverage
@@ -57,6 +60,28 @@ npm run dev
 # Run API proxy validator
 npm run proxy-validator
 ```
+
+### Fail-Fast Behavior
+
+The integration tests are configured with **fail-fast** behavior enabled by default. This means:
+- When any test fails, Jest will immediately stop executing remaining tests
+- This helps identify issues quickly and saves CI/CD time
+- Test results and reports are still generated for the tests that ran before the failure
+- In CI/CD (GitHub Actions), test results are automatically uploaded as artifacts when tests fail
+
+### Test Reports
+
+When running `npm run test:report`, the following reports are generated in the `test-results/` directory:
+
+- **`junit.xml`** - JUnit XML format report (useful for CI/CD systems like Jenkins, CircleCI, GitHub Actions)
+- **`test-report.html`** - HTML report with detailed test results, console logs, and failure messages
+
+The reports are automatically generated after each test run and include:
+- Test suite and test case names
+- Pass/fail status for each test
+- Execution time
+- Error messages and stack traces for failures
+- Console output from tests
 
 ## Writing Tests
 
