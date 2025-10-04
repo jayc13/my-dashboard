@@ -1,10 +1,61 @@
-description: ''
+description: 'Error response with detailed information'
 content:
   application/json:
     schema:
       type: object
+      required:
+        - success
+        - error
       properties:
+        success:
+          type: boolean
+          description: 'Always false for error responses'
+          example: false
         error:
-          type: string
+          type: object
+          required:
+            - message
+            - code
+            - statusCode
+          properties:
+            message:
+              type: string
+              description: 'Human-readable error message'
+              example: 'Invalid or missing API key'
+            code:
+              type: string
+              description: 'Machine-readable error code'
+              example: 'UNAUTHORIZED'
+            statusCode:
+              type: integer
+              description: 'HTTP status code'
+              example: 401
+            details:
+              type: object
+              description: 'Additional error details (optional)'
+              additionalProperties: true
+            path:
+              type: string
+              description: 'Request path where error occurred'
+              example: '/api/apps'
+            method:
+              type: string
+              description: 'HTTP method used'
+              example: 'POST'
+            timestamp:
+              type: string
+              format: date-time
+              description: 'ISO 8601 timestamp of when error occurred'
+              example: '2025-10-04T12:34:56.789Z'
+            stack:
+              type: string
+              description: 'Stack trace (only in development mode)'
       example:
-          error: Internal server error
+        success: false
+        error:
+          message: 'Invalid or missing API key'
+          code: 'UNAUTHORIZED'
+          statusCode: 401
+          path: '/api/apps'
+          method: 'POST'
+          timestamp: '2025-10-04T12:34:56.789Z'

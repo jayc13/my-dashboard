@@ -1,27 +1,50 @@
 type: object
-description: Validation error response
+description: Validation error response (HTTP 400)
 required:
+  - success
   - error
 properties:
+  success:
+    type: boolean
+    description: Always false for error responses
+    example: false
   error:
-    type: string
-    description: Error message describing the validation failure
-    example: "Missing required fields"
-  details:
-    type: array
-    description: Detailed validation errors (optional)
-    items:
-      type: object
-      properties:
-        field:
+    type: object
+    required:
+      - message
+      - code
+      - statusCode
+    properties:
+      message:
+        type: string
+        description: Human-readable validation error message
+        example: "Validation failed"
+      code:
+        type: string
+        description: Error code (VALIDATION_ERROR)
+        example: "VALIDATION_ERROR"
+      statusCode:
+        type: integer
+        description: HTTP status code (400)
+        example: 400
+      details:
+        type: object
+        description: Field-level validation errors
+        additionalProperties:
           type: string
-          description: Field name that failed validation
-          example: "email"
-        message:
-          type: string
-          description: Specific validation error message
-          example: "Email is required"
-        code:
-          type: string
-          description: Error code for programmatic handling
-          example: "REQUIRED_FIELD"
+        example:
+          email: "Email is required"
+          password: "Password must be at least 8 characters"
+      path:
+        type: string
+        description: Request path where error occurred
+        example: "/api/apps"
+      method:
+        type: string
+        description: HTTP method used
+        example: "POST"
+      timestamp:
+        type: string
+        format: date-time
+        description: ISO 8601 timestamp
+        example: "2025-10-04T12:34:56.789Z"

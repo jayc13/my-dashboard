@@ -39,17 +39,31 @@ get:
       content:
         application/json:
           schema:
-            $ref: '../schemas/ValidationError.yaml'
+            $ref: '../schemas/ErrorResponse.yaml'
           example:
-            error: "Unauthorized: Invalid or missing API key"
+            success: false
+            error:
+              message: "Invalid or missing API key"
+              code: "UNAUTHORIZED"
+              statusCode: 401
+              path: "/api/apps"
+              method: "GET"
+              timestamp: "2025-10-04T12:34:56.789Z"
     '500':
       description: Internal server error
       content:
         application/json:
           schema:
-            $ref: '../schemas/ValidationError.yaml'
+            $ref: '../schemas/ErrorResponse.yaml'
           example:
-            error: "Failed to fetch apps"
+            success: false
+            error:
+              message: "Failed to fetch apps"
+              code: "INTERNAL_ERROR"
+              statusCode: 500
+              path: "/api/apps"
+              method: "GET"
+              timestamp: "2025-10-04T12:34:56.789Z"
 
 post:
   operationId: create-app
@@ -132,32 +146,72 @@ post:
             missing_fields:
               summary: Missing required fields
               value:
-                error: "Missing required fields"
+                success: false
+                error:
+                  message: "Validation failed"
+                  code: "VALIDATION_ERROR"
+                  statusCode: 400
+                  details:
+                    name: "Name is required"
+                    code: "Code is required"
+                  path: "/api/apps"
+                  method: "POST"
+                  timestamp: "2025-10-04T12:34:56.789Z"
             invalid_code:
               summary: Invalid application code format
               value:
-                error: "Application code must contain only lowercase letters, numbers, and hyphens"
+                success: false
+                error:
+                  message: "Validation failed"
+                  code: "VALIDATION_ERROR"
+                  statusCode: 400
+                  details:
+                    code: "Code must contain only lowercase letters, numbers, and hyphens"
+                  path: "/api/apps"
+                  method: "POST"
+                  timestamp: "2025-10-04T12:34:56.789Z"
     '401':
       description: Unauthorized - Invalid or missing API key
       content:
         application/json:
           schema:
-            $ref: '../schemas/ValidationError.yaml'
+            $ref: '../schemas/ErrorResponse.yaml'
           example:
-            error: "Unauthorized: Invalid or missing API key"
+            success: false
+            error:
+              message: "Invalid or missing API key"
+              code: "UNAUTHORIZED"
+              statusCode: 401
+              path: "/api/apps"
+              method: "POST"
+              timestamp: "2025-10-04T12:34:56.789Z"
     '409':
       description: Conflict - Application code already exists
       content:
         application/json:
           schema:
-            $ref: '../schemas/ValidationError.yaml'
+            $ref: '../schemas/ErrorResponse.yaml'
           example:
-            error: "Application with this code already exists"
+            success: false
+            error:
+              message: "App code must be unique"
+              code: "CONFLICT"
+              statusCode: 409
+              path: "/api/apps"
+              method: "POST"
+              timestamp: "2025-10-04T12:34:56.789Z"
     '500':
       description: Internal server error
       content:
         application/json:
           schema:
-            $ref: '../schemas/ValidationError.yaml'
+            $ref: '../schemas/ErrorResponse.yaml'
           example:
-            error: "Failed to create application"
+            success: false
+            error:
+              message: "Failed to create application"
+              code: "INTERNAL_ERROR"
+              statusCode: 500
+              path: "/api/apps"
+              method: "POST"
+              timestamp: "2025-10-04T12:34:56.789Z"
