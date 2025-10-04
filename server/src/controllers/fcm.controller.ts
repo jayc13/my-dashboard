@@ -1,5 +1,7 @@
-import { Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import { FCMService } from '../services/fcm.service';
+import { ValidationError, InternalServerError } from '../errors/AppError';
+import { validateRequiredFields, validateAndSanitizeString } from '../utils/validation';
 
 export class FCMController {
   private fcmService: FCMService;
@@ -11,24 +13,36 @@ export class FCMController {
   /**
    * Register a device token for push notifications
    */
-  registerToken = async (req: Request, res: Response) => {
+  registerToken = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { token } = req.body;
 
-      if (!token) {
-        return res.status(400).json({ error: 'Device token is required' });
-      }
+      // Validate required fields
+      validateRequiredFields(req.body, ['token']);
 
-      const success = await this.fcmService.registerDeviceToken(token);
+      // Validate and sanitize token
+      const sanitizedToken = validateAndSanitizeString(token, 'token', {
+        required: true,
+        min: 10,
+        max: 500,
+      });
+
+      const success = await this.fcmService.registerDeviceToken(sanitizedToken!);
 
       if (success) {
-        res.status(200).json({ message: 'Device token registered successfully' });
+        res.status(200).json({
+          success: true,
+          message: 'Device token registered successfully',
+        });
       } else {
-        res.status(500).json({ error: 'Failed to register device token' });
+        throw new InternalServerError('Failed to register device token');
       }
     } catch (error) {
-      console.error('Error in registerToken:', error);
-      res.status(500).json({ error: 'Internal server error' });
+      if (error instanceof ValidationError) {
+        next(error);
+      } else {
+        next(new InternalServerError('Failed to register device token', error as Error));
+      }
     }
   };
 }
