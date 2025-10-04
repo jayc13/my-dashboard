@@ -18,6 +18,7 @@
     "paths": {
       "@/*": ["./src/*"],
       "@utils/*": ["./src/utils/*"],
+      "@utils/dbCleanup": ["./src/utils/dbHelper.ts"],
       "@tests/*": ["./src/tests/*"]
     },
     "types": ["node", "jest"]

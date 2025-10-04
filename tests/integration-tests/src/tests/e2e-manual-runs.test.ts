@@ -1,5 +1,5 @@
 import { TestHelpers } from '@utils/test-helpers';
-import { closeTestConnection, truncateTables } from '@utils/dbCleanup';
+import { closeTestConnection, truncateTables } from '@utils/dbHelper';
 
 describe('E2E Manual Runs API Integration Tests', () => {
   let testHelpers: TestHelpers;

@@ -193,9 +193,9 @@ jobs:
           EOF
 
           # Start server in background
-          npm start &
-          echo $! > server.pid
-
+          npm start > mock-server.log 2>&1 &
+          echo $! > mock-server.pid
+          
           # Wait for server to be ready
           timeout 60 bash -c 'until curl -sf http://localhost:3000/health; do sleep 2; done'
 
@@ -220,18 +220,34 @@ jobs:
           SERVER_URL=http://localhost:3000
           API_SECURITY_KEY=${{ secrets.API_SECURITY_KEY }}
           CI=true
-          
+
           # MySQL Configuration
           MYSQL_HOST=localhost
           MYSQL_PORT=3306
           MYSQL_USER="root"
           MYSQL_PASSWORD=test_password
           MYSQL_DATABASE=test_db
-          
+
           EOF
 
           # Run the integration tests
           npm test
+
+      - name: Upload test results
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: integration-test-results
+          path: tests/integration-tests/test-results/
+          retention-days: 30
+
+      - name: Upload server logs
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: server-logs
+          path: server/server.log
+          retention-days: 1
 
       - name: Cleanup server process
         if: always()

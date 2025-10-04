@@ -9,7 +9,7 @@ let connection: mysql.Connection | null = null;
 /**
  * Get MySQL connection for test database cleanup
  */
-async function getTestConnection(): Promise<mysql.Connection> {
+export async function getTestConnection(): Promise<mysql.Connection> {
   if (!connection) {
     const config: mysql.ConnectionOptions = {
       host: process.env.MYSQL_HOST || 'localhost',

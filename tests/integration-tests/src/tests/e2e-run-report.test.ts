@@ -1,5 +1,9 @@
 import { TestHelpers } from '@utils/test-helpers';
-import { closeTestConnection, truncateTables } from '@utils/dbCleanup';
+import {
+  closeTestConnection,
+  truncateTables,
+  getTestConnection,
+} from '@utils/dbHelper';
 import mysql from 'mysql2/promise';
 import * as dotenv from 'dotenv';
 
@@ -16,15 +20,7 @@ describe('E2E Run Report API Integration Tests', () => {
     await testHelpers.waitForServer();
 
     // Create database connection for test data setup
-    dbConnection = await mysql.createConnection({
-      host: process.env.MYSQL_HOST || 'localhost',
-      port: parseInt(process.env.MYSQL_PORT || '3306'),
-      user: process.env.MYSQL_USER || 'root',
-      password: process.env.MYSQL_PASSWORD || '',
-      database: process.env.MYSQL_DATABASE || 'cypress_dashboard',
-      charset: 'utf8mb4',
-      timezone: '+00:00',
-    });
+    dbConnection = await getTestConnection();
   });
 
   afterAll(async () => {

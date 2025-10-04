@@ -21,6 +21,7 @@ module.exports = {
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
     '^@utils/(.*)$': '<rootDir>/src/utils/$1',
+    '^@utils/dbCleanup$': '<rootDir>/src/utils/dbHelper.ts',
     '^@tests/(.*)$': '<rootDir>/src/tests/$1',
     '^@my-dashboard/sdk$': '<rootDir>/../../packages/sdk/src/index.ts',
     '^@my-dashboard/types$': '<rootDir>/../../packages/types/src/index.ts',
@@ -28,4 +29,30 @@ module.exports = {
   // Handle ES modules from @my-dashboard packages
   extensionsToTreatAsEsm: ['.ts'],
   moduleFileExtensions: ['ts', 'js', 'json'],
+  // Test reporters
+  reporters: [
+    'default',
+    [
+      'jest-junit',
+      {
+        outputDirectory: '<rootDir>/test-results',
+        outputName: 'junit.xml',
+        classNameTemplate: '{classname}',
+        titleTemplate: '{title}',
+        ancestorSeparator: ' › ',
+        usePathForSuiteName: true,
+      },
+    ],
+    [
+      'jest-html-reporter',
+      {
+        pageTitle: 'Integration Tests Report',
+        outputPath: '<rootDir>/test-results/test-report.html',
+        includeFailureMsg: true,
+        includeConsoleLog: true,
+        theme: 'defaultTheme',
+        sort: 'status',
+      },
+    ],
+  ],
 };

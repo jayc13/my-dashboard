@@ -1,6 +1,6 @@
 import { TestHelpers } from '@utils/test-helpers';
-import { closeTestConnection, truncateTables } from '@utils/dbCleanup';
-import { Application, ErrorResponse } from '@my-dashboard/types';
+import { closeTestConnection, truncateTables } from '@utils/dbHelper';
+import { ErrorResponse } from '@my-dashboard/types';
 
 describe('Apps API Integration Tests', () => {
   let testHelpers: TestHelpers;

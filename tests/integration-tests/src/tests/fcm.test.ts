@@ -1,5 +1,5 @@
 import { TestHelpers } from '@utils/test-helpers';
-import { closeTestConnection, truncateTables } from '@utils/dbCleanup';
+import { closeTestConnection, truncateTables } from '@utils/dbHelper';
 import mysql from 'mysql2/promise';
 import * as dotenv from 'dotenv';
 

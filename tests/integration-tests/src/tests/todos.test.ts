@@ -1,6 +1,6 @@
 import { TestHelpers } from '@utils/test-helpers';
 import { MyDashboardAPI } from '@my-dashboard/sdk';
-import { truncateTables, closeTestConnection } from '@utils/dbCleanup';
+import { truncateTables, closeTestConnection } from '@utils/dbHelper';
 import { ErrorResponse } from '@my-dashboard/types';
 
 describe('To-Do List API Integration Tests', () => {
