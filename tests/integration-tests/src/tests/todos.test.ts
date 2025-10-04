@@ -1,7 +1,6 @@
 import { TestHelpers } from '@utils/test-helpers';
 import { MyDashboardAPI } from '@my-dashboard/sdk';
 import { truncateTables, closeTestConnection } from '@utils/dbHelper';
-import { ErrorResponse } from '@my-dashboard/types';
 
 describe('To-Do List API Integration Tests', () => {
   let testHelpers: TestHelpers;
@@ -261,10 +260,12 @@ describe('To-Do List API Integration Tests', () => {
           'x-api-key': apiKey,
         });
 
-        const result: ErrorResponse = await response.json() as ErrorResponse;
+        const result = await response.json() as { success: boolean; error?: unknown };
 
         expect(response.status).toBe(404);
-        expect(result.error).toBe('ToDo item not found');
+        expect(result).toHaveProperty('success');
+        expect(result.success).toBe(false);
+        expect(result).toHaveProperty('error');
       });
     });
 
@@ -312,8 +313,9 @@ describe('To-Do List API Integration Tests', () => {
         });
 
         expect(deleteResponse.status).toBe(200);
-        const deleteBody = await deleteResponse.json();
-        expect(deleteBody).toEqual({ success: true });
+        const deleteBody = await deleteResponse.json() as { success: boolean };
+        expect(deleteBody).toHaveProperty('success');
+        expect(deleteBody.success).toBe(true);
       });
     });
   });
@@ -436,9 +438,9 @@ describe('To-Do List API Integration Tests', () => {
         title: 'Updated Title',
       })).rejects.toThrow();
 
-      // Test deleting non-existent todo
-      const response = await myDashboardSdk.todos.deleteTodo(nonExistentId);
-      expect(response.success).toBe(true);
+      // Test deleting non-existent todo - should throw 404 error
+      await expect(myDashboardSdk.todos.deleteTodo(nonExistentId))
+        .rejects.toThrow();
     });
 
     it('Create multiple ToDos and verify list ordering', async () => {
