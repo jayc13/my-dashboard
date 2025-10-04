@@ -255,6 +255,10 @@ jobs:
           CIRCLE_CI_BASE_URL=http://localhost:3001/circleci
           CIRCLE_CI_PROJECT_PATH="jayc13/my-dashboard"
           CIRCLE_CI_TOKEN="your-circle-ci-token"
+          
+          # Cypress Configuration
+          CYPRESS_BASE_URL=http://localhost:3001/cypress
+          CYPRESS_API_KEY=your-cypress-api-key
 
           # Redis Configuration
           REDIS_URL=redis://redis:6379
