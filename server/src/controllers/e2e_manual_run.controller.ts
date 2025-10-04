@@ -14,7 +14,15 @@ export class E2EManualRunController {
         appId: parseInt(appId),
       });
 
-      res.status(201).json(run);
+      // Transform snake_case database fields to camelCase for API response
+      const response = {
+        id: run.id,
+        appId: run.app_id,
+        pipelineId: run.pipeline_id,
+        createdAt: run.created_at,
+      };
+
+      res.status(201).json(response);
     } catch (err: unknown) {
       console.error(err);
       const error = err as Error;
