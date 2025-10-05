@@ -9,9 +9,10 @@ vi.mock('../components/ToDoListSection', () => ({
 }));
 
 vi.mock('../components/JiraListSection', () => ({
-    default: ({ title }: { title: string }) => (
+    default: ({ title, hasError }: { title: string; hasError: boolean }) => (
         <div data-testid={`jira-list-section-${title.toLowerCase().replace(/\s+/g, '-')}`}>
             {title}
+            {hasError && <div>Error loading tickets</div>}
         </div>
     ),
 }));
@@ -63,8 +64,7 @@ describe('TasksPage', () => {
 
         render(<TasksPage {...errorProps} />);
 
-        expect(screen.getByText(/Error fetching information/)).toBeInTheDocument();
-        expect(screen.getByText(/Failed to fetch my tickets/)).toBeInTheDocument();
+        expect(screen.getByText(/Error loading tickets/)).toBeInTheDocument();
     });
 
     it('displays error message when manualTesting has error', () => {
@@ -75,8 +75,7 @@ describe('TasksPage', () => {
 
         render(<TasksPage {...errorProps} />);
 
-        expect(screen.getByText(/Error fetching information/)).toBeInTheDocument();
-        expect(screen.getByText(/Failed to fetch manual testing/)).toBeInTheDocument();
+        expect(screen.getByText(/Error loading tickets/)).toBeInTheDocument();
     });
 
     it('displays error message when both have errors', () => {
@@ -88,9 +87,9 @@ describe('TasksPage', () => {
 
         render(<TasksPage {...errorProps} />);
 
-        expect(screen.getByText(/Error fetching information/)).toBeInTheDocument();
-        // Should display the first error message
-        expect(screen.getByText(/Failed to fetch my tickets/)).toBeInTheDocument();
+        // Both sections should display error messages
+        const errorMessages = screen.getAllByText(/Error loading tickets/);
+        expect(errorMessages).toHaveLength(2);
     });
 });
 
