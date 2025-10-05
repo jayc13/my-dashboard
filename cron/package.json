@@ -13,6 +13,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@my-dashboard/sdk": "file:../packages/sdk",
     "@my-dashboard/types": "file:../packages/types",
     "config": "^4.1.1",
     "dotenv": "^17.2.2",

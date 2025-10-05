@@ -1,17 +1,15 @@
-import { API_BASE_URL } from '../utils/constants';
-import { apiFetch } from '../utils/helpers';
-import { publishNotificationRequest } from './notification.job';
+import { getSDK } from '../utils/sdk';
+import { publishNotificationRequest } from '../services/notification.service';
 
 const isPrApprovedJob = async () => {
-  const requestAllPullRequests = await apiFetch(`${API_BASE_URL}/api/pull_requests`);
-  const pullRequests = await requestAllPullRequests.json();
+  const sdk = getSDK();
+  const pullRequests = await sdk.pullRequests.getPullRequests();
 
   const pullRequestsReadyToMerge = [];
   const pullRequestsWithConflicts = [];
 
   for (const pr of pullRequests) {
-    const requestPRDetailRequest = await apiFetch(`${API_BASE_URL}/api/pull_requests/` + pr.id);
-    const details = await requestPRDetailRequest.json();
+    const details = await sdk.pullRequests.getPullRequestDetails(pr.id);
     if (['clean', 'unstable'].includes(details.mergeableState)) {
       pullRequestsReadyToMerge.push(details);
     } else if (details.mergeableState === 'dirty') {
@@ -21,7 +19,7 @@ const isPrApprovedJob = async () => {
 
   if (pullRequestsReadyToMerge.length > 0) {
     const size = pullRequestsReadyToMerge.length;
-    const prNumbers = pullRequestsReadyToMerge.map(pr => pr.pullRequestNumber || pr.number || pr.id).map(num => `#${num}`).join(', ');
+    const prNumbers = pullRequestsReadyToMerge.map(pr => pr.number).map(num => `#${num}`).join(', ');
     await publishNotificationRequest({
       title: 'Pull Requests Ready to Merge',
       message: `There ${size > 1 ? 'are' : 'is'} ${size} pull request${size > 1 ? 's' : ''} ready to merge: ${prNumbers}.`,
@@ -32,7 +30,7 @@ const isPrApprovedJob = async () => {
 
   if (pullRequestsWithConflicts.length > 0) {
     const size = pullRequestsWithConflicts.length;
-    const prNumbers = pullRequestsWithConflicts.map(pr => pr.pullRequestNumber || pr.number || pr.id).map(num => `#${num}`).join(', ');
+    const prNumbers = pullRequestsWithConflicts.map(pr => pr.number).map(num => `#${num}`).join(', ');
     await publishNotificationRequest({
       title: 'Pull Requests with Conflicts',
       message: `There ${size > 1 ? 'are' : 'is'} ${size} pull request${size > 1 ? 's' : ''} with merge conflicts: ${prNumbers}.`,

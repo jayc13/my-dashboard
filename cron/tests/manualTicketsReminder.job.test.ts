@@ -5,24 +5,25 @@
  * - Job execution
  * - Basic functionality
  * - Error handling
- * - API fetch mocking
+ * - SDK mocking
  * - Notification publishing
  */
 
-// Mock apiFetch
-const mockApiFetch = jest.fn();
-jest.mock('../src/utils/helpers', () => ({
-  apiFetch: mockApiFetch,
+// Mock SDK
+const mockGetManualQATasks = jest.fn();
+
+jest.mock('../src/utils/sdk', () => ({
+  getSDK: jest.fn(() => ({
+    jira: {
+      getManualQATasks: mockGetManualQATasks,
+    },
+  })),
 }));
 
 // Mock publishNotificationRequest
 const mockPublishNotificationRequest = jest.fn();
-jest.mock('../src/jobs/notification.job', () => ({
+jest.mock('../src/services/notification.service', () => ({
   publishNotificationRequest: mockPublishNotificationRequest,
-}));
-
-jest.mock('../src/utils/constants', () => ({
-  API_BASE_URL: 'http://localhost:3000',
 }));
 
 describe('Manual Tickets Reminder Job', () => {
@@ -42,19 +43,13 @@ describe('Manual Tickets Reminder Job', () => {
 
   describe('Job Execution', () => {
     it('should execute without errors when no tickets found', async () => {
-      mockApiFetch.mockResolvedValueOnce({
-        ok: true,
-        json: jest.fn().mockResolvedValue({ issues: [] }),
-      });
+      mockGetManualQATasks.mockResolvedValueOnce({ issues: [], total: 0 });
 
       await expect(manualTicketsReminderJob()).resolves.not.toThrow();
     });
 
     it('should log checking message', async () => {
-      mockApiFetch.mockResolvedValueOnce({
-        ok: true,
-        json: jest.fn().mockResolvedValue({ issues: [] }),
-      });
+      mockGetManualQATasks.mockResolvedValueOnce({ issues: [], total: 0 });
 
       const consoleSpy = jest.spyOn(console, 'log');
 
@@ -64,10 +59,7 @@ describe('Manual Tickets Reminder Job', () => {
     });
 
     it('should complete successfully', async () => {
-      mockApiFetch.mockResolvedValueOnce({
-        ok: true,
-        json: jest.fn().mockResolvedValue({ issues: [] }),
-      });
+      mockGetManualQATasks.mockResolvedValueOnce({ issues: [], total: 0 });
 
       const result = await manualTicketsReminderJob();
 
@@ -81,10 +73,7 @@ describe('Manual Tickets Reminder Job', () => {
     });
 
     it('should return a promise', () => {
-      mockApiFetch.mockResolvedValueOnce({
-        ok: true,
-        json: jest.fn().mockResolvedValue({ issues: [] }),
-      });
+      mockGetManualQATasks.mockResolvedValueOnce({ issues: [], total: 0 });
 
       const result = manualTicketsReminderJob();
 
@@ -92,10 +81,7 @@ describe('Manual Tickets Reminder Job', () => {
     });
 
     it('should be callable multiple times', async () => {
-      mockApiFetch.mockResolvedValue({
-        ok: true,
-        json: jest.fn().mockResolvedValue({ issues: [] }),
-      });
+      mockGetManualQATasks.mockResolvedValue({ issues: [], total: 0 });
 
       await expect(manualTicketsReminderJob()).resolves.not.toThrow();
       await expect(manualTicketsReminderJob()).resolves.not.toThrow();
@@ -103,43 +89,34 @@ describe('Manual Tickets Reminder Job', () => {
     });
   });
 
-  describe('API Fetch', () => {
-    it('should fetch manual QA tickets from API', async () => {
-      mockApiFetch.mockResolvedValueOnce({
-        ok: true,
-        json: jest.fn().mockResolvedValue({ issues: [] }),
-      });
+  describe('SDK Fetch', () => {
+    it('should fetch manual QA tickets from SDK', async () => {
+      mockGetManualQATasks.mockResolvedValueOnce({ issues: [], total: 0 });
 
       await manualTicketsReminderJob();
 
-      expect(mockApiFetch).toHaveBeenCalledWith('http://localhost:3000/api/jira/manual_qa');
+      expect(mockGetManualQATasks).toHaveBeenCalled();
     });
 
-    it('should handle API response with issues', async () => {
+    it('should handle SDK response with issues', async () => {
       const mockIssues = [
-        { id: 1, key: 'TEST-1', summary: 'Test issue 1' },
-        { id: 2, key: 'TEST-2', summary: 'Test issue 2' },
+        { id: '1', key: 'TEST-1', summary: 'Test issue 1' },
+        { id: '2', key: 'TEST-2', summary: 'Test issue 2' },
       ];
 
-      mockApiFetch.mockResolvedValueOnce({
-        ok: true,
-        json: jest.fn().mockResolvedValue({ issues: mockIssues }),
-      });
+      mockGetManualQATasks.mockResolvedValueOnce({ issues: mockIssues, total: 2 });
 
       mockPublishNotificationRequest.mockResolvedValueOnce(undefined);
 
       await manualTicketsReminderJob();
 
-      expect(mockApiFetch).toHaveBeenCalledTimes(1);
+      expect(mockGetManualQATasks).toHaveBeenCalledTimes(1);
     });
   });
 
   describe('Notification Publishing', () => {
     it('should not publish notification when no tickets found', async () => {
-      mockApiFetch.mockResolvedValueOnce({
-        ok: true,
-        json: jest.fn().mockResolvedValue({ issues: [] }),
-      });
+      mockGetManualQATasks.mockResolvedValueOnce({ issues: [], total: 0 });
 
       await manualTicketsReminderJob();
 
@@ -148,13 +125,10 @@ describe('Manual Tickets Reminder Job', () => {
 
     it('should publish notification when tickets found', async () => {
       const mockIssues = [
-        { id: 1, key: 'TEST-1', summary: 'Test issue 1' },
+        { id: '1', key: 'TEST-1', summary: 'Test issue 1' },
       ];
 
-      mockApiFetch.mockResolvedValueOnce({
-        ok: true,
-        json: jest.fn().mockResolvedValue({ issues: mockIssues }),
-      });
+      mockGetManualQATasks.mockResolvedValueOnce({ issues: mockIssues, total: 1 });
 
       mockPublishNotificationRequest.mockResolvedValueOnce(undefined);
 
@@ -170,15 +144,12 @@ describe('Manual Tickets Reminder Job', () => {
 
     it('should publish notification with plural message for multiple tickets', async () => {
       const mockIssues = [
-        { id: 1, key: 'TEST-1', summary: 'Test issue 1' },
-        { id: 2, key: 'TEST-2', summary: 'Test issue 2' },
-        { id: 3, key: 'TEST-3', summary: 'Test issue 3' },
+        { id: '1', key: 'TEST-1', summary: 'Test issue 1' },
+        { id: '2', key: 'TEST-2', summary: 'Test issue 2' },
+        { id: '3', key: 'TEST-3', summary: 'Test issue 3' },
       ];
 
-      mockApiFetch.mockResolvedValueOnce({
-        ok: true,
-        json: jest.fn().mockResolvedValue({ issues: mockIssues }),
-      });
+      mockGetManualQATasks.mockResolvedValueOnce({ issues: mockIssues, total: 3 });
 
       mockPublishNotificationRequest.mockResolvedValueOnce(undefined);
 
@@ -194,13 +165,10 @@ describe('Manual Tickets Reminder Job', () => {
 
     it('should handle notification publishing errors', async () => {
       const mockIssues = [
-        { id: 1, key: 'TEST-1', summary: 'Test issue 1' },
+        { id: '1', key: 'TEST-1', summary: 'Test issue 1' },
       ];
 
-      mockApiFetch.mockResolvedValueOnce({
-        ok: true,
-        json: jest.fn().mockResolvedValue({ issues: mockIssues }),
-      });
+      mockGetManualQATasks.mockResolvedValueOnce({ issues: mockIssues, total: 1 });
 
       mockPublishNotificationRequest.mockRejectedValueOnce(new Error('Redis connection failed'));
 
@@ -209,19 +177,16 @@ describe('Manual Tickets Reminder Job', () => {
   });
 
   describe('Error Handling', () => {
-    it('should handle API fetch errors', async () => {
-      mockApiFetch.mockRejectedValueOnce(new Error('Network error'));
+    it('should handle SDK fetch errors', async () => {
+      mockGetManualQATasks.mockRejectedValueOnce(new Error('Network error'));
 
       await expect(manualTicketsReminderJob()).rejects.toThrow('Network error');
     });
 
-    it('should handle JSON parsing errors', async () => {
-      mockApiFetch.mockResolvedValueOnce({
-        ok: true,
-        json: jest.fn().mockRejectedValue(new Error('Invalid JSON')),
-      });
+    it('should handle SDK response errors', async () => {
+      mockGetManualQATasks.mockRejectedValueOnce(new Error('Invalid response'));
 
-      await expect(manualTicketsReminderJob()).rejects.toThrow('Invalid JSON');
+      await expect(manualTicketsReminderJob()).rejects.toThrow('Invalid response');
     });
   });
 });
