@@ -35,11 +35,11 @@ export class NotificationProcessor {
    * Start listening for messages
    */
   public async start(): Promise<void> {
-    Logger.info('[Notification Processor] Starting...');
+    Logger.debug('[Notification Processor] Starting...');
 
     // Subscribe to the channel
     await this.subscriber.subscribe(this.CHANNEL_NAME);
-    Logger.info('[Notification Processor] Subscribed to channel', { channel: this.CHANNEL_NAME });
+    Logger.debug('[Notification Processor] Subscribed to channel', { channel: this.CHANNEL_NAME });
 
     // Handle incoming messages
     this.subscriber.on('message', async (channel, message) => {
@@ -48,16 +48,16 @@ export class NotificationProcessor {
       }
     });
 
-    Logger.info('[Notification Processor] Started successfully');
+    Logger.debug('[Notification Processor] Started successfully');
   }
 
   /**
    * Stop the processor
    */
   public async stop(): Promise<void> {
-    Logger.info('[Notification Processor] Stopping...');
+    Logger.debug('[Notification Processor] Stopping...');
     await this.subscriber.unsubscribe(this.CHANNEL_NAME);
-    Logger.info('[Notification Processor] Stopped');
+    Logger.debug('[Notification Processor] Stopped');
   }
 
   /**
@@ -80,7 +80,7 @@ export class NotificationProcessor {
   private async createNotification(payload: NotificationInput): Promise<void> {
     const { title, message, link, type } = payload;
 
-    Logger.info('[Notification Processor] Creating notification', { title, type });
+    Logger.debug('[Notification Processor] Creating notification', { title, type });
 
     try {
       const notification = await NotificationService.create({
@@ -90,9 +90,9 @@ export class NotificationProcessor {
         type,
       });
 
-      Logger.info('[Notification Processor] Successfully created notification', {
+      Logger.debug('[Notification Processor] Successfully created notification', {
         notificationId: notification.id,
-        title
+        title,
       });
     } catch (error) {
       Logger.error('[Notification Processor] Error creating notification', { title, error });

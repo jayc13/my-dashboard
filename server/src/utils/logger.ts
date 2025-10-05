@@ -23,13 +23,13 @@ const getLogLevel = (): string => {
 
   // Default log levels per environment
   switch (env) {
-    case 'production':
-      return 'info';
-    case 'test':
-      return 'error';
-    case 'development':
-    default:
-      return 'debug';
+  case 'production':
+    return 'info';
+  case 'test':
+    return 'error';
+  case 'development':
+  default:
+    return 'debug';
   }
 };
 
@@ -63,14 +63,14 @@ const consoleFormat = winston.format.combine(
     }
     
     return msg;
-  })
+  }),
 );
 
 // JSON format for file output
 const jsonFormat = winston.format.combine(
   winston.format.timestamp(),
   winston.format.errors({ stack: true }),
-  winston.format.json()
+  winston.format.json(),
 );
 
 // Create transports array
@@ -91,7 +91,7 @@ if (process.env.NODE_ENV === 'production') {
       format: jsonFormat,
       maxsize: 5242880, // 5MB
       maxFiles: 5,
-    })
+    }),
   );
 
   // Combined log file
@@ -101,7 +101,7 @@ if (process.env.NODE_ENV === 'production') {
       format: jsonFormat,
       maxsize: 5242880, // 5MB
       maxFiles: 5,
-    })
+    }),
   );
 }
 

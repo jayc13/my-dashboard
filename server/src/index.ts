@@ -20,7 +20,7 @@ import { testMySQLConnection } from './db/mysql';
 import { startProcessor } from './processors/start-processor';
 import { createE2ERunReportRouter } from './routes/e2e_run_report';
 import apiKeyValidator from './middleware/api_key_validator';
-import { NotFoundError } from './errors/AppError';
+import { NotFoundError } from './errors';
 import { Logger } from './utils/logger';
 
 // Load environment variables
@@ -120,7 +120,7 @@ app.listen(PORT, () => {
   Logger.info('Server started', {
     port: PORT,
     environment: process.env.NODE_ENV || 'development',
-    healthCheck: `http://localhost:${PORT}/health`
+    healthCheck: `http://localhost:${PORT}/health`,
   });
 });
 

@@ -60,11 +60,11 @@ export class E2EReportProcessor {
    * Start listening for messages
    */
   public async start(): Promise<void> {
-    Logger.info('[E2E Report Processor] Starting...');
+    Logger.debug('[E2E Report Processor] Starting...');
 
     // Subscribe to the channel
     await this.subscriber.subscribe(this.CHANNEL_NAME);
-    Logger.info('[E2E Report Processor] Subscribed to channel', { channel: this.CHANNEL_NAME });
+    Logger.debug('[E2E Report Processor] Subscribed to channel', { channel: this.CHANNEL_NAME });
 
     // Handle incoming messages
     this.subscriber.on('message', async (channel, message) => {
@@ -79,16 +79,16 @@ export class E2EReportProcessor {
     // Start retry queue processor
     this.processRetryQueue();
 
-    Logger.info('[E2E Report Processor] Started successfully');
+    Logger.debug('[E2E Report Processor] Started successfully');
   }
 
   /**
    * Stop the processor
    */
   public async stop(): Promise<void> {
-    Logger.info('[E2E Report Processor] Stopping...');
+    Logger.debug('[E2E Report Processor] Stopping...');
     await this.subscriber.unsubscribe(this.CHANNEL_NAME);
-    Logger.info('[E2E Report Processor] Stopped');
+    Logger.debug('[E2E Report Processor] Stopped');
   }
 
   /**
@@ -150,7 +150,7 @@ export class E2EReportProcessor {
               // Max retries reached, move to dead letter queue
               Logger.error('[E2E Report Processor] Max retries reached', {
                 maxRetries: this.MAX_RETRIES,
-                date: payload.date
+                date: payload.date,
               });
               await this.handleFailedMessage(message, error);
             }
@@ -190,11 +190,11 @@ export class E2EReportProcessor {
     await this.client.zadd(this.RETRY_QUEUE_NAME, retryAt, JSON.stringify(retryData));
 
     const delaySeconds = Math.round(delayMs / 1000);
-    Logger.info('[E2E Report Processor] Retry scheduled', {
+    Logger.debug('[E2E Report Processor] Retry scheduled', {
       retryCount,
       maxRetries: this.MAX_RETRIES,
       date: payload.date,
-      delaySeconds
+      delaySeconds,
     });
   }
 
@@ -226,10 +226,10 @@ export class E2EReportProcessor {
 
             // Add back to main queue for processing
             await this.client.rpush(this.QUEUE_NAME, JSON.stringify(payload));
-            Logger.info('[E2E Report Processor] Moving retry to main queue', {
+            Logger.debug('[E2E Report Processor] Moving retry to main queue', {
               date: payload.date,
               retryCount: payload.retryCount,
-              maxRetries: this.MAX_RETRIES
+              maxRetries: this.MAX_RETRIES,
             });
 
             // Trigger queue processing
@@ -262,7 +262,7 @@ export class E2EReportProcessor {
     const logPrefix = requestId ? `[${requestId}]` : '';
     const retryInfo = retryCount > 0 ? ` (Retry ${retryCount}/${this.MAX_RETRIES})` : '';
 
-    Logger.info(`${logPrefix} [E2E Report Processor] Generating report for date`, { date, retryInfo });
+    Logger.debug(`${logPrefix} [E2E Report Processor] Generating report for date`, { date, retryInfo });
 
     try {
       // Check if summary already exists
@@ -271,10 +271,10 @@ export class E2EReportProcessor {
       if (summary) {
         // If summary exists and is ready, skip processing
         if (summary.status === 'ready') {
-          Logger.info(`${logPrefix} [E2E Report Processor] Summary already exists and is ready, skipping`, { date });
+          Logger.debug(`${logPrefix} [E2E Report Processor] Summary already exists and is ready, skipping`, { date });
           return;
         }
-        Logger.info(`${logPrefix} [E2E Report Processor] Summary already exists, updating`, { date });
+        Logger.debug(`${logPrefix} [E2E Report Processor] Summary already exists, updating`, { date });
       } else {
         // Create new summary with pending status
         summary = await E2ERunReportService.createSummary({
@@ -290,12 +290,12 @@ export class E2EReportProcessor {
           throw new Error('Failed to create summary');
         }
 
-        Logger.info(`${logPrefix} [E2E Report Processor] Created summary`, { summaryId: summary.id });
+        Logger.debug(`${logPrefix} [E2E Report Processor] Created summary`, { summaryId: summary.id });
       }
 
       // Fetch data from Cypress API
       const reportData = await E2EReportProcessor.fetchCypressData(date);
-      Logger.info(`${logPrefix} [E2E Report Processor] Fetched apps data`, { appsCount: reportData.length });
+      Logger.debug(`${logPrefix} [E2E Report Processor] Fetched apps data`, { appsCount: reportData.length });
 
       // Delete existing details for this summary
       await E2ERunReportService.deleteDetailsBySummaryId(summary.id);
@@ -336,12 +336,12 @@ export class E2EReportProcessor {
         successRate,
       });
 
-      Logger.info(`${logPrefix} [E2E Report Processor] Report generated successfully`, {
+      Logger.debug(`${logPrefix} [E2E Report Processor] Report generated successfully`, {
         date,
         totalRuns,
         passed: totalPassed,
         failed: totalFailed,
-        successRate: `${(successRate * 100).toFixed(2)}%`
+        successRate: `${(successRate * 100).toFixed(2)}%`,
       });
 
     } catch (error) {
@@ -397,10 +397,10 @@ export class E2EReportProcessor {
     const targetDate = new Date(date);
     const startDate = DateTime.fromJSDate(targetDate).minus({ days: 14 }).toJSDate();
 
-    Logger.info('[E2E Report Processor] Fetching data for projects', {
+    Logger.debug('[E2E Report Processor] Fetching data for projects', {
       projectsCount: projectNames.length,
       startDate: startDate.toISOString().slice(0, 10),
-      endDate: date
+      endDate: date,
     });
 
     // Fetch data from Cypress API
@@ -549,5 +549,5 @@ export async function publishE2EReportRequest(date: string, requestId?: string):
   };
 
   await client.publish('e2e:report:generate', JSON.stringify(message));
-  Logger.info('[E2E Report Publisher] Published report request', { date });
+  Logger.debug('[E2E Report Publisher] Published report request', { date });
 }

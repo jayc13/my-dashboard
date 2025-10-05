@@ -81,7 +81,7 @@ export class CircleCIService {
 
       Logger.info('Circle CI pipeline triggered successfully', {
         pipelineId: result.id,
-        pipelineNumber: result.number
+        pipelineNumber: result.number,
       });
 
       return result;

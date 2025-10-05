@@ -29,13 +29,13 @@ let notificationProcessor: NotificationProcessor | null = null;
  * Start all processors
  */
 export async function startProcessor() {
-  Logger.info('='.repeat(60));
-  Logger.info('Starting Processors');
-  Logger.info('='.repeat(60));
+  Logger.debug('='.repeat(60));
+  Logger.debug('Starting Processors');
+  Logger.debug('='.repeat(60));
 
   try {
     // Test connections
-    Logger.info('[Startup] Testing connections...');
+    Logger.debug('[Startup] Testing connections...');
 
     const redisOk = await testRedisConnection();
     if (!redisOk) {
@@ -47,22 +47,22 @@ export async function startProcessor() {
       throw new Error('MySQL connection failed');
     }
 
-    Logger.info('[Startup] All connections successful');
+    Logger.debug('[Startup] All connections successful');
 
     // Start E2E Report Processor
-    Logger.info('[Startup] Starting E2E Report Processor...');
+    Logger.debug('[Startup] Starting E2E Report Processor...');
     e2eProcessor = E2EReportProcessor.getInstance();
     await e2eProcessor.start();
-    Logger.info('[Startup] E2E Report Processor started');
+    Logger.debug('[Startup] E2E Report Processor started');
 
     // Start Notification Processor
-    Logger.info('[Startup] Starting Notification Processor...');
+    Logger.debug('[Startup] Starting Notification Processor...');
     notificationProcessor = NotificationProcessor.getInstance();
     await notificationProcessor.start();
-    Logger.info('[Startup] Notification Processor started');
+    Logger.debug('[Startup] Notification Processor started');
 
-    Logger.info('[Startup] All processors are running');
-    Logger.info('='.repeat(60));
+    Logger.debug('[Startup] All processors are running');
+    Logger.debug('='.repeat(60));
   } catch (error) {
     Logger.error('[Startup] Failed to start processors', { error });
   }
