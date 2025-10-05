@@ -168,7 +168,13 @@ export class AppService {
     if (appRuns.length) {
       const latestWorkflow = await CircleCIService.getPipelineLatestWorkflow(appRuns[0].pipeline_id);
 
-      const latestUrl: string = `https://app.circleci.com/pipelines/${latestWorkflow.project_slug}/${latestWorkflow.pipeline_number}/workflows/${latestWorkflow.id}`;
+      const circleBaseUrl = process.env.CIRCLE_CI_BASE_URL;
+
+      if (!circleBaseUrl) {
+        throw new Error('CIRCLE_CI_BASE_URL environment variable is required');
+      }
+
+      const latestUrl: string = `${circleBaseUrl}/pipelines/${latestWorkflow.project_slug}/${latestWorkflow.pipeline_number}/workflows/${latestWorkflow.id}`;
 
       lastRun = {
         id: appRuns[0].id!,
