@@ -1,3 +1,4 @@
+import { Logger } from '../utils/logger';
 import { DatabaseRow, db } from '../db/database';
 import type { ToDoItem, ToDoItemInput } from '@my-dashboard/types/todos';
 
@@ -18,7 +19,7 @@ export class TodoService {
       const rows = await db.all('SELECT * FROM todos ORDER BY due_date ASC');
       return rows.map(this.formatTodoItem);
     } catch (error) {
-      console.error('Error fetching todos:', error);
+      Logger.error('Error fetching todos:', { error });
       throw error;
     }
   }
@@ -31,7 +32,7 @@ export class TodoService {
       }
       return this.formatTodoItem(row);
     } catch (error) {
-      console.error('Error fetching todo by id:', error);
+      Logger.error('Error fetching todo by id:', { error });
       throw error;
     }
   }
@@ -52,7 +53,7 @@ export class TodoService {
       );
       return this.getById(result.insertId!);
     } catch (error) {
-      console.error('Error creating todo:', error);
+      Logger.error('Error creating todo:', { error });
       throw error;
     }
   }
@@ -92,7 +93,7 @@ export class TodoService {
       );
       return this.getById(id);
     } catch (error) {
-      console.error('Error updating todo:', error);
+      Logger.error('Error updating todo:', { error });
       throw error;
     }
   }
@@ -101,7 +102,7 @@ export class TodoService {
     try {
       await db.run('DELETE FROM todos WHERE id = ?', [id]);
     } catch (error) {
-      console.error('Error deleting todo:', error);
+      Logger.error('Error deleting todo:', { error });
       throw error;
     }
   }

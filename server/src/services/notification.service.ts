@@ -1,3 +1,4 @@
+import { Logger } from '../utils/logger';
 import { DatabaseRow, db } from '../db/database';
 import { Notification, NotificationInput } from '@my-dashboard/types/notifications';
 import { FCMService } from './fcm.service';
@@ -10,7 +11,7 @@ export class NotificationService {
       const rows = await db.all('SELECT * FROM notifications ORDER BY created_at DESC');
       return rows.map(fromDatabaseRowToNotification);
     } catch (error) {
-      console.error('Error fetching notifications:', error);
+      Logger.error('Error fetching notifications:', { error });
       throw error;
     }
   }
@@ -41,15 +42,15 @@ export class NotificationService {
           },
           link: newNotification.link,
         });
-        console.log('FCM notification sent successfully');
+        Logger.info('FCM notification sent successfully');
       } catch (fcmError) {
-        console.error('Failed to send FCM notification:', fcmError);
+        Logger.error('Failed to send FCM notification:', { error: fcmError });
         // Don't fail the notification creation if FCM fails
       }
 
       return newNotification;
     } catch (error) {
-      console.error('Error creating notification:', error);
+      Logger.error('Error creating notification:', { error });
       throw error;
     }
   }
@@ -62,7 +63,7 @@ export class NotificationService {
       }
       return fromDatabaseRowToNotification(row);
     } catch (error) {
-      console.error('Error fetching notification:', error);
+      Logger.error('Error fetching notification:', { error });
       throw error;
     }
   }
@@ -71,7 +72,7 @@ export class NotificationService {
     try {
       await db.run('UPDATE notifications SET is_read = 1 WHERE id = ?', [id]);
     } catch (error) {
-      console.error('Error marking notification as read:', error);
+      Logger.error('Error marking notification as read:', { error });
       throw error;
     }
   }
@@ -80,7 +81,7 @@ export class NotificationService {
     try {
       await db.run('DELETE FROM notifications WHERE id = ?', [id]);
     } catch (error) {
-      console.error('Error deleting notification:', error);
+      Logger.error('Error deleting notification:', { error });
       throw error;
     }
   }

@@ -3,6 +3,7 @@ import { E2EManualRunService } from './e2e_manual_run.service';
 import { CircleCIService } from './circle_ci.service';
 import type { Application, ApplicationDetails, LastApplicationRun } from '@my-dashboard/types/applications';
 import { AppDetailedE2EReportDetail } from '@my-dashboard/types/e2e';
+import { Logger } from '../utils/logger';
 
 export class AppService {
   static async getAll(): Promise<Application[]> {
@@ -10,7 +11,7 @@ export class AppService {
       const rows = await db.all('SELECT * FROM apps ORDER BY name ASC');
       return rows.map(fromDatabaseRowToApplication);
     } catch (error) {
-      console.error('Error fetching apps:', error);
+      Logger.error('Error fetching apps', { error });
       throw error;
     }
   }
@@ -26,7 +27,7 @@ export class AppService {
 
       return this.enrichWithRunDetails(app);
     } catch (error) {
-      console.error('Error fetching app by id:', error);
+      Logger.error('Error fetching app by id', { id, error });
       throw error;
     }
   }
@@ -42,7 +43,7 @@ export class AppService {
 
       return await this.enrichWithRunDetails(app) as AppDetailedE2EReportDetail;
     } catch (error) {
-      console.error('Error fetching app by id:', error);
+      Logger.error('Error fetching app with details by id', { id, error });
       throw error;
     }
   }
@@ -58,7 +59,7 @@ export class AppService {
 
       return this.enrichWithRunDetails(app);
     } catch (error) {
-      console.error('Error fetching app by code:', error);
+      Logger.error('Error fetching app by code', { code, error });
       throw error;
     }
   }
@@ -76,7 +77,7 @@ export class AppService {
       }
       return newApp;
     } catch (error) {
-      console.error('Error creating app:', error);
+      Logger.error('Error creating app', { appName: app.name, error });
       throw error;
     }
   }
@@ -129,7 +130,7 @@ export class AppService {
 
       return updatedApp;
     } catch (error) {
-      console.error('Error updating app:', error);
+      Logger.error('Error updating app', { id, error });
       throw error;
     }
   }
@@ -139,7 +140,7 @@ export class AppService {
       const result = await db.run('DELETE FROM apps WHERE id = ?', [id]);
       return (result.affectedRows || 0) > 0;
     } catch (error) {
-      console.error('Error deleting app:', error);
+      Logger.error('Error deleting app', { id, error });
       throw error;
     }
   }
@@ -149,7 +150,7 @@ export class AppService {
       const rows = await db.all('SELECT * FROM apps WHERE watching = 1 ORDER BY name ASC');
       return rows.map(fromDatabaseRowToApplication);
     } catch (error) {
-      console.error('Error fetching watching apps:', error);
+      Logger.error('Error fetching watching apps', { error });
       throw error;
     }
   }

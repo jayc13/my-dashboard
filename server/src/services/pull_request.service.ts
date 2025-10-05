@@ -1,3 +1,4 @@
+import { Logger } from '../utils/logger';
 import { db } from '../db/database';
 import { PullRequest } from '@my-dashboard/types/pull-requests';
 
@@ -16,7 +17,7 @@ export class PullRequestService {
         repository: row.repo,
       }));
     } catch (error) {
-      console.error('Error fetching pull requests:', error);
+      Logger.error('Error fetching pull requests:', { error });
       throw error;
     }
   }
@@ -50,7 +51,7 @@ export class PullRequestService {
         repository: row.repo,
       };
     } catch (error) {
-      console.error('Error adding pull request:', error);
+      Logger.error('Error adding pull request:', { error });
       throw error;
     }
   }
@@ -67,7 +68,7 @@ export class PullRequestService {
         repository: row.repo,
       };
     } catch (error) {
-      console.error('Error fetching pull request:', error);
+      Logger.error('Error fetching pull request:', { error });
       throw error;
     }
   }
@@ -76,7 +77,7 @@ export class PullRequestService {
     try {
       await db.run('DELETE FROM pull_requests WHERE id = ?', [id]);
     } catch (error) {
-      console.error('Error deleting pull request:', error);
+      Logger.error('Error deleting pull request:', { error });
       throw error;
     }
   }

@@ -1,3 +1,4 @@
+import { Logger } from '../utils/logger';
 import { db } from '../db/database';
 import { AppService } from './app.service';
 import { CircleCIService } from './circle_ci.service';
@@ -37,7 +38,7 @@ export class E2EManualRunService {
       const rows = await db.all(query, params);
       return rows as E2EManualRun[];
     } catch (error) {
-      console.error('Error fetching E2E manual runs by app id:', error);
+      Logger.error('Error fetching E2E manual runs by app id:', { error });
       throw error;
     }
   }
@@ -79,7 +80,7 @@ export class E2EManualRunService {
           if (error instanceof Error && error.message.includes('manual run is already in progress')) {
             throw error; // Re-throw our validation error
           }
-          console.warn(`Could not check status for pipeline ${latestRun.pipeline_id}:`, error);
+          Logger.warn(`Could not check status for pipeline ${latestRun.pipeline_id}:`, { error });
         }
       }
 
@@ -101,7 +102,7 @@ export class E2EManualRunService {
 
       return row as E2EManualRun;
     } catch (error) {
-      console.error('Error creating E2E manual run:', error);
+      Logger.error('Error creating E2E manual run:', { error });
       throw error;
     }
   }

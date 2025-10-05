@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
-import { AppError } from '../errors/AppError';
+import { AppError, ValidationError } from '../errors/AppError';
+import { Logger } from '../utils/logger';
 
 /**
  * Error response interface
@@ -34,24 +35,24 @@ function isOperationalError(error: Error): boolean {
  */
 function logError(error: Error, req: Request): void {
   const errorLog = {
-    timestamp: new Date().toISOString(),
     method: req.method,
     path: req.path,
     query: req.query,
     body: req.method !== 'GET' ? req.body : undefined,
     ip: req.ip || req.connection.remoteAddress,
     userAgent: req.get('user-agent'),
-    error: {
-      name: error.name,
-      message: error.message,
-      stack: error.stack,
-    },
+    errorName: error.name,
+    errorMessage: error.message,
+    stack: error.stack,
   };
 
-  if (isOperationalError(error)) {
-    console.warn('Operational error:', JSON.stringify(errorLog, null, 2));
+  // Log validation errors as debug (expected user input errors)
+  if (error instanceof ValidationError) {
+    Logger.debug('Validation error', errorLog);
+  } else if (isOperationalError(error)) {
+    Logger.warn('Operational error', errorLog);
   } else {
-    console.error('Unexpected error:', JSON.stringify(errorLog, null, 2));
+    Logger.error('Unexpected error', errorLog);
   }
 }
 
@@ -210,9 +211,9 @@ export function errorHandler(
  * Handle unhandled promise rejections
  */
 export function handleUnhandledRejection(reason: unknown, promise: Promise<unknown>): void {
-  console.error('Unhandled Promise Rejection:', {
+  Logger.error('Unhandled Promise Rejection', {
     reason,
-    promise,
+    promise: promise.toString(),
     timestamp: new Date().toISOString(),
   });
 
@@ -226,13 +227,10 @@ export function handleUnhandledRejection(reason: unknown, promise: Promise<unkno
  * Handle uncaught exceptions
  */
 export function handleUncaughtException(error: Error): void {
-  console.error('Uncaught Exception:', {
-    error: {
-      name: error.name,
-      message: error.message,
-      stack: error.stack,
-    },
-    timestamp: new Date().toISOString(),
+  Logger.error('Uncaught Exception', {
+    errorName: error.name,
+    errorMessage: error.message,
+    stack: error.stack,
   });
 
   // In production, you should:

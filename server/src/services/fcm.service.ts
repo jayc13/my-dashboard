@@ -1,6 +1,7 @@
 import { initializeFirebase } from '../config/firebase-config';
 import { DatabaseRow, db } from '../db/database';
 import type { FCMMessage, DeviceToken } from '@my-dashboard/types/fcm';
+import { Logger } from '../utils/logger';
 
 export class FCMService {
   private admin;
@@ -27,10 +28,10 @@ export class FCMService {
       };
 
       const response = await this.admin.messaging().send(payload);
-      console.log('Successfully sent message to token:', response);
+      Logger.info('Successfully sent message to token', { response });
       return true;
     } catch (error) {
-      console.error('Error sending message to token:', error);
+      Logger.error('Error sending message to token:', { error });
       return false;
     }
   }
@@ -57,7 +58,7 @@ export class FCMService {
       };
 
       const response = await this.admin.messaging().sendEachForMulticast(payload);
-      console.log(`Successfully sent messages. Success: ${response.successCount}, Failure: ${response.failureCount}`);
+      Logger.info(`Successfully sent messages. Success: ${response.successCount}, Failure: ${response.failureCount}`);
       
       // Handle failed tokens (they might be invalid/expired)
       if (response.failureCount > 0) {
@@ -65,7 +66,7 @@ export class FCMService {
         response.responses.forEach((resp, idx) => {
           if (!resp.success) {
             failedTokens.push(tokens[idx]);
-            console.error(`Failed to send to token ${tokens[idx]}:`, resp.error);
+            Logger.error(`Failed to send to token ${tokens[idx]}`, { error: resp.error });
           }
         });
         
@@ -75,7 +76,7 @@ export class FCMService {
 
       return { successCount: response.successCount, failureCount: response.failureCount };
     } catch (error) {
-      console.error('Error sending messages to multiple tokens:', error);
+      Logger.error('Error sending messages to multiple tokens:', { error });
       return { successCount: 0, failureCount: tokens.length };
     }
   }
@@ -87,13 +88,13 @@ export class FCMService {
     try {
       const tokens = await this.getAllDeviceTokens();
       if (tokens.length === 0) {
-        console.log('No device tokens found');
+        Logger.info('No device tokens found');
         return { successCount: 0, failureCount: 0 };
       }
 
       return await this.sendToMultipleTokens(tokens, message);
     } catch (error) {
-      console.error('Error sending to all devices:', error);
+      Logger.error('Error sending to all devices:', { error });
       return { successCount: 0, failureCount: 0 };
     }
   }
@@ -115,7 +116,7 @@ export class FCMService {
           'UPDATE device_tokens SET last_used = CURRENT_TIMESTAMP WHERE token = ?',
           [token],
         );
-        console.log('Updated existing device token');
+        Logger.info('Updated existing device token');
         return true;
       }
 
@@ -125,10 +126,10 @@ export class FCMService {
         [token],
       );
 
-      console.log('Registered new device token');
+      Logger.info('Registered new device token');
       return true;
     } catch (error) {
-      console.error('Error registering device token:', error);
+      Logger.error('Error registering device token:', { error });
       return false;
     }
   }
@@ -141,7 +142,7 @@ export class FCMService {
       const rows = await db.all('SELECT token FROM device_tokens ORDER BY last_used DESC');
       return rows.map((row: DatabaseRow) => row.token);
     } catch (error) {
-      console.error('Error getting device tokens:', error);
+      Logger.error('Error getting device tokens:', { error });
       return [];
     }
   }
@@ -162,9 +163,9 @@ export class FCMService {
         tokens,
       );
 
-      console.log(`Removed ${tokens.length} invalid device tokens`);
+      Logger.info(`Removed ${tokens.length} invalid device tokens`);
     } catch (error) {
-      console.error('Error removing invalid tokens:', error);
+      Logger.error('Error removing invalid tokens:', { error });
     }
   }
 
@@ -174,10 +175,10 @@ export class FCMService {
   async removeDeviceToken(token: string): Promise<boolean> {
     try {
       await db.run('DELETE FROM device_tokens WHERE token = ?', [token]);
-      console.log('Removed device token');
+      Logger.info('Removed device token');
       return true;
     } catch (error) {
-      console.error('Error removing device token:', error);
+      Logger.error('Error removing device token:', { error });
       return false;
     }
   }

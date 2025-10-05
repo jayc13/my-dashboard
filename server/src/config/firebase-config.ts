@@ -1,6 +1,7 @@
 // Firebase Admin SDK configuration for server-side
 import * as admin from 'firebase-admin';
 import * as dotenv from 'dotenv';
+import { Logger } from '../utils/logger';
 
 dotenv.config({ quiet: true });
 
@@ -41,10 +42,10 @@ const initializeFirebase = () => {
       } else {
         throw new Error('Firebase configuration is missing. Please provide either FIREBASE_SERVICE_ACCOUNT_PATH or the required environment variables.');
       }
-      
-      console.log('Firebase Admin SDK initialized successfully');
+
+      Logger.info('Firebase Admin SDK initialized successfully');
     } catch (error) {
-      console.error('Error initializing Firebase Admin SDK:', error);
+      Logger.error('Error initializing Firebase Admin SDK', { error });
       throw error;
     }
   }
