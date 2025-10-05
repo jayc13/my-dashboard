@@ -30,6 +30,7 @@ cd my-dashboard
 - **[Commit Standards](./commit-standards.md)** - Conventional commits format and best practices
 - **[Pull Request Guide](./pull-requests.md)** - Complete PR workflow and review process
 - **[Coding Standards](./standards.md)** - Code style, conventions, and quality guidelines
+- **[Error Handling Guide](./error-handling.md)** - Error handling patterns and validation best practices
 - **Testing Guide** - Testing strategies and best practices
 
 ### 🔧 Tools & Automation
@@ -99,11 +100,12 @@ VITE_API_BASE_URL=http://localhost:3000
 
 ### Adding a New API Endpoint
 1. **Define Route**: Add route in appropriate router file
-2. **Create Controller**: Implement request handler logic
+2. **Create Controller**: Implement request handler logic with [proper error handling](./error-handling.md)
 3. **Add Service**: Business logic in service layer
-4. **Update Types**: Add TypeScript interfaces
-5. **Write Tests**: Unit and integration tests
-6. **Update Docs**: Add to OpenAPI specification
+4. **Add Validation**: Use [validation utilities](./error-handling.md#validation-utilities) for input validation
+5. **Update Types**: Add TypeScript interfaces
+6. **Write Tests**: Unit and integration tests
+7. **Update Docs**: Add to OpenAPI specification
 
 ### Adding a New React Component
 1. **Create Component**: Follow component structure conventions
@@ -156,7 +158,8 @@ VITE_API_BASE_URL=http://localhost:3000
 ## 🔐 Security Guidelines
 
 ### Code Security
-- **Input Validation**: Validate all user inputs
+- **Input Validation**: Validate all user inputs using [validation utilities](./error-handling.md#validation-utilities)
+- **Input Sanitization**: Sanitize strings to prevent injection attacks
 - **SQL Injection**: Use parameterized queries
 - **XSS Prevention**: Sanitize output and use CSP headers
 - **Authentication**: Implement proper authentication and authorization

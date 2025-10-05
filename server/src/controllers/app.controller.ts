@@ -1,138 +1,166 @@
-import { Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import { AppService } from '../services/app.service';
+import { NotFoundError, ValidationError, DatabaseError, ConflictError } from '../errors/AppError';
+import { validateId, validateRequiredFields, validateJSON, validateAndSanitizeString } from '../utils/validation';
 
 export class AppController {
-  async getAll(req: Request, res: Response) {
+  async getAll(req: Request, res: Response, next: NextFunction) {
     try {
       const apps = await AppService.getAll();
-      res.json(apps);
+      res.json({ success: true, data: apps });
     } catch (err) {
-      console.error(err);
-      res.status(500).json({ error: 'Failed to fetch apps' });
+      next(new DatabaseError('Failed to fetch apps', err as Error));
     }
   }
 
-  async getById(req: Request, res: Response) {
+  async getById(req: Request, res: Response, next: NextFunction) {
     try {
-      const id = parseInt(req.params.id);
-      if (isNaN(id)) {
-        return res.status(400).json({ error: 'Invalid app ID' });
-      }
+      const id = validateId(req.params.id, 'id');
 
       const app = await AppService.getById(id);
       if (!app) {
-        return res.status(404).json({ error: 'App not found' });
+        throw new NotFoundError('App', id);
       }
 
-      res.json(app);
+      res.json({ success: true, data: app });
     } catch (err) {
-      console.error(err);
-      res.status(500).json({ error: 'Failed to fetch app' });
+      next(err);
     }
   }
 
-  async create(req: Request, res: Response) {
+  async create(req: Request, res: Response, next: NextFunction) {
     try {
       const { name, code, pipelineUrl, e2eTriggerConfiguration, watching } = req.body;
-            
-      if (!name || !code) {
-        return res.status(400).json({ error: 'Name and code are required fields' });
-      }
+
+      // Validate required fields
+      validateRequiredFields(req.body, ['name', 'code']);
+
+      // Validate and sanitize name and code
+      const sanitizedName = validateAndSanitizeString(name, 'name', {
+        required: true,
+        max: 255,
+      });
+
+      const sanitizedCode = validateAndSanitizeString(code, 'code', {
+        required: true,
+        max: 100,
+      });
+
+      // Validate optional URL
+      const sanitizedPipelineUrl = pipelineUrl
+        ? validateAndSanitizeString(pipelineUrl, 'pipelineUrl', { max: 500 })
+        : undefined;
 
       let formattedE2ETriggerConfig: string | undefined = undefined;
 
       // Validate JSON format for e2eTriggerConfiguration if provided
       if (e2eTriggerConfiguration) {
-        try {
-          formattedE2ETriggerConfig = JSON.stringify(JSON.parse(e2eTriggerConfiguration), null, 2);
-        } catch {
-          return res.status(400).json({ error: 'e2eTriggerConfiguration must be valid JSON' });
-        }
+        const parsed = validateJSON(e2eTriggerConfiguration, 'e2eTriggerConfiguration');
+        formattedE2ETriggerConfig = JSON.stringify(parsed, null, 2);
       }
 
       const newApp = await AppService.create({
-        name,
-        code,
-        pipelineUrl,
+        name: sanitizedName!,
+        code: sanitizedCode!,
+        pipelineUrl: sanitizedPipelineUrl,
         e2eTriggerConfiguration: formattedE2ETriggerConfig,
         watching: !!watching,
       });
-            
-      res.status(201).json(newApp);
+
+      res.status(201).json({ success: true, data: newApp });
     } catch (err: unknown) {
-      console.error(err);
-      const error = err as Error;
-      if (error.message && error.message.includes('Duplicate entry')) {
-        res.status(409).json({ error: 'App code must be unique' });
+      if (err instanceof ValidationError) {
+        next(err);
       } else {
-        res.status(500).json({ error: 'Failed to create app' });
+        const error = err as Error;
+        if (error.message && error.message.includes('Duplicate entry')) {
+          next(new ConflictError('App code must be unique'));
+        } else {
+          next(new DatabaseError('Failed to create app', error));
+        }
       }
     }
   }
 
-  async update(req: Request, res: Response) {
+  async update(req: Request, res: Response, next: NextFunction) {
     try {
-      const id = parseInt(req.params.id);
-      if (isNaN(id)) {
-        return res.status(400).json({ error: 'Invalid app ID' });
+      const id = validateId(req.params.id, 'id');
+
+      // Check if app exists
+      const existingApp = await AppService.getById(id);
+      if (!existingApp) {
+        throw new NotFoundError('App', id);
       }
 
       const { name, code, pipelineUrl, e2eTriggerConfiguration, watching } = req.body;
 
+      // Validate and sanitize fields if provided
+      const sanitizedName = name
+        ? validateAndSanitizeString(name, 'name', { max: 255 })
+        : undefined;
+
+      const sanitizedCode = code
+        ? validateAndSanitizeString(code, 'code', { max: 100 })
+        : undefined;
+
+      const sanitizedPipelineUrl = pipelineUrl !== undefined
+        ? validateAndSanitizeString(pipelineUrl, 'pipelineUrl', { max: 500 })
+        : undefined;
+
       // Validate JSON format for e2e_trigger_configuration if provided
       if (e2eTriggerConfiguration !== undefined && e2eTriggerConfiguration !== null && e2eTriggerConfiguration !== '') {
-        try {
-          JSON.parse(e2eTriggerConfiguration);
-        } catch {
-          return res.status(400).json({ error: 'e2eTriggerConfiguration must be valid JSON' });
-        }
-      }
-
-      const findExistingApp = await AppService.getById(id);
-      if (!findExistingApp) {
-        return res.status(404).json({ error: 'App not found' });
+        validateJSON(e2eTriggerConfiguration, 'e2eTriggerConfiguration');
       }
 
       const updated = await AppService.update(id, {
-        name,
-        code,
-        pipelineUrl,
+        name: sanitizedName,
+        code: sanitizedCode,
+        pipelineUrl: sanitizedPipelineUrl,
         e2eTriggerConfiguration,
         watching: watching !== undefined ? !!watching : undefined,
       });
 
       if (!updated) {
-        return res.status(404).json({ error: 'App not found' });
+        throw new NotFoundError('App', id);
       }
 
-      res.status(200).json(updated);
+      res.status(200).json({ success: true, data: updated });
     } catch (err: unknown) {
-      const error = err as Error;
-      console.error(error);
-      if (error.message && error.message.includes('UNIQUE constraint failed')) {
-        res.status(409).json({ error: 'App code must be unique' });
+      if (err instanceof ValidationError || err instanceof NotFoundError) {
+        next(err);
       } else {
-        res.status(500).json({ error: 'Failed to update app' });
+        const error = err as Error;
+        if (error.message && error.message.includes('UNIQUE constraint failed')) {
+          next(new ConflictError('App code must be unique'));
+        } else {
+          next(new DatabaseError('Failed to update app', error));
+        }
       }
     }
   }
 
-  async delete(req: Request, res: Response) {
+  async delete(req: Request, res: Response, next: NextFunction) {
     try {
-      const id = parseInt(req.params.id);
-      if (isNaN(id)) {
-        return res.status(400).json({ error: 'Invalid app ID' });
+      const id = validateId(req.params.id, 'id');
+
+      // Check if app exists
+      const existingApp = await AppService.getById(id);
+      if (!existingApp) {
+        throw new NotFoundError('App', id);
       }
 
       const deleted = await AppService.delete(id);
       if (!deleted) {
-        return res.status(404).json({ error: 'App not found' });
+        throw new NotFoundError('App', id);
       }
 
-      res.json({ success: true });
+      res.json({ success: true, message: 'App deleted successfully' });
     } catch (err) {
-      console.error(err);
-      res.status(500).json({ error: 'Failed to delete app' });
+      if (err instanceof ValidationError || err instanceof NotFoundError) {
+        next(err);
+      } else {
+        next(new DatabaseError('Failed to delete app', err as Error));
+      }
     }
   }
 }

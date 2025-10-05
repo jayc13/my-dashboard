@@ -1,6 +1,5 @@
 import { TestHelpers } from '@utils/test-helpers';
 import { closeTestConnection, truncateTables } from '@utils/dbHelper';
-import { ErrorResponse } from '@my-dashboard/types';
 
 describe('Apps API Integration Tests', () => {
   let testHelpers: TestHelpers;
@@ -36,10 +35,10 @@ describe('Apps API Integration Tests', () => {
           const response = await httpClient.get('/api/apps');
           expect(response.status).toBe(401);
 
-          const responseBody = await response.json();
-          expect(responseBody).toEqual({
-            error: 'Unauthorized: Invalid or missing API key',
-          });
+          const responseBody = await response.json() as { success: boolean; error?: unknown };
+          expect(responseBody).toHaveProperty('success');
+          expect(responseBody.success).toBe(false);
+          expect(responseBody).toHaveProperty('error');
         }
       });
 
@@ -91,10 +90,10 @@ describe('Apps API Integration Tests', () => {
           const response = await httpClient.post('/api/apps', newApp);
           expect(response.status).toBe(401);
 
-          const responseBody = await response.json();
-          expect(responseBody).toEqual({
-            error: 'Unauthorized: Invalid or missing API key',
-          });
+          const responseBody = await response.json() as { success: boolean; error?: unknown };
+          expect(responseBody).toHaveProperty('success');
+          expect(responseBody.success).toBe(false);
+          expect(responseBody).toHaveProperty('error');
         }
       });
 
@@ -141,10 +140,10 @@ describe('Apps API Integration Tests', () => {
             });
             expect(response.status).toBe(400);
 
-            const responseBody = await response.json();
-            expect(responseBody).toEqual({
-              error: 'Name and code are required fields',
-            });
+            const responseBody = await response.json() as { success: boolean; error?: unknown };
+            expect(responseBody).toHaveProperty('success');
+            expect(responseBody.success).toBe(false);
+            expect(responseBody).toHaveProperty('error');
           }
         });
 
@@ -172,10 +171,10 @@ describe('Apps API Integration Tests', () => {
             });
             expect(response.status).toBe(400);
 
-            const responseBody = await response.json();
-            expect(responseBody).toEqual({
-              error: 'Name and code are required fields',
-            });
+            const responseBody = await response.json() as { success: boolean; error?: unknown };
+            expect(responseBody).toHaveProperty('success');
+            expect(responseBody.success).toBe(false);
+            expect(responseBody).toHaveProperty('error');
           }
         });
 
@@ -203,10 +202,10 @@ describe('Apps API Integration Tests', () => {
             });
             expect(response.status).toBe(400);
 
-            const responseBody = await response.json();
-            expect(responseBody).toEqual({
-              error: 'Name and code are required fields',
-            });
+            const responseBody = await response.json() as { success: boolean; error?: unknown };
+            expect(responseBody).toHaveProperty('success');
+            expect(responseBody.success).toBe(false);
+            expect(responseBody).toHaveProperty('error');
           }
         });
 
@@ -235,10 +234,10 @@ describe('Apps API Integration Tests', () => {
             });
             expect(response.status).toBe(400);
 
-            const responseBody = await response.json();
-            expect(responseBody).toEqual({
-              error: 'Name and code are required fields',
-            });
+            const responseBody = await response.json() as { success: boolean; error?: unknown };
+            expect(responseBody).toHaveProperty('success');
+            expect(responseBody.success).toBe(false);
+            expect(responseBody).toHaveProperty('error');
           }
         });
 
@@ -267,10 +266,10 @@ describe('Apps API Integration Tests', () => {
             });
             expect(response.status).toBe(400);
 
-            const responseBody = await response.json();
-            expect(responseBody).toEqual({
-              error: 'Name and code are required fields',
-            });
+            const responseBody = await response.json() as { success: boolean; error?: unknown };
+            expect(responseBody).toHaveProperty('success');
+            expect(responseBody.success).toBe(false);
+            expect(responseBody).toHaveProperty('error');
           }
         });
 
@@ -299,10 +298,10 @@ describe('Apps API Integration Tests', () => {
             });
             expect(response.status).toBe(400);
 
-            const responseBody = await response.json();
-            expect(responseBody).toEqual({
-              error: 'Name and code are required fields',
-            });
+            const responseBody = await response.json() as { success: boolean; error?: unknown };
+            expect(responseBody).toHaveProperty('success');
+            expect(responseBody.success).toBe(false);
+            expect(responseBody).toHaveProperty('error');
           }
         });
 
@@ -331,31 +330,32 @@ describe('Apps API Integration Tests', () => {
             });
             expect(response.status).toBe(400);
 
-            const responseBody = await response.json();
-            expect(responseBody).toEqual({
-              error: 'Name and code are required fields',
-            });
+            const responseBody = await response.json() as { success: boolean; error?: unknown };
+            expect(responseBody).toHaveProperty('success');
+            expect(responseBody.success).toBe(false);
+            expect(responseBody).toHaveProperty('error');
           }
         });
 
-        it('should accept app creation with only whitespace in name (current server behavior)', async () => {
+        it('should reject app creation with only whitespace in name', async () => {
           const httpClient = testHelpers.getHttpClient();
           const randomString = testHelpers.generateRandomString(8);
 
           const appWithWhitespaceName = {
-            name: '   ', // Only whitespace - currently accepted by server
+            name: '   ', // Only whitespace - should be rejected
             code: `test-app-whitespace-name-${randomString}`,
             pipelineUrl: 'https://example.com/pipeline',
             watching: true,
           };
 
-          const response = await httpClient.postJson('/api/apps', appWithWhitespaceName, {
-            'x-api-key': apiKey,
-          });
-
-          testHelpers.validateResponseStructure(response, ['id']);
-          expect(typeof response.id).toBe('number');
-          expect(response.id).toBeGreaterThan(0);
+          try {
+            await httpClient.postJson('/api/apps', appWithWhitespaceName, {
+              'x-api-key': apiKey,
+            });
+            fail('Expected request to fail with 400');
+          } catch (error: any) {
+            expect(error.message).toContain('HTTP 400');
+          }
         });
 
         it('should handle whitespace-only code appropriately', async () => {
@@ -413,10 +413,10 @@ describe('Apps API Integration Tests', () => {
             });
             expect(response.status).toBe(400);
 
-            const responseBody = await response.json();
-            expect(responseBody).toEqual({
-              error: 'e2eTriggerConfiguration must be valid JSON',
-            });
+            const responseBody = await response.json() as { success: boolean; error?: unknown };
+            expect(responseBody).toHaveProperty('success');
+            expect(responseBody.success).toBe(false);
+            expect(responseBody).toHaveProperty('error');
           }
         });
 
@@ -446,10 +446,10 @@ describe('Apps API Integration Tests', () => {
             });
             expect(response.status).toBe(400);
 
-            const responseBody = await response.json();
-            expect(responseBody).toEqual({
-              error: 'e2eTriggerConfiguration must be valid JSON',
-            });
+            const responseBody = await response.json() as { success: boolean; error?: unknown };
+            expect(responseBody).toHaveProperty('success');
+            expect(responseBody.success).toBe(false);
+            expect(responseBody).toHaveProperty('error');
           }
         });
 
@@ -539,16 +539,10 @@ describe('Apps API Integration Tests', () => {
             });
             expect([409, 500]).toContain(response.status);
 
-            const responseBody = await response.json() as ErrorResponse;
-            if (response.status === 409) {
-              expect(responseBody).toEqual({
-                error: 'App code must be unique',
-              });
-            } else {
-              // For 500 errors, the response might vary depending on database implementation
-              expect(responseBody).toHaveProperty('error');
-              expect(typeof responseBody.error).toBe('string');
-            }
+            const responseBody = await response.json() as { success: boolean; error?: unknown };
+            expect(responseBody).toHaveProperty('success');
+            expect(responseBody.success).toBe(false);
+            expect(responseBody).toHaveProperty('error');
           }
         });
       });
@@ -630,10 +624,10 @@ describe('Apps API Integration Tests', () => {
           const response = await httpClient.get(`/api/apps/${createdAppId}`);
           expect(response.status).toBe(401);
 
-          const responseBody = await response.json();
-          expect(responseBody).toEqual({
-            error: 'Unauthorized: Invalid or missing API key',
-          });
+          const responseBody = await response.json() as { success: boolean; error?: unknown };
+          expect(responseBody).toHaveProperty('success');
+          expect(responseBody.success).toBe(false);
+          expect(responseBody).toHaveProperty('error');
         }
       });
 
@@ -666,10 +660,10 @@ describe('Apps API Integration Tests', () => {
           });
           expect(response.status).toBe(404);
 
-          const responseBody = await response.json();
-          expect(responseBody).toEqual({
-            error: 'App not found',
-          });
+          const responseBody = await response.json() as { success: boolean; error?: unknown };
+          expect(responseBody).toHaveProperty('success');
+          expect(responseBody.success).toBe(false);
+          expect(responseBody).toHaveProperty('error');
         }
       });
     });

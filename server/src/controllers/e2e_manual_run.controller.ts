@@ -1,17 +1,21 @@
-import { Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import { E2EManualRunService } from '../services/e2e_manual_run.service';
+import { ValidationError, ConflictError, DatabaseError } from '../errors/AppError';
+import { validateRequiredFields, validateId } from '../utils/validation';
 
 export class E2EManualRunController {
-  async create(req: Request, res: Response) {
+  async create(req: Request, res: Response, next: NextFunction) {
     try {
       const { appId } = req.body;
 
-      if (!appId || isNaN(parseInt(appId))) {
-        return res.status(400).json({ error: 'Valid appId is required' });
-      }
+      // Validate required fields
+      validateRequiredFields(req.body, ['appId']);
+
+      // Validate appId
+      const validatedAppId = validateId(appId, 'appId');
 
       const run = await E2EManualRunService.create({
-        appId: parseInt(appId),
+        appId: validatedAppId,
       });
 
       // Transform snake_case database fields to camelCase for API response
@@ -22,16 +26,19 @@ export class E2EManualRunController {
         createdAt: run.created_at,
       };
 
-      res.status(201).json(response);
+      res.status(201).json({ success: true, data: response });
     } catch (err: unknown) {
-      console.error(err);
-      const error = err as Error;
-      if (error.message && error.message.includes('FOREIGN KEY constraint failed')) {
-        res.status(400).json({ error: 'Invalid appId: app does not exist' });
-      } else if (error.message && error.message.includes('manual run is already in progress')) {
-        res.status(409).json({ error: error.message });
+      if (err instanceof ValidationError) {
+        next(err);
       } else {
-        res.status(500).json({ error: 'Failed to create e2e manual run' });
+        const error = err as Error;
+        if (error.message && error.message.includes('FOREIGN KEY constraint failed')) {
+          next(new ValidationError('Invalid appId: app does not exist'));
+        } else if (error.message && error.message.includes('manual run is already in progress')) {
+          next(new ConflictError(error.message));
+        } else {
+          next(new DatabaseError('Failed to create e2e manual run', error));
+        }
       }
     }
   }

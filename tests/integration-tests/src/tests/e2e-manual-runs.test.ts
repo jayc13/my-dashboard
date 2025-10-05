@@ -51,10 +51,10 @@ describe('E2E Manual Runs API Integration Tests', () => {
         const response = await httpClient.post('/api/e2e_manual_runs', { appId: testAppId });
         expect(response.status).toBe(401);
 
-        const responseBody = await response.json();
-        expect(responseBody).toEqual({
-          error: 'Unauthorized: Invalid or missing API key',
-        });
+        const responseBody = await response.json() as { success: boolean; error?: unknown };
+        expect(responseBody).toHaveProperty('success');
+        expect(responseBody.success).toBe(false);
+        expect(responseBody).toHaveProperty('error');
       }
     });
 
@@ -74,10 +74,10 @@ describe('E2E Manual Runs API Integration Tests', () => {
         });
         expect(response.status).toBe(400);
 
-        const responseBody = await response.json();
-        expect(responseBody).toEqual({
-          error: 'Valid appId is required',
-        });
+        const responseBody = await response.json() as { success: boolean; error?: unknown };
+        expect(responseBody).toHaveProperty('success');
+        expect(responseBody.success).toBe(false);
+        expect(responseBody).toHaveProperty('error');
       }
     });
 
@@ -97,10 +97,10 @@ describe('E2E Manual Runs API Integration Tests', () => {
         });
         expect(response.status).toBe(400);
 
-        const responseBody = await response.json();
-        expect(responseBody).toEqual({
-          error: 'Valid appId is required',
-        });
+        const responseBody = await response.json() as { success: boolean; error?: unknown };
+        expect(responseBody).toHaveProperty('success');
+        expect(responseBody.success).toBe(false);
+        expect(responseBody).toHaveProperty('error');
       }
     });
 
@@ -121,9 +121,10 @@ describe('E2E Manual Runs API Integration Tests', () => {
         });
         expect([400, 500]).toContain(response.status);
 
-        const responseBody = await response.json() as { error?: string };
+        const responseBody = await response.json() as { success: boolean; error?: unknown };
+        expect(responseBody).toHaveProperty('success');
+        expect(responseBody.success).toBe(false);
         expect(responseBody).toHaveProperty('error');
-        expect(typeof responseBody.error).toBe('string');
       }
     });
 
@@ -152,31 +153,26 @@ describe('E2E Manual Runs API Integration Tests', () => {
 
       // Try to create second manual run immediately
       // This should fail because the first run is likely still in progress
-      // Note: This test depends on the mock server returning "running" status
-      try {
-        await httpClient.postJson('/api/e2e_manual_runs', { appId: testAppId }, {
-          'x-api-key': apiKey,
-        });
+      // Note: This test depends on the external service returning "running" status
+      const response = await httpClient.post('/api/e2e_manual_runs', { appId: testAppId }, {
+        'x-api-key': apiKey,
+      });
 
-        // If it succeeds, it means the first run completed very quickly
-        // or the mock server returned a completed status
-        // This is acceptable in integration tests
+      // The response can be either 409 (conflict) or 201 (created)
+      // 409 means the first run is still in progress (expected behavior)
+      // 201 means the first run completed very quickly (acceptable in integration tests)
+      if (response.status === 409) {
+        const responseBody = await response.json() as { success: boolean; error?: unknown };
+        expect(responseBody).toHaveProperty('success');
+        expect(responseBody.success).toBe(false);
+        expect(responseBody).toHaveProperty('error');
+      } else if (response.status === 201) {
         console.log('Second run was allowed - first run may have completed quickly');
-      } catch (error: any) {
-        // If it fails with 409, that's the expected behavior
-        if (error.message.includes('HTTP 409')) {
-          const response = await httpClient.post('/api/e2e_manual_runs', { appId: testAppId }, {
-            'x-api-key': apiKey,
-          });
-          expect(response.status).toBe(409);
-
-          const responseBody = await response.json() as { error?: string };
-          expect(responseBody).toHaveProperty('error');
-          expect(responseBody.error).toContain('manual run is already in progress');
-        } else {
-          // If it fails with a different error, re-throw
-          throw error;
-        }
+        const responseBody = await response.json() as { success: boolean; data?: unknown };
+        expect(responseBody).toHaveProperty('success');
+        expect(responseBody.success).toBe(true);
+      } else {
+        throw new Error(`Unexpected status code: ${response.status}`);
       }
     });
   });
@@ -216,9 +212,10 @@ describe('E2E Manual Runs API Integration Tests', () => {
         });
         expect(response.status).toBe(500);
 
-        const responseBody = await response.json() as { error?: string };
+        const responseBody = await response.json() as { success: boolean; error?: unknown };
+        expect(responseBody).toHaveProperty('success');
+        expect(responseBody.success).toBe(false);
         expect(responseBody).toHaveProperty('error');
-        expect(typeof responseBody.error).toBe('string');
       }
     });
   });

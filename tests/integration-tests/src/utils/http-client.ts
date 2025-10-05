@@ -103,7 +103,12 @@ export class HttpClient {
     if (!response.ok) {
       throw new Error(`HTTP ${response.status}: ${response.statusText}`);
     }
-    return await response.json() as Promise<T>;
+    const json = await response.json();
+    // Extract data from new response format { success: true, data: ... }
+    if (json && typeof json === 'object' && 'success' in json && 'data' in json) {
+      return json.data as T;
+    }
+    return json as T;
   }
 
   // Helper method to post JSON and get JSON response
@@ -119,6 +124,11 @@ export class HttpClient {
     if (!response.ok) {
       throw new Error(`HTTP ${response.status}: ${response.statusText}`);
     }
-    return await response.json() as Promise<T>;
+    const json = await response.json();
+    // Extract data from new response format { success: true, data: ... }
+    if (json && typeof json === 'object' && 'success' in json && 'data' in json) {
+      return json.data as T;
+    }
+    return json as T;
   }
 }

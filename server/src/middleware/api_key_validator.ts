@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
+import { UnauthorizedError } from '../errors/AppError';
 
 const apiKeyValidator = (req: Request, res: Response, next: NextFunction) => {
   // Allow /health endpoint without API key
@@ -10,7 +11,8 @@ const apiKeyValidator = (req: Request, res: Response, next: NextFunction) => {
   const validApiKey = process.env.API_SECURITY_KEY;
 
   if (!apiKey || apiKey !== validApiKey) {
-    return res.status(401).json({ error: 'Unauthorized: Invalid or missing API key' });
+    // Use UnauthorizedError which will be handled by the error handler middleware
+    return next(new UnauthorizedError('Invalid or missing API key'));
   }
 
   next();
