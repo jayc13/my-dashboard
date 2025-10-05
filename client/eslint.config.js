@@ -39,7 +39,7 @@ export default tseslint.config([
       '@typescript-eslint/no-inferrable-types': 'off',
 
       // General rules
-      'no-console': 'warn', // Warn for console.log in client code
+      'no-console': 'error',
       'no-unused-vars': 'off', // Use TypeScript version instead
       'prefer-const': 'error',
       'no-var': 'error',
