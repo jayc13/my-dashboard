@@ -21,6 +21,13 @@ interface JiraFields {
   updated: string;
   assignee?: JiraUser;
   reporter?: JiraUser;
+  parent: {
+    id: string;
+    key: string;
+    fields: {
+      summary: string;
+    };
+  };
   labels: string[];
   priority?: JiraPriority;
 }
@@ -61,6 +68,7 @@ export class JiraService {
       'assignee',
       'reporter',
       'labels',
+      'parent',
       'priority',
     ].join(',');
     const url = `${this.baseUrl}/rest/api/3/search/jql?jql=${encodeURIComponent(jql)}&fields=${JIRA_FIELDS}`;
@@ -87,6 +95,12 @@ export class JiraService {
       status: issue.fields.status.name,
       created: issue.fields.created,
       updated: issue.fields.updated,
+      parent: issue.fields.parent ? {
+        id: issue.fields.parent.id,
+        key: issue.fields.parent.key,
+        url: `${this.baseUrl}/browse/${issue.fields.parent.key}`,
+        summary: issue.fields.parent.fields.summary,
+      } : undefined,
       assignee: issue.fields.assignee ? issue.fields.assignee.displayName : 'Unassigned',
       reporter: issue.fields.reporter ? issue.fields.reporter.displayName : 'Unknown',
       labels: issue.fields.labels || [],
