@@ -77,19 +77,3 @@ export interface CypressRun {
   createdAt: string;
   completedAt?: string;
 }
-
-export interface JiraIssue {
-  id: string;
-  key: string;
-  fields: {
-    summary: string;
-    status: {
-      name: string;
-    };
-    assignee?: {
-      displayName: string;
-    };
-    created: string;
-    updated: string;
-  };
-}
