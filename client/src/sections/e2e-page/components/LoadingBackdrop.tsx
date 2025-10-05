@@ -9,13 +9,6 @@ interface LoadingBackdropProps {
 const LoadingBackdrop = (props: LoadingBackdropProps) => {
   const { data, loading } = props;
 
-  console.log({
-    loading,
-    data: !!data,
-    status: data?.summary.status,
-    open: !loading && !!data && data?.summary.status === 'pending',
-  });
-
   const open = loading && !!data && data?.summary.status === 'pending';
 
   const message = data?.message || 'Loading...';
