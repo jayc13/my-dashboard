@@ -192,6 +192,9 @@ importers:
 
   mock-server:
     dependencies:
+      '@my-dashboard/types':
+        specifier: file:../packages/types
+        version: link:../packages/types
       cors:
         specifier: ^2.8.5
         version: 2.8.5
@@ -204,6 +207,9 @@ importers:
       helmet:
         specifier: ^7.1.0
         version: 7.2.0
+      luxon:
+        specifier: ^3.4.4
+        version: 3.7.2
       morgan:
         specifier: ^1.10.0
         version: 1.10.1
@@ -223,6 +229,9 @@ importers:
       '@types/jest':
         specifier: ^30.0.0
         version: 30.0.0
+      '@types/luxon':
+        specifier: ^3.4.2
+        version: 3.7.1
       '@types/morgan':
         specifier: ^1.9.9
         version: 1.9.10
