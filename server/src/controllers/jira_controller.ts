@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { JiraService } from '../services/jira.service';
-import { ExternalServiceError } from '../errors/AppError';
+import { ExternalServiceError } from '../errors';
 
 const jiraService = new JiraService();
 
