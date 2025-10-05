@@ -17,7 +17,7 @@ export async function publishNotificationRequest(
  * Example job that publishes a notification
  * This can be used as a template for other jobs that need to send notifications
  */
-const notificationJob = async (): Promise<void> => {
+const notificationService = async (): Promise<void> => {
   try {
     console.log('='.repeat(60));
     console.log('Publishing Notification Request');
@@ -38,5 +38,5 @@ const notificationJob = async (): Promise<void> => {
   return;
 };
 
-export default notificationJob;
+export default notificationService;
 

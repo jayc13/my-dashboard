@@ -4,7 +4,9 @@ import config from 'config';
 import runReportE2EJob from './jobs/report-e2e.job';
 import isPrApprovedJob from './jobs/is-pr-approved.job';
 import manualTicketsReminderJob from './jobs/manualTicketsReminder.job';
+import prReminderJob from './jobs/pr-reminder.job';
 import { testRedisConnection } from './utils/redis';
+import { getSDK } from './utils/sdk';
 
 dotenv.config({ quiet: true });
 
@@ -12,6 +14,7 @@ dotenv.config({ quiet: true });
 const reportE2ESchedule: string = config.get('jobs.report_e2e.schedule');
 const isPrApprovedSchedule: string = config.get('jobs.is_pr_approved.schedule');
 const manualTicketsReminderSchedule: string = config.get('jobs.manual_tickets_reminder.schedule');
+const prReminderSchedule: string = config.get('jobs.pr_reminder.schedule');
 
 
 console.log(`Starting E2E Report cron job with schedule: ${reportE2ESchedule}`);
@@ -28,27 +31,32 @@ cron.schedule(isPrApprovedSchedule, async () => {
   await isPrApprovedJob();
 });
 
-console.log(`Starting checking for Manual Testing tickets job with schedule: ${isPrApprovedSchedule}`);
+console.log(`Starting checking for Manual Testing tickets job with schedule: ${manualTicketsReminderSchedule}`);
 // Schedule the report job
 cron.schedule(manualTicketsReminderSchedule, async () => {
   console.log(`Checking if there are Manual Testing to do today: ${new Date().toISOString()}`);
   await manualTicketsReminderJob();
 });
 
+console.log(`Starting PR reminder job with schedule: ${prReminderSchedule}`);
+// Schedule the PR reminder job
+cron.schedule(prReminderSchedule, async () => {
+  console.log(`Checking for old PRs at ${new Date().toISOString()}`);
+  await prReminderJob();
+});
+
 const healthCheckAPI = async () => {
   console.log('API Health Check started');
-  const API_BASE_URL = process.env.API_URL || 'http://localhost:3000';
-  console.log(`API Base URL: ${API_BASE_URL}`);
-  const result = await fetch(`${API_BASE_URL}/health`, {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  });
-
-  if (result.ok) {
-    console.log('Connection to API successful');
-  } else {
+  try {
+    const sdk = getSDK();
+    const health = await sdk.health.getHealthStatus();
+    if (health.status === 'ok') {
+      console.log('Connection to API successful');
+    } else {
+      console.log('Connection to API failure');
+    }
+  } catch (error) {
+    console.error('API Health Check failed:', error);
     console.log('Connection to API failure');
   }
 };

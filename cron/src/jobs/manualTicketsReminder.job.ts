@@ -1,11 +1,10 @@
-import { API_BASE_URL } from '../utils/constants';
-import { apiFetch } from '../utils/helpers';
-import { publishNotificationRequest } from './notification.job';
+import { getSDK } from '../utils/sdk';
+import { publishNotificationRequest } from '../services/notification.service';
 
 const manualTicketsReminderJob = async () => {
   console.log('Checking for Manual Testing tickets...');
-  const requestAllTickets = await apiFetch(`${API_BASE_URL}/api/jira/manual_qa`);
-  const { issues } = await requestAllTickets.json();
+  const sdk = getSDK();
+  const { issues } = await sdk.jira.getManualQATasks();
 
   const size = issues.length;
 
