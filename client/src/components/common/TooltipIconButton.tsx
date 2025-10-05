@@ -50,7 +50,12 @@ const TooltipIconButton = ({
     component,
     ...iconButtonProps
 }: TooltipIconButtonProps) => {
-    const buttonProps: any = {
+    const buttonProps: IconButtonProps & {
+        href?: string;
+        target?: string;
+        rel?: string;
+        component?: React.ElementType;
+    } = {
         onClick,
         ...iconButtonProps,
     };

@@ -52,7 +52,7 @@ export const getStats = (data?: E2EReportSummary, prevData?: E2EReportSummary): 
             value: data.successRate,
             prevValue: prevData?.successRate,
             hasTrend: true,
-            formattedValue: (value: number) => Math.abs(value).toFixed(2) + '%',
+            formattedValue: (value: number) => Math.abs(value * 100).toFixed(2) + '%',
         },
     ];
 };

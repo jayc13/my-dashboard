@@ -36,14 +36,12 @@ const E2EPageContainer = () => {
     return () => clearInterval(interval);
   }, [data?.summary.status, refetchData]);
 
-  const isPageLoading = (loading && !data )|| (data?.summary.status === 'pending');
-
   const refetch = async () => {
     await refetchData();
     await refetchPrevData();
   };
 
-  return <E2EPage data={data} prevData={prevData} loading={isPageLoading} error={error} refetch={refetch} />;
+  return <E2EPage data={data} prevData={prevData} loading={loading && !data} error={error} refetch={refetch} />;
 };
 
 export default E2EPageContainer;
