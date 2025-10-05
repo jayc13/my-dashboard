@@ -32,6 +32,11 @@ jobs:
           working-directory: ${{ github.workspace }}
           project: "mock-server"
 
+      - name: Build dependencies
+        run: |
+          pnpm --filter=@my-dashboard/types run build
+        working-directory: ${{ github.workspace }}
+
       - name: Type check
         run: pnpm --filter=mock-server run typecheck
 
