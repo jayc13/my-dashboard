@@ -1,5 +1,6 @@
 import { Octokit } from '@octokit/core';
 import { GithubPullRequestDetails } from '@my-dashboard/types/pull-requests';
+import { Logger } from '../utils/logger';
 
 export class GitHubService {
   private static getInstance() {
@@ -28,7 +29,7 @@ export class GitHubService {
       },
     });
 
-    console.log(`Fetched pull request details for ${repository}#${pullNumber}`);
+    Logger.info(`Fetched pull request details for ${repository}#${pullNumber}`);
     // Check if the request was successful
     if (!result || !result.data) {
       throw new Error(`Failed to fetch pull request details for ${repository}#${pullNumber}`);

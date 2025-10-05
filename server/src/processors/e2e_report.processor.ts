@@ -4,6 +4,7 @@ import { E2ERunReportService } from '../services/e2e_run_report.service';
 import { AppService } from '../services/app.service';
 import { CypressDashboardAPI } from '../services/cypress.service';
 import { CypressRun, E2EReportMessage } from '@my-dashboard/types/e2e';
+import { Logger } from '../utils/logger';
 import * as dotenv from 'dotenv';
 
 dotenv.config({ quiet: true });
@@ -59,11 +60,11 @@ export class E2EReportProcessor {
    * Start listening for messages
    */
   public async start(): Promise<void> {
-    console.log('[E2E Report Processor] Starting...');
+    Logger.info('[E2E Report Processor] Starting...');
 
     // Subscribe to the channel
     await this.subscriber.subscribe(this.CHANNEL_NAME);
-    console.log(`[E2E Report Processor] Subscribed to channel: ${this.CHANNEL_NAME}`);
+    Logger.info('[E2E Report Processor] Subscribed to channel', { channel: this.CHANNEL_NAME });
 
     // Handle incoming messages
     this.subscriber.on('message', async (channel, message) => {
@@ -78,16 +79,16 @@ export class E2EReportProcessor {
     // Start retry queue processor
     this.processRetryQueue();
 
-    console.log('[E2E Report Processor] Started successfully');
+    Logger.info('[E2E Report Processor] Started successfully');
   }
 
   /**
    * Stop the processor
    */
   public async stop(): Promise<void> {
-    console.log('[E2E Report Processor] Stopping...');
+    Logger.info('[E2E Report Processor] Stopping...');
     await this.subscriber.unsubscribe(this.CHANNEL_NAME);
-    console.log('[E2E Report Processor] Stopped');
+    Logger.info('[E2E Report Processor] Stopped');
   }
 
   /**
@@ -96,18 +97,18 @@ export class E2EReportProcessor {
   private async handleMessage(message: string): Promise<void> {
     try {
       const payload: E2EReportMessage = JSON.parse(message);
-      console.log('[E2E Report Processor] Received message:', payload);
+      Logger.debug('[E2E Report Processor] Received message', { payload });
 
       // Add to queue for processing
       await this.client.rpush(this.QUEUE_NAME, message);
-      console.log(`[E2E Report Processor] Added to queue: ${payload.date}`);
+      Logger.debug('[E2E Report Processor] Added to queue', { date: payload.date });
 
       // Process the queue if not already processing
       if (!this.isProcessing) {
         this.processQueue();
       }
     } catch (error) {
-      console.error('[E2E Report Processor] Error handling message:', error);
+      Logger.error('[E2E Report Processor] Error handling message', { error });
     }
   }
 
@@ -135,7 +136,7 @@ export class E2EReportProcessor {
           const payload: E2EReportMessage = JSON.parse(message);
           await this.generateReport(payload);
         } catch (error) {
-          console.error('[E2E Report Processor] Error processing message:', error);
+          Logger.error('[E2E Report Processor] Error processing message', { error });
 
           // Retry logic
           try {
@@ -147,12 +148,15 @@ export class E2EReportProcessor {
               await this.scheduleRetry(payload, retryCount, error);
             } else {
               // Max retries reached, move to dead letter queue
-              console.error(`[E2E Report Processor] Max retries (${this.MAX_RETRIES}) reached for date: ${payload.date}`);
+              Logger.error('[E2E Report Processor] Max retries reached', {
+                maxRetries: this.MAX_RETRIES,
+                date: payload.date
+              });
               await this.handleFailedMessage(message, error);
             }
           } catch (parseError) {
             // If we can't parse the message, send to dead letter queue
-            console.error('[E2E Report Processor] Failed to parse message for retry:', parseError);
+            Logger.error('[E2E Report Processor] Failed to parse message for retry', { parseError });
             await this.handleFailedMessage(message, error);
           }
         }
@@ -186,7 +190,12 @@ export class E2EReportProcessor {
     await this.client.zadd(this.RETRY_QUEUE_NAME, retryAt, JSON.stringify(retryData));
 
     const delaySeconds = Math.round(delayMs / 1000);
-    console.log(`[E2E Report Processor] Retry ${retryCount}/${this.MAX_RETRIES} scheduled for date: ${payload.date} in ${delaySeconds}s`);
+    Logger.info('[E2E Report Processor] Retry scheduled', {
+      retryCount,
+      maxRetries: this.MAX_RETRIES,
+      date: payload.date,
+      delaySeconds
+    });
   }
 
   /**
@@ -217,20 +226,24 @@ export class E2EReportProcessor {
 
             // Add back to main queue for processing
             await this.client.rpush(this.QUEUE_NAME, JSON.stringify(payload));
-            console.log(`[E2E Report Processor] Moving retry to main queue: ${payload.date} (retry ${payload.retryCount}/${this.MAX_RETRIES})`);
+            Logger.info('[E2E Report Processor] Moving retry to main queue', {
+              date: payload.date,
+              retryCount: payload.retryCount,
+              maxRetries: this.MAX_RETRIES
+            });
 
             // Trigger queue processing
             if (!this.isProcessing) {
               this.processQueue();
             }
           } catch (error) {
-            console.error('[E2E Report Processor] Error processing retry message:', error);
+            Logger.error('[E2E Report Processor] Error processing retry message', { error });
             // Remove invalid message from retry queue
             await this.client.zrem(this.RETRY_QUEUE_NAME, message);
           }
         }
       } catch (error) {
-        console.error('[E2E Report Processor] Error in retry queue processor:', error);
+        Logger.error('[E2E Report Processor] Error in retry queue processor', { error });
       }
     };
 
@@ -249,7 +262,7 @@ export class E2EReportProcessor {
     const logPrefix = requestId ? `[${requestId}]` : '';
     const retryInfo = retryCount > 0 ? ` (Retry ${retryCount}/${this.MAX_RETRIES})` : '';
 
-    console.log(`${logPrefix} [E2E Report Processor] Generating report for date: ${date}${retryInfo}`);
+    Logger.info(`${logPrefix} [E2E Report Processor] Generating report for date`, { date, retryInfo });
 
     try {
       // Check if summary already exists
@@ -258,10 +271,10 @@ export class E2EReportProcessor {
       if (summary) {
         // If summary exists and is ready, skip processing
         if (summary.status === 'ready') {
-          console.log(`${logPrefix} [E2E Report Processor] Summary already exists and is ready for ${date}, skipping...`);
+          Logger.info(`${logPrefix} [E2E Report Processor] Summary already exists and is ready, skipping`, { date });
           return;
         }
-        console.log(`${logPrefix} [E2E Report Processor] Summary already exists for ${date}, updating...`);
+        Logger.info(`${logPrefix} [E2E Report Processor] Summary already exists, updating`, { date });
       } else {
         // Create new summary with pending status
         summary = await E2ERunReportService.createSummary({
@@ -277,12 +290,12 @@ export class E2EReportProcessor {
           throw new Error('Failed to create summary');
         }
 
-        console.log(`${logPrefix} [E2E Report Processor] Created summary with ID: ${summary.id}`);
+        Logger.info(`${logPrefix} [E2E Report Processor] Created summary`, { summaryId: summary.id });
       }
 
       // Fetch data from Cypress API
       const reportData = await E2EReportProcessor.fetchCypressData(date);
-      console.log(`${logPrefix} [E2E Report Processor] Fetched ${reportData.length} apps data`);
+      Logger.info(`${logPrefix} [E2E Report Processor] Fetched apps data`, { appsCount: reportData.length });
 
       // Delete existing details for this summary
       await E2ERunReportService.deleteDetailsBySummaryId(summary.id);
@@ -309,7 +322,7 @@ export class E2EReportProcessor {
           totalRuns += appData.totalRuns;
           totalPassed += appData.passedRuns;
           totalFailed += appData.failedRuns;
-          console.log(`${logPrefix} [E2E Report Processor] Created detail for app ${appData.appId}`);
+          Logger.debug(`${logPrefix} [E2E Report Processor] Created detail for app`, { appId: appData.appId });
         }
       }
 
@@ -323,11 +336,16 @@ export class E2EReportProcessor {
         successRate,
       });
 
-      console.log(`${logPrefix} [E2E Report Processor] Report generated successfully for ${date}`);
-      console.log(`${logPrefix} [E2E Report Processor] Total runs: ${totalRuns}, Passed: ${totalPassed}, Failed: ${totalFailed}, Success rate: ${(successRate * 100).toFixed(2)}%`);
+      Logger.info(`${logPrefix} [E2E Report Processor] Report generated successfully`, {
+        date,
+        totalRuns,
+        passed: totalPassed,
+        failed: totalFailed,
+        successRate: `${(successRate * 100).toFixed(2)}%`
+      });
 
     } catch (error) {
-      console.error(`${logPrefix} [E2E Report Processor] Error generating report:`, error);
+      Logger.error(`${logPrefix} [E2E Report Processor] Error generating report`, { error });
 
       // Update summary status to failed
       const summary = await E2ERunReportService.getSummaryByDate(date);
@@ -359,7 +377,7 @@ export class E2EReportProcessor {
 
     if (!appIds) {
       // Get watching apps from database
-      console.log('[E2E Report Processor] No app IDs provided, fetching all watching apps');
+      Logger.debug('[E2E Report Processor] No app IDs provided, fetching all watching apps');
       requestedApplications = await AppService.getWatching();
     } else {
       const receivedApps = await Promise.all(appIds.map(async appId => AppService.getById(appId)));
@@ -367,7 +385,7 @@ export class E2EReportProcessor {
     }
 
     if (!requestedApplications || requestedApplications.length === 0) {
-      console.log('[E2E Report Processor] No watching apps found');
+      Logger.warn('[E2E Report Processor] No watching apps found');
       return [];
     }
 
@@ -379,7 +397,11 @@ export class E2EReportProcessor {
     const targetDate = new Date(date);
     const startDate = DateTime.fromJSDate(targetDate).minus({ days: 14 }).toJSDate();
 
-    console.log(`[E2E Report Processor] Fetching data for ${projectNames.length} projects from ${startDate.toISOString().slice(0, 10)} to ${date}`);
+    Logger.info('[E2E Report Processor] Fetching data for projects', {
+      projectsCount: projectNames.length,
+      startDate: startDate.toISOString().slice(0, 10),
+      endDate: date
+    });
 
     // Fetch data from Cypress API
     const projectData = await api.getDailyRunsPerProject({
@@ -404,7 +426,7 @@ export class E2EReportProcessor {
     for (const projectName in groupedResults) {
       const app = requestedApplications.find(n => n.name === projectName);
       if (!app || !app.id) {
-        console.warn(`[E2E Report Processor] App not found for project: ${projectName}`);
+        Logger.warn('[E2E Report Processor] App not found for project', { projectName });
         continue;
       }
 
@@ -496,7 +518,7 @@ export class E2EReportProcessor {
         date = payload.date;
       } catch (parseError) {
         // Ignore parse errors, use defaults
-        console.error(parseError);
+        Logger.error('[E2E Report Processor] Parse error in failed message handler', { parseError });
       }
 
       const failedMessage = {
@@ -509,9 +531,9 @@ export class E2EReportProcessor {
       };
 
       await this.client.rpush(deadLetterQueue, JSON.stringify(failedMessage));
-      console.log(`[E2E Report Processor] Added failed message to dead letter queue (date: ${date}, retries: ${retryCount})`);
+      Logger.warn('[E2E Report Processor] Added failed message to dead letter queue', { date, retryCount });
     } catch (err) {
-      console.error('[E2E Report Processor] Error adding to dead letter queue:', err);
+      Logger.error('[E2E Report Processor] Error adding to dead letter queue', { err });
     }
   }
 }
@@ -527,5 +549,5 @@ export async function publishE2EReportRequest(date: string, requestId?: string):
   };
 
   await client.publish('e2e:report:generate', JSON.stringify(message));
-  console.log(`[E2E Report Publisher] Published report request for date: ${date}`);
+  Logger.info('[E2E Report Publisher] Published report request', { date });
 }

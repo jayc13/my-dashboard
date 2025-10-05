@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import mysql from 'mysql2/promise';
+import { Logger } from '../utils/logger';
 import { getMySQLConnection } from './mysql';
 import * as dotenv from 'dotenv';
 
@@ -22,7 +23,7 @@ export class DatabaseManager {
   private static instance: DatabaseManager;
 
   private constructor() {
-    console.log('Using MySQL database');
+    Logger.info('Using MySQL database');
   }
 
   public static getInstance(): DatabaseManager {

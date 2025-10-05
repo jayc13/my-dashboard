@@ -2,6 +2,7 @@ import { DatabaseRow, db } from '../db/database';
 import { E2EReportSummary, E2EReportDetail } from '@my-dashboard/types/e2e';
 import { CypressAppReportData, E2EReportProcessor } from '../processors/e2e_report.processor';
 import { DateTime } from 'luxon';
+import { Logger } from '../utils/logger';
 
 /**
  * Service for managing E2E Report Summaries and Details
@@ -56,7 +57,7 @@ export class E2ERunReportService {
       }
       return this.mapRowToReportSummary(row);
     } catch (error) {
-      console.error('Error fetching report summary by id:', error);
+      Logger.error('Error fetching report summary by id', { id, error });
       throw error;
     }
   }
@@ -75,7 +76,7 @@ export class E2ERunReportService {
       }
       return this.mapRowToReportSummary(row);
     } catch (error) {
-      console.error('Error fetching report summary by date:', error);
+      Logger.error('Error fetching report summary by date', { date, error });
       throw error;
     }
   }
@@ -100,7 +101,7 @@ export class E2ERunReportService {
       );
       return this.getSummaryById(result.insertId!);
     } catch (error) {
-      console.error('Error creating report summary:', error);
+      Logger.error('Error creating report summary', { error });
       throw error;
     }
   }
@@ -154,7 +155,7 @@ export class E2ERunReportService {
 
       return this.getSummaryById(id);
     } catch (error) {
-      console.error('Error updating report summary:', error);
+      Logger.error('Error updating report summary', { id, error });
       throw error;
     }
   }
@@ -166,7 +167,7 @@ export class E2ERunReportService {
     try {
       await db.run('DELETE FROM e2e_report_summaries WHERE id = ?', [id]);
     } catch (error) {
-      console.error('Error deleting report summary:', error);
+      Logger.error('Error deleting report summary', { id, error });
       throw error;
     }
   }
@@ -184,7 +185,7 @@ export class E2ERunReportService {
       );
       return rows.map(this.mapRowToReportDetail);
     } catch (error) {
-      console.error('Error fetching report details by summary id:', error);
+      Logger.error('Error fetching report details by summary id', { summaryId, error });
       throw error;
     }
   }
@@ -203,7 +204,7 @@ export class E2ERunReportService {
       }
       return this.mapRowToReportDetail(row);
     } catch (error) {
-      console.error('Error fetching report detail by id:', error);
+      Logger.error('Error fetching report detail by id', { id, error });
       throw error;
     }
   }
@@ -225,7 +226,7 @@ export class E2ERunReportService {
       }
       return this.mapRowToReportDetail(row);
     } catch (error) {
-      console.error('Error fetching report detail by summary and app:', error);
+      Logger.error('Error fetching report detail by summary and app', { summaryId, appId, error });
       throw error;
     }
   }
@@ -256,7 +257,7 @@ export class E2ERunReportService {
       );
       return this.getDetailById(result.insertId!);
     } catch (error) {
-      console.error('Error creating report detail:', error);
+      Logger.error('Error creating report detail', { error });
       throw error;
     }
   }
@@ -314,7 +315,7 @@ export class E2ERunReportService {
 
       return this.getDetailById(id);
     } catch (error) {
-      console.error('Error updating report detail:', error);
+      Logger.error('Error updating report detail', { id, error });
       throw error;
     }
   }
@@ -326,7 +327,7 @@ export class E2ERunReportService {
     try {
       await db.run('DELETE FROM e2e_report_details WHERE id = ?', [id]);
     } catch (error) {
-      console.error('Error deleting report detail:', error);
+      Logger.error('Error deleting report detail', { id, error });
       throw error;
     }
   }
@@ -338,7 +339,7 @@ export class E2ERunReportService {
     try {
       await db.run('DELETE FROM e2e_report_details WHERE report_summary_id = ?', [summaryId]);
     } catch (error) {
-      console.error('Error deleting report details by summary id:', error);
+      Logger.error('Error deleting report details by summary id', { summaryId, error });
       throw error;
     }
   }
@@ -355,7 +356,7 @@ export class E2ERunReportService {
       const details = summary ? await this.getDetailsBySummaryId(summaryId) : [];
       return { summary, details };
     } catch (error) {
-      console.error('Error fetching summary with details:', error);
+      Logger.error('Error fetching summary with details', { summaryId, error });
       throw error;
     }
   }
@@ -372,7 +373,7 @@ export class E2ERunReportService {
       const details = summary ? await this.getDetailsBySummaryId(summary.id) : [];
       return { summary, details };
     } catch (error) {
-      console.error('Error fetching summary by date with details:', error);
+      Logger.error('Error fetching summary by date with details', { date, error });
       throw error;
     }
   }

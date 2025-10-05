@@ -1,4 +1,5 @@
 import * as dotenv from 'dotenv';
+import { Logger } from '../utils/logger';
 
 dotenv.config({ quiet: true });
 
@@ -58,7 +59,7 @@ export class CircleCIService {
     }
 
     try {
-      console.log('Triggering Circle CI E2E pipeline...');
+      Logger.info('Triggering Circle CI E2E pipeline');
 
       const pipelineUrl = `${baseUrl}/v2/project/github/${projectPath}/pipeline`;
 
@@ -78,11 +79,14 @@ export class CircleCIService {
 
       const result: CircleCIPipelineResponse = await response.json();
 
-      console.log(`Circle CI pipeline triggered successfully. Pipeline ID: ${result.id}, Number: ${result.number}`);
+      Logger.info('Circle CI pipeline triggered successfully', {
+        pipelineId: result.id,
+        pipelineNumber: result.number
+      });
 
       return result;
     } catch (error) {
-      console.error('Failed to trigger Circle CI E2E runs:', error);
+      Logger.error('Failed to trigger Circle CI E2E runs', { error });
       throw error;
     }
   }
@@ -106,7 +110,7 @@ export class CircleCIService {
     const apiUrl = `${baseUrl}/v2/pipeline/${pipelineId}/workflow`;
 
     try {
-      console.log(`Getting Circle CI pipeline status for ID: ${pipelineId}`);
+      Logger.debug('Getting Circle CI pipeline status', { pipelineId });
 
       const response = await fetch(apiUrl, {
         method: 'GET',
@@ -130,7 +134,7 @@ export class CircleCIService {
 
       return workflow;
     } catch (error) {
-      console.error('Failed to get Circle CI pipeline status:', error);
+      Logger.error('Failed to get Circle CI pipeline status', { pipelineId, error });
       throw error;
     }
   }

@@ -1,4 +1,5 @@
 import fs from 'fs';
+import { Logger } from '../utils/logger';
 import path from 'path';
 import * as dotenv from 'dotenv';
 import { db } from './database';
@@ -9,7 +10,7 @@ dotenv.config({ quiet: true });
 const MIGRATIONS_DIR = path.join(__dirname, '../../migrations/mysql');
 
 export async function runMigrations() {
-  console.log('Running MySQL migrations...');
+  Logger.info('Running MySQL migrations...');
 
   // Ensure migrations table exists
   const createMigrationsTableSQL = `CREATE TABLE IF NOT EXISTS migrations (
@@ -27,7 +28,7 @@ export async function runMigrations() {
   );
 
   for (const name of appliedMigrations) {
-    console.log(`Already applied migration: ${name}`);
+    Logger.info(`Already applied migration: ${name}`);
   }
 
   // Read migration files
@@ -43,9 +44,9 @@ export async function runMigrations() {
       try {
         await db.exec(sql);
         await db.run('INSERT INTO migrations (name) VALUES (?)', [file]);
-        console.log(`Migration applied: ${file}`);
+        Logger.info(`Migration applied: ${file}`);
       } catch (error) {
-        console.error(`Failed to apply migration ${file}:`, error);
+        Logger.error(`Failed to apply migration ${file}:`, { error });
         throw error;
       }
     }
@@ -54,17 +55,17 @@ export async function runMigrations() {
 
 runMigrations()
   .then(() => {
-    console.log('All migrations have been applied successfully.');
+    Logger.info('All migrations have been applied successfully.');
   })
   .catch((error) => {
-    console.error('Migration failed:', error);
+    Logger.error('Migration failed:', { error });
   })
   .finally(async () => {
     // Close database connection to allow process to exit
     try {
       await db.close();
-      console.log('Database connection closed.');
+      Logger.info('Database connection closed.');
     } catch (error) {
-      console.error('Error closing database connection:', error);
+      Logger.error('Error closing database connection:', { error });
     }
   });

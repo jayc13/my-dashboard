@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import { Logger } from '../utils/logger';
 import { bruteForceProtection } from '../middleware/bruteForceProtection';
 import crypto from 'crypto';
 
@@ -35,7 +36,7 @@ export class AuthController {
       const validApiKey = process.env.API_SECURITY_KEY;
 
       if (!validApiKey) {
-        console.error('API_SECURITY_KEY environment variable is not set');
+        Logger.error('API_SECURITY_KEY environment variable is not set');
         res.status(500).json({
           valid: false,
           message: 'Server configuration error',
@@ -66,7 +67,7 @@ export class AuthController {
         // Log failed attempt for monitoring
         const clientIP = req.ip || req.connection.remoteAddress || 'unknown';
         const attemptCount = bruteForceProtection.getAttemptCount(req);
-        console.warn(`Failed API key validation attempt from IP: ${clientIP}, attempt count: ${attemptCount}`);
+        Logger.warn(`Failed API key validation attempt from IP: ${clientIP}, attempt count: ${attemptCount}`);
 
         res.status(401).json({
           valid: false,
@@ -74,7 +75,7 @@ export class AuthController {
         });
       }
     } catch (error) {
-      console.error('Error in validateApiKey:', error);
+      Logger.error('Error in validateApiKey:', { error });
 
       // Record as failed attempt in case of errors
       bruteForceProtection.recordFailedAttempt(req);

@@ -1,5 +1,6 @@
 import Redis from 'ioredis';
 import * as dotenv from 'dotenv';
+import { Logger } from '../utils/logger';
 
 dotenv.config({ quiet: true });
 
@@ -29,15 +30,15 @@ export function getRedisClient(): Redis {
     });
 
     redisClient.on('connect', () => {
-      console.log('Redis client connected');
+      Logger.info('Redis client connected');
     });
 
     redisClient.on('error', (err) => {
-      console.error('Redis client error:', err);
+      Logger.error('Redis client error', { error: err });
     });
 
     redisClient.on('close', () => {
-      console.log('Redis client connection closed');
+      Logger.info('Redis client connection closed');
     });
   }
 
@@ -60,15 +61,15 @@ export function getRedisSubscriber(): Redis {
     });
 
     redisSubscriber.on('connect', () => {
-      console.log('Redis subscriber connected');
+      Logger.info('Redis subscriber connected');
     });
 
     redisSubscriber.on('error', (err) => {
-      console.error('Redis subscriber error:', err);
+      Logger.error('Redis subscriber error', { error: err });
     });
 
     redisSubscriber.on('close', () => {
-      console.log('Redis subscriber connection closed');
+      Logger.info('Redis subscriber connection closed');
     });
   }
 
@@ -83,14 +84,14 @@ export async function closeRedisConnections(): Promise<void> {
 
   if (redisClient) {
     promises.push(redisClient.quit().then(() => {
-      console.log('Redis client disconnected');
+      Logger.info('Redis client disconnected');
       redisClient = null;
     }));
   }
 
   if (redisSubscriber) {
     promises.push(redisSubscriber.quit().then(() => {
-      console.log('Redis subscriber disconnected');
+      Logger.info('Redis subscriber disconnected');
       redisSubscriber = null;
     }));
   }
@@ -105,10 +106,10 @@ export async function testRedisConnection(): Promise<boolean> {
   try {
     const client = getRedisClient();
     await client.ping();
-    console.log('Redis connection test successful');
+    Logger.info('Redis connection test successful');
     return true;
   } catch (error) {
-    console.error('Redis connection test failed:', error);
+    Logger.error('Redis connection test failed', { error });
     return false;
   }
 }

@@ -1,4 +1,5 @@
 import mysql from 'mysql2/promise';
+import { Logger } from '../utils/logger';
 import * as dotenv from 'dotenv';
 
 let connection: mysql.Connection | null = null;
@@ -23,13 +24,13 @@ export async function getMySQLConnection(): Promise<mysql.Connection> {
       timezone: '+00:00',
     };
 
-    console.log(`Connecting to MySQL database: ${config.host}:${config.port}/${config.database}`);
+    Logger.info(`Connecting to MySQL database: ${config.host}:${config.port}/${config.database}`);
         
     try {
       connection = await mysql.createConnection(config);
-      console.log('MySQL connection established successfully');
+      Logger.info('MySQL connection established successfully');
     } catch (error) {
-      console.error('Failed to connect to MySQL:', error);
+      Logger.error('Failed to connect to MySQL:', { error });
       throw error;
     }
   }
@@ -44,7 +45,7 @@ export async function closeMySQLConnection(): Promise<void> {
   if (connection) {
     await connection.end();
     connection = null;
-    console.log('MySQL connection closed');
+    Logger.info('MySQL connection closed');
   }
 }
 
@@ -55,10 +56,10 @@ export async function testMySQLConnection(): Promise<boolean> {
   try {
     const conn = await getMySQLConnection();
     await conn.ping();
-    console.log('MySQL connection test successful');
+    Logger.info('MySQL connection test successful');
     return true;
   } catch (error) {
-    console.error('MySQL connection test failed:', error);
+    Logger.error('MySQL connection test failed:', { error });
     return false;
   }
 }

@@ -18,3 +18,6 @@ export {
   ValidationErrorDetail,
 } from './validation';
 
+export { Logger } from './logger';
+export { default as logger } from './logger';
+

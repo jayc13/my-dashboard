@@ -21,6 +21,7 @@ import { startProcessor } from './processors/start-processor';
 import { createE2ERunReportRouter } from './routes/e2e_run_report';
 import apiKeyValidator from './middleware/api_key_validator';
 import { NotFoundError } from './errors/AppError';
+import { Logger } from './utils/logger';
 
 // Load environment variables
 dotenv.config({ quiet: true });
@@ -104,7 +105,7 @@ process.on('uncaughtException', handleUncaughtException);
 
 // Graceful shutdown handler
 const gracefulShutdown = (signal: string) => {
-  console.log(`\n${signal} received. Starting graceful shutdown...`);
+  Logger.info('Graceful shutdown initiated', { signal });
 
   // Close server
   // eslint-disable-next-line no-process-exit
@@ -116,14 +117,16 @@ process.on('SIGINT', () => gracefulShutdown('SIGINT'));
 
 // Start server
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-  console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
-  console.log(`Health check available at: http://localhost:${PORT}/health`);
+  Logger.info('Server started', {
+    port: PORT,
+    environment: process.env.NODE_ENV || 'development',
+    healthCheck: `http://localhost:${PORT}/health`
+  });
 });
 
 // Start all processors (E2E Report and Notification)
 startProcessor().catch((err: Error) => {
-  console.error('Failed to start processors:', err);
+  Logger.error('Failed to start processors', { error: err });
   // Don't exit the process, just log the error
 });
 

@@ -1,6 +1,7 @@
 import { getRedisSubscriber } from '../config/redis';
 import { NotificationService } from '../services/notification.service';
 import { NotificationInput } from '@my-dashboard/types/notifications';
+import { Logger } from '../utils/logger';
 import * as dotenv from 'dotenv';
 
 dotenv.config({ quiet: true });
@@ -34,11 +35,11 @@ export class NotificationProcessor {
    * Start listening for messages
    */
   public async start(): Promise<void> {
-    console.log('[Notification Processor] Starting...');
+    Logger.info('[Notification Processor] Starting...');
 
     // Subscribe to the channel
     await this.subscriber.subscribe(this.CHANNEL_NAME);
-    console.log(`[Notification Processor] Subscribed to channel: ${this.CHANNEL_NAME}`);
+    Logger.info('[Notification Processor] Subscribed to channel', { channel: this.CHANNEL_NAME });
 
     // Handle incoming messages
     this.subscriber.on('message', async (channel, message) => {
@@ -47,16 +48,16 @@ export class NotificationProcessor {
       }
     });
 
-    console.log('[Notification Processor] Started successfully');
+    Logger.info('[Notification Processor] Started successfully');
   }
 
   /**
    * Stop the processor
    */
   public async stop(): Promise<void> {
-    console.log('[Notification Processor] Stopping...');
+    Logger.info('[Notification Processor] Stopping...');
     await this.subscriber.unsubscribe(this.CHANNEL_NAME);
-    console.log('[Notification Processor] Stopped');
+    Logger.info('[Notification Processor] Stopped');
   }
 
   /**
@@ -65,11 +66,11 @@ export class NotificationProcessor {
   private async handleMessage(message: string): Promise<void> {
     try {
       const payload: NotificationInput = JSON.parse(message);
-      console.log('[Notification Processor] Received message:', payload);
+      Logger.debug('[Notification Processor] Received message', { payload });
 
       await this.createNotification(payload);
     } catch (error) {
-      console.error('[Notification Processor] Error handling message:', error);
+      Logger.error('[Notification Processor] Error handling message', { error });
     }
   }
 
@@ -79,7 +80,7 @@ export class NotificationProcessor {
   private async createNotification(payload: NotificationInput): Promise<void> {
     const { title, message, link, type } = payload;
 
-    console.log(`[Notification Processor] Creating notification: ${title}`);
+    Logger.info('[Notification Processor] Creating notification', { title, type });
 
     try {
       const notification = await NotificationService.create({
@@ -89,9 +90,12 @@ export class NotificationProcessor {
         type,
       });
 
-      console.log(`[Notification Processor] Successfully created notification with ID: ${notification.id}`);
+      Logger.info('[Notification Processor] Successfully created notification', {
+        notificationId: notification.id,
+        title
+      });
     } catch (error) {
-      console.error('[Notification Processor] Error creating notification:', error);
+      Logger.error('[Notification Processor] Error creating notification', { title, error });
       // Don't throw - just log the error and continue
     }
   }

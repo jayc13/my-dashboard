@@ -1,5 +1,6 @@
 import * as dotenv from 'dotenv';
 import { JiraTicket } from '@my-dashboard/types/jira';
+import { Logger } from '../utils/logger';
 
 interface JiraUser {
   displayName: string;
@@ -71,7 +72,7 @@ export class JiraService {
     });
     if (!res.ok) {
       const json = await res.json();
-      console.log(JSON.stringify(json, null, 2));
+      Logger.error('Failed to fetch Jira issues', { status: res.status, statusText: res.statusText, response: json });
       throw new Error(`Failed to fetch issues: ${res.statusText}`);
     }
     return res.json();
