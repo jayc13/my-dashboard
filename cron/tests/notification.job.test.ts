@@ -7,7 +7,7 @@
  * - Error handling
  */
 
-import { publishNotificationRequest } from '../src/jobs/notification.job';
+import { publishNotificationRequest } from '../src/services/notification.service';
 
 // Mock Redis client
 const mockPublish = jest.fn();
