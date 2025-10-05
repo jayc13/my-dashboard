@@ -1,47 +1,6 @@
 import * as dotenv from 'dotenv';
-import { JiraTicket } from '@my-dashboard/types/jira';
+import { JiraTicket, JiraIssue, JiraFetchIssuesResponse } from '@my-dashboard/types/jira';
 import { Logger } from '../utils/logger';
-
-interface JiraUser {
-  displayName: string;
-}
-
-interface JiraStatus {
-  name: string;
-}
-
-interface JiraPriority {
-  name: string;
-}
-
-interface JiraFields {
-  summary: string;
-  status: JiraStatus;
-  created: string;
-  updated: string;
-  assignee?: JiraUser;
-  reporter?: JiraUser;
-  parent: {
-    id: string;
-    key: string;
-    fields: {
-      summary: string;
-    };
-  };
-  labels: string[];
-  priority?: JiraPriority;
-}
-
-export interface JiraIssue {
-  id: string;
-  key: string;
-  fields: JiraFields;
-}
-
-export interface FetchIssuesResponse {
-  total: number;
-  issues: JiraIssue[];
-}
 
 export class JiraService {
   private readonly baseUrl: string;
@@ -59,7 +18,7 @@ export class JiraService {
     this.authHeader = `Basic ${token}`;
   }
 
-  async fetchIssues(jql: string): Promise<FetchIssuesResponse> {
+  async fetchIssues(jql: string): Promise<JiraFetchIssuesResponse> {
     const JIRA_FIELDS = [
       'summary',
       'status',
