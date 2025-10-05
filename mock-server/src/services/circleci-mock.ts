@@ -121,12 +121,22 @@ export function createCircleCIMockRouter(): Router {
 
     console.log(`[CIRCLECI] Fetching workflows for pipeline ${pipeline_id}`);
 
-    const pipeline = mockPipelines[Math.floor(Math.random() * mockPipelines.length)]!;
+    const timestamp = parseInt(pipeline_id.toString().split('pipeline-')[1]!);
 
     const getRandomStatus = () => {
-      const statuses = ['success', 'failed', 'running'];
+      const statuses = ['success', 'failed'];
       return statuses[Math.floor(Math.random() * statuses.length)];
     }
+
+
+    // If the timestamp is lower than 2 min ago, return a running workflow
+
+    let status = getRandomStatus()!;
+    if (timestamp > Date.now() - 2 * 60 * 1000) {
+      status = 'running';
+    }
+
+    const createdAt = new Date(timestamp).toISOString();
 
     const delay = parseInt(process.env.DEFAULT_DELAY_MS || '100', 10);
     setTimeout(() => {
@@ -135,11 +145,11 @@ export function createCircleCIMockRouter(): Router {
           {
             id: `workflow-${pipeline_id}-1`,
             name: 'build-and-test',
-            status: getRandomStatus(),
-            created_at: pipeline.created_at,
-            stopped_at: pipeline.state === 'running' ? null : pipeline.updated_at,
+            status,
+            created_at: createdAt,
+            project_slug: 'gh/jayc13/my-dashboard',
             pipeline_id: pipeline_id,
-            pipeline_number: pipeline.number
+            pipeline_number: Math.round(Math.random() * 1000),
           }
         ],
         next_page_token: null
