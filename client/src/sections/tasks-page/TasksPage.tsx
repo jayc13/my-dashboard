@@ -1,4 +1,4 @@
-import { Alert, Card, Grid } from '@mui/material';
+import { Grid } from '@mui/material';
 import ToDoListSection from './components/ToDoListSection';
 import JiraListSection from './components/JiraListSection';
 import type { JiraTicket } from '@/types';
@@ -25,16 +25,6 @@ const TasksPage = (props: TasksPageProps) => {
         refetchMyTickets,
         refetchManualTesting,
     } = props;
-
-    if (errorMyTickets || errorManualTesting) {
-        return (
-            <Card style={{ padding: 24, marginTop: 16 }} data-testid="tasks-page">
-                <Alert severity="error">
-                    Error fetching information: {errorMyTickets?.message || errorManualTesting?.message}
-                </Alert>
-            </Card>
-        );
-    }
 
     return (
         <Grid container spacing={2} data-testid="tasks-page">
