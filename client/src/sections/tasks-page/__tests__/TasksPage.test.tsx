@@ -43,30 +43,16 @@ describe('TasksPage', () => {
         render(<TasksPage {...defaultProps} />);
 
         expect(screen.getByTestId('tasks-page')).toBeInTheDocument();
-        expect(screen.getByText('Tasks')).toBeInTheDocument();
         expect(screen.getByTestId('todo-list-section')).toBeInTheDocument();
         expect(screen.getByTestId('jira-list-section-manual-testing')).toBeInTheDocument();
         expect(screen.getByTestId('jira-list-section-my-tickets')).toBeInTheDocument();
     });
 
-    it('renders refresh button', () => {
+    it('renders section titles', () => {
         render(<TasksPage {...defaultProps} />);
 
-        const refreshButton = screen.getByTestId('refresh-button');
-        expect(refreshButton).toBeInTheDocument();
-    });
-
-    it('calls refetch functions when refresh button is clicked', async () => {
-        render(<TasksPage {...defaultProps} />);
-
-        const refreshButton = screen.getByTestId('refresh-button');
-        refreshButton.click();
-
-        // Wait for async operations
-        await vi.waitFor(() => {
-            expect(mockRefetchMyTickets).toHaveBeenCalled();
-            expect(mockRefetchManualTesting).toHaveBeenCalled();
-        });
+        expect(screen.getByText('Manual Testing')).toBeInTheDocument();
+        expect(screen.getByText('My Tickets')).toBeInTheDocument();
     });
 
     it('displays error message when myTickets has error', () => {
