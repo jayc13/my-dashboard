@@ -1,6 +1,15 @@
 import { Router } from 'express';
+import { DateTime } from 'luxon';
 import { JiraIssue } from '@my-dashboard/types';
 import { createRegistryMiddleware } from '../middleware/registry-middleware';
+
+/**
+ * Generate a random past date within the specified number of days ago
+ */
+function randomPastDate(minDaysAgo: number, maxDaysAgo: number): string {
+  const daysAgo = Math.floor(Math.random() * (maxDaysAgo - minDaysAgo + 1)) + minDaysAgo;
+  return DateTime.now().minus({ days: daysAgo }).toISO() || '';
+}
 
 /**
  * Mock Jira API endpoints
@@ -33,8 +42,8 @@ export function createJiraMockRouter(): Router {
           name: 'High'
         },
         labels: ['frontend', 'feature'],
-        created: '2024-01-10T09:00:00.000Z',
-        updated: '2024-01-15T14:30:00.000Z'
+        created: randomPastDate(10, 15),
+        updated: randomPastDate(1, 5)
       }
     },
     {
@@ -56,8 +65,8 @@ export function createJiraMockRouter(): Router {
           name: 'Critical'
         },
         labels: ['backend', 'bug'],
-        created: '2024-01-08T10:00:00.000Z',
-        updated: '2024-01-14T16:45:00.000Z'
+        created: randomPastDate(15, 20),
+        updated: randomPastDate(1, 3)
       }
     },
     {
@@ -79,8 +88,8 @@ export function createJiraMockRouter(): Router {
           name: 'High'
         },
         labels: ['manual_qa', 'testing'],
-        created: '2024-01-15T08:00:00.000Z',
-        updated: '2024-01-15T08:00:00.000Z'
+        created: randomPastDate(5, 8),
+        updated: randomPastDate(1, 2)
       }
     },
     {
@@ -102,8 +111,8 @@ export function createJiraMockRouter(): Router {
           name: 'Medium'
         },
         labels: ['backend', 'refactoring'],
-        created: '2024-01-12T11:00:00.000Z',
-        updated: '2024-01-16T09:15:00.000Z'
+        created: randomPastDate(8, 12),
+        updated: randomPastDate(1, 3)
       }
     },
     {
@@ -132,8 +141,8 @@ export function createJiraMockRouter(): Router {
             summary: 'Refactor authentication module'
           }
         },
-        created: '2024-01-14T13:30:00.000Z',
-        updated: '2024-01-14T13:30:00.000Z'
+        created: randomPastDate(6, 10),
+        updated: randomPastDate(2, 5)
       }
     },
     {
@@ -162,8 +171,8 @@ export function createJiraMockRouter(): Router {
             summary: 'Payment system integration epic'
           }
         },
-        created: '2024-01-13T10:00:00.000Z',
-        updated: '2024-01-16T15:20:00.000Z'
+        created: randomPastDate(7, 10),
+        updated: randomPastDate(1, 2)
       }
     },
     {
@@ -185,8 +194,8 @@ export function createJiraMockRouter(): Router {
           name: 'Low'
         },
         labels: ['documentation'],
-        created: '2024-01-11T14:00:00.000Z',
-        updated: '2024-01-15T16:45:00.000Z'
+        created: randomPastDate(12, 15),
+        updated: randomPastDate(2, 4)
       }
     },
     {
@@ -215,8 +224,8 @@ export function createJiraMockRouter(): Router {
             summary: 'Payment system integration epic'
           }
         },
-        created: '2024-01-16T09:00:00.000Z',
-        updated: '2024-01-16T11:30:00.000Z'
+        created: randomPastDate(3, 5),
+        updated: randomPastDate(1, 2)
       }
     }
   ];
