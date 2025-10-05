@@ -33,13 +33,46 @@ info:
 
     ## Error Handling
 
-    The API returns consistent error responses with appropriate HTTP status codes:
-    - `400` - Bad Request (validation errors)
+    The API returns consistent, structured error responses with detailed information:
+
+    **Response Format:**
+    ```json
+    {
+      "success": false,
+      "error": {
+        "message": "Human-readable error message",
+        "code": "MACHINE_READABLE_ERROR_CODE",
+        "statusCode": 400,
+        "details": {},
+        "path": "/api/endpoint",
+        "method": "POST",
+        "timestamp": "2025-10-04T12:34:56.789Z"
+      }
+    }
+    ```
+
+    **HTTP Status Codes:**
+    - `400` - Bad Request (validation errors, invalid input)
     - `401` - Unauthorized (invalid/missing API key)
-    - `403` - Forbidden (access denied)
+    - `403` - Forbidden (insufficient permissions)
     - `404` - Not Found (resource not found)
+    - `409` - Conflict (duplicate resource, state conflict)
     - `429` - Too Many Requests (rate limiting)
-    - `500` - Internal Server Error (server errors)
+    - `500` - Internal Server Error (unexpected server errors)
+    - `502` - Bad Gateway (external service errors)
+    - `503` - Service Unavailable (temporary unavailability)
+
+    **Error Codes:**
+    - `VALIDATION_ERROR` - Request validation failed
+    - `UNAUTHORIZED` - Invalid or missing API key
+    - `FORBIDDEN` - Insufficient permissions
+    - `NOT_FOUND` - Resource not found
+    - `CONFLICT` - Resource already exists
+    - `DATABASE_ERROR` - Database operation failed
+    - `EXTERNAL_SERVICE_ERROR` - External service error
+    - `INTERNAL_ERROR` - Internal server error
+
+    See [ERROR_RESPONSES.md](./ERROR_RESPONSES.md) for detailed documentation.
 
     ## Data Formats
 
