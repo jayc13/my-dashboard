@@ -19,7 +19,7 @@ const E2EGeneralMetrics = (props: E2EGeneralMetricsProps) => {
             <MetricsGrid>
                 {[1, 2, 3, 4].map((index) => (
                     <MetricsGridItem key={index}>
-                        <Skeleton variant="rounded" height={180}/>;
+                        <Skeleton variant="rounded" height={180}/>
                     </MetricsGridItem>
                 ))}
             </MetricsGrid>
