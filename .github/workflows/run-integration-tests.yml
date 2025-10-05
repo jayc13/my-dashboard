@@ -194,6 +194,8 @@ jobs:
 
           # Redis Configuration
           REDIS_URL=redis://localhost:6379
+          
+          LOG_LEVEL=debug
           EOF
 
           # Start server in background
