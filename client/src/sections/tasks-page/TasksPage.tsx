@@ -1,6 +1,4 @@
-import { Alert, Card, Grid, Stack } from '@mui/material';
-import { TooltipIconButton } from '@/components/common';
-import RefreshIcon from '@mui/icons-material/Refresh';
+import { Alert, Card, Grid } from '@mui/material';
 import ToDoListSection from './components/ToDoListSection';
 import JiraListSection from './components/JiraListSection';
 import type { JiraTicket } from '@/types';
@@ -40,21 +38,6 @@ const TasksPage = (props: TasksPageProps) => {
 
     return (
         <Grid container spacing={2} data-testid="tasks-page">
-            <Grid size={{ xs: 12 }}>
-                <Stack direction="row" alignItems="center" justifyContent="space-between">
-                    <h2>Tasks</h2>
-                    <TooltipIconButton
-                        tooltip="Refresh All"
-                        size="small"
-                        sx={{ ml: 1 }}
-                        onClick={async () => {
-                            await Promise.all([refetchMyTickets(), refetchManualTesting()]);
-                        }}
-                    >
-                        <RefreshIcon />
-                    </TooltipIconButton>
-                </Stack>
-            </Grid>
             <Grid size={{ xs: 12, sm: 6, md: 4 }}>
                 <ToDoListSection />
             </Grid>
