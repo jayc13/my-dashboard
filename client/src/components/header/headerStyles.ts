@@ -1,4 +1,4 @@
-import { API_BASE_URL } from '@/utils/constants.ts';
+import { API_BASE_URL } from '@/utils/constants';
 import type { Theme } from '@mui/material/styles';
 
 export const isDevelopmentEnvironment = () => {
