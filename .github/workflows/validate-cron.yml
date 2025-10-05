@@ -31,8 +31,10 @@ jobs:
           node-version: ${{ inputs.node-version }}
           working-directory: ${{ github.workspace }}
 
-      - name: Build @my-dashboard/types
-        run: pnpm --filter=@my-dashboard/types run build
+      - name: Build dependencies
+        run: |
+          pnpm --filter=@my-dashboard/types run build
+          pnpm --filter=@my-dashboard/sdk run build
         working-directory: ${{ github.workspace }}
 
       - name: Type check
