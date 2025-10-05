@@ -1,7 +1,6 @@
 import {
-  Box,
   Card,
-  CardContent, Chip,
+  CardContent, Chip, Divider,
   Stack,
   Typography,
 } from '@mui/material';
@@ -23,6 +22,19 @@ const JiraCard = (props: JiraCardProps) => {
   >
     <CardContent sx={{ padding: '8px !important' }}>
       <Stack direction="column">
+        {
+          ticket.parent && (<>
+            <Typography
+              variant="caption"
+              color="text.secondary"
+              data-testid={`jira-card-parent-${ticket.key}`}
+            >
+              <strong>{ticket.parent.key}: </strong>
+              {ticket.parent.summary}
+            </Typography>
+            <Divider sx={{ my: 0.5 }}/>
+          </>)
+        }
         <Typography
           variant="body1"
           sx={{ fontWeight: 'bold' }}
@@ -31,21 +43,15 @@ const JiraCard = (props: JiraCardProps) => {
           {ticket.summary}
         </Typography>
 
-        <Box sx={{ my: 1 }}>
-          <Chip label={ticket.status} color="default" size="small"/>
-        </Box>
-
         <Stack direction="row" justifyContent="space-between" alignItems="center" mt={1}>
           <Chip
             label={ticket.key}
             icon={<AssignmentIcon/>}
             variant="outlined"
-            color="info"
+            color="success"
             sx={{ border: 'none' }}
           />
-          <Typography variant="caption" color="text.secondary" data-testid={`jira-card-assignee-${ticket.key}`}>
-            {ticket.assignee ? `Assignee: ${ticket.assignee}` : 'Unassigned'}
-          </Typography>
+          <Chip label={ticket.status} variant="outlined" color="info" size="small"/>
         </Stack>
       </Stack>
     </CardContent>
