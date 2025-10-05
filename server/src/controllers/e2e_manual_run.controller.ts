@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { E2EManualRunService } from '../services/e2e_manual_run.service';
-import { ValidationError, ConflictError, DatabaseError } from '../errors/AppError';
-import { validateRequiredFields, validateId } from '../utils/validation';
+import { ValidationError, ConflictError, DatabaseError } from '../errors';
+import { validateRequiredFields, validateId } from '../utils';
 
 export class E2EManualRunController {
   async create(req: Request, res: Response, next: NextFunction) {
