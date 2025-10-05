@@ -7,7 +7,7 @@ import {
     ListItemText,
     ListSubheader,
 } from '@mui/material';
-import { NAVIGATION_ITEMS } from '@/constants/navigationItems.tsx';
+import { NAVIGATION_ITEMS } from '@/utils/constants';
 
 interface NavigationItemsProps {
     onNavigate: (path: string) => void;

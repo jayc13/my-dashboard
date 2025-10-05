@@ -1,6 +1,6 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Layout from './components/layout/Layout';
-import E2EPage from '@/sections/e2e-page';
+import E2EPage from '@/pages/E2EPage.tsx';
 import PullRequestsPage from './pages/PullRequestsPage.tsx';
 import TasksPage from './pages/TasksPage.tsx';
 import LoginPage from './pages/LoginPage.tsx';
