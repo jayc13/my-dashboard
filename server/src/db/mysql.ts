@@ -2,19 +2,19 @@ import mysql from 'mysql2/promise';
 import { Logger } from '../utils/logger';
 import * as dotenv from 'dotenv';
 
-let connection: mysql.Connection | null = null;
+let pool: mysql.Pool | null = null;
 
 /**
- * Initializes and returns a MySQL database connection.
- * If the connection already exists, it returns the existing instance.
+ * Initializes and returns a MySQL connection pool.
+ * If the pool already exists, it returns the existing instance.
  *
- * @returns {Promise<mysql.Connection>} The MySQL database connection.
+ * @returns {mysql.Pool} The MySQL connection pool.
  */
-export async function getMySQLConnection(): Promise<mysql.Connection> {
-  if (!connection) {
+export function getMySQLPool(): mysql.Pool {
+  if (!pool) {
     dotenv.config({ quiet: true });
-        
-    const config: mysql.ConnectionOptions = {
+
+    const config: mysql.PoolOptions = {
       host: process.env.MYSQL_HOST || 'localhost',
       port: parseInt(process.env.MYSQL_PORT || '3306'),
       user: process.env.MYSQL_USER || 'root',
@@ -22,40 +22,66 @@ export async function getMySQLConnection(): Promise<mysql.Connection> {
       database: process.env.MYSQL_DATABASE || 'cypress_dashboard',
       charset: 'utf8mb4',
       timezone: '+00:00',
+      // Connection pool settings
+      connectionLimit: parseInt(process.env.MYSQL_CONNECTION_LIMIT || '10'),
+      waitForConnections: true,
+      queueLimit: 0,
+      enableKeepAlive: true,
+      keepAliveInitialDelay: 0,
     };
 
-    Logger.info(`Connecting to MySQL database: ${config.host}:${config.port}/${config.database}`);
-        
+    Logger.info(`Creating MySQL connection pool: ${config.host}:${config.port}/${config.database}`);
+
     try {
-      connection = await mysql.createConnection(config);
-      Logger.info('MySQL connection established successfully');
+      pool = mysql.createPool(config);
+      Logger.info('MySQL connection pool created successfully');
     } catch (error) {
-      Logger.error('Failed to connect to MySQL:', { error });
+      Logger.error('Failed to create MySQL connection pool:', { error });
       throw error;
     }
   }
-    
-  return connection;
+
+  return pool;
 }
 
 /**
- * Closes the MySQL database connection.
+ * Gets a connection from the pool.
+ * This is the recommended way to interact with the database.
+ * The connection will be automatically returned to the pool when done.
+ *
+ * @returns {Promise<mysql.PoolConnection>} A connection from the pool.
  */
-export async function closeMySQLConnection(): Promise<void> {
-  if (connection) {
-    await connection.end();
-    connection = null;
-    Logger.info('MySQL connection closed');
+export async function getMySQLConnection(): Promise<mysql.PoolConnection> {
+  const pool = getMySQLPool();
+  try {
+    const connection = await pool.getConnection();
+    return connection;
+  } catch (error) {
+    Logger.error('Failed to get connection from pool:', { error });
+    throw error;
   }
 }
 
 /**
- * Tests the MySQL connection.
+ * Closes the MySQL connection pool.
+ */
+export async function closeMySQLConnection(): Promise<void> {
+  if (pool) {
+    await pool.end();
+    pool = null;
+    Logger.info('MySQL connection pool closed');
+  }
+}
+
+/**
+ * Tests the MySQL connection pool.
  */
 export async function testMySQLConnection(): Promise<boolean> {
   try {
-    const conn = await getMySQLConnection();
-    await conn.ping();
+    const pool = getMySQLPool();
+    const connection = await pool.getConnection();
+    await connection.ping();
+    connection.release();
     Logger.info('MySQL connection test successful');
     return true;
   } catch (error) {
