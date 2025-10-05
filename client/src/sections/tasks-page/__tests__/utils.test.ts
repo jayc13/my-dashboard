@@ -10,6 +10,11 @@ describe('sortTicketsByStatus', () => {
         status,
         assignee: 'User',
         url: `https://example.com/${id}`,
+        created: '2024-01-01T00:00:00.000Z',
+        updated: '2024-01-02T00:00:00.000Z',
+        reporter: 'Reporter',
+        labels: [],
+        priority: 'Medium',
     });
 
     it('sorts tickets in correct status order', () => {

@@ -28,7 +28,7 @@ describe('PRList', () => {
     });
 
     it('renders empty when no pull requests', () => {
-        const { container } = render(<PRList pullRequests={[]} onDelete={mockOnDelete} />);
+        render(<PRList pullRequests={[]} onDelete={mockOnDelete} />);
         // The component returns a fragment, so we check that no pr-card elements are rendered
         expect(screen.queryByTestId(/pr-card-/)).not.toBeInTheDocument();
     });

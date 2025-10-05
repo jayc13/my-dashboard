@@ -79,7 +79,7 @@ const PullRequestsPageContainer = () => {
 
     return (
         <PullRequestsPage
-            pullRequestsData={pullRequestsData}
+            pullRequestsData={pullRequestsData ?? undefined}
             loading={loading}
             error={error}
             refetch={refetch}

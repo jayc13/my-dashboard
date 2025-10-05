@@ -23,6 +23,11 @@ const mockTickets: JiraTicket[] = [
         status: 'To Do',
         assignee: 'User 1',
         url: 'https://example.com/1',
+        created: '2024-01-01T00:00:00.000Z',
+        updated: '2024-01-02T00:00:00.000Z',
+        reporter: 'Reporter 1',
+        labels: ['test'],
+        priority: 'Medium',
     },
     {
         id: '2',
@@ -31,6 +36,11 @@ const mockTickets: JiraTicket[] = [
         status: 'In Progress',
         assignee: 'User 2',
         url: 'https://example.com/2',
+        created: '2024-01-01T00:00:00.000Z',
+        updated: '2024-01-02T00:00:00.000Z',
+        reporter: 'Reporter 2',
+        labels: ['test'],
+        priority: 'High',
     },
     {
         id: '3',
@@ -39,6 +49,11 @@ const mockTickets: JiraTicket[] = [
         status: 'Done',
         assignee: 'User 3',
         url: 'https://example.com/3',
+        created: '2024-01-01T00:00:00.000Z',
+        updated: '2024-01-02T00:00:00.000Z',
+        reporter: 'Reporter 3',
+        labels: ['test'],
+        priority: 'Low',
     },
 ];
 

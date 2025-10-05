@@ -130,7 +130,7 @@ const AppsPageContainer = () => {
 
     return (
         <AppsPage
-            apps={apps}
+            apps={apps ?? undefined}
             loading={isLoadingApps}
             error={error}
             refetch={refetch}
