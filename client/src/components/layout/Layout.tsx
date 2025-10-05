@@ -1,5 +1,5 @@
 import { Box } from '@mui/material';
-import Header from './Header';
+import Header from '../header/Header.tsx';
 
 interface DashboardProps {
     children: React.ReactNode;
