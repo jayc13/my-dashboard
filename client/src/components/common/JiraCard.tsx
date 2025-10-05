@@ -1,62 +1,55 @@
-import { Avatar, Card, CardContent, CardHeader, Stack, Typography } from '@mui/material';
-import WarningIcon from '@mui/icons-material/Warning';
-import PriorityHighIcon from '@mui/icons-material/PriorityHigh';
-import LowPriorityIcon from '@mui/icons-material/LowPriority';
-import type { JiraTicket } from '../../types';
+import {
+  Box,
+  Card,
+  CardContent, Chip,
+  Stack,
+  Typography,
+} from '@mui/material';
+import type { JiraTicket } from '@/types';
+import AssignmentIcon from '@mui/icons-material/AssignmentTurnedInOutlined';
 
 interface JiraCardProps {
-    ticket: JiraTicket;
-}
-
-function getAvatarByPriority(priority: string) {
-    switch (priority.toLowerCase()) {
-        case 'high':
-            return <WarningIcon/>;
-        case 'medium':
-            return <PriorityHighIcon/>;
-        default:
-            return <LowPriorityIcon/>;
-    }
-}
-
-function getColorByPriority(priority: string): string {
-    switch (priority.toLowerCase()) {
-        case 'high':
-            return 'red';
-        case 'medium':
-            return 'orange';
-        case 'low':
-            return 'green';
-        default:
-            return 'gray'; // Default for no priority
-    }
+  ticket: JiraTicket;
 }
 
 
 const JiraCard = (props: JiraCardProps) => {
-    const { ticket } = props;
-    return (<Card
-        onClick={() => window.open(ticket.url, '_blank')} sx={{ cursor: 'pointer' }}
-        variant="outlined"
-        data-testid={`jira-card-${ticket.key}`}
-    >
-        <CardHeader
-            avatar={
-                <Avatar sx={{ bgcolor: getColorByPriority(ticket.priority) }} data-testid={`jira-card-priority-${ticket.key}`}>
-                    {getAvatarByPriority(ticket.priority)}
-                </Avatar>
-            }
-            title={<strong data-testid={`jira-card-key-${ticket.key}`}>{ticket.key}</strong>}
-            subheader={<small data-testid={`jira-card-status-${ticket.key}`}>{ticket.status}</small>}
-        />
-        <CardContent style={{ paddingTop: 0 }}>
-            <Stack direction="column">
-                <Typography variant="body2" data-testid={`jira-card-summary-${ticket.key}`}>
-                    {ticket.summary}
-                </Typography>
-            </Stack>
-        </CardContent>
-    </Card>);
+  const { ticket } = props;
+  return (<Card
+    onClick={() => window.open(ticket.url, '_blank')}
+    sx={{ cursor: 'pointer', borderRadius: 2 }}
+    variant="outlined"
+    data-testid={`jira-card-${ticket.key}`}
+  >
+    <CardContent sx={{ padding: '8px !important' }}>
+      <Stack direction="column">
+        <Typography
+          variant="body1"
+          sx={{ fontWeight: 'bold' }}
+          data-testid={`jira-card-summary-${ticket.key}`}
+        >
+          {ticket.summary}
+        </Typography>
+
+        <Box sx={{ my: 1 }}>
+          <Chip label={ticket.status} color="default" size="small"/>
+        </Box>
+
+        <Stack direction="row" justifyContent="space-between" alignItems="center" mt={1}>
+          <Chip
+            label={ticket.key}
+            icon={<AssignmentIcon/>}
+            variant="outlined"
+            color="info"
+            sx={{ border: 'none' }}
+          />
+          <Typography variant="caption" color="text.secondary" data-testid={`jira-card-assignee-${ticket.key}`}>
+            {ticket.assignee ? `Assignee: ${ticket.assignee}` : 'Unassigned'}
+          </Typography>
+        </Stack>
+      </Stack>
+    </CardContent>
+  </Card>);
 };
 
 export default JiraCard;
