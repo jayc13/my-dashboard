@@ -20,6 +20,12 @@ export interface JiraTicket {
     reporter: string;
     labels: string[];
     priority: string;
+    parent?: {
+        id: string;
+        key: string;
+        url: string;
+        summary: string;
+    };
 }
 
 /**
