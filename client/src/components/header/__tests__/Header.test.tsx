@@ -1,6 +1,6 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { vi, expect } from 'vitest';
-import Header from '../Header';
+import Header from '../Header.tsx';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 
 // Mock the auth context
@@ -16,6 +16,15 @@ vi.mock('../../../utils/constants', () => ({
   API_BASE_URL: 'http://localhost:3000',
 }));
 
+vi.mock('../../../constants/navigationItems', () => ({
+  NAVIGATION_ITEMS: [
+    { text: 'Home', icon: <div>Home</div>, path: '/' },
+    { text: 'E2E Dashboard', icon: <div>Dashboard</div>, path: '/e2e-dashboard' },
+    { text: 'Pull Requests', icon: <div>GitHub</div>, path: '/pull_requests' },
+    { text: 'Apps', icon: <div>Apps</div>, path: '/apps' },
+  ],
+}));
+
 // Mock the hooks
 vi.mock('../../../hooks', () => ({
   useNotifications: () => ({
@@ -24,14 +33,26 @@ vi.mock('../../../hooks', () => ({
     loading: false,
     error: null,
   }),
+  useMarkNotificationAsRead: () => ({
+    mutate: vi.fn(),
+    loading: false,
+    error: null,
+    reset: vi.fn(),
+  }),
+  useDeleteNotification: () => ({
+    mutate: vi.fn(),
+    loading: false,
+    error: null,
+    reset: vi.fn(),
+  }),
 }));
 
 // Mock the child components
-vi.mock('../ThemeSwitcher', () => ({
+vi.mock('../../layout/ThemeSwitcher', () => ({
   ThemeSwitcher: () => <div data-testid="theme-switcher">Theme Switcher</div>,
 }));
 
-vi.mock('../NotificationCenter', () => ({
+vi.mock('../../layout/NotificationCenter', () => ({
   default: ({ notifications }: { notifications: Notification[] }) => (
     <div data-testid="notification-center">
       Notification Center ({notifications?.length || 0})
@@ -101,12 +122,12 @@ describe('Header Component', () => {
       expect(screen.getByText('Menu')).toBeInTheDocument();
     });
 
-    // Check navigation items are present
-    expect(screen.getByText('Home')).toBeInTheDocument();
-    expect(screen.getByText('E2E Dashboard')).toBeInTheDocument();
-    expect(screen.getByText('Pull Requests')).toBeInTheDocument();
-    expect(screen.getByText('Apps')).toBeInTheDocument();
-    expect(screen.getByText('Logout')).toBeInTheDocument();
+    // Check navigation items are present using test IDs
+    expect(screen.getByTestId('nav-home')).toBeInTheDocument();
+    expect(screen.getByTestId('nav-e2e-dashboard')).toBeInTheDocument();
+    expect(screen.getByTestId('nav-pull-requests')).toBeInTheDocument();
+    expect(screen.getByTestId('nav-apps')).toBeInTheDocument();
+    expect(screen.getByTestId('logout-button')).toBeInTheDocument();
 
     // Close the sidebar
     const closeButton = screen.getByTestId('sidebar_close-btn');
