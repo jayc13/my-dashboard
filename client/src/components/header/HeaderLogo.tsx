@@ -1,6 +1,6 @@
 import React from 'react';
 import { Box, Stack, Chip } from '@mui/material';
-import { API_BASE_URL } from '@/utils/constants.ts';
+import { API_BASE_URL } from '@/utils/constants';
 
 const HeaderLogo: React.FC = () => {
     const isDevelopment = API_BASE_URL.startsWith('http://localhost');

@@ -14,9 +14,6 @@ vi.mock('../../../contexts/useAuth', () => ({
 // Mock the constants
 vi.mock('../../../utils/constants', () => ({
   API_BASE_URL: 'http://localhost:3000',
-}));
-
-vi.mock('../../../constants/navigationItems', () => ({
   NAVIGATION_ITEMS: [
     { text: 'Home', icon: <div>Home</div>, path: '/' },
     { text: 'E2E Dashboard', icon: <div>Dashboard</div>, path: '/e2e-dashboard' },
