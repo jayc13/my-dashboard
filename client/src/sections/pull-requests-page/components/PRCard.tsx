@@ -51,7 +51,7 @@ const PRAuthor = ({ author }: { author: GithubPullRequestDetails['author'] }) =>
 };
 
 const isPullRequestApproved = (details: GithubPullRequestDetails): boolean => {
-    return ['clean', 'unstable', 'dirty'].includes(details.mergeableState);
+    return ['clean', 'unstable'].includes(details.mergeableState);
 };
 
 const getIcon = (details: GithubPullRequestDetails) => {
@@ -59,7 +59,7 @@ const getIcon = (details: GithubPullRequestDetails) => {
         return <FaCodeMerge color="purple" />;
     } else if (details.state === 'open' && isPullRequestApproved(details)) {
         return <LuGitPullRequestArrow color="green" />;
-    } else if (details.state === 'open' && !isPullRequestApproved(details)) {
+    } else if (details.state === 'open' && details.mergeableState === 'dirty') {
         return <LuGitPullRequestArrow color="orange" />;
     } else if (details.state === 'closed' && !details.merged) {
         return <LuGitPullRequestClosed color="red" />;
