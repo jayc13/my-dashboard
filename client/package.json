@@ -21,7 +21,7 @@
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
     "@mui/icons-material": "^7.3.2",
-    "@mui/material": "^7.3.1",
+    "@mui/material": "^7.3.4",
     "@mui/x-data-grid": "^8.12.1",
     "@my-dashboard/sdk": "file:../packages/sdk",
     "@my-dashboard/types": "file:../packages/types",
