@@ -79,7 +79,7 @@ const defaultProps: PullRequestsPageProps = {
 describe('PullRequestsPage', () => {
     it('renders loading state', () => {
         render(<PullRequestsPage {...defaultProps} loading={true} />);
-        expect(screen.getByRole('progressbar')).toBeInTheDocument();
+        expect(screen.getByTestId('pull-requests-skeleton')).toBeInTheDocument();
     });
 
     it('renders error state', () => {
@@ -147,4 +147,3 @@ describe('PullRequestsPage', () => {
         expect(screen.getByTestId('delete-pr-dialog')).toBeInTheDocument();
     });
 });
-

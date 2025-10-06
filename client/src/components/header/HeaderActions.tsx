@@ -24,7 +24,7 @@ const HeaderActions: React.FC<HeaderActionsProps> = ({
             spacing={1}
             sx={{ marginLeft: 'auto' }}
         >
-            <Stack direction="row" alignItems="center">
+            <Stack direction="row" alignItems="center" data-testid="notification-center">
                 <NotificationCenter
                     notifications={notifications}
                     refetchNotifications={refetchNotifications}
@@ -45,4 +45,3 @@ const HeaderActions: React.FC<HeaderActionsProps> = ({
 };
 
 export default HeaderActions;
-

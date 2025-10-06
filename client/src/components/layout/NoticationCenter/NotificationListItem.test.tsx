@@ -1,4 +1,5 @@
 import { render, screen, fireEvent } from '@testing-library/react';
+import { describe, it, expect, vi } from 'vitest';
 import NotificationListItem from './NotificationListItem';
 import type { Notification } from '@/types/index';
 
@@ -17,8 +18,8 @@ describe('NotificationListItem', () => {
     render(
       <NotificationListItem
         notification={baseNotification}
-        onMarkAsRead={jest.fn()}
-        onDelete={jest.fn()}
+        onMarkAsRead={vi.fn()}
+        onDelete={vi.fn()}
       />,
     );
     expect(screen.getByTestId('notification-title-1')).toHaveTextContent('Test Notification');
@@ -30,8 +31,8 @@ describe('NotificationListItem', () => {
     render(
       <NotificationListItem
         notification={{ ...baseNotification, isRead: true }}
-        onMarkAsRead={jest.fn()}
-        onDelete={jest.fn()}
+        onMarkAsRead={vi.fn()}
+        onDelete={vi.fn()}
       />,
     );
     expect(screen.queryByLabelText('unread')).not.toBeInTheDocument();
@@ -39,12 +40,12 @@ describe('NotificationListItem', () => {
   });
 
   it('calls onMarkAsRead when mark-as-read button is clicked', async () => {
-    const onMarkAsRead = jest.fn().mockResolvedValue(undefined);
+    const onMarkAsRead = vi.fn().mockResolvedValue(undefined);
     render(
       <NotificationListItem
         notification={baseNotification}
         onMarkAsRead={onMarkAsRead}
-        onDelete={jest.fn()}
+        onDelete={vi.fn()}
       />,
     );
     fireEvent.click(screen.getByTestId('mark-as-read-1'));
@@ -52,11 +53,11 @@ describe('NotificationListItem', () => {
   });
 
   it('calls onDelete when delete button is clicked', async () => {
-    const onDelete = jest.fn().mockResolvedValue(undefined);
+    const onDelete = vi.fn().mockResolvedValue(undefined);
     render(
       <NotificationListItem
         notification={{ ...baseNotification, isRead: true }}
-        onMarkAsRead={jest.fn()}
+        onMarkAsRead={vi.fn()}
         onDelete={onDelete}
       />,
     );
@@ -65,23 +66,20 @@ describe('NotificationListItem', () => {
   });
 
   it('marks as read and navigates when clicking notification with link', async () => {
-    const onMarkAsRead = jest.fn().mockResolvedValue(undefined);
+    const onMarkAsRead = vi.fn().mockResolvedValue(undefined);
     const notificationWithLink = { ...baseNotification, link: '/somewhere', isRead: false };
+    const originalAssign = window.location.assign;
+    window.location.assign = vi.fn();
     render(
       <NotificationListItem
         notification={notificationWithLink}
         onMarkAsRead={onMarkAsRead}
-        onDelete={jest.fn()}
+        onDelete={vi.fn()}
       />,
     );
-    // Mock window.location
-    const originalLocation = window.location;
-    delete window.location;
-    window.location = { pathname: '' };
     fireEvent.click(screen.getByTestId('notification-alert-1'));
     expect(onMarkAsRead).toHaveBeenCalledWith(1);
-    expect(window.location.pathname).toBe('/somewhere');
-    window.location = originalLocation;
+    expect(window.location.assign).toHaveBeenCalledWith('/somewhere');
+    window.location.assign = originalAssign;
   });
 });
-
