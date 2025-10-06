@@ -53,18 +53,33 @@ This directory contains end-to-end tests for the dashboard application using Pla
 ```
 tests/
 ├── authentication.spec.ts          # Core authentication functionality tests
-├── authentication-security.spec.ts # Security-focused authentication tests
-├── example.spec.ts                 # Basic application tests
-├── dashboard.spec.ts               # Dashboard-specific functionality tests
+├── apps-management.spec.ts         # Apps management CRUD operations tests
+├── e2e-dashboard.spec.ts           # E2E Dashboard page tests (NEW)
+├── jira-integration.spec.ts        # Jira integration tests
 ├── navigation.spec.ts              # Navigation and routing tests
-├── forms.spec.ts                   # Form interaction tests
-└── ...                             # Additional test files
+├── notifications.spec.ts           # Notification center tests
+├── pull-requests.spec.ts           # Pull requests management tests
+└── to-do-list.spec.ts              # To-do list functionality tests
 
 pages/
-└── LoginPage.ts                    # Page object model for login functionality
+├── AppsPage.ts                     # Page object model for apps management
+├── E2EPage.ts                      # Page object model for E2E dashboard (NEW)
+├── JiraPage.ts                     # Page object model for Jira functionality
+├── LoginPage.ts                    # Page object model for login functionality
+├── NavigationPage.ts               # Page object model for navigation
+├── NotificationPage.ts             # Page object model for notifications
+├── PullRequestsPage.ts             # Page object model for pull requests
+└── ToDoPage.ts                     # Page object model for to-do list
 
 utils/
-└── test-helpers.ts                 # Common utilities and type definitions
+├── app-helpers.ts                  # Application test utilities
+├── database-connection.ts          # Database connection utilities
+├── dbCleanup.ts                    # Database cleanup utilities
+├── e2e-test-helpers.ts             # E2E dashboard test utilities (NEW)
+├── notification-test-helpers.ts    # Notification test utilities
+├── pull-request-test-helpers.ts    # Pull request test utilities
+├── test-helpers.ts                 # Common utilities and type definitions
+└── todo-test-helpers.ts            # To-do list test utilities
 ```
 
 ## Configuration
@@ -137,6 +152,117 @@ npm test authentication-security
 
 # Run specific authentication test
 npm run test:specific "should successfully authenticate"
+```
+
+### E2E Dashboard Tests
+
+The E2E Dashboard test suite (`e2e-dashboard.spec.ts`) provides comprehensive coverage of the E2E test results page:
+
+#### Test Coverage
+- ✅ **Page Load and Navigation**
+  - Page loads successfully
+  - Direct URL navigation
+  - Page title and elements visibility
+
+- ✅ **General Metrics Display**
+  - All four metric cards (Total Runs, Passed, Failed, Passing Rate)
+  - Metric values and formatting
+  - Loading skeletons during data fetch
+
+- ✅ **Test Results Per App**
+  - Project cards display with correct information
+  - Pass/fail counts and success rates
+  - Links to Cypress Cloud dashboard
+  - Empty states (no results, all passing)
+
+- ✅ **Refresh Functionality**
+  - Global refresh button
+  - Individual project card refresh
+  - API request handling
+
+- ✅ **Pagination**
+  - Pagination visibility for large datasets
+  - Page navigation
+  - Current page indicator
+
+- ✅ **Context Menu**
+  - Right-click context menu
+  - Menu options and actions
+  - Close on outside click
+
+- ✅ **Data Accuracy**
+  - Consistency between metrics and cards
+  - Only failed projects shown in list
+  - Correct calculations
+
+- ✅ **Error Handling**
+  - API error display
+  - Error messages
+
+- ✅ **Loading States**
+  - Loading backdrop for pending reports
+  - Skeleton loaders
+
+- ✅ **Responsive Design**
+  - Mobile viewport (375x667)
+  - Tablet viewport (768x1024)
+  - Desktop viewport
+
+- ✅ **Accessibility**
+  - ARIA labels
+  - Heading hierarchy
+  - Keyboard navigation
+
+- ✅ **Performance**
+  - Page load time
+  - Efficient handling of large datasets
+
+#### Running E2E Dashboard Tests
+```bash
+# Run only E2E dashboard tests
+npm test e2e-dashboard
+
+# Run specific E2E dashboard test
+npm run test:specific "should display all four metric cards"
+
+# Run with UI mode for debugging
+npm run test:ui -- e2e-dashboard
+```
+
+#### Page Object Model
+The `E2EPage` class provides methods for interacting with the E2E Dashboard:
+
+```typescript
+import { E2EPage } from '@pages/E2EPage';
+
+// Navigate to page
+await e2ePage.goto();
+
+// Get metrics
+const metrics = await e2ePage.getAllMetrics();
+
+// Get project card data
+const cardData = await e2ePage.getProjectCardData('My App');
+
+// Refresh data
+await e2ePage.clickRefresh();
+```
+
+#### Test Utilities
+The `E2EDataGenerator` and `E2ETestUtils` classes provide utilities for testing:
+
+```typescript
+import { E2EDataGenerator, E2ETestUtils } from '@utils/e2e-test-helpers';
+
+// Generate mock data
+const report = E2EDataGenerator.mockDetailedReport();
+const allPassing = E2EDataGenerator.mockAllPassingReport();
+
+// Mock API responses
+await E2ETestUtils.mockE2EReportResponse(page, report);
+
+// Intercept API calls
+const request = E2ETestUtils.interceptGetE2EReport(page);
 ```
 
 ### Environment Variables

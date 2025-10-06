@@ -58,59 +58,6 @@ class PullRequestTestUtils {
     }
     return Promise.all(responses);
   }
-
-  /**
-   * Mock GitHub API responses for pull request details
-   */
-  static async mockGitHubPullRequestDetails(page: Page, prId: string, mockData?: any) {
-    const defaultMockData = {
-      id: 789012345,
-      number: 12345,
-      title: 'feat: add new feature',
-      state: 'open',
-      draft: false,
-      merged: false,
-      mergeable_state: 'clean',
-      html_url: 'https://github.com/facebook/react/pull/12345',
-      created_at: '2025-09-20T10:30:00.000Z',
-      updated_at: '2025-09-20T15:45:00.000Z',
-      closed_at: null,
-      merged_at: null,
-      labels: [
-        { name: 'feature', color: '0e8a16' },
-        { name: 'frontend', color: '1d76db' },
-      ],
-      user: {
-        login: 'testuser',
-        avatar_url: 'https://github.com/testuser.png',
-        html_url: 'https://github.com/testuser',
-      },
-    };
-
-    await page.route(`**/api/pull_requests/${prId}`, async route => {
-      await route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify(mockData || defaultMockData),
-      });
-    });
-  }
-
-  /**
-   * Mock GitHub API error responses
-   */
-  static async mockGitHubApiError(page: Page, prId: string, statusCode: number = 404) {
-    await page.route(`**/api/pull_requests/${prId}`, async route => {
-      await route.fulfill({
-        status: statusCode,
-        contentType: 'application/json',
-        body: JSON.stringify({ 
-          error: statusCode === 404 ? 'Pull request not found' : 'GitHub API error',
-          message: `HTTP ${statusCode}`,
-        }),
-      });
-    });
-  }
 }
 
 export default PullRequestTestUtils;
