@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Box, Grid, Pagination } from '@mui/material';
 import { enqueueSnackbar } from 'notistack';
 import type { AppDetailedE2EReportDetail, DetailedE2EReportDetail } from '@my-dashboard/types';
@@ -34,6 +34,7 @@ const TestResultsPerApp = (props: TestResultsPerAppProps) => {
         result?: AppDetailedE2EReportDetail;
         loadingAppDetails: boolean;
     } | null>(null);
+    const contextMenuRef = useRef<HTMLDivElement | null>(null);
 
     const fetchAppDetails = async (appId: number): Promise<AppDetailedE2EReportDetail | null> => {
         if (!api) {
@@ -100,6 +101,7 @@ const TestResultsPerApp = (props: TestResultsPerAppProps) => {
             try {
                 await triggerManualRun(appId);
                 const appName = contextMenu.result!.name;
+                refetchData();
                 enqueueSnackbar(`E2E run for ${appName} were triggered successfully!`, { variant: 'success', autoHideDuration: 10 * 1000 });
             } catch (error) {
                 const errorMessage = error instanceof Error ? error.message : 'Unknown error';
@@ -117,27 +119,31 @@ const TestResultsPerApp = (props: TestResultsPerAppProps) => {
 
     // Handle right-click on different cards to close current menu
     useEffect(() => {
+        if (!contextMenu) {
+         return;
+        }
         const handleGlobalContextMenu = (event: MouseEvent) => {
-            // Only handle if we have an open context menu
             if (contextMenu) {
                 const target = event.target as Element;
-                // Check if the right-click is on a different project card
                 const clickedCard = target.closest('[data-project-card]');
                 const currentCard = document.querySelector(`[data-project-card="${contextMenu.result!.name}"]`);
-
                 if (clickedCard && clickedCard !== currentCard) {
-                    // Right-clicked on a different card, close current menu
                     setContextMenu(null);
                 }
             }
         };
-
+        const handleClickOutside = (event: MouseEvent) => {
+            if (contextMenuRef.current && !contextMenuRef.current.contains(event.target as Node)) {
+                setContextMenu(null);
+            }
+        };
         document.addEventListener('mousedown', handleGlobalContextMenu);
         document.addEventListener('contextmenu', handleGlobalContextMenu);
-
+        document.addEventListener('mousedown', handleClickOutside);
         return () => {
             document.removeEventListener('mousedown', handleGlobalContextMenu);
             document.removeEventListener('contextmenu', handleGlobalContextMenu);
+            document.removeEventListener('mousedown', handleClickOutside);
         };
     }, [contextMenu]);
 
@@ -194,20 +200,21 @@ const TestResultsPerApp = (props: TestResultsPerAppProps) => {
                 </Box>
             )}
             {contextMenu && (
-                <ContextMenu
-                    mouseX={contextMenu.mouseX}
-                    mouseY={contextMenu.mouseY}
-                    result={contextMenu.result}
-                    loadingAppDetails={contextMenu.loadingAppDetails}
-                    onOpenUrl={handleOpenUrlInNewTab}
-                    onCopyProjectName={handleCopyProjectName}
-                    onCopyProjectCode={handleCopyProjectCode}
-                    onTriggerE2ERuns={handleTriggerE2ERuns}
-                />
+                <div ref={contextMenuRef} style={{ position: 'absolute', left: contextMenu.mouseX, top: contextMenu.mouseY, zIndex: 1300 }}>
+                    <ContextMenu
+                        mouseX={0}
+                        mouseY={0}
+                        result={contextMenu.result}
+                        loadingAppDetails={contextMenu.loadingAppDetails}
+                        onOpenUrl={handleOpenUrlInNewTab}
+                        onCopyProjectName={handleCopyProjectName}
+                        onCopyProjectCode={handleCopyProjectCode}
+                        onTriggerE2ERuns={handleTriggerE2ERuns}
+                    />
+                </div>
             )}
         </Box>
     );
 };
 
 export default TestResultsPerApp;
-
