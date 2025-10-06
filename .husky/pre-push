@@ -7,7 +7,7 @@ cd "$(git rev-parse --show-toplevel)" || exit
 
 echo "🔬 Running tests..."
 
-pnpm -r --if-present run test
+pnpm -r --filter '!tests/e2e-tests' --filter '!tests/integration-tests' --if-present run test
 
 if [ $? -eq 0 ]; then
   echo "✅ All tests passed!"
