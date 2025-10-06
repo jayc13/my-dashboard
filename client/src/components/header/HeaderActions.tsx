@@ -3,7 +3,7 @@ import { Stack } from '@mui/material';
 import { Menu as MenuIcon } from '@mui/icons-material';
 import { TooltipIconButton } from '../common';
 import { ThemeSwitcher } from '../layout/ThemeSwitcher.tsx';
-import NotificationCenter from '../layout/NotificationCenter.tsx';
+import NotificationCenter from '../layout/NoticationCenter';
 import type { Notification } from '@my-dashboard/types';
 
 interface HeaderActionsProps {
