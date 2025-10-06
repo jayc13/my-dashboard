@@ -17,7 +17,9 @@ module.exports = {
   setupFilesAfterEnv: ['<rootDir>/tests/setup.ts'],
   testTimeout: 10000,
   moduleNameMapper: {
+    '^@/(.*)$': '<rootDir>/src/$1',
     '^@my-dashboard/types$': '<rootDir>/../packages/types/src/index.ts',
+    '^@my-dashboard/sdk$': '<rootDir>/../packages/sdk/src/index.ts',
   },
   // Force exit after tests complete to avoid hanging
   forceExit: true,
