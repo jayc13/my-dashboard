@@ -1,5 +1,5 @@
 import { NotificationInput } from '@my-dashboard/types';
-import { getRedisClient } from '../utils/redis';
+import { getRedisClient } from '@/utils/redis';
 
 /**
  * Publish a notification message to Redis

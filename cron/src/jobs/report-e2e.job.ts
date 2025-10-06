@@ -1,6 +1,6 @@
 import { E2EReportMessage } from '@my-dashboard/types';
 import { DateTime } from 'luxon';
-import { getRedisClient } from '../utils/redis';
+import { getRedisClient } from '@/utils/redis';
 import { v4 as uuidv4 } from 'uuid';
 
 /**

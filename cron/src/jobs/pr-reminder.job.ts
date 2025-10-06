@@ -1,5 +1,5 @@
-import { getSDK } from '../utils/sdk';
-import { publishNotificationRequest } from '../services/notification.service';
+import { getSDK } from '@/utils/sdk';
+import { publishNotificationRequest } from '@/services/notification.service';
 import { GithubPullRequestDetails } from '@my-dashboard/types';
 
 /**
@@ -51,7 +51,7 @@ const checkOldPullRequests = async () => {
   console.log('Checking for old pull requests...');
 
   try {
-    const sdk = getSDK();
+    const sdk = await getSDK();
 
     // Fetch all pull requests
     const pullRequests = await sdk.pullRequests.getPullRequests();

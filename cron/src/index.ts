@@ -1,12 +1,12 @@
 import * as cron from 'node-cron';
 import * as dotenv from 'dotenv';
 import config from 'config';
-import runReportE2EJob from './jobs/report-e2e.job';
-import isPrApprovedJob from './jobs/is-pr-approved.job';
-import manualTicketsReminderJob from './jobs/manualTicketsReminder.job';
-import prReminderJob from './jobs/pr-reminder.job';
-import { testRedisConnection } from './utils/redis';
-import { getSDK } from './utils/sdk';
+import runReportE2EJob from '@/jobs/report-e2e.job';
+import isPrApprovedJob from '@/jobs/is-pr-approved.job';
+import manualTicketsReminderJob from '@/jobs/manualTicketsReminder.job';
+import prReminderJob from '@/jobs/pr-reminder.job';
+import { testRedisConnection } from '@/utils/redis';
+import { getSDK } from '@/utils/sdk';
 
 dotenv.config({ quiet: true });
 
@@ -48,7 +48,7 @@ cron.schedule(prReminderSchedule, async () => {
 const healthCheckAPI = async () => {
   console.log('API Health Check started');
   try {
-    const sdk = getSDK();
+    const sdk = await getSDK();
     const health = await sdk.health.getHealthStatus();
     if (health.status === 'ok') {
       console.log('Connection to API successful');

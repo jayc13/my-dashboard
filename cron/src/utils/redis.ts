@@ -24,7 +24,7 @@ const setupEventHandlers = (redis: Redis, name: string): void => {
     console.log(`Redis ${name} connected`);
   });
 
-  redis.on('error', (err) => {
+  redis.on('error', (err: Error) => {
     console.error(`Redis ${name} error:`, err);
   });
 
