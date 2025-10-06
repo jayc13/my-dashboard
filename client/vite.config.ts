@@ -49,6 +49,7 @@ export default defineConfig(({ mode }) => ({
     },
   },
   test: {
+    watch: false,
     globals: true,
     environment: 'jsdom',
     setupFiles: ['test/setup.ts'],
