@@ -79,6 +79,19 @@ export function useSDKData<T>(
     return () => clearInterval(interval);
   }, [fetchData, refetchInterval, enabled]);
 
+  // Refetch on tab becoming active
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        refetch();
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [refetch]);
+
   return {
     data,
     loading,
