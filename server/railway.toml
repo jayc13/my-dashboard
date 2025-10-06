@@ -1,6 +1,6 @@
 [build]
 buildCommand = "./scripts/deployment/railway-server-build.sh"
-watchPatterns = ["server/**"]
+watchPatterns = ["server/**","pnpm-lock.yaml"]
 
 [source]
 repo = "jayc13/my-dashboard"
