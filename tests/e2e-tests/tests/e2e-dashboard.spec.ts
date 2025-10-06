@@ -186,6 +186,23 @@ test.describe('E2E Dashboard Test Suite', () => {
         await expect(e2ePage.contextMenu).toBeVisible();
       }
     });
+
+    test('should close context menu when clicking outside', async () => {
+      const cardCount = await e2ePage.getProjectCardCount();
+
+      if (cardCount > 0) {
+        const firstCard = e2ePage.projectCards.first();
+
+        // Right-click on the card to open context menu
+        await firstCard.click({ button: 'right' });
+        await expect(e2ePage.contextMenu).toBeVisible();
+
+        // Click outside the context menu (e.g., on the page body)
+        await page.mouse.click(0, 0);
+
+        // Context menu should disappear
+        await expect(e2ePage.contextMenu).not.toBeVisible();
+      }
+    });
   });
 });
-
