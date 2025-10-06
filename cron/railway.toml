@@ -1,6 +1,6 @@
 [build]
 buildCommand = "./scripts/deployment/railway-cron-build.sh"
-watchPatterns = ["cron/**"]
+watchPatterns = ["cron/**","pnpm-lock.yaml"]
 
 [source]
 repo = "jayc13/my-dashboard"
