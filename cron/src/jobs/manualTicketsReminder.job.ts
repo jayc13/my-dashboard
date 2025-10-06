@@ -1,9 +1,9 @@
-import { getSDK } from '../utils/sdk';
-import { publishNotificationRequest } from '../services/notification.service';
+import { getSDK } from '@/utils/sdk';
+import { publishNotificationRequest } from '@/services/notification.service';
 
 const manualTicketsReminderJob = async () => {
   console.log('Checking for Manual Testing tickets...');
-  const sdk = getSDK();
+  const sdk = await getSDK();
   const { issues } = await sdk.jira.getManualQATasks();
 
   const size = issues.length;

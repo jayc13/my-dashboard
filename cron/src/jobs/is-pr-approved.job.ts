@@ -1,8 +1,8 @@
-import { getSDK } from '../utils/sdk';
-import { publishNotificationRequest } from '../services/notification.service';
+import { getSDK } from '@/utils/sdk';
+import { publishNotificationRequest } from '@/services/notification.service';
 
 const isPrApprovedJob = async () => {
-  const sdk = getSDK();
+  const sdk = await getSDK();
   const pullRequests = await sdk.pullRequests.getPullRequests();
 
   const pullRequestsReadyToMerge = [];
