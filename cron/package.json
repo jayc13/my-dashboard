@@ -17,7 +17,7 @@
     "@my-dashboard/types": "file:../packages/types",
     "config": "^4.1.1",
     "dotenv": "^17.2.3",
-    "ioredis": "^5.8.0",
+    "ioredis": "^5.8.1",
     "luxon": "^3.7.2",
     "node-cron": "^4.2.1",
     "uuid": "^13.0.0"
