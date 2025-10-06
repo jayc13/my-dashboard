@@ -2,7 +2,6 @@
   "name": "@my-dashboard/sdk",
   "version": "1.0.0",
   "description": "TypeScript SDK for My Dashboard API",
-  "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
@@ -37,8 +36,8 @@
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "import": "./dist/index.js",
-      "require": "./dist/index.js"
+      "require": "./dist/index.js",
+      "import": "./dist/index.js"
     }
   },
   "engines": {
