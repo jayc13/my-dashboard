@@ -33,7 +33,7 @@
     "ioredis": "^5.8.1",
     "luxon": "^3.7.2",
     "mysql2": "^3.14.5",
-    "uuid": "^11.1.0",
+    "uuid": "^13.0.0",
     "winston": "^3.18.3"
   },
   "devDependencies": {
