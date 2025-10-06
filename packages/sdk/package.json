@@ -2,6 +2,7 @@
   "name": "@my-dashboard/sdk",
   "version": "1.0.0",
   "description": "TypeScript SDK for My Dashboard API",
+  "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
