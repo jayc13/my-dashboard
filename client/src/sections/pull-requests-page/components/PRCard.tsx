@@ -78,6 +78,21 @@ const getRepoPath = (url: string) => {
     return '';
 };
 
+const getPRAge = (createdAt: string): number => {
+    const created = DateTime.fromISO(createdAt);
+    const now = DateTime.now();
+    return Math.floor(now.diff(created, 'days').days);
+};
+
+const getPRAgeColor = (ageInDays: number): 'default' | 'warning' | 'error' => {
+    if (ageInDays > 7) {
+        return 'error'; // red
+    } else if (ageInDays > 3) {
+        return 'warning'; // yellow
+    }
+    return 'default';
+};
+
 const PRCard = ({ pr, onDelete }: PRCardProps) => {
     const { data: details, loading: isLoading } = usePullRequestDetails(pr.id);
 
@@ -124,9 +139,23 @@ const PRCard = ({ pr, onDelete }: PRCardProps) => {
                         sx={{ cursor: 'pointer' }}
                         onClick={() => window.open(details.url, '_blank')}
                     >
-                        <Typography variant="body2" sx={{ cursor: 'pointer' }}>
-                            <small>{getRepoPath(details.url)}</small>
-                        </Typography>
+                        <Box display="flex" alignItems="flex-end">
+                            <Typography
+                              variant="body2"
+                              sx={{
+                                  cursor: 'pointer',
+                                  fontSize: 12,
+                                  fontWeight: 'bold',
+                                  color: 'primary.main',
+                                  mr: 1,
+                              }}
+                            >
+                                #{details.number}
+                            </Typography>
+                            <Typography variant="body2" sx={{ cursor: 'pointer' }}>
+                                <small>{getRepoPath(details.url)}</small>
+                            </Typography>
+                        </Box>
                         <Typography variant="body1" sx={{ cursor: 'pointer', mt: 1 }}>
                             {getIcon(details)} <strong>{details.title}</strong>
                         </Typography>
@@ -141,16 +170,33 @@ const PRCard = ({ pr, onDelete }: PRCardProps) => {
                                 />
                             ))}
                         </Box>
-                        <Box display="flex" alignItems="center">
+                        <Box display="flex" alignItems="center" gap={0.5}>
                             <PRAuthor author={details.author} />
                             <Typography
                                 color="textSecondary"
                                 variant="subtitle2"
                                 sx={{ cursor: 'pointer', fontSize: 10 }}
                             >
-                                Opened on {DateTime.fromISO(details.createdAt).toLocaleString(DateTime.DATE_MED)} •
-                                #{details.number}
+                                Opened on {DateTime.fromISO(details.createdAt).toLocaleString(DateTime.DATE_MED)}
                             </Typography>
+                            {getPRAge(details.createdAt) > 0 && (
+                                <Typography
+                                    variant="subtitle2"
+                                    sx={{
+                                        cursor: 'pointer',
+                                        fontSize: 11,
+                                        fontWeight: 'bold',
+                                        color: getPRAgeColor(getPRAge(details.createdAt)) === 'error'
+                                            ? 'error.main'
+                                            : getPRAgeColor(getPRAge(details.createdAt)) === 'warning'
+                                            ? 'warning.main'
+                                            : 'text.secondary',
+                                        ml: 0.5,
+                                    }}
+                                >
+                                    ({getPRAge(details.createdAt)} {getPRAge(details.createdAt) === 1 ? 'day' : 'days'} old)
+                                </Typography>
+                            )}
                         </Box>
                     </Box>
                     <div>
