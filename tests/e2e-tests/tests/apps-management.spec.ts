@@ -453,7 +453,7 @@ test.describe('Apps Management Test Suite', () => {
       expect(page.url()).not.toContain('appId');
 
       // Verify no error message is shown
-      const errorAlert = page.locator('[role="alert"]');
+      const errorAlert = page.locator('[data-testid="apps-error-card"]');
       await expect(errorAlert).not.toBeVisible();
     });
 
