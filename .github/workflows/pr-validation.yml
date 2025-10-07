@@ -355,10 +355,10 @@ jobs:
           if [ -f ./client/client.pid ]; then
             kill $(cat ./client/client.pid) || true
           fi
-          # Kill any remaining processes on the ports
-          lsof -ti:3001 | xargs -r kill -9 || true
-          lsof -ti:${{ secrets.SERVER_PORT || '3000' }} | xargs -r kill -9 || true
-          lsof -ti:${{ secrets.CLIENT_PORT || '4173' }} | xargs -r kill -9 || true
+          # Kill any remaining processes on the ports using fuser (available in GitHub Actions)
+          fuser -k 3001/tcp || true
+          fuser -k ${{ secrets.SERVER_PORT || '3000' }}/tcp || true
+          fuser -k ${{ secrets.CLIENT_PORT || '4173' }}/tcp || true
 
   # Job 14: Final validation and summary
   validation-summary:
