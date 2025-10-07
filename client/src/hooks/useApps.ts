@@ -1,15 +1,15 @@
 import { useCallback } from 'react';
-import { useSDKData, useSDKMutation } from './useSDKData';
+import { useSDKData, useSDKMutation, type UseSDKDataOptions } from './useSDKData';
 import { useSDK } from '../contexts/useSDK';
-import type { 
-  Application, 
+import type {
+  Application,
   ApplicationDetails,
 } from '@my-dashboard/types';
 
 /**
  * Hook for apps data
  */
-export function useApps(options?: { enabled?: boolean; refetchInterval?: number }) {
+export function useApps(options?: UseSDKDataOptions) {
   const { api } = useSDK();
 
   const fetcher = useCallback(async (): Promise<Application[]> => {
@@ -25,7 +25,7 @@ export function useApps(options?: { enabled?: boolean; refetchInterval?: number 
 /**
  * Hook for single app data
  */
-export function useApp(id: number, options?: { enabled?: boolean; refetchInterval?: number }) {
+export function useApp(id: number, options?: UseSDKDataOptions) {
   const { api } = useSDK();
 
   const fetcher = useCallback(async (): Promise<ApplicationDetails> => {

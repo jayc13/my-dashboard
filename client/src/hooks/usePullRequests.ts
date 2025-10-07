@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
-import { useSDKData, useSDKMutation } from './useSDKData';
+import { useSDKData, useSDKMutation, type UseSDKDataOptions } from './useSDKData';
 import { useSDK } from '../contexts/useSDK';
-import type { 
+import type {
   PullRequest,
   GithubPullRequestDetails,
   AddPullRequestRequest,
@@ -10,7 +10,7 @@ import type {
 /**
  * Hook for pull requests data
  */
-export function usePullRequests(options?: { enabled?: boolean; refetchInterval?: number }) {
+export function usePullRequests(options?: UseSDKDataOptions) {
   const { api } = useSDK();
 
   const fetcher = useCallback(async (): Promise<PullRequest[]> => {
@@ -26,7 +26,7 @@ export function usePullRequests(options?: { enabled?: boolean; refetchInterval?:
 /**
  * Hook for pull request details
  */
-export function usePullRequestDetails(id: string, options?: { enabled?: boolean; refetchInterval?: number }) {
+export function usePullRequestDetails(id: string, options?: UseSDKDataOptions) {
   const { api } = useSDK();
 
   const fetcher = useCallback(async (): Promise<GithubPullRequestDetails> => {

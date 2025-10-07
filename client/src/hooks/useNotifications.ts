@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
-import { useSDKData, useSDKMutation } from './useSDKData';
+import { useSDKData, useSDKMutation, type UseSDKDataOptions } from './useSDKData';
 import { useSDK } from '../contexts/useSDK';
-import type { 
+import type {
   Notification,
   NotificationQueryParams,
 } from '@my-dashboard/types';
@@ -9,7 +9,7 @@ import type {
 /**
  * Hook for notifications data
  */
-export function useNotifications(options?: { enabled?: boolean; refetchInterval?: number }) {
+export function useNotifications(options?: UseSDKDataOptions) {
   const { api } = useSDK();
 
   const fetcher = useCallback(async (): Promise<Notification[]> => {
@@ -25,7 +25,7 @@ export function useNotifications(options?: { enabled?: boolean; refetchInterval?
 /**
  * Hook for notifications data with query parameters
  */
-export function useNotificationsWithParams(params: NotificationQueryParams = {}, options?: { enabled?: boolean; refetchInterval?: number }) {
+export function useNotificationsWithParams(params: NotificationQueryParams = {}, options?: UseSDKDataOptions) {
   const { api } = useSDK();
 
   const fetcher = useCallback(async (): Promise<Notification[]> => {

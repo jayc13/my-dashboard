@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { useSDKData } from './useSDKData';
+import { useSDKData, type UseSDKDataOptions } from './useSDKData';
 import { useSDK } from '../contexts/useSDK';
 import {
   type JiraIssuesResponse,
@@ -8,7 +8,7 @@ import {
 /**
  * Hook for my assigned JIRA tickets
  */
-export function useMyJiraTickets(options?: { enabled?: boolean; refetchInterval?: number }) {
+export function useMyJiraTickets(options?: UseSDKDataOptions) {
   const { api } = useSDK();
 
   const fetcher = useCallback(async (): Promise<JiraIssuesResponse> => {
@@ -21,7 +21,7 @@ export function useMyJiraTickets(options?: { enabled?: boolean; refetchInterval?
   return useSDKData(fetcher, options);
 }
 
-export function useManualQATasks(options?: { enabled?: boolean; refetchInterval?: number }) {
+export function useManualQATasks(options?: UseSDKDataOptions) {
   const { api } = useSDK();
 
   const fetcher = useCallback(async (): Promise<JiraIssuesResponse> => {

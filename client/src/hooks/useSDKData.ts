@@ -3,15 +3,29 @@ import { useSDK } from '../contexts/useSDK';
 import { useAuth } from '../contexts/useAuth';
 import { APIError } from '@my-dashboard/sdk';
 
-interface UseSDKDataOptions {
+/**
+ * Options for SDK data fetching hooks
+ */
+export interface UseSDKDataOptions {
+  /** Whether the hook should fetch data. Default: true */
   enabled?: boolean;
+  /** Interval in milliseconds to refetch data. If not provided, no automatic refetching occurs */
   refetchInterval?: number;
+  /** Whether to refetch data when the browser tab becomes visible. Default: true */
+  refetchOnVisibilityChange?: boolean;
 }
 
-interface UseSDKDataResult<T> {
+/**
+ * Result returned by SDK data fetching hooks
+ */
+export interface UseSDKDataResult<T> {
+  /** The fetched data, undefined if not yet fetched, null if no data */
   data: T | null | undefined;
+  /** Whether the data is currently being fetched */
   loading: boolean;
+  /** Error that occurred during fetching, if any */
   error: Error | null;
+  /** Function to manually refetch the data */
   refetch: () => Promise<void>;
 }
 
@@ -24,7 +38,7 @@ export function useSDKData<T>(
 ): UseSDKDataResult<T> {
   const { api, isReady } = useSDK();
   const { logout } = useAuth();
-  const { enabled = true, refetchInterval } = options;
+  const { enabled = true, refetchInterval, refetchOnVisibilityChange = true } = options;
 
   // Undefined means not yet fetched, null means no data
   const [data, setData] = useState<T | undefined | null>(undefined);
@@ -81,6 +95,10 @@ export function useSDKData<T>(
 
   // Refetch on tab becoming active
   useEffect(() => {
+    if (!refetchOnVisibilityChange || !enabled) {
+      return;
+    }
+
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'visible') {
         refetch();
@@ -90,7 +108,7 @@ export function useSDKData<T>(
     return () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
-  }, [refetch]);
+  }, [refetch, refetchOnVisibilityChange, enabled]);
 
   return {
     data,

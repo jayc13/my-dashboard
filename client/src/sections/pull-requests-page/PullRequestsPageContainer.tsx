@@ -11,7 +11,9 @@ const PullRequestsPageContainer = () => {
     const [urlError, setUrlError] = useState<string | null>(null);
 
     // SDK hooks
-    const { data: pullRequestsData, loading, error, refetch } = usePullRequests();
+    const { data: pullRequestsData, loading, error, refetch } = usePullRequests({
+        refetchOnVisibilityChange: false,
+    });
     const { mutate: addPullRequest, loading: isAdding } = useAddPullRequest();
     const { mutate: deletePullRequest, loading: isDeleting } = useDeletePullRequest();
 
