@@ -4,7 +4,7 @@ import JiraListSection from '../components/JiraListSection';
 import type { JiraTicket } from '@/types';
 
 // Mock the JiraList widget
-vi.mock('@/components/widgets/JiraList', () => ({
+vi.mock('@/sections/tasks-page/components/JiraList.tsx', () => ({
     default: ({ title, data }: { title: string; data: JiraTicket[] }) => (
         <div data-testid="jira-list">
             <h3>{title}</h3>
