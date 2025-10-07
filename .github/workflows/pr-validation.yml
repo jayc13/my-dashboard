@@ -215,6 +215,7 @@ jobs:
             cat mock-server.log
             exit 1
           fi
+          echo "=== Mock Server Health Check ==="
           echo "✅ Mock server health check passed. Status: $HEALTH_STATUS"
 
       - name: Start server in background
@@ -283,6 +284,7 @@ jobs:
             cat server.log
             exit 1
           fi
+          echo "=== Server Health Check ==="
           echo "✅ Server health check passed. Status: $HEALTH_STATUS"
 
       - name: Start client
@@ -354,9 +356,9 @@ jobs:
             kill $(cat ./client/client.pid) || true
           fi
           # Kill any remaining processes on the ports
-          sudo lsof -ti:3001 | xargs -r sudo kill -9 || true
-          sudo lsof -ti:${{ secrets.SERVER_PORT || '3000' }} | xargs -r sudo kill -9 || true
-          sudo lsof -ti:${{ secrets.CLIENT_PORT || '4173' }} | xargs -r sudo kill -9 || true
+          lsof -ti:3001 | xargs -r kill -9 || true
+          lsof -ti:${{ secrets.SERVER_PORT || '3000' }} | xargs -r kill -9 || true
+          lsof -ti:${{ secrets.CLIENT_PORT || '4173' }} | xargs -r kill -9 || true
 
   # Job 14: Final validation and summary
   validation-summary:
