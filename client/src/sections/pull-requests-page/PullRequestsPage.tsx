@@ -1,4 +1,4 @@
-import { Alert, Box, CircularProgress, Grid, Stack, Typography } from '@mui/material';
+import { Alert, Box, Grid, Stack, Typography } from '@mui/material';
 import { TooltipIconButton } from '@/components/common';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import PRList from './components/PRList';
@@ -6,6 +6,7 @@ import AddPRButton from './components/AddPRButton';
 import EmptyState from './components/EmptyState';
 import AddPRDialog from './components/AddPRDialog';
 import DeletePRDialog from './components/DeletePRDialog';
+import PullRequestsSkeleton from './PullRequestsSkeleton';
 import type { PullRequest } from '@/types';
 
 export interface PullRequestsPageProps {
@@ -54,22 +55,6 @@ const PullRequestsPage = (props: PullRequestsPageProps) => {
         setUrlError,
     } = props;
 
-    if (error) {
-        return (
-            <Box p={3}>
-                <Alert severity="error">Error fetching pull requests: {error.message}</Alert>
-            </Box>
-        );
-    }
-
-    if (loading) {
-        return (
-            <Box display="flex" justifyContent="center" mt={4}>
-                <CircularProgress />
-            </Box>
-        );
-    }
-
     const hasPullRequests = pullRequestsData && pullRequestsData.length > 0;
 
     return (
@@ -92,16 +77,24 @@ const PullRequestsPage = (props: PullRequestsPageProps) => {
                 )}
             </Box>
 
-            <Grid container spacing={2}>
-                {hasPullRequests ? (
-                    <PRList
-                        pullRequests={pullRequestsData}
-                        onDelete={handleDeleteClick}
-                    />
-                ) : (
-                    <EmptyState onAddClick={handleOpenAddDialog} />
-                )}
-            </Grid>
+            {loading ? (
+                <PullRequestsSkeleton />
+            ) : error ? (
+                <Box mt={2}>
+                    <Alert severity="error">Error fetching pull requests: {error.message}</Alert>
+                </Box>
+            ) : (
+                <Grid container spacing={2}>
+                    {hasPullRequests ? (
+                        <PRList
+                            pullRequests={pullRequestsData}
+                            onDelete={handleDeleteClick}
+                        />
+                    ) : (
+                        <EmptyState onAddClick={handleOpenAddDialog} />
+                    )}
+                </Grid>
+            )}
 
             <AddPRDialog
                 open={openAddDialog}
@@ -127,4 +120,3 @@ const PullRequestsPage = (props: PullRequestsPageProps) => {
 };
 
 export default PullRequestsPage;
-

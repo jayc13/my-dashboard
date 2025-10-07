@@ -1,6 +1,5 @@
 import Tooltip from '@mui/material/Tooltip';
 import InfoOutlineIcon from '@mui/icons-material/InfoOutline';
-import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord';
 
 export const getColorByPassingRate = (rate: number) => {
     if (rate >= 0.8) {
@@ -39,11 +38,3 @@ export const getTooltipByPassingRate = (passedRuns: number, totalRuns: number, p
         <InfoOutlineIcon sx={{ fontSize: 15 }}/>
     </Tooltip>;
 };
-
-export const getLastRunStatusIcon = (status: 'passed' | 'failed') => {
-    if (status === 'passed') {
-        return <FiberManualRecordIcon sx={{ color: 'green', fontSize: 28 }}/>;
-    }
-    return <FiberManualRecordIcon sx={{ color: 'red', fontSize: 28 }}/>;
-};
-

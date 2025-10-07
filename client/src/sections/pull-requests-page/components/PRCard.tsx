@@ -99,13 +99,24 @@ const PRCard = ({ pr, onDelete }: PRCardProps) => {
         );
     }
 
+    // Highlight approved PRs
+    const isApproved = details.state === 'open' && isPullRequestApproved(details);
+
     return (
         <Card
             variant="outlined"
-            sx={{ width: '100%', p: 0, borderRadius: 2 }}
+            sx={isApproved ? { border: '2px solid #4caf50', boxShadow: '0 0 10px #4caf5040' } : {}}
             data-testid={`pr-card-${pr.id}`}
         >
             <CardContent style={{ paddingBottom: 8, paddingTop: 8 }}>
+                {isApproved && (
+                    <Box mb={1} display="flex" alignItems="center">
+                        <Chip label="Approved" color="success" size="small" sx={{ fontWeight: 'bold', fontSize: 12, mr: 1 }} />
+                        <Typography variant="caption" color="success.main" fontWeight="bold">
+                            Ready to merge
+                        </Typography>
+                    </Box>
+                )}
                 <Box display="flex" justifyContent="space-between" alignItems="center">
                     <Box
                         display="flex"
