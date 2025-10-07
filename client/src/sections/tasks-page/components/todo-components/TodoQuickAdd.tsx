@@ -7,6 +7,7 @@ interface TodoQuickAddProps {
     isCreating: boolean;
     onChange: (value: string) => void;
     onSubmit: (e: React.FormEvent) => void;
+    inputRef?: React.RefObject<HTMLInputElement | null>;
 }
 
 export const TodoQuickAdd: React.FC<TodoQuickAddProps> = ({
@@ -14,6 +15,7 @@ export const TodoQuickAdd: React.FC<TodoQuickAddProps> = ({
     isCreating,
     onChange,
     onSubmit,
+    inputRef,
 }) => {
     return (
         <Box
@@ -49,6 +51,7 @@ export const TodoQuickAdd: React.FC<TodoQuickAddProps> = ({
                 size="small"
                 fullWidth
                 required
+                inputRef={inputRef}
                 sx={{
                     mr: 1,
                     '& .MuiOutlinedInput-root': {

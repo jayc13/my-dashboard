@@ -48,7 +48,7 @@ export const TodoDeleteDialog: React.FC<TodoDeleteDialogProps> = ({
             >
                 Delete To-Do
             </DialogTitle>
-            <DialogContent sx={{ pt: 3 }}>
+            <DialogContent style={{ paddingTop: 16, paddingBottom: 16 }}>
                 <Typography
                     data-testid="todo-delete-dialog-message"
                     sx={{ color: 'text.secondary' }}
@@ -56,7 +56,7 @@ export const TodoDeleteDialog: React.FC<TodoDeleteDialogProps> = ({
                     Are you sure you want to delete this to-do item? This action cannot be undone.
                 </Typography>
             </DialogContent>
-            <DialogActions sx={{ px: 3, pb: 2 }}>
+            <DialogActions>
                 <Button
                     onClick={onCancel}
                     disabled={isDeleting}
