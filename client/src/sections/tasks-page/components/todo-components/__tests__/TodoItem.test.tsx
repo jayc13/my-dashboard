@@ -53,6 +53,16 @@ describe('TodoItem', () => {
 
         expect(screen.getByTestId('todo-item-1')).toBeInTheDocument();
         expect(screen.getByTestId('todo-title-1')).toHaveTextContent('Test Todo');
+        // Description is collapsed by default, need to expand to see it
+        expect(screen.queryByTestId('todo-description-1')).not.toBeInTheDocument();
+
+        // Click to expand
+        const titleBox = screen.getByTestId('todo-title-1').parentElement?.parentElement;
+        if (titleBox) {
+            fireEvent.click(titleBox);
+        }
+
+        // Now description should be visible
         expect(screen.getByTestId('todo-description-1')).toHaveTextContent('Test Description');
         expect(screen.getByTestId('todo-due-date-1')).toBeInTheDocument();
     });

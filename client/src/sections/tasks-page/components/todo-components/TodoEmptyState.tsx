@@ -98,7 +98,7 @@ export const TodoEmptyState: React.FC = () => {
           mb: 1,
         }}
       >
-        No Tasks Yet
+        No To-Dos yet
       </Typography>
 
       {/* Description */}

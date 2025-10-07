@@ -240,7 +240,7 @@ const ToDoListWidget = () => {
       }
 
       if (aHasDue !== bHasDue) {
-        return aHasDue ? -1 : 1; // Tasks with due dates before those without
+        return aHasDue ? 1 : -1; // Tasks without due dates before those with
       }
     }
     return 0;

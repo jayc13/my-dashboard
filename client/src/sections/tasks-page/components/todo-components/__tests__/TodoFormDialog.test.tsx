@@ -1,6 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { TodoFormDialog } from '../TodoFormDialog';
+import { APIError } from '@my-dashboard/sdk';
 
 describe('TodoFormDialog', () => {
     const mockOnClose = vi.fn();
@@ -344,24 +345,20 @@ describe('TodoFormDialog', () => {
     });
 
     it('highlights field with error when error details contain field information', () => {
-        // This matches the actual APIError structure from the SDK
-        const structuredError = {
+        // Create a proper APIError instance with validation details
+        const structuredError = new APIError(400, 'Invalid link format', {
             message: 'Invalid link format',
-            response: {
-                success: false,
-                error: {
-                    message: 'Invalid link format',
-                    details: [
-                        {
-                            field: 'link',
-                            message: 'link must be a valid URL',
-                            code: 'INVALID_URL',
-                            value: 'asd',
-                        },
-                    ],
+            code: 'VALIDATION_ERROR',
+            statusCode: 400,
+            details: [
+                {
+                    field: 'link',
+                    message: 'link must be a valid URL',
+                    code: 'INVALID_URL',
+                    value: 'asd',
                 },
-            },
-        } as any;
+            ],
+        });
 
         render(
             <TodoFormDialog
@@ -388,26 +385,24 @@ describe('TodoFormDialog', () => {
     });
 
     it('displays multiple field errors when present', () => {
-        // This matches the actual APIError structure from the SDK
-        const multiFieldError = {
+        // Create a proper APIError instance with multiple validation details
+        const multiFieldError = new APIError(400, 'Validation failed', {
             message: 'Validation failed',
-            response: {
-                success: false,
-                error: {
-                    message: 'Validation failed',
-                    details: [
-                        {
-                            field: 'title',
-                            message: 'Title is required',
-                        },
-                        {
-                            field: 'link',
-                            message: 'Invalid URL format',
-                        },
-                    ],
+            code: 'VALIDATION_ERROR',
+            statusCode: 400,
+            details: [
+                {
+                    field: 'title',
+                    message: 'Title is required',
+                    code: 'REQUIRED_FIELD',
                 },
-            },
-        } as any;
+                {
+                    field: 'link',
+                    message: 'Invalid URL format',
+                    code: 'INVALID_URL',
+                },
+            ],
+        });
 
         render(
             <TodoFormDialog
@@ -436,15 +431,19 @@ describe('TodoFormDialog', () => {
     });
 
     it('handles error with details directly on error object', () => {
-        const directDetailsError = {
+        // Create a proper APIError instance
+        const directDetailsError = new APIError(400, 'Validation Error', {
             message: 'Validation Error',
+            code: 'VALIDATION_ERROR',
+            statusCode: 400,
             details: [
                 {
                     field: 'dueDate',
                     message: 'Invalid date format',
+                    code: 'INVALID_DATE',
                 },
             ],
-        } as any;
+        });
 
         render(
             <TodoFormDialog

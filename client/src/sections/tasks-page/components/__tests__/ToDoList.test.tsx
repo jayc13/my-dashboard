@@ -90,7 +90,7 @@ vi.mock('../todo-components', () => ({
     ),
     TodoEmptyState: () => (
         <div data-testid="todo-empty-state">
-            No todos
+            No To-Dos yet
         </div>
     ),
     TodoFilters: ({ filterType, onFilterChange, overdueCount, dueSoonCount, dueTodayCount }: any) => (
@@ -109,6 +109,7 @@ describe('ToDoListWidget', () => {
     const mockUpdateMutate = vi.fn();
     const mockDeleteMutate = vi.fn();
     const mockToggleMutate = vi.fn();
+    const mockResetUpdateError = vi.fn();
 
     const sampleTodos: ToDoItem[] = [
         {
@@ -155,6 +156,8 @@ describe('ToDoListWidget', () => {
         mockUseUpdateTodo.mockReturnValue({
             mutate: mockUpdateMutate,
             loading: false,
+            error: null,
+            reset: mockResetUpdateError,
         });
 
         mockUseDeleteTodo.mockReturnValue({
