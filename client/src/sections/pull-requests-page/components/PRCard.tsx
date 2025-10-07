@@ -15,6 +15,7 @@ import { FaCodeMerge } from 'react-icons/fa6';
 import { enqueueSnackbar } from 'notistack';
 import { usePullRequestDetails } from '@/hooks';
 import type { PullRequest, GithubPullRequestDetails } from '@/types';
+import PRStatusBanner from './PRStatusBanner';
 
 export interface PRCardProps {
     pr: PullRequest;
@@ -126,18 +127,7 @@ const PRCard = ({ pr, onDelete }: PRCardProps) => {
             <CardContent
               sx={{ padding: 0, '&:last-child': { paddingBottom: 0 } }}
             >
-                {isApproved && (
-                    <Box
-                      display="flex"
-                      alignItems="center"
-                      sx={{ backgroundColor: '#e8f5e9', p: 1 }}
-                    >
-                        <Chip label="Approved" color="success" size="small" sx={{ fontWeight: 'bold', fontSize: 12, mr: 1 }} />
-                        <Typography variant="caption" color="success.main" fontWeight="bold">
-                            Ready to merge
-                        </Typography>
-                    </Box>
-                )}
+                <PRStatusBanner details={details} />
                 <Box
                   display="flex"
                   justifyContent="space-between"

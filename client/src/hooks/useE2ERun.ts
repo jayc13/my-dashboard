@@ -1,5 +1,5 @@
 import { useCallback, useMemo } from 'react';
-import { useSDKData, useSDKMutation } from './useSDKData';
+import { useSDKData, useSDKMutation, type UseSDKDataOptions } from './useSDKData';
 import { useSDK } from '../contexts/useSDK';
 import type {
   DetailedE2EReport,
@@ -9,9 +9,7 @@ import type {
 } from '@my-dashboard/types';
 
 
-interface UseE2ERunReportOptions {
-  enabled?: boolean;
-  refetchInterval?: number;
+interface UseE2ERunReportOptions extends UseSDKDataOptions {
   params?: DetailedE2EReportOptions;
 }
 

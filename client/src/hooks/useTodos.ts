@@ -1,15 +1,15 @@
 import { useCallback } from 'react';
-import { useSDKData, useSDKMutation } from './useSDKData';
+import { useSDKData, useSDKMutation, type UseSDKDataOptions } from './useSDKData';
 import { useSDK } from '../contexts/useSDK';
-import type { 
-  ToDoItem, 
+import type {
+  ToDoItem,
   ToDoItemInput,
 } from '@my-dashboard/types';
 
 /**
  * Hook for todos data
  */
-export function useTodos(options?: { enabled?: boolean; refetchInterval?: number }) {
+export function useTodos(options?: UseSDKDataOptions) {
   const { api } = useSDK();
 
   const fetcher = useCallback(async (): Promise<ToDoItem[]> => {
@@ -25,7 +25,7 @@ export function useTodos(options?: { enabled?: boolean; refetchInterval?: number
 /**
  * Hook for single todo data
  */
-export function useTodo(id: number, options?: { enabled?: boolean; refetchInterval?: number }) {
+export function useTodo(id: number, options?: UseSDKDataOptions) {
   const { api } = useSDK();
 
   const fetcher = useCallback(async (): Promise<ToDoItem> => {
