@@ -120,19 +120,30 @@ const PRCard = ({ pr, onDelete }: PRCardProps) => {
     return (
         <Card
             variant="outlined"
-            sx={isApproved ? { border: '2px solid #4caf50', boxShadow: '0 0 10px #4caf5040' } : {}}
+            sx={isApproved ? { border: '2px solid #4caf50', boxShadow: '0 0 10px #4caf5040', padding: 0 } : { padding: 0 }}
             data-testid={`pr-card-${pr.id}`}
         >
-            <CardContent style={{ paddingBottom: 8, paddingTop: 8 }}>
+            <CardContent
+              sx={{ padding: 0, '&:last-child': { paddingBottom: 0 } }}
+            >
                 {isApproved && (
-                    <Box mb={1} display="flex" alignItems="center">
+                    <Box
+                      display="flex"
+                      alignItems="center"
+                      sx={{ backgroundColor: '#e8f5e9', p: 1 }}
+                    >
                         <Chip label="Approved" color="success" size="small" sx={{ fontWeight: 'bold', fontSize: 12, mr: 1 }} />
                         <Typography variant="caption" color="success.main" fontWeight="bold">
                             Ready to merge
                         </Typography>
                     </Box>
                 )}
-                <Box display="flex" justifyContent="space-between" alignItems="center">
+                <Box
+                  display="flex"
+                  justifyContent="space-between"
+                  alignItems="center"
+                  sx={{ padding: 2 }}
+                >
                     <Box
                         display="flex"
                         flexDirection="column"
