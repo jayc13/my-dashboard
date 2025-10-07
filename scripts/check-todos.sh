@@ -26,6 +26,7 @@ IGNORE_FILES=(
     # Script files that contain TODO/FIXME as part of their functionality
     "scripts/check-todos.sh"
     "scripts/README-check-todos.md"
+    "scripts/ci/check-todos-pr-comment.sh"
 
     # Workflow files that may contain TODO placeholders
     ".github/workflows/pr-validation.yml"
