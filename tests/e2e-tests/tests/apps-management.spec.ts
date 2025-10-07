@@ -538,4 +538,121 @@ test.describe('Apps Management Test Suite', () => {
       await expect(appsPage.appDialog).not.toBeVisible();
     });
   });
+
+  test.describe('Toggle Watching in Table', () => {
+    let testAppCode: string;
+
+    test.beforeEach(async () => {
+      // Create test apps with different watching states
+      testAppCode = 'toggle-test-app';
+
+      // Turn off watching filter to see all apps
+      await appsPage.setWatchingFilter(false);
+
+      if (!(await appsPage.isAppVisible(testAppCode))) {
+        await appsPage.createApp({
+          name: 'Toggle Test App',
+          code: testAppCode,
+          watching: false,
+        });
+      }
+    });
+
+    test('should toggle watching status from false to true', async () => {
+      // Verify initial state
+      let appData = await appsPage.getAppData(testAppCode);
+      expect(appData.watching).toBe(false);
+
+      // Toggle watching
+      await appsPage.toggleWatching(testAppCode);
+
+      // Verify watching is now true
+      appData = await appsPage.getAppData(testAppCode);
+      expect(appData.watching).toBe(true);
+    });
+
+    test('should toggle watching status from true to false', async () => {
+      // First ensure the app is watching
+      let appData = await appsPage.getAppData(testAppCode);
+      if (!appData.watching) {
+        await appsPage.toggleWatching(testAppCode);
+      }
+
+      // Verify it's watching
+      appData = await appsPage.getAppData(testAppCode);
+      expect(appData.watching).toBe(true);
+
+      // Toggle watching off
+      await appsPage.toggleWatching(testAppCode);
+
+      // Verify watching is now false
+      appData = await appsPage.getAppData(testAppCode);
+      expect(appData.watching).toBe(false);
+    });
+
+    test('should toggle watching multiple times', async () => {
+      // Get initial state
+      let appData = await appsPage.getAppData(testAppCode);
+      const initialWatching = appData.watching;
+
+      // Toggle 3 times
+      await appsPage.toggleWatching(testAppCode);
+      await appsPage.toggleWatching(testAppCode);
+      await appsPage.toggleWatching(testAppCode);
+
+      // Should be opposite of initial state (toggled odd number of times)
+      appData = await appsPage.getAppData(testAppCode);
+      expect(appData.watching).toBe(!initialWatching);
+    });
+
+    test('should update visibility when toggling with watching filter enabled', async () => {
+      // Ensure app is not watching
+      let appData = await appsPage.getAppData(testAppCode);
+      if (appData.watching) {
+        await appsPage.toggleWatching(testAppCode);
+      }
+
+      // Enable watching filter
+      await appsPage.setWatchingFilter(true);
+
+      // App should not be visible
+      expect(await appsPage.isAppVisible(testAppCode)).toBe(false);
+
+      // Turn off filter to toggle
+      await appsPage.setWatchingFilter(false);
+      await appsPage.toggleWatching(testAppCode);
+
+      // Turn filter back on
+      await appsPage.setWatchingFilter(true);
+
+      // App should now be visible
+      expect(await appsPage.isAppVisible(testAppCode)).toBe(true);
+    });
+
+    test('should show tooltip on hover', async () => {
+      await appsPage.setWatchingFilter(false);
+
+      const toggleButton = await appsPage.getAppToggleWatchingButton(testAppCode);
+
+      // Hover over the button
+      await toggleButton.hover();
+
+      // Wait for tooltip to appear
+      await page.waitForTimeout(300);
+
+      // Check if tooltip exists (MUI tooltips appear in the body)
+      const tooltip = page.locator('[role="tooltip"]');
+      await expect(tooltip).toBeVisible();
+    });
+
+    test('should not open edit dialog when clicking toggle button', async () => {
+      await appsPage.setWatchingFilter(false);
+
+      // Click the toggle button
+      await appsPage.toggleWatching(testAppCode);
+
+      // Verify edit dialog did NOT open
+      await expect(appsPage.appDialog).not.toBeVisible();
+    });
+  });
 });

@@ -151,6 +151,24 @@ export class AppsPage {
     return this.page.locator(`[data-testid="app-edit-button-${code}"]`);
   }
 
+  async getAppToggleWatchingButton(code: string): Promise<Locator> {
+    return this.page.locator(`[data-testid="app-toggle-watching-${code}"]`);
+  }
+
+  async toggleWatching(code: string) {
+    const toggleButton = await this.getAppToggleWatchingButton(code);
+
+    // Set up intercept for update app API call
+    const appData = await this.getAppData(code);
+    const getAllAppsRequest = ApplicationTestUtils.interceptListApps(this.page);
+    const updateAppRequest = ApplicationTestUtils.interceptEditApp(this.page, appData.id);
+
+    await toggleButton.click();
+
+    // Wait for the API call to complete
+    await Promise.all([getAllAppsRequest, updateAppRequest]);
+  }
+
   async deleteApp(appId: number) {
     await (await this.getAppDeleteButton(appId)).click();
     await expect(this.deleteAppDialog).toBeVisible();
