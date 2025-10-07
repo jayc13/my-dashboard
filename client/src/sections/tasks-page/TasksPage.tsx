@@ -26,38 +26,21 @@ const TasksPage = (props: TasksPageProps) => {
         refetchManualTesting,
     } = props;
 
-    // Determine if Manual Testing section should be shown
-    const hasManualTestingTickets = !isLoadingManualTesting &&
-                                    !errorManualTesting &&
-                                    manualTestingData &&
-                                    manualTestingData.length > 0;
-
-    // Calculate grid sizes based on whether Manual Testing is shown
-    const todoGridSize = hasManualTestingTickets
-        ? { xs: 12, sm: 6, md: 4 }  // Narrow mode
-        : { xs: 12, sm: 12, md: 8 }; // Wide mode
-
-    const myTicketsGridSize = hasManualTestingTickets
-        ? { xs: 12, sm: 6, md: 4 }  // Normal size
-        : { xs: 12, sm: 12, md: 4 }; // Normal size
-
     return (
         <Grid container spacing={2} data-testid="tasks-page">
-            <Grid size={todoGridSize}>
-                <ToDoListSection isWideMode={!hasManualTestingTickets} />
+            <Grid size={{ xs: 12, sm: 6, md: 4 }}>
+                <ToDoListSection isWideMode={false} />
             </Grid>
-            {hasManualTestingTickets && (
-                <Grid size={{ xs: 12, sm: 6, md: 4 }}>
-                    <JiraListSection
-                        title="Manual Testing"
-                        data={manualTestingData || []}
-                        isLoading={isLoadingManualTesting}
-                        hasError={!!errorManualTesting}
-                        refresh={refetchManualTesting}
-                    />
-                </Grid>
-            )}
-            <Grid size={myTicketsGridSize}>
+            <Grid size={{ xs: 12, sm: 6, md: 4 }}>
+                <JiraListSection
+                    title="Manual Testing"
+                    data={manualTestingData || []}
+                    isLoading={isLoadingManualTesting}
+                    hasError={!!errorManualTesting}
+                    refresh={refetchManualTesting}
+                />
+            </Grid>
+            <Grid size={{ xs: 12, sm: 6, md: 4 }}>
                 <JiraListSection
                     title="My Tickets"
                     data={myTicketsData || []}

@@ -10,7 +10,6 @@ import {
   Box,
   Chip,
   Fade,
-  Zoom,
   Tooltip,
   Collapse,
 } from '@mui/material';
@@ -18,11 +17,8 @@ import { TooltipIconButton } from '@/components/common';
 import DeleteIcon from '@mui/icons-material/Delete';
 import LinkIcon from '@mui/icons-material/Link';
 import EditIcon from '@mui/icons-material/Edit';
-import WarningAmberIcon from '@mui/icons-material/WarningAmber';
-import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
-import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import type { ToDoItem } from '@my-dashboard/types/todos';
 
 interface TodoItemProps {
@@ -31,7 +27,6 @@ interface TodoItemProps {
   onToggle: (id: number, checked: boolean) => void;
   onEdit: (todo: ToDoItem) => void;
   onDelete: (id: number) => void;
-  isCompact?: boolean;
 }
 
 export const TodoItem: React.FC<TodoItemProps> = ({
@@ -40,15 +35,17 @@ export const TodoItem: React.FC<TodoItemProps> = ({
                                                     onToggle,
                                                     onEdit,
                                                     onDelete,
-                                                    isCompact = false,
                                                   }) => {
   const [collapsed, setCollapsed] = useState(true);
-  const [expanded, setExpanded] = useState(false);
   // Parse date without time - treat as date only
   const dueDate = todo.dueDate ? DateTime.fromISO(todo.dueDate).startOf('day') : null;
   const now = DateTime.now().startOf('day'); // Compare dates only, not times
   const isOverdue = dueDate && dueDate < now && !todo.isCompleted;
-  const isDueSoon = dueDate && dueDate.diff(now, 'days').days <= 1 && dueDate >= now && !todo.isCompleted;
+  const isDueToday = dueDate && dueDate.hasSame(now, 'day') && !todo.isCompleted;
+  const isDueSoon = dueDate && !todo.isCompleted && (() => {
+    const diff = dueDate.diff(now, 'days').days;
+    return diff > 0 && diff <= 2;
+  })();
 
   // Get relative time for due date (days only, no hours/minutes)
   const getRelativeTime = () => {
@@ -97,10 +94,9 @@ export const TodoItem: React.FC<TodoItemProps> = ({
 
   const relativeTime = getRelativeTime();
   const linkDomain = getLinkDomain();
-  const hasLongDescription = todo.description && todo.description.length > 150;
 
   // Check if item has expandable content
-  const hasExpandableContent = todo.description || todo.link;
+  const hasExpandableContent = !!todo.description;
 
   // Calculate background color with smooth transitions
   const getBackgroundColor = () => {
@@ -110,8 +106,11 @@ export const TodoItem: React.FC<TodoItemProps> = ({
     if (isOverdue) {
       return 'rgba(244, 67, 54, 0.08)'; // Subtle red for overdue
     }
+    if (isDueToday) {
+      return 'rgba(255, 152, 0, 0.08)'; // Subtle orange for due today
+    }
     if (isDueSoon) {
-      return 'rgba(255, 152, 0, 0.08)'; // Subtle orange for due soon
+      return 'rgba(25, 118, 210, 0.08)'; // Subtle blue for due soon
     }
     return 'background.paper';
   };
@@ -121,11 +120,16 @@ export const TodoItem: React.FC<TodoItemProps> = ({
     if (isOverdue) {
       return 'error.main';
     }
-    if (isDueSoon) {
+    if (isDueToday) {
       return 'warning.main';
+    }
+    if (isDueSoon) {
+      return 'primary.main';
     }
     return undefined;
   };
+
+  const dueDateColor = isOverdue ? 'error' : isDueToday ? 'warning' : isDueSoon ? 'primary' : 'default';
 
   return (
     <Fade in={true} timeout={300}>
@@ -133,9 +137,9 @@ export const TodoItem: React.FC<TodoItemProps> = ({
         key={todo.id}
         component={Card}
         sx={{
-          mb: isCompact ? 1 : 1.5,
+          mb: 1.5,
           backgroundColor: getBackgroundColor(),
-          borderLeft: getBorderColor() ? (isCompact ? '3px solid' : '4px solid') : undefined,
+          borderLeft: getBorderColor() ? '4px solid' : undefined,
           borderLeftColor: getBorderColor(),
           flexDirection: 'column',
           alignItems: 'stretch',
@@ -147,8 +151,8 @@ export const TodoItem: React.FC<TodoItemProps> = ({
         <Box sx={{
           display: 'flex',
           alignItems: 'flex-start',
-          p: isCompact ? 1.5 : 2,
-          pr: isCompact ? 0.5 : 1,
+          p: 2,
+          pr: 1,
           gap: 0.5,
         }}>
           <Checkbox
@@ -161,7 +165,7 @@ export const TodoItem: React.FC<TodoItemProps> = ({
             onClick={(e) => e.stopPropagation()}
             data-testid={`todo-checkbox-${todo.id}`}
             sx={{
-              mt: isCompact ? -0.25 : 0,
+              mt: 0,
               p: 0.5,
             }}
           />
@@ -170,7 +174,7 @@ export const TodoItem: React.FC<TodoItemProps> = ({
             sx={{
               flex: 1,
               minWidth: 0,
-              mt: isCompact ? 0.25 : 0.5,
+              mt: 0.5,
               cursor: hasExpandableContent ? 'pointer' : 'default',
               '&:hover': hasExpandableContent ? {
                 '& .expand-indicator': {
@@ -185,15 +189,15 @@ export const TodoItem: React.FC<TodoItemProps> = ({
             }}
           >
             {/* Title and Status Row */}
-            <Box display="flex" alignItems="center" flexWrap="wrap" gap={isCompact ? 0.5 : 1} mb={0.5}>
+            <Box display="flex" alignItems="center" flexWrap="wrap" gap={1} mb={0.5}>
               <Typography
-                variant={isCompact ? 'body2' : 'body1'}
+                variant="body1"
                 sx={{
                   textDecoration: todo.isCompleted ? 'line-through' : undefined,
                   fontWeight: todo.isCompleted ? 'normal' : 600,
                   color: todo.isCompleted ? 'text.secondary' : 'text.primary',
                   transition: 'all 0.2s ease-in-out',
-                  fontSize: isCompact ? '0.875rem' : '1rem',
+                  fontSize: '1rem',
                 }}
                 data-testid={`todo-title-${todo.id}`}
               >
@@ -218,70 +222,51 @@ export const TodoItem: React.FC<TodoItemProps> = ({
                       <Typography
                         variant="caption"
                         sx={{
-                          fontSize: isCompact ? '0.7rem' : '0.75rem',
+                          fontSize: '0.75rem',
                           color: 'text.secondary',
                           fontWeight: 500,
                         }}
                       >
                         See more
                       </Typography>
-                      <ExpandMoreIcon sx={{ fontSize: isCompact ? 14 : 16, color: 'text.secondary' }} />
+                      <ExpandMoreIcon sx={{ fontSize: 16, color: 'text.secondary' }} />
                     </>
                   ) : (
                     <>
                       <Typography
                         variant="caption"
                         sx={{
-                          fontSize: isCompact ? '0.7rem' : '0.75rem',
+                          fontSize: '0.75rem',
                           color: 'text.secondary',
                           fontWeight: 500,
                         }}
                       >
                         See less
                       </Typography>
-                      <ExpandLessIcon sx={{ fontSize: isCompact ? 14 : 16, color: 'text.secondary' }} />
+                      <ExpandLessIcon sx={{ fontSize: 16, color: 'text.secondary' }} />
                     </>
                   )}
                 </Box>
               )}
 
-              {/* Overdue indicator with animation */}
-              {isOverdue && (
-                <Zoom in={true}>
+              {/* Due Date - Always visible */}
+              {dueDate && (
+                <Tooltip
+                  title={`${dueDate.toFormat('EEEE, MMMM dd, yyyy')} (${relativeTime})`}
+                  arrow
+                >
                   <Chip
-                    icon={<WarningAmberIcon sx={{ fontSize: isCompact ? 12 : 14 }}/>}
-                    label={isCompact ? 'Late' : 'Overdue'}
+                    label={dueDate.toFormat('MMM dd, yyyy')}
                     size="small"
-                    color="error"
-                    sx={{
-                      height: isCompact ? 20 : 22,
-                      fontSize: isCompact ? '0.7rem' : '0.75rem',
-                      fontWeight: 'bold',
-                      animation: 'pulse 2s ease-in-out infinite',
-                      '@keyframes pulse': {
-                        '0%, 100%': { opacity: 1 },
-                        '50%': { opacity: 0.7 },
-                      },
-                    }}
+                    variant="outlined"
+                    color={dueDateColor}
+                    data-testid={`todo-due-date-${todo.id}`}
                   />
-                </Zoom>
-              )}
-
-              {/* Due soon indicator */}
-              {isDueSoon && !isCompact && (
-                <Zoom in={true}>
-                  <Chip
-                    icon={<AccessTimeIcon sx={{ fontSize: 14 }}/>}
-                    label="Due Soon"
-                    size="small"
-                    color="warning"
-                    sx={{ height: 22, fontSize: '0.75rem' }}
-                  />
-                </Zoom>
+                </Tooltip>
               )}
 
               {/* Link - Always visible */}
-              {linkDomain && !isCompact && (
+              {linkDomain && (
                 <Chip
                   icon={<LinkIcon sx={{ fontSize: 14 }}/>}
                   label={linkDomain}
@@ -303,43 +288,11 @@ export const TodoItem: React.FC<TodoItemProps> = ({
               )}
             </Box>
 
-            {/* Expandable Content - Due Date and Description */}
+            {/* Expandable Content - Description Only */}
             <Collapse in={!collapsed} timeout="auto" unmountOnExit>
-              {/* Metadata Row - Due Date */}
-              {dueDate && (
-                <Box display="flex" alignItems="center" flexWrap="wrap" gap={isCompact ? 0.5 : 1} mb={todo.description ? (isCompact ? 0.5 : 1) : 0}>
-                  <Tooltip title={dueDate.toFormat('EEEE, MMMM dd, yyyy')} arrow>
-                    <Chip
-                      icon={<CalendarTodayIcon sx={{ fontSize: isCompact ? 12 : 14 }}/>}
-                      label={
-                        <Box component="span">
-                          <Box component="span" sx={{ fontWeight: 600 }}>
-                            {isCompact ? dueDate.toFormat('MMM dd') : dueDate.toFormat('MMM dd, yyyy')}
-                          </Box>
-                          {relativeTime && !isCompact && (
-                            <Box component="span" sx={{ ml: 0.5, opacity: 0.8 }}>
-                              ({relativeTime})
-                            </Box>
-                          )}
-                        </Box>
-                      }
-                      size="small"
-                      variant="outlined"
-                      sx={{
-                        height: isCompact ? 20 : 24,
-                        fontSize: isCompact ? '0.7rem' : '0.75rem',
-                        borderColor: isOverdue ? 'error.main' : isDueSoon ? 'warning.main' : 'divider',
-                        color: isOverdue ? 'error.main' : isDueSoon ? 'warning.main' : 'text.secondary',
-                        backgroundColor: isOverdue ? 'error.lighter' : isDueSoon ? 'warning.lighter' : 'transparent',
-                      }}
-                      data-testid={`todo-due-date-${todo.id}`}
-                    />
-                  </Tooltip>
-                </Box>
-              )}
 
               {/* Description */}
-              {todo.description && !isCompact && (
+              {todo.description && (
                 <Box sx={{ mt: 1 }}>
                   <Box
                     sx={{
@@ -420,55 +373,10 @@ export const TodoItem: React.FC<TodoItemProps> = ({
                     data-testid={`todo-description-${todo.id}`}
                   >
                     <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                      {hasLongDescription && !expanded
-                        ? `${todo.description.substring(0, 150)}...`
-                        : todo.description}
+                      {todo.description}
                     </ReactMarkdown>
                   </Box>
-                  {hasLongDescription && (
-                    <Box
-                      component="span"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setExpanded(!expanded);
-                      }}
-                      sx={{
-                        color: 'primary.main',
-                        cursor: 'pointer',
-                        fontSize: '0.875rem',
-                        fontWeight: 500,
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        mt: 0.5,
-                        '&:hover': {
-                          textDecoration: 'underline',
-                        },
-                      }}
-                    >
-                      {expanded ? 'Show less' : 'Show more'}
-                      {expanded ? <ExpandLessIcon sx={{ fontSize: 16 }} /> : <ExpandMoreIcon sx={{ fontSize: 16 }} />}
-                    </Box>
-                  )}
                 </Box>
-              )}
-
-              {/* Compact mode: Show truncated description (plain text only) */}
-              {todo.description && isCompact && (
-                <Typography
-                  variant="caption"
-                  sx={{
-                    color: todo.isCompleted ? 'text.disabled' : 'text.secondary',
-                    display: 'block',
-                    mt: 0.5,
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                    whiteSpace: 'nowrap',
-                  }}
-                  data-testid={`todo-description-${todo.id}`}
-                >
-                  {/* Strip markdown for compact view */}
-                  {todo.description.replace(/[#*_`\[\]()]/g, '')}
-                </Typography>
               )}
             </Collapse>
           </Box>
@@ -479,8 +387,8 @@ export const TodoItem: React.FC<TodoItemProps> = ({
             onClick={(e) => e.stopPropagation()}
             sx={{
               display: 'flex',
-              gap: isCompact ? 0.25 : 0.5,
-              mt: isCompact ? 0 : 0.25,
+              gap: 0.5,
+              mt: 0.25,
             }}
           >
             <TooltipIconButton
@@ -500,7 +408,7 @@ export const TodoItem: React.FC<TodoItemProps> = ({
                 transition: 'all 0.2s ease-in-out',
               }}
             >
-              <EditIcon sx={{ fontSize: isCompact ? 16 : 18 }}/>
+              <EditIcon sx={{ fontSize: 18 }}/>
             </TooltipIconButton>
             <TooltipIconButton
               tooltip="Delete task"
@@ -519,7 +427,7 @@ export const TodoItem: React.FC<TodoItemProps> = ({
                 transition: 'all 0.2s ease-in-out',
               }}
             >
-              <DeleteIcon sx={{ fontSize: isCompact ? 16 : 18 }}/>
+              <DeleteIcon sx={{ fontSize: 18 }}/>
             </TooltipIconButton>
           </Box>
         </Box>

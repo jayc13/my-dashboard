@@ -34,11 +34,7 @@ import {
   type FilterType,
 } from './todo-components';
 
-interface ToDoListWidgetProps {
-  isWideMode?: boolean;
-}
-
-const ToDoListWidget = ({ isWideMode = false }: ToDoListWidgetProps) => {
+const ToDoListWidget = () => {
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState({
     title: '',
@@ -49,7 +45,7 @@ const ToDoListWidget = ({ isWideMode = false }: ToDoListWidgetProps) => {
   const [editId, setEditId] = useState<number | null>(null);
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [quickTitle, setQuickTitle] = useState('');
-  const [showCompleted, setShowCompleted] = useState(true);
+  const [showCompleted, setShowCompleted] = useState(false);
   const [filterType, setFilterType] = useState<FilterType>('all');
   const [deletedTodo, setDeletedTodo] = useState<ToDoItem | null>(null);
   const quickAddInputRef = useRef<HTMLInputElement>(null);
@@ -211,7 +207,7 @@ const ToDoListWidget = ({ isWideMode = false }: ToDoListWidgetProps) => {
           return false;
         }
         const diff = dueDate.diff(now, 'days').days;
-        if (diff > 1 || diff < 0) {
+        if (diff <= 0 || diff > 2) {
           return false;
         }
       }
@@ -270,7 +266,7 @@ const ToDoListWidget = ({ isWideMode = false }: ToDoListWidgetProps) => {
     }
     const dueDate = DateTime.fromISO(t.dueDate).startOf('day');
     const diff = dueDate.diff(now, 'days').days;
-    return diff <= 1 && diff >= 0;
+    return diff > 0 && diff <= 2;
   }).length;
 
   const dueTodayCount = (toDoListData || []).filter(t => {
@@ -291,7 +287,7 @@ const ToDoListWidget = ({ isWideMode = false }: ToDoListWidgetProps) => {
 
       {/* Statistics Dashboard */}
       {toDoListData && toDoListData.length > 0 && (
-        <TodoStats todos={toDoListData} isWideMode={isWideMode}/>
+        <TodoStats todos={toDoListData}/>
       )}
 
       {/* Filters */}
@@ -302,7 +298,6 @@ const ToDoListWidget = ({ isWideMode = false }: ToDoListWidgetProps) => {
           overdueCount={overdueCount}
           dueSoonCount={dueSoonCount}
           dueTodayCount={dueTodayCount}
-          isCompact={!isWideMode}
         />
       )}
 
@@ -356,7 +351,6 @@ const ToDoListWidget = ({ isWideMode = false }: ToDoListWidgetProps) => {
                   onToggle={handleToggle}
                   onEdit={handleEditOpen}
                   onDelete={handleDelete}
-                  isCompact={!isWideMode}
                 />
               ))}
             </List>
@@ -416,7 +410,6 @@ const ToDoListWidget = ({ isWideMode = false }: ToDoListWidgetProps) => {
                     onToggle={handleToggle}
                     onEdit={handleEditOpen}
                     onDelete={handleDelete}
-                    isCompact={!isWideMode}
                   />
                 ))}
               </List>
