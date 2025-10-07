@@ -6,8 +6,8 @@ import NotificationListItem from './NotificationListItem.tsx';
 
 interface NotificationListProps {
   notifications: Notification[];
-  onMarkAsRead: (id: number) => void;
-  onDelete: (id: number) => void;
+  onMarkAsRead: (id: number) => Promise<void>;
+  onDelete: (id: number) => Promise<void>;
 }
 
 const NotificationList: React.FC<NotificationListProps> = ({ notifications, onMarkAsRead, onDelete }) => {
