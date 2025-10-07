@@ -153,6 +153,29 @@ const AppsPageContainer = () => {
         setDeleteAppId(null);
     };
 
+    const handleToggleWatching = async (app: Application) => {
+        if (!app.id) {
+            return;
+        }
+
+        try {
+            await updateApp({
+                id: app.id,
+                data: {
+                    ...app,
+                    watching: !app.watching,
+                } as Application,
+            });
+            enqueueSnackbar(
+                app.watching ? 'App removed from watching list' : 'App added to watching list',
+                { variant: 'success' },
+            );
+            await refetch();
+        } catch {
+            enqueueSnackbar('Failed to update watching status', { variant: 'error' });
+        }
+    };
+
     return (
         <AppsPage
             apps={apps ?? undefined}
@@ -177,6 +200,7 @@ const AppsPageContainer = () => {
             handleDeleteClick={handleDeleteClick}
             handleConfirmDelete={handleConfirmDelete}
             handleCancelDelete={handleCancelDelete}
+            handleToggleWatching={handleToggleWatching}
             setFormData={setFormData}
         />
     );

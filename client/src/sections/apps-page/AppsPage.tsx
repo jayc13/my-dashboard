@@ -34,6 +34,7 @@ export interface AppsPageProps {
     handleDeleteClick: (id: number) => void;
     handleConfirmDelete: () => Promise<void>;
     handleCancelDelete: () => void;
+    handleToggleWatching: (app: Application) => void;
     setFormData: (data: Partial<Application>) => void;
 }
 
@@ -60,6 +61,7 @@ const AppsPage = (props: AppsPageProps) => {
         handleDeleteClick,
         handleConfirmDelete,
         handleCancelDelete,
+        handleToggleWatching,
         setFormData,
     } = props;
 
@@ -108,6 +110,7 @@ const AppsPage = (props: AppsPageProps) => {
                 totalApps={apps?.length || 0}
                 onEdit={handleOpenDialog}
                 onDelete={handleDeleteClick}
+                onToggleWatching={handleToggleWatching}
             />
 
             <AppDialog
