@@ -138,9 +138,13 @@ jobs:
 
       - name: Check for TODO and FIXME comments
         shell: bash
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          PR_NUMBER: ${{ inputs.pr-number }}
         run: |
           echo "📝 Checking for TODO and FIXME comments..."
-          ${{ github.workspace }}/scripts/check-todos.sh
+          ${{ github.workspace }}/scripts/ci/check-todos-pr-comment.sh
 
       - name: Estimate PR complexity
         shell: bash

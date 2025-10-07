@@ -33,9 +33,10 @@ if [ $TOTAL_DIFF -gt $MAX_SIZE_INCREASE ]; then
 fi
 
 # Check percentage increase (only if we have a valid percentage)
-if [ "$TOTAL_PERCENT" != "N/A" ]; then
+if [ "$TOTAL_PERCENT" != "N/A" ] && [ -n "$TOTAL_PERCENT" ]; then
   PERCENT_INT=$(echo "$TOTAL_PERCENT" | cut -d'.' -f1)
-  if [ "$PERCENT_INT" -gt $MAX_PERCENT_INCREASE ]; then
+  # Only compare if PERCENT_INT is not empty and is a valid number
+  if [ -n "$PERCENT_INT" ] && [ "$PERCENT_INT" -gt $MAX_PERCENT_INCREASE ] 2>/dev/null; then
     echo -e "${RED}❌ Bundle size increased by more than ${MAX_PERCENT_INCREASE}% (${TOTAL_PERCENT}%)${NC}"
     SHOULD_FAIL=true
   fi

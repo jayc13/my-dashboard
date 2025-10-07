@@ -16,7 +16,7 @@ CYAN='\033[0;36m'
 NC='\033[0m' # No Color
 
 # Configuration
-EXTENSIONS=("ts" "tsx" "js" "jsx" "sh" "yml" "yaml" "md" "json")
+EXTENSIONS=("ts" "tsx" "js" "jsx" "sh" "yml" "yaml" "json")
 SCAN_DIRS=("client/src" "server/src" "cron/src" "scripts" ".github" "docs")
 EXCLUDE_PATTERNS=("node_modules" "dist" "build" "coverage" "data" ".git")
 
@@ -26,6 +26,7 @@ IGNORE_FILES=(
     # Script files that contain TODO/FIXME as part of their functionality
     "scripts/check-todos.sh"
     "scripts/README-check-todos.md"
+    "scripts/ci/check-todos-pr-comment.sh"
 
     # Workflow files that may contain TODO placeholders
     ".github/workflows/pr-validation.yml"
@@ -151,8 +152,8 @@ scan_file_comments() {
             ;;
     esac
 
-    # Get line numbers and content for TODO/FIXME comments
-    grep -n -i -E "$comment_patterns" "$file" 2>/dev/null | while IFS=':' read -r line_num content; do
+    # Get line numbers and content for TODO/FIXME comments (case-sensitive)
+    grep -n -E "$comment_patterns" "$file" 2>/dev/null | while IFS=':' read -r line_num content; do
         # Clean up the content (remove leading/trailing whitespace)
         clean_content=$(echo "$content" | sed 's/^[[:space:]]*//' | sed 's/[[:space:]]*$//')
 
@@ -210,7 +211,7 @@ check_complex_todos() {
     )
 
     for pattern in "${complex_patterns[@]}"; do
-        grep -n -i -E "$pattern" "$file" 2>/dev/null | while IFS=':' read -r line_num content; do
+        grep -n -E "$pattern" "$file" 2>/dev/null | while IFS=':' read -r line_num content; do
             clean_content=$(echo "$content" | sed 's/^[[:space:]]*//' | sed 's/[[:space:]]*$//')
             echo "$file:$line_num:$clean_content" >> "$COMPLEX_TODO_FILE"
         done

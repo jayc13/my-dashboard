@@ -77,7 +77,7 @@ const PullRequestsPage = (props: PullRequestsPageProps) => {
                 )}
             </Box>
 
-            {loading ? (
+            {loading && !pullRequestsData ? (
                 <PullRequestsSkeleton />
             ) : error ? (
                 <Box mt={2}>

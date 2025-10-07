@@ -47,6 +47,43 @@ export default defineConfig(({ mode }) => ({
       include: [/node_modules/],
       exclude: [/@my-dashboard\/(sdk|types)/],
     },
+    rollupOptions: {
+      output: {
+        manualChunks: (id) => {
+          // Vendor chunks for large libraries
+          if (id.includes('node_modules')) {
+            // MUI and related packages
+            if (id.includes('@mui') || id.includes('@emotion')) {
+              return 'vendor-mui';
+            }
+            // Firebase
+            if (id.includes('firebase')) {
+              return 'vendor-firebase';
+            }
+            // React and related
+            if (id.includes('react') || id.includes('react-dom') || id.includes('react-router')) {
+              return 'vendor-react';
+            }
+            // Other vendor code
+            return 'vendor-other';
+          }
+
+          // Split each section into its own chunk
+          if (id.includes('/src/sections/apps-page')) {
+            return 'section-apps';
+          }
+          if (id.includes('/src/sections/e2e-page')) {
+            return 'section-e2e';
+          }
+          if (id.includes('/src/sections/pull-requests-page')) {
+            return 'section-pull-requests';
+          }
+          if (id.includes('/src/sections/tasks-page')) {
+            return 'section-tasks';
+          }
+        },
+      },
+    },
   },
   test: {
     watch: false,

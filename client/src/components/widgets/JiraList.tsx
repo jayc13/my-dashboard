@@ -54,7 +54,8 @@ const JiraList = (props: ManualTestingProps) => {
         </Grid>;
     };
 
-    if (isLoading) {
+    // Only show skeleton if loading AND no data exists yet
+    if (isLoading && data.length === 0) {
         return <div data-testid={`jira-list-${title.toLowerCase().replace(/\s+/g, '-')}`}>
             <JiraListHeader/>
             <Stack direction="column" spacing={2} data-testid={`jira-list-loading-${title.toLowerCase().replace(/\s+/g, '-')}`}>

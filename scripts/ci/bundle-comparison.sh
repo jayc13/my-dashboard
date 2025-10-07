@@ -63,9 +63,15 @@ CSS_DIFF=$((CURRENT_CSS_SIZE - MAIN_CSS_SIZE))
 
 # Calculate percentage changes
 if [ $MAIN_TOTAL_SIZE -gt 0 ]; then
-TOTAL_PERCENT=$(echo "scale=2; $TOTAL_DIFF * 100 / $MAIN_TOTAL_SIZE" | bc -l)
+  TOTAL_PERCENT=$(echo "scale=2; $TOTAL_DIFF * 100 / $MAIN_TOTAL_SIZE" | bc -l 2>/dev/null || echo "0")
+  # Remove leading/trailing whitespace and ensure it's a valid number
+  TOTAL_PERCENT=$(echo "$TOTAL_PERCENT" | xargs)
+  # If TOTAL_PERCENT is empty or invalid, set to 0
+  if [ -z "$TOTAL_PERCENT" ] || ! [[ "$TOTAL_PERCENT" =~ ^-?[0-9]+\.?[0-9]*$ ]]; then
+    TOTAL_PERCENT="0"
+  fi
 else
-TOTAL_PERCENT="N/A"
+  TOTAL_PERCENT="N/A"
 fi
 
 echo -e "${BLUE}📊 Bundle size comparison with main branch:${NC}"

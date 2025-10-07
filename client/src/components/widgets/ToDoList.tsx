@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { DateTime } from 'luxon';
-import { useTodos, useCreateTodo, useUpdateTodo, useDeleteTodo, useToggleTodo } from '../../hooks';
+import { useTodos, useCreateTodo, useUpdateTodo, useDeleteTodo, useToggleTodo } from '@/hooks';
 import {
     Alert,
     Card,
@@ -142,7 +142,7 @@ const ToDoListWidget = () => {
                 </Alert>
             )}
             <List sx={{ padding: 0 }} data-testid="todo-list">
-                {isLoadingList &&
+                {isLoadingList && !toDoListData &&
                     <Stack direction="column" spacing={2} data-testid="todo-loading">
                         <Skeleton variant="rectangular" height={50}/>
                         <Skeleton variant="rectangular" height={50}/>
