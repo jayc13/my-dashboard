@@ -1,4 +1,4 @@
-import ToDoListWidget from '@/components/widgets/ToDoList';
+import ToDoListWidget from '@/sections/tasks-page/components/ToDoList.tsx';
 
 const ToDoListSection = () => {
     return (

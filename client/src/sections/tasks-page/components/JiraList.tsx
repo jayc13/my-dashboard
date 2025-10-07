@@ -4,10 +4,10 @@ import {
     Skeleton,
     Stack,
 } from '@mui/material';
-import JiraCard from '../common/JiraCard';
-import { TooltipIconButton } from '../common';
+import JiraCard from '@/components/common/JiraCard';
+import { TooltipIconButton } from '@/components/common';
 import RefreshIcon from '@mui/icons-material/Refresh';
-import type { JiraTicket } from '../../types';
+import type { JiraTicket } from '@/types/index.ts';
 
 
 interface ManualTestingProps {

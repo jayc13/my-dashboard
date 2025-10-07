@@ -1,4 +1,4 @@
-import JiraList from '@/components/widgets/JiraList';
+import JiraList from '@/sections/tasks-page/components/JiraList.tsx';
 import type { JiraTicket } from '@/types';
 
 export interface JiraListSectionProps {
