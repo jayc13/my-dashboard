@@ -390,4 +390,152 @@ test.describe('Apps Management Test Suite', () => {
       expect(await appsPage.isAppVisible('non-watching-app')).toBe(false);
     });
   });
+
+  test.describe('URL Parameter Navigation', () => {
+    let testAppCode: string;
+    let testAppId: number;
+
+    test.beforeEach(async () => {
+      // Create a test app to use for URL parameter tests
+      testAppCode = 'url-param-test-app';
+
+      // Turn off watching filter to see all apps
+      await appsPage.setWatchingFilter(false);
+
+      if (!(await appsPage.isAppVisible(testAppCode))) {
+        await appsPage.createApp({
+          name: 'URL Param Test App',
+          code: testAppCode,
+          pipelineUrl: 'https://example.com/pipeline',
+          watching: true,
+        });
+      }
+
+      // Get the app ID for URL parameter tests
+      const appData = await appsPage.getAppData(testAppCode);
+      testAppId = appData.id;
+    });
+
+    test('should open edit dialog when navigating with valid appId parameter', async () => {
+      // Navigate to apps page with appId parameter
+      await page.goto(`/apps?appId=${testAppId}`);
+      await page.waitForTimeout(500); // Wait for apps to load and effect to trigger
+
+      // Verify the edit dialog is open
+      await expect(appsPage.appDialog).toBeVisible();
+
+      // Verify dialog title shows "Edit App"
+      const dialogTitle = await appsPage.getDialogTitle();
+      expect(dialogTitle).toContain('Edit App');
+
+      // Verify the correct app data is loaded in the form
+      const nameValue = await appsPage.appNameInput.inputValue();
+      expect(nameValue).toBe('URL Param Test App');
+
+      const codeValue = await appsPage.appCodeInput.inputValue();
+      expect(codeValue).toBe(testAppCode);
+
+      // Verify URL parameter is removed
+      expect(page.url()).not.toContain('appId');
+    });
+
+    test('should remove URL parameter when appId does not match any app', async () => {
+      const nonExistentAppId = 99999;
+
+      // Navigate to apps page with non-existent appId
+      await page.goto(`/apps?appId=${nonExistentAppId}`);
+      await page.waitForTimeout(500); // Wait for apps to load and effect to trigger
+
+      // Verify the edit dialog is NOT open
+      await expect(appsPage.appDialog).not.toBeVisible();
+
+      // Verify URL parameter is removed
+      expect(page.url()).not.toContain('appId');
+
+      // Verify no error message is shown
+      const errorAlert = page.locator('[role="alert"]');
+      await expect(errorAlert).not.toBeVisible();
+    });
+
+    test('should handle invalid appId parameter gracefully', async () => {
+      // Navigate to apps page with invalid appId (not a number)
+      await page.goto('/apps?appId=invalid');
+      await page.waitForTimeout(500); // Wait for apps to load and effect to trigger
+
+      // Verify the edit dialog is NOT open
+      await expect(appsPage.appDialog).not.toBeVisible();
+
+      // Verify URL parameter is removed
+      expect(page.url()).not.toContain('appId');
+    });
+
+    test('should allow editing app opened via URL parameter', async () => {
+      // Navigate to apps page with appId parameter
+      await page.goto(`/apps?appId=${testAppId}`);
+      await page.waitForTimeout(500); // Wait for apps to load and effect to trigger
+
+      // Verify the edit dialog is open
+      await expect(appsPage.appDialog).toBeVisible();
+
+      // Make changes to the app
+      const updatedName = 'Updated via URL Param';
+      await appsPage.fillAppForm({
+        name: updatedName,
+      });
+
+      // Submit the form
+      await appsPage.submitEditApp(testAppId);
+
+      // Verify changes were saved
+      await appsPage.setWatchingFilter(false);
+      const updatedApp = await appsPage.getAppData(testAppCode);
+      expect(updatedApp.name).toBe(updatedName);
+    });
+
+    test('should allow canceling edit dialog opened via URL parameter', async () => {
+      // Get original app data
+      const originalApp = await appsPage.getAppData(testAppCode);
+
+      // Navigate to apps page with appId parameter
+      await page.goto(`/apps?appId=${testAppId}`);
+      await page.waitForTimeout(500); // Wait for apps to load and effect to trigger
+
+      // Verify the edit dialog is open
+      await expect(appsPage.appDialog).toBeVisible();
+
+      // Make changes but cancel
+      await appsPage.fillAppForm({
+        name: 'Should Not Save',
+      });
+
+      await appsPage.cancelAppForm();
+
+      // Verify dialog is closed
+      await expect(appsPage.appDialog).not.toBeVisible();
+
+      // Verify original data is unchanged
+      await appsPage.setWatchingFilter(false);
+      const unchangedApp = await appsPage.getAppData(testAppCode);
+      expect(unchangedApp.name).toBe(originalApp.name);
+    });
+
+    test('should not reopen dialog when URL parameter is already processed', async () => {
+      // Navigate to apps page with appId parameter
+      await page.goto(`/apps?appId=${testAppId}`);
+      await page.waitForTimeout(500); // Wait for apps to load and effect to trigger
+
+      // Verify the edit dialog is open
+      await expect(appsPage.appDialog).toBeVisible();
+
+      // Close the dialog
+      await appsPage.cancelAppForm();
+      await expect(appsPage.appDialog).not.toBeVisible();
+
+      // Wait a moment to ensure no re-opening occurs
+      await page.waitForTimeout(500);
+
+      // Verify dialog remains closed
+      await expect(appsPage.appDialog).not.toBeVisible();
+    });
+  });
 });
