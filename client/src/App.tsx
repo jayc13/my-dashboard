@@ -1,10 +1,7 @@
+import { lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Layout from './components/layout/Layout';
-import E2EPage from '@/pages/E2EPage.tsx';
-import PullRequestsPage from './pages/PullRequestsPage.tsx';
-import TasksPage from './pages/TasksPage.tsx';
 import LoginPage from './pages/LoginPage.tsx';
-import AppsPage from './pages/AppsPage.tsx';
 import NotificationPermission from './components/NotificationPermission';
 import { type SnackbarKey, SnackbarProvider, useSnackbar } from 'notistack';
 import { CircularProgress, Box, IconButton } from '@mui/material';
@@ -12,6 +9,12 @@ import { AuthProvider } from './contexts/AuthContext';
 import { SDKProvider } from './contexts/SDKContext';
 import { useAuth } from './contexts/useAuth';
 import IconClose from '@mui/icons-material/Close';
+
+// Lazy load page components for code splitting
+const E2EPage = lazy(() => import('@/pages/E2EPage.tsx'));
+const PullRequestsPage = lazy(() => import('./pages/PullRequestsPage.tsx'));
+const TasksPage = lazy(() => import('./pages/TasksPage.tsx'));
+const AppsPage = lazy(() => import('./pages/AppsPage.tsx'));
 
 
 function SnackbarCloseButton({ snackbarKey } : { snackbarKey: SnackbarKey }) {
@@ -51,12 +54,25 @@ const ProtectedApp: React.FC = () => {
         <SDKProvider>
               <Layout>
                   <NotificationPermission/>
-                  <Routes>
-                      <Route index element={<TasksPage/>}/>
-                      <Route path="/e2e-dashboard" element={<E2EPage/>}/>
-                      <Route path="/pull_requests" element={<PullRequestsPage/>}/>
-                      <Route path="/apps" element={<AppsPage/>}/>
-                  </Routes>
+                  <Suspense fallback={
+                      <Box
+                          sx={{
+                              display: 'flex',
+                              justifyContent: 'center',
+                              alignItems: 'center',
+                              minHeight: '50vh',
+                          }}
+                      >
+                          <CircularProgress/>
+                      </Box>
+                  }>
+                      <Routes>
+                          <Route index element={<TasksPage/>}/>
+                          <Route path="/e2e-dashboard" element={<E2EPage/>}/>
+                          <Route path="/pull_requests" element={<PullRequestsPage/>}/>
+                          <Route path="/apps" element={<AppsPage/>}/>
+                      </Routes>
+                  </Suspense>
                   <SnackbarProvider
                       anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
                       autoHideDuration={2000}
