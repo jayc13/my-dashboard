@@ -13,6 +13,7 @@ export {
   validateEnum,
   validateArray,
   sanitizeString,
+  sanitizeStringPreserveNewlines,
   validateAndSanitizeString,
   ValidationResult,
   ValidationErrorDetail,
