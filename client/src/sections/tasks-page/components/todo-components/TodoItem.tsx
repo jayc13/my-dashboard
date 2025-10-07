@@ -208,12 +208,37 @@ export const TodoItem: React.FC<TodoItemProps> = ({
                     opacity: collapsed ? 0.5 : 1,
                     transition: 'opacity 0.2s ease-in-out',
                     ml: 0.5,
+                    gap: 0.25,
                   }}
                 >
                   {collapsed ? (
-                    <ExpandMoreIcon sx={{ fontSize: isCompact ? 14 : 16, color: 'text.secondary' }} />
+                    <>
+                      <Typography
+                        variant="caption"
+                        sx={{
+                          fontSize: isCompact ? '0.7rem' : '0.75rem',
+                          color: 'text.secondary',
+                          fontWeight: 500,
+                        }}
+                      >
+                        See more
+                      </Typography>
+                      <ExpandMoreIcon sx={{ fontSize: isCompact ? 14 : 16, color: 'text.secondary' }} />
+                    </>
                   ) : (
-                    <ExpandLessIcon sx={{ fontSize: isCompact ? 14 : 16, color: 'text.secondary' }} />
+                    <>
+                      <Typography
+                        variant="caption"
+                        sx={{
+                          fontSize: isCompact ? '0.7rem' : '0.75rem',
+                          color: 'text.secondary',
+                          fontWeight: 500,
+                        }}
+                      >
+                        See less
+                      </Typography>
+                      <ExpandLessIcon sx={{ fontSize: isCompact ? 14 : 16, color: 'text.secondary' }} />
+                    </>
                   )}
                 </Box>
               )}
@@ -252,13 +277,35 @@ export const TodoItem: React.FC<TodoItemProps> = ({
                   />
                 </Zoom>
               )}
+
+              {/* Link - Always visible */}
+              {linkDomain && !isCompact && (
+                <Chip
+                  icon={<LinkIcon sx={{ fontSize: 14 }}/>}
+                  label={linkDomain}
+                  size="small"
+                  variant="outlined"
+                  sx={{
+                    height: 22,
+                    fontSize: '0.75rem',
+                    cursor: 'pointer',
+                    '&:hover': {
+                      backgroundColor: 'action.hover',
+                    },
+                  }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    window.open(todo.link, '_blank');
+                  }}
+                />
+              )}
             </Box>
 
-            {/* Expandable Content - Metadata and Description */}
+            {/* Expandable Content - Due Date and Description */}
             <Collapse in={!collapsed} timeout="auto" unmountOnExit>
-              {/* Metadata Row - Due Date and Link */}
-              <Box display="flex" alignItems="center" flexWrap="wrap" gap={isCompact ? 0.5 : 1} mb={todo.description ? (isCompact ? 0.5 : 1) : 0}>
-                {dueDate && (
+              {/* Metadata Row - Due Date */}
+              {dueDate && (
+                <Box display="flex" alignItems="center" flexWrap="wrap" gap={isCompact ? 0.5 : 1} mb={todo.description ? (isCompact ? 0.5 : 1) : 0}>
                   <Tooltip title={dueDate.toFormat('EEEE, MMMM dd, yyyy')} arrow>
                     <Chip
                       icon={<CalendarTodayIcon sx={{ fontSize: isCompact ? 12 : 14 }}/>}
@@ -286,26 +333,8 @@ export const TodoItem: React.FC<TodoItemProps> = ({
                       data-testid={`todo-due-date-${todo.id}`}
                     />
                   </Tooltip>
-                )}
-
-                {linkDomain && !isCompact && (
-                  <Chip
-                    icon={<LinkIcon sx={{ fontSize: 14 }}/>}
-                    label={linkDomain}
-                    size="small"
-                    variant="outlined"
-                    sx={{
-                      height: 24,
-                      fontSize: '0.75rem',
-                      cursor: 'pointer',
-                      '&:hover': {
-                        backgroundColor: 'action.hover',
-                      },
-                    }}
-                    onClick={() => window.open(todo.link, '_blank')}
-                  />
-                )}
-              </Box>
+                </Box>
+              )}
 
               {/* Description */}
               {todo.description && !isCompact && (
