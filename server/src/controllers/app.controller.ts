@@ -107,16 +107,19 @@ export class AppController {
         ? validateAndSanitizeString(pipelineUrl, 'pipelineUrl', { max: 500 })
         : undefined;
 
-      // Validate JSON format for e2e_trigger_configuration if provided
+      let formattedE2ETriggerConfig: string | undefined = undefined;
+
+      // Validate JSON format for e2eTriggerConfiguration if provided
       if (e2eTriggerConfiguration !== undefined && e2eTriggerConfiguration !== null && e2eTriggerConfiguration !== '') {
-        validateJSON(e2eTriggerConfiguration, 'e2eTriggerConfiguration');
+        const parsed = validateJSON(e2eTriggerConfiguration, 'e2eTriggerConfiguration');
+        formattedE2ETriggerConfig = JSON.stringify(parsed, null, 2);
       }
 
       const updated = await AppService.update(id, {
         name: sanitizedName,
         code: sanitizedCode,
         pipelineUrl: sanitizedPipelineUrl,
-        e2eTriggerConfiguration,
+        e2eTriggerConfiguration: formattedE2ETriggerConfig,
         watching: watching !== undefined ? !!watching : undefined,
       });
 
