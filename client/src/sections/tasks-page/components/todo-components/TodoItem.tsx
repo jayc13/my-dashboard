@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { DateTime } from 'luxon';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import {
   Card,
   Typography,
@@ -339,24 +341,97 @@ export const TodoItem: React.FC<TodoItemProps> = ({
               {/* Description */}
               {todo.description && !isCompact && (
                 <Box sx={{ mt: 1 }}>
-                  <Typography
-                    variant="body2"
+                  <Box
                     sx={{
                       color: todo.isCompleted ? 'text.disabled' : 'text.secondary',
                       transition: 'color 0.2s ease-in-out',
-                      whiteSpace: 'pre-wrap',
-                      wordBreak: 'break-word',
+                      '& p': {
+                        margin: 0,
+                        marginBottom: 1,
+                        fontSize: '0.875rem',
+                        lineHeight: 1.5,
+                        '&:last-child': {
+                          marginBottom: 0,
+                        },
+                      },
+                      '& ul, & ol': {
+                        margin: 0,
+                        marginBottom: 1,
+                        paddingLeft: 2,
+                        fontSize: '0.875rem',
+                      },
+                      '& li': {
+                        marginBottom: 0.5,
+                      },
+                      '& code': {
+                        backgroundColor: 'action.hover',
+                        padding: '2px 4px',
+                        borderRadius: 0.5,
+                        fontSize: '0.8125rem',
+                        fontFamily: 'monospace',
+                      },
+                      '& pre': {
+                        backgroundColor: 'action.hover',
+                        padding: 1,
+                        borderRadius: 1,
+                        overflow: 'auto',
+                        marginBottom: 1,
+                        '& code': {
+                          backgroundColor: 'transparent',
+                          padding: 0,
+                        },
+                      },
+                      '& a': {
+                        color: 'primary.main',
+                        textDecoration: 'none',
+                        '&:hover': {
+                          textDecoration: 'underline',
+                        },
+                      },
+                      '& blockquote': {
+                        borderLeft: '3px solid',
+                        borderColor: 'divider',
+                        paddingLeft: 1.5,
+                        margin: 0,
+                        marginBottom: 1,
+                        fontStyle: 'italic',
+                      },
+                      '& h1, & h2, & h3, & h4, & h5, & h6': {
+                        margin: 0,
+                        marginBottom: 1,
+                        fontWeight: 600,
+                      },
+                      '& table': {
+                        borderCollapse: 'collapse',
+                        width: '100%',
+                        marginBottom: 1,
+                      },
+                      '& th, & td': {
+                        border: '1px solid',
+                        borderColor: 'divider',
+                        padding: 0.5,
+                        textAlign: 'left',
+                      },
+                      '& th': {
+                        backgroundColor: 'action.hover',
+                        fontWeight: 600,
+                      },
                     }}
                     data-testid={`todo-description-${todo.id}`}
                   >
-                    {hasLongDescription && !expanded
-                      ? `${todo.description.substring(0, 150)}...`
-                      : todo.description}
-                  </Typography>
+                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                      {hasLongDescription && !expanded
+                        ? `${todo.description.substring(0, 150)}...`
+                        : todo.description}
+                    </ReactMarkdown>
+                  </Box>
                   {hasLongDescription && (
                     <Box
                       component="span"
-                      onClick={() => setExpanded(!expanded)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setExpanded(!expanded);
+                      }}
                       sx={{
                         color: 'primary.main',
                         cursor: 'pointer',
@@ -377,7 +452,7 @@ export const TodoItem: React.FC<TodoItemProps> = ({
                 </Box>
               )}
 
-              {/* Compact mode: Show truncated description */}
+              {/* Compact mode: Show truncated description (plain text only) */}
               {todo.description && isCompact && (
                 <Typography
                   variant="caption"
@@ -391,7 +466,8 @@ export const TodoItem: React.FC<TodoItemProps> = ({
                   }}
                   data-testid={`todo-description-${todo.id}`}
                 >
-                  {todo.description}
+                  {/* Strip markdown for compact view */}
+                  {todo.description.replace(/[#*_`\[\]()]/g, '')}
                 </Typography>
               )}
             </Collapse>
