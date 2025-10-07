@@ -97,7 +97,8 @@ const getPRAgeColor = (ageInDays: number): 'default' | 'warning' | 'error' => {
 const PRCard = ({ pr, onDelete }: PRCardProps) => {
     const { data: details, loading: isLoading } = usePullRequestDetails(pr.id);
 
-    if (isLoading) {
+    // Only show skeleton if loading AND no details exist yet
+    if (isLoading && !details) {
         return (
             <Skeleton variant="rectangular" width="100%">
                 <div style={{ paddingTop: 40, paddingBottom: 40 }} />

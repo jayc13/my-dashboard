@@ -78,7 +78,7 @@ const defaultProps: PullRequestsPageProps = {
 
 describe('PullRequestsPage', () => {
     it('renders loading state', () => {
-        render(<PullRequestsPage {...defaultProps} loading={true} />);
+        render(<PullRequestsPage {...defaultProps} loading={true} pullRequestsData={undefined} />);
         expect(screen.getByTestId('pull-requests-skeleton')).toBeInTheDocument();
     });
 
