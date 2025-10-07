@@ -53,8 +53,29 @@ export default defineConfig(({ mode }) => ({
     globals: true,
     environment: 'jsdom',
     setupFiles: ['test/setup.ts'],
-    css: true,
+    css: {
+      modules: {
+        classNameStrategy: 'non-scoped',
+      },
+    },
     include: ['src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
     exclude: ['node_modules', 'dist', '.idea', '.git', '.cache'],
+    coverage: {
+      provider: 'v8',
+      reportsDirectory: './.coverage-report',
+      reporter: ['text', 'json', 'html', 'lcov'],
+      include: [
+        'src/sections/**/*.{ts,tsx}',
+        'src/utils/**/*.{ts,tsx}',
+        'src/components/**/*.{ts,tsx}',
+      ],
+      exclude: [
+        '**/*.d.ts',
+        '**/*.config.*',
+        '**/mockData',
+        '**/*.test.*',
+        '**/*.spec.*',
+      ],
+    },
   },
 }));

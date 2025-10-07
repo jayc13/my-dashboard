@@ -46,6 +46,7 @@ const mockHandleSubmit = vi.fn();
 const mockHandleDeleteClick = vi.fn();
 const mockHandleConfirmDelete = vi.fn();
 const mockHandleCancelDelete = vi.fn();
+const mockHandleToggleWatching = vi.fn();
 const mockSetFormData = vi.fn();
 const mockSetShowOnlyWatching = vi.fn();
 const mockSetSearchQuery = vi.fn();
@@ -82,6 +83,7 @@ const defaultProps: AppsPageProps = {
     handleDeleteClick: mockHandleDeleteClick,
     handleConfirmDelete: mockHandleConfirmDelete,
     handleCancelDelete: mockHandleCancelDelete,
+    handleToggleWatching: mockHandleToggleWatching,
     setFormData: mockSetFormData,
 };
 

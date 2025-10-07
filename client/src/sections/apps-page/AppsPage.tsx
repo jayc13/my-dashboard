@@ -34,6 +34,7 @@ export interface AppsPageProps {
     handleDeleteClick: (id: number) => void;
     handleConfirmDelete: () => Promise<void>;
     handleCancelDelete: () => void;
+    handleToggleWatching: (app: Application) => void;
     setFormData: (data: Partial<Application>) => void;
 }
 
@@ -60,16 +61,9 @@ const AppsPage = (props: AppsPageProps) => {
         handleDeleteClick,
         handleConfirmDelete,
         handleCancelDelete,
+        handleToggleWatching,
         setFormData,
     } = props;
-
-    if (error) {
-        return (
-            <Card style={{ padding: 24, marginTop: 16 }}>
-                <Alert severity="error">Error fetching apps: {error.message}</Alert>
-            </Card>
-        );
-    }
 
     // Filter apps based on watching status and search query
     const filteredApps = (apps || [])
@@ -92,23 +86,35 @@ const AppsPage = (props: AppsPageProps) => {
                         <RefreshIcon />
                     </TooltipIconButton>
                 </Stack>
-                <AppsHeader onAddClick={() => handleOpenDialog()} />
+                {
+                    !error && <AppsHeader onAddClick={() => handleOpenDialog()} />
+                }
             </Box>
 
-            <AppsFilters
-                searchQuery={searchQuery}
-                showOnlyWatching={showOnlyWatching}
-                onSearchChange={setSearchQuery}
-                onWatchingFilterChange={setShowOnlyWatching}
-            />
+            {
+              !error &&
+                <AppsFilters
+                    searchQuery={searchQuery}
+                    showOnlyWatching={showOnlyWatching}
+                    onSearchChange={setSearchQuery}
+                    onWatchingFilterChange={setShowOnlyWatching}
+                />
+            }
 
-            <AppsDataGrid
-                apps={filteredApps}
-                loading={loading}
-                totalApps={apps?.length || 0}
-                onEdit={handleOpenDialog}
-                onDelete={handleDeleteClick}
-            />
+            {error ? (
+                <Card style={{ padding: 24, marginTop: 16 }} data-testid="apps-error-card">
+                    <Alert severity="error">Error fetching apps: {error.message}</Alert>
+                </Card>
+            ) : (
+                <AppsDataGrid
+                    apps={filteredApps}
+                    loading={loading}
+                    totalApps={apps?.length || 0}
+                    onEdit={handleOpenDialog}
+                    onDelete={handleDeleteClick}
+                    onToggleWatching={handleToggleWatching}
+                />
+            )}
 
             <AppDialog
                 open={openDialog}

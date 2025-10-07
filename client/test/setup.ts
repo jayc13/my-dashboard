@@ -2,6 +2,9 @@ import '@testing-library/jest-dom';
 import { vi } from 'vitest';
 import type { ReactNode } from 'react';
 
+// Mock CSS imports
+vi.mock('*.css', () => ({}));
+
 // Mock Firebase to avoid initialization issues in tests
 vi.mock('../src/firebase-config', () => ({
   messaging: null,
@@ -23,12 +26,17 @@ vi.mock('swr', () => ({
 }));
 
 // Mock react-router-dom
-vi.mock('react-router-dom', () => ({
-  useNavigate: () => vi.fn(),
-  useLocation: () => ({ pathname: '/' }),
-  Link: vi.fn(({ children }) => children),
-  NavLink: vi.fn(({ children }) => children),
-}));
+vi.mock('react-router-dom', async () => {
+  const actual = await vi.importActual('react-router-dom');
+  return {
+    ...actual,
+    useNavigate: () => vi.fn(),
+    useLocation: () => ({ pathname: '/' }),
+    useSearchParams: () => [new URLSearchParams(), vi.fn()],
+    Link: vi.fn(({ children }) => children),
+    NavLink: vi.fn(({ children }) => children),
+  };
+});
 
 // Mock notistack for notifications
 vi.mock('notistack', () => ({

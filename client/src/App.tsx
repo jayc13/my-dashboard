@@ -58,7 +58,7 @@ const ProtectedApp: React.FC = () => {
                       <Route path="/apps" element={<AppsPage/>}/>
                   </Routes>
                   <SnackbarProvider
-                      anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+                      anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
                       autoHideDuration={2000}
                       maxSnack={3}
                       action={snackbarKey => <SnackbarCloseButton snackbarKey={snackbarKey} />}

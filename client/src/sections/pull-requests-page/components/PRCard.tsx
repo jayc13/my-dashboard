@@ -78,6 +78,21 @@ const getRepoPath = (url: string) => {
     return '';
 };
 
+const getPRAge = (createdAt: string): number => {
+    const created = DateTime.fromISO(createdAt);
+    const now = DateTime.now();
+    return Math.floor(now.diff(created, 'days').days);
+};
+
+const getPRAgeColor = (ageInDays: number): 'default' | 'warning' | 'error' => {
+    if (ageInDays > 7) {
+        return 'error'; // red
+    } else if (ageInDays > 3) {
+        return 'warning'; // yellow
+    }
+    return 'default';
+};
+
 const PRCard = ({ pr, onDelete }: PRCardProps) => {
     const { data: details, loading: isLoading } = usePullRequestDetails(pr.id);
 
@@ -105,28 +120,53 @@ const PRCard = ({ pr, onDelete }: PRCardProps) => {
     return (
         <Card
             variant="outlined"
-            sx={isApproved ? { border: '2px solid #4caf50', boxShadow: '0 0 10px #4caf5040' } : {}}
+            sx={isApproved ? { border: '2px solid #4caf50', boxShadow: '0 0 10px #4caf5040', padding: 0 } : { padding: 0 }}
             data-testid={`pr-card-${pr.id}`}
         >
-            <CardContent style={{ paddingBottom: 8, paddingTop: 8 }}>
+            <CardContent
+              sx={{ padding: 0, '&:last-child': { paddingBottom: 0 } }}
+            >
                 {isApproved && (
-                    <Box mb={1} display="flex" alignItems="center">
+                    <Box
+                      display="flex"
+                      alignItems="center"
+                      sx={{ backgroundColor: '#e8f5e9', p: 1 }}
+                    >
                         <Chip label="Approved" color="success" size="small" sx={{ fontWeight: 'bold', fontSize: 12, mr: 1 }} />
                         <Typography variant="caption" color="success.main" fontWeight="bold">
                             Ready to merge
                         </Typography>
                     </Box>
                 )}
-                <Box display="flex" justifyContent="space-between" alignItems="center">
+                <Box
+                  display="flex"
+                  justifyContent="space-between"
+                  alignItems="center"
+                  sx={{ padding: 2 }}
+                >
                     <Box
                         display="flex"
                         flexDirection="column"
                         sx={{ cursor: 'pointer' }}
                         onClick={() => window.open(details.url, '_blank')}
                     >
-                        <Typography variant="body2" sx={{ cursor: 'pointer' }}>
-                            <small>{getRepoPath(details.url)}</small>
-                        </Typography>
+                        <Box display="flex" alignItems="flex-end">
+                            <Typography
+                              variant="body2"
+                              sx={{
+                                  cursor: 'pointer',
+                                  fontSize: 12,
+                                  fontWeight: 'bold',
+                                  color: 'primary.main',
+                                  mr: 1,
+                              }}
+                            >
+                                #{details.number}
+                            </Typography>
+                            <Typography variant="body2" sx={{ cursor: 'pointer' }}>
+                                <small>{getRepoPath(details.url)}</small>
+                            </Typography>
+                        </Box>
                         <Typography variant="body1" sx={{ cursor: 'pointer', mt: 1 }}>
                             {getIcon(details)} <strong>{details.title}</strong>
                         </Typography>
@@ -141,16 +181,33 @@ const PRCard = ({ pr, onDelete }: PRCardProps) => {
                                 />
                             ))}
                         </Box>
-                        <Box display="flex" alignItems="center">
+                        <Box display="flex" alignItems="center" gap={0.5}>
                             <PRAuthor author={details.author} />
                             <Typography
                                 color="textSecondary"
                                 variant="subtitle2"
                                 sx={{ cursor: 'pointer', fontSize: 10 }}
                             >
-                                Opened on {DateTime.fromISO(details.createdAt).toLocaleString(DateTime.DATE_MED)} •
-                                #{details.number}
+                                Opened on {DateTime.fromISO(details.createdAt).toLocaleString(DateTime.DATE_MED)}
                             </Typography>
+                            {getPRAge(details.createdAt) > 0 && (
+                                <Typography
+                                    variant="subtitle2"
+                                    sx={{
+                                        cursor: 'pointer',
+                                        fontSize: 11,
+                                        fontWeight: 'bold',
+                                        color: getPRAgeColor(getPRAge(details.createdAt)) === 'error'
+                                            ? 'error.main'
+                                            : getPRAgeColor(getPRAge(details.createdAt)) === 'warning'
+                                            ? 'warning.main'
+                                            : 'text.secondary',
+                                        ml: 0.5,
+                                    }}
+                                >
+                                    ({getPRAge(details.createdAt)} {getPRAge(details.createdAt) === 1 ? 'day' : 'days'} old)
+                                </Typography>
+                            )}
                         </Box>
                     </Box>
                     <div>

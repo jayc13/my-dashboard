@@ -21,6 +21,7 @@ export function createGitHubMockRouter(): Router {
       state: 'open',
       user: {
         login: 'developer1',
+        html_url: 'https://github.com/developer1',
         avatar_url: 'https://avatars.githubusercontent.com/u/1?v=4'
       },
       created_at: '2024-01-15T10:00:00Z',
@@ -34,6 +35,7 @@ export function createGitHubMockRouter(): Router {
       state: 'closed',
       user: {
         login: 'developer2',
+        html_url: 'https://github.com/developer2',
         avatar_url: 'https://avatars.githubusercontent.com/u/2?v=4'
       },
       created_at: '2024-01-14T09:00:00Z',
@@ -63,7 +65,8 @@ export function createGitHubMockRouter(): Router {
         state: Math.random() > 0.5 ? 'open' : 'closed',
         user: {
           login: 'mock-user',
-          avatar_url: 'https://avatars.githubusercontent.com/u/mock?v=4'
+          html_url: 'https://github.com/mock-user',
+          avatar_url: 'https://avatars.githubusercontent.com/u/1?v=4'
         },
         created_at: new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000).toISOString(),
         updated_at: new Date().toISOString(),

@@ -48,8 +48,9 @@ export interface GitHubPullRequest {
   number: number;
   title: string;
   state: 'open' | 'closed';
-  user: {
+  user?: {
     login: string;
+    html_url: string;
     avatar_url: string;
   };
   created_at: string;

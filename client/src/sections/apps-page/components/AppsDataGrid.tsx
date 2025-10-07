@@ -1,4 +1,4 @@
-import { Box, Card, CardContent, Chip, Typography } from '@mui/material';
+import { Box, Card, CardContent, Chip, IconButton, Tooltip, Typography } from '@mui/material';
 import { Edit, Delete, Link as LinkIcon, Visibility, VisibilityOff } from '@mui/icons-material';
 import { DataGrid, type GridColDef, GridActionsCellItem, type GridRowClassNameParams } from '@mui/x-data-grid';
 import type { Application } from '@/types';
@@ -9,10 +9,11 @@ export interface AppsDataGridProps {
     totalApps: number;
     onEdit: (app: Application) => void;
     onDelete: (id: number) => void;
+    onToggleWatching: (app: Application) => void;
 }
 
 const AppsDataGrid = (props: AppsDataGridProps) => {
-    const { apps, loading, totalApps, onEdit, onDelete } = props;
+    const { apps, loading, totalApps, onEdit, onDelete, onToggleWatching } = props;
 
     const columns: GridColDef[] = [
         { field: 'id', headerName: 'ID', width: 70, minWidth: 70 },
@@ -59,11 +60,22 @@ const AppsDataGrid = (props: AppsDataGridProps) => {
             minWidth: 100,
             renderCell: (params) => (
                 <Box display="flex" alignItems="center" sx={{ height: '100%' }}>
-                    {params.value ? (
-                        <Visibility color="primary" data-testid="watching-flag" />
-                    ) : (
-                        <VisibilityOff color="disabled" data-testid="no-watching-flag" />
-                    )}
+                    <Tooltip title={params.value ? 'Stop watching' : 'Start watching'}>
+                        <IconButton
+                            size="small"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                onToggleWatching(params.row);
+                            }}
+                            data-testid={`app-toggle-watching-${params.row.code}`}
+                        >
+                            {params.value ? (
+                                <Visibility color="primary" data-testid="watching-flag" />
+                            ) : (
+                                <VisibilityOff color="disabled" data-testid="no-watching-flag" />
+                            )}
+                        </IconButton>
+                    </Tooltip>
                 </Box>
             ),
         },

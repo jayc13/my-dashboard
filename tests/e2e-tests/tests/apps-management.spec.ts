@@ -390,4 +390,269 @@ test.describe('Apps Management Test Suite', () => {
       expect(await appsPage.isAppVisible('non-watching-app')).toBe(false);
     });
   });
+
+  test.describe('URL Parameter Navigation', () => {
+    let testAppCode: string;
+    let testAppId: number;
+
+    test.beforeEach(async () => {
+      // Create a test app to use for URL parameter tests
+      testAppCode = 'url-param-test-app';
+
+      // Turn off watching filter to see all apps
+      await appsPage.setWatchingFilter(false);
+
+      if (!(await appsPage.isAppVisible(testAppCode))) {
+        await appsPage.createApp({
+          name: 'URL Param Test App',
+          code: testAppCode,
+          pipelineUrl: 'https://example.com/pipeline',
+          watching: true,
+        });
+      }
+
+      // Get the app ID for URL parameter tests
+      const appData = await appsPage.getAppData(testAppCode);
+      testAppId = appData.id;
+    });
+
+    test('should open edit dialog when navigating with valid appId parameter', async () => {
+      // Navigate to apps page with appId parameter
+      await page.goto(`/apps?appId=${testAppId}`);
+      await page.waitForTimeout(500); // Wait for apps to load and effect to trigger
+
+      // Verify the edit dialog is open
+      await expect(appsPage.appDialog).toBeVisible();
+
+      // Verify dialog title shows "Edit App"
+      const dialogTitle = await appsPage.getDialogTitle();
+      expect(dialogTitle).toContain('Edit App');
+
+      // Verify the correct app data is loaded in the form
+      const nameValue = await appsPage.appNameInput.inputValue();
+      expect(nameValue).toBe('URL Param Test App');
+
+      const codeValue = await appsPage.appCodeInput.inputValue();
+      expect(codeValue).toBe(testAppCode);
+
+      // Verify URL parameter is removed
+      expect(page.url()).not.toContain('appId');
+    });
+
+    test('should remove URL parameter when appId does not match any app', async () => {
+      const nonExistentAppId = 99999;
+
+      // Navigate to apps page with non-existent appId
+      await page.goto(`/apps?appId=${nonExistentAppId}`);
+      await page.waitForTimeout(500); // Wait for apps to load and effect to trigger
+
+      // Verify the edit dialog is NOT open
+      await expect(appsPage.appDialog).not.toBeVisible();
+
+      // Verify URL parameter is removed
+      expect(page.url()).not.toContain('appId');
+
+      // Verify no error message is shown
+      const errorAlert = page.locator('[data-testid="apps-error-card"]');
+      await expect(errorAlert).not.toBeVisible();
+    });
+
+    test('should handle invalid appId parameter gracefully', async () => {
+      // Navigate to apps page with invalid appId (not a number)
+      await page.goto('/apps?appId=invalid');
+      await page.waitForTimeout(500); // Wait for apps to load and effect to trigger
+
+      // Verify the edit dialog is NOT open
+      await expect(appsPage.appDialog).not.toBeVisible();
+
+      // Verify URL parameter is removed
+      expect(page.url()).not.toContain('appId');
+    });
+
+    test('should allow editing app opened via URL parameter', async () => {
+      // Navigate to apps page with appId parameter
+      await page.goto(`/apps?appId=${testAppId}`);
+      await page.waitForTimeout(500); // Wait for apps to load and effect to trigger
+
+      // Verify the edit dialog is open
+      await expect(appsPage.appDialog).toBeVisible();
+
+      // Make changes to the app
+      const updatedName = 'Updated via URL Param';
+      await appsPage.fillAppForm({
+        name: updatedName,
+      });
+
+      // Submit the form
+      await appsPage.submitEditApp(testAppId);
+
+      // Verify changes were saved
+      await appsPage.setWatchingFilter(false);
+      const updatedApp = await appsPage.getAppData(testAppCode);
+      expect(updatedApp.name).toBe(updatedName);
+    });
+
+    test('should allow canceling edit dialog opened via URL parameter', async () => {
+      // Get original app data
+      const originalApp = await appsPage.getAppData(testAppCode);
+
+      // Navigate to apps page with appId parameter
+      await page.goto(`/apps?appId=${testAppId}`);
+      await page.waitForTimeout(500); // Wait for apps to load and effect to trigger
+
+      // Verify the edit dialog is open
+      await expect(appsPage.appDialog).toBeVisible();
+
+      // Make changes but cancel
+      await appsPage.fillAppForm({
+        name: 'Should Not Save',
+      });
+
+      await appsPage.cancelAppForm();
+
+      // Verify dialog is closed
+      await expect(appsPage.appDialog).not.toBeVisible();
+
+      // Verify original data is unchanged
+      await appsPage.setWatchingFilter(false);
+      const unchangedApp = await appsPage.getAppData(testAppCode);
+      expect(unchangedApp.name).toBe(originalApp.name);
+    });
+
+    test('should not reopen dialog when URL parameter is already processed', async () => {
+      // Navigate to apps page with appId parameter
+      await page.goto(`/apps?appId=${testAppId}`);
+      await page.waitForTimeout(500); // Wait for apps to load and effect to trigger
+
+      // Verify the edit dialog is open
+      await expect(appsPage.appDialog).toBeVisible();
+
+      // Close the dialog
+      await appsPage.cancelAppForm();
+      await expect(appsPage.appDialog).not.toBeVisible();
+
+      // Wait a moment to ensure no re-opening occurs
+      await page.waitForTimeout(500);
+
+      // Verify dialog remains closed
+      await expect(appsPage.appDialog).not.toBeVisible();
+    });
+  });
+
+  test.describe('Toggle Watching in Table', () => {
+    let testAppCode: string;
+
+    test.beforeEach(async () => {
+      // Create test apps with different watching states
+      testAppCode = 'toggle-test-app';
+
+      // Turn off watching filter to see all apps
+      await appsPage.setWatchingFilter(false);
+
+      if (!(await appsPage.isAppVisible(testAppCode))) {
+        await appsPage.createApp({
+          name: 'Toggle Test App',
+          code: testAppCode,
+          watching: false,
+        });
+      }
+    });
+
+    test('should toggle watching status from false to true', async () => {
+      // Verify initial state
+      let appData = await appsPage.getAppData(testAppCode);
+      expect(appData.watching).toBe(false);
+
+      // Toggle watching
+      await appsPage.toggleWatching(testAppCode);
+
+      // Verify watching is now true
+      appData = await appsPage.getAppData(testAppCode);
+      expect(appData.watching).toBe(true);
+    });
+
+    test('should toggle watching status from true to false', async () => {
+      // First ensure the app is watching
+      let appData = await appsPage.getAppData(testAppCode);
+      if (!appData.watching) {
+        await appsPage.toggleWatching(testAppCode);
+      }
+
+      // Verify it's watching
+      appData = await appsPage.getAppData(testAppCode);
+      expect(appData.watching).toBe(true);
+
+      // Toggle watching off
+      await appsPage.toggleWatching(testAppCode);
+
+      // Verify watching is now false
+      appData = await appsPage.getAppData(testAppCode);
+      expect(appData.watching).toBe(false);
+    });
+
+    test('should toggle watching multiple times', async () => {
+      // Get initial state
+      let appData = await appsPage.getAppData(testAppCode);
+      const initialWatching = appData.watching;
+
+      // Toggle 3 times
+      await appsPage.toggleWatching(testAppCode);
+      await appsPage.toggleWatching(testAppCode);
+      await appsPage.toggleWatching(testAppCode);
+
+      // Should be opposite of initial state (toggled odd number of times)
+      appData = await appsPage.getAppData(testAppCode);
+      expect(appData.watching).toBe(!initialWatching);
+    });
+
+    test('should update visibility when toggling with watching filter enabled', async () => {
+      // Ensure app is not watching
+      const appData = await appsPage.getAppData(testAppCode);
+      if (appData.watching) {
+        await appsPage.toggleWatching(testAppCode);
+      }
+
+      // Enable watching filter
+      await appsPage.setWatchingFilter(true);
+
+      // App should not be visible
+      expect(await appsPage.isAppVisible(testAppCode)).toBe(false);
+
+      // Turn off filter to toggle
+      await appsPage.setWatchingFilter(false);
+      await appsPage.toggleWatching(testAppCode);
+
+      // Turn filter back on
+      await appsPage.setWatchingFilter(true);
+
+      // App should now be visible
+      expect(await appsPage.isAppVisible(testAppCode)).toBe(true);
+    });
+
+    test('should show tooltip on hover', async () => {
+      await appsPage.setWatchingFilter(false);
+
+      const toggleButton = await appsPage.getAppToggleWatchingButton(testAppCode);
+
+      // Hover over the button
+      await toggleButton.hover();
+
+      // Wait for tooltip to appear
+      await page.waitForTimeout(300);
+
+      // Check if tooltip exists (MUI tooltips appear in the body)
+      const tooltip = page.locator('[role="tooltip"]');
+      await expect(tooltip).toBeVisible();
+    });
+
+    test('should not open edit dialog when clicking toggle button', async () => {
+      await appsPage.setWatchingFilter(false);
+
+      // Click the toggle button
+      await appsPage.toggleWatching(testAppCode);
+
+      // Verify edit dialog did NOT open
+      await expect(appsPage.appDialog).not.toBeVisible();
+    });
+  });
 });
