@@ -122,7 +122,7 @@ describe('AppsPageContainer', () => {
 
             expect(mockEnqueueSnackbar).toHaveBeenCalledWith(
                 'App added to watching list',
-                { variant: 'success' }
+                { variant: 'success' },
             );
             expect(mockRefetch).toHaveBeenCalled();
         });
@@ -147,7 +147,7 @@ describe('AppsPageContainer', () => {
 
             expect(mockEnqueueSnackbar).toHaveBeenCalledWith(
                 'App removed from watching list',
-                { variant: 'success' }
+                { variant: 'success' },
             );
             expect(mockRefetch).toHaveBeenCalled();
         });
@@ -163,7 +163,7 @@ describe('AppsPageContainer', () => {
             await waitFor(() => {
                 expect(mockEnqueueSnackbar).toHaveBeenCalledWith(
                     'Failed to update watching status',
-                    { variant: 'error' }
+                    { variant: 'error' },
                 );
             });
         });

@@ -607,7 +607,7 @@ test.describe('Apps Management Test Suite', () => {
 
     test('should update visibility when toggling with watching filter enabled', async () => {
       // Ensure app is not watching
-      let appData = await appsPage.getAppData(testAppCode);
+      const appData = await appsPage.getAppData(testAppCode);
       if (appData.watching) {
         await appsPage.toggleWatching(testAppCode);
       }
