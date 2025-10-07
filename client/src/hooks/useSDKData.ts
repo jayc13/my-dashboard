@@ -126,13 +126,13 @@ export function useSDKMutation<TData, TVariables = void>(
 ): {
   mutate: (variables: TVariables) => Promise<TData>;
   loading: boolean;
-  error: Error | null;
+  error: APIError | Error | null;
   reset: () => void;
 } {
   const { api, isReady } = useSDK();
   const { logout } = useAuth();
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<Error | null>(null);
+  const [error, setError] = useState<APIError | Error | null>(null);
 
   const mutate = useCallback(async (variables: TVariables): Promise<TData> => {
     if (!isReady || !api) {

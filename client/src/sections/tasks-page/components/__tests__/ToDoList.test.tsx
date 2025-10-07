@@ -83,6 +83,24 @@ vi.mock('../todo-components', () => ({
             </button>
         </form>
     ),
+    TodoStats: ({ todos }: any) => (
+        <div data-testid="todo-stats">
+            {todos.length} todos
+        </div>
+    ),
+    TodoEmptyState: () => (
+        <div data-testid="todo-empty-state">
+            No todos
+        </div>
+    ),
+    TodoFilters: ({ filterType, onFilterChange, overdueCount, dueSoonCount, dueTodayCount }: any) => (
+        <div data-testid="todo-filters">
+            <button onClick={() => onFilterChange('all')} data-testid="filter-all">All</button>
+            <button onClick={() => onFilterChange('overdue')} data-testid="filter-overdue">Overdue ({overdueCount})</button>
+            <button onClick={() => onFilterChange('today')} data-testid="filter-today">Today ({dueTodayCount})</button>
+            <button onClick={() => onFilterChange('due-soon')} data-testid="filter-due-soon">Due Soon ({dueSoonCount})</button>
+        </div>
+    ),
 }));
 
 describe('ToDoListWidget', () => {

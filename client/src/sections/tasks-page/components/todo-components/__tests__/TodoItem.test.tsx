@@ -89,7 +89,7 @@ describe('TodoItem', () => {
         expect(screen.queryByTestId('todo-due-date-1')).not.toBeInTheDocument();
     });
 
-    it('renders link button when link is provided', () => {
+    it('renders link chip when link is provided', () => {
         render(
             <TodoItem
                 todo={baseTodo}
@@ -100,12 +100,11 @@ describe('TodoItem', () => {
             />,
         );
 
-        const linkButton = screen.getByTestId('todo-link-button-1');
-        expect(linkButton).toBeInTheDocument();
-        expect(linkButton).toHaveAttribute('href', 'https://example.com');
+        // Link is now displayed as a chip with domain name
+        expect(screen.getByText('example.com')).toBeInTheDocument();
     });
 
-    it('does not render link button when link is not provided', () => {
+    it('does not render link chip when link is not provided', () => {
         const todoWithoutLink = { ...baseTodo, link: '' };
         render(
             <TodoItem
@@ -117,7 +116,7 @@ describe('TodoItem', () => {
             />,
         );
 
-        expect(screen.queryByTestId('todo-link-button-1')).not.toBeInTheDocument();
+        expect(screen.queryByText('example.com')).not.toBeInTheDocument();
     });
 
     it('calls onToggle when checkbox is clicked', () => {

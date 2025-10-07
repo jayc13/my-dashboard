@@ -9,6 +9,8 @@ import {
     Alert,
     Box,
 } from '@mui/material';
+import { APIError } from '@my-dashboard/sdk';
+import type { ValidationErrorDetail } from '@my-dashboard/types';
 
 interface TodoFormData {
     title: string;
@@ -17,50 +19,23 @@ interface TodoFormData {
     dueDate: string;
 }
 
-interface ErrorDetail {
-    field: string;
-    message: string;
-    code?: string;
-    value?: string;
-}
-
 // Helper function to extract error title
-const getErrorTitle = (error: Error): string => {
-    try {
-        // APIError from SDK stores response in error.response
-        // The response structure is: { success: false, error: { message, details } }
-        const errorData = (error as any).response?.error ||
-                         (error as any).response?.data?.error ||
-                         (error as any).data?.error ||
-                         (error as any);
-
-        if (errorData?.message) {
-            return errorData.message;
-        }
-    } catch{
-        // Ignore parsing errors
+const getErrorTitle = (error: APIError | Error): string => {
+    // Check if it's an APIError with the new structure
+    if (error instanceof APIError) {
+        return error.message;
     }
     return error.message || 'Failed to update todo. Please try again.';
 };
 
 // Helper function to extract error details
-const getErrorDetails = (error?: Error | null): ErrorDetail[] | null => {
+const getErrorDetails = (error?: APIError | Error | null): ValidationErrorDetail[] | null => {
     if (!error) {
         return null;
     }
-    try {
-        // APIError from SDK stores response in error.response
-        // The response structure is: { success: false, error: { message, details } }
-        const errorData = (error as any).response?.error ||
-                         (error as any).response?.data?.error ||
-                         (error as any).data?.error ||
-                         (error as any);
-
-        if (errorData?.details && Array.isArray(errorData.details)) {
-            return errorData.details;
-        }
-    } catch {
-        // Ignore parsing errors
+    // Check if it's an APIError with validation details
+    if (error instanceof APIError && error.details) {
+        return error.details;
     }
     return null;
 };
@@ -69,7 +44,7 @@ interface TodoFormDialogProps {
     open: boolean;
     isUpdating: boolean;
     form: TodoFormData;
-    error: Error | null;
+    error: APIError | Error | null;
     onClose: () => void;
     onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
     onSubmit: (e: React.FormEvent) => void;

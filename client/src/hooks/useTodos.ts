@@ -62,8 +62,8 @@ export function useUpdateTodo() {
 
   const mutationFn = useCallback(async ({ id, data }: { id: number; data: ToDoItemInput }): Promise<ToDoItem> => {
     if (!api) {
-throw new Error('API not available');
-}
+      throw new Error('API not available');
+    }
     return api.todos.updateTodo(id, data);
   }, [api]);
 
