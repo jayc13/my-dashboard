@@ -1,10 +1,12 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { enqueueSnackbar } from 'notistack';
 import { useApps, useCreateApp, useUpdateApp, useDeleteApp } from '@/hooks';
 import AppsPage from './AppsPage';
 import type { Application } from '@/types';
 
 const AppsPageContainer = () => {
+    const [searchParams, setSearchParams] = useSearchParams();
     const [openDialog, setOpenDialog] = useState(false);
     const [editingApp, setEditingApp] = useState<Application | null>(null);
     const [showOnlyWatching, setShowOnlyWatching] = useState(true);
@@ -41,6 +43,29 @@ const AppsPageContainer = () => {
         }
         setOpenDialog(true);
     };
+
+    // Handle URL parameter to open edit dialog
+    useEffect(() => {
+        const appIdParam = searchParams.get('appId');
+
+        // Only process if we have an appId parameter and apps are loaded
+        if (appIdParam && apps && apps.length > 0) {
+            const appId = parseInt(appIdParam, 10);
+
+            // Find the app with matching id
+            const appToEdit = apps.find(app => app.id === appId);
+
+            // Remove the URL parameter
+            searchParams.delete('appId');
+            setSearchParams(searchParams, { replace: true });
+
+            // If app found, open the edit dialog
+            if (appToEdit) {
+                handleOpenDialog(appToEdit);
+            }
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [apps]);
 
     const handleCloseDialog = () => {
         setOpenDialog(false);
