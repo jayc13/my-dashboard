@@ -11,6 +11,7 @@
     "lint": "eslint .",
     "lint-fix": "eslint . --fix",
     "test": "jest",
+    "test:coverage": "jest --coverage",
     "typecheck": "tsc --noEmit"
   },
   "engines": {
