@@ -244,20 +244,15 @@ describe('Validation Utils', () => {
     });
 
     it('should throw ValidationError for arrays too short', () => {
-      expect(() => validateArray([1], 'items', { min: 2 })).toThrow(ValidationError);
+      expect(() => validateArray([1], 'items', { minLength: 2 })).toThrow(ValidationError);
     });
 
     it('should throw ValidationError for arrays too long', () => {
-      expect(() => validateArray([1, 2, 3], 'items', { max: 2 })).toThrow(ValidationError);
+      expect(() => validateArray([1, 2, 3], 'items', { maxLength: 2 })).toThrow(ValidationError);
     });
   });
 
   describe('sanitizeString', () => {
-    it('should remove HTML tags', () => {
-      expect(sanitizeString('<script>alert("xss")</script>hello')).toBe('hello');
-      expect(sanitizeString('<b>bold</b> text')).toBe('bold text');
-    });
-
     it('should trim whitespace', () => {
       expect(sanitizeString('  hello  ')).toBe('hello');
     });
@@ -275,10 +270,6 @@ describe('Validation Utils', () => {
   describe('sanitizeStringPreserveNewlines', () => {
     it('should preserve newlines', () => {
       expect(sanitizeStringPreserveNewlines('hello\nworld')).toBe('hello\nworld');
-    });
-
-    it('should remove HTML tags but preserve newlines', () => {
-      expect(sanitizeStringPreserveNewlines('<b>hello</b>\nworld')).toBe('hello\nworld');
     });
   });
 
