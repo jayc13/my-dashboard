@@ -2,7 +2,7 @@ import { Alert, Grid, Skeleton, Stack } from '@mui/material';
 import JiraCard from '@/components/common/JiraCard';
 import { TooltipIconButton } from '@/components/common';
 import RefreshIcon from '@mui/icons-material/Refresh';
-import type { JiraTicket } from '@/types/index.ts';
+import type { JiraTicket } from '@/types/index';
 
 interface ManualTestingProps {
   data: JiraTicket[];
