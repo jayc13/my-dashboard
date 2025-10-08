@@ -1,7 +1,12 @@
 import { Request, Response, NextFunction } from 'express';
 import TodoService from '../services/todo.service';
-import { NotFoundError, ValidationError, DatabaseError } from '../errors/AppError';
-import { validateId, validateRequiredFields, validateAndSanitizeString } from '../utils/validation';
+import { NotFoundError, ValidationError, DatabaseError } from '../errors';
+import {
+  validateId,
+  validateRequiredFields,
+  validateAndSanitizeString,
+  validateURL,
+} from '../utils';
 
 export class ToDoListController {
   async getAll(req: Request, res: Response, next: NextFunction) {
@@ -42,13 +47,18 @@ export class ToDoListController {
       });
 
       // Validate optional fields
-      const sanitizedDescription = description
-        ? validateAndSanitizeString(description, 'description')
+      const sanitizedDescription = description !== undefined
+        ? validateAndSanitizeString(description, 'description', { preserveNewlines: true })
         : undefined;
 
-      const sanitizedLink = link
+      const sanitizedLink = link !== undefined
         ? validateAndSanitizeString(link, 'link', { max: 500 })
         : undefined;
+
+      // Validate URL only if link is provided and not empty
+      if (sanitizedLink && sanitizedLink.trim() !== '') {
+        validateURL(sanitizedLink, 'link');
+      }
 
       // Create todo
       const newToDoItem = await TodoService.create({
@@ -87,18 +97,24 @@ export class ToDoListController {
 
       // Validate and sanitize fields if provided
       if (title !== undefined) {
-        const sanitizedTitle = validateAndSanitizeString(title, 'title', { max: 255 });
+        const sanitizedTitle = validateAndSanitizeString(title, 'title', { max: 255, required: true });
         if (sanitizedTitle) {
           updateData.title = sanitizedTitle;
         }
       }
 
       if (description !== undefined) {
-        updateData.description = validateAndSanitizeString(description, 'description');
+        updateData.description = validateAndSanitizeString(description, 'description', { preserveNewlines: true });
       }
 
       if (link !== undefined) {
-        updateData.link = validateAndSanitizeString(link, 'link', { max: 500 });
+        const sanitizedLink = validateAndSanitizeString(link, 'link', { max: 500, required: false });
+        // Only validate URL if link is not empty (allow clearing the link with empty string)
+        if (sanitizedLink && sanitizedLink.trim() !== '') {
+          validateURL(sanitizedLink, 'link');
+        }
+        // Set the link value (can be empty string to clear, or a valid URL)
+        updateData.link = sanitizedLink || null;
       }
 
       if (dueDate !== undefined) {

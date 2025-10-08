@@ -19,6 +19,16 @@ export interface ValidationErrorDetail {
 }
 
 /**
+ * String validation options
+ */
+export interface StringValidationOptions {
+  min?: number;
+  max?: number;
+  required?: boolean;
+  preserveNewlines?: boolean;
+}
+
+/**
  * Validate that a value is a valid integer ID
  */
 export function validateId(value: unknown, fieldName: string = 'id'): number {
@@ -298,12 +308,24 @@ export function sanitizeString(value: string): string {
 }
 
 /**
+ * Sanitize string input while preserving newlines (trim and remove extra whitespace on each line)
+ */
+export function sanitizeStringPreserveNewlines(value: string): string {
+  // Trim the entire string, then normalize whitespace on each line while preserving newlines
+  return value
+    .trim()
+    .split('\n')
+    .map(line => line.trim().replace(/\s+/g, ' '))
+    .join('\n');
+}
+
+/**
  * Validate and sanitize string
  */
 export function validateAndSanitizeString(
   value: unknown,
   fieldName: string,
-  options?: { min?: number; max?: number; required?: boolean },
+  options?: StringValidationOptions,
 ): string | undefined {
   if (value === undefined || value === null) {
     if (options?.required) {
@@ -330,9 +352,12 @@ export function validateAndSanitizeString(
       }],
     );
   }
-  
-  const sanitized = sanitizeString(value);
-  
+
+  // Use appropriate sanitization based on whether newlines should be preserved
+  const sanitized = options?.preserveNewlines
+    ? sanitizeStringPreserveNewlines(value)
+    : sanitizeString(value);
+
   if (options?.required && sanitized === '') {
     throw new ValidationError(
       `${fieldName} cannot be empty`,
@@ -343,14 +368,15 @@ export function validateAndSanitizeString(
       }],
     );
   }
-  
+
   if (options?.min !== undefined || options?.max !== undefined) {
     validateStringLength(sanitized, fieldName, {
       min: options.min,
       max: options.max,
     });
   }
-  
-  return sanitized || undefined;
+
+  // Return the sanitized string value, which may be empty, non-empty, or undefined depending on input and options
+  return sanitized;
 }
 

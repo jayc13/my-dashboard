@@ -65,4 +65,3 @@ const JiraCard = (props: JiraCardProps) => {
 };
 
 export default JiraCard;
-

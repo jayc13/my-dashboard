@@ -34,11 +34,7 @@
     "noUnusedParameters": true,
     "erasableSyntaxOnly": true,
     "noFallthroughCasesInSwitch": true,
-    "noUncheckedSideEffectImports": true,
+    "noUncheckedSideEffectImports": true
   },
-  "include": [
-    "src",
-    "test",
-    "node_modules/vitest/globals.d.ts"
-  ],
+  "include": ["src", "test", "node_modules/vitest/globals.d.ts"]
 }

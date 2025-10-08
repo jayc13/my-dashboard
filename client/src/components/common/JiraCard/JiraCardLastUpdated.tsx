@@ -26,4 +26,3 @@ const JiraCardLastUpdated = (props: JiraCardLastUpdatedProps) => {
 };
 
 export default JiraCardLastUpdated;
-

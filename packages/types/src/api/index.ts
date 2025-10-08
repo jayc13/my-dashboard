@@ -45,20 +45,44 @@ export interface ErrorResponse {
 }
 
 /**
- * Validation error response with detailed field errors
- */
-export interface ValidationError {
-    error: string;
-    details?: ValidationErrorDetail[];
-}
-
-/**
  * Individual validation error detail
  */
 export interface ValidationErrorDetail {
     field: string;
     message: string;
     code: string;
+    value?: unknown;
+}
+
+/**
+ * Detailed API error structure
+ */
+export interface APIErrorDetails {
+    message: string;
+    code: string;
+    statusCode: number;
+    details?: ValidationErrorDetail[];
+    stack?: string;
+    timestamp?: string;
+    path?: string;
+    method?: string;
+}
+
+/**
+ * API error response wrapper
+ */
+export interface APIErrorResponse {
+    success: false;
+    error: APIErrorDetails;
+}
+
+/**
+ * Validation error response with detailed field errors
+ * @deprecated Use APIErrorResponse instead
+ */
+export interface ValidationError {
+    error: string;
+    details?: ValidationErrorDetail[];
 }
 
 /**

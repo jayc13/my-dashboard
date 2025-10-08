@@ -45,12 +45,15 @@ export function usePullRequestDetails(id: string, options?: UseSDKDataOptions) {
 export function useAddPullRequest() {
   const { api } = useSDK();
 
-  const mutationFn = useCallback(async (data: AddPullRequestRequest): Promise<PullRequest> => {
-    if (!api) {
-      throw new Error('API not available');
-    }
-    return api.pullRequests.addPullRequest(data);
-  }, [api]);
+  const mutationFn = useCallback(
+    async (data: AddPullRequestRequest): Promise<PullRequest> => {
+      if (!api) {
+        throw new Error('API not available');
+      }
+      return api.pullRequests.addPullRequest(data);
+    },
+    [api],
+  );
 
   return useSDKMutation(mutationFn);
 }
@@ -61,12 +64,15 @@ export function useAddPullRequest() {
 export function useDeletePullRequest() {
   const { api } = useSDK();
 
-  const mutationFn = useCallback(async (id: string): Promise<{ success: boolean }> => {
-    if (!api) {
-      throw new Error('API not available');
-    }
-    return api.pullRequests.deletePullRequest(id);
-  }, [api]);
+  const mutationFn = useCallback(
+    async (id: string): Promise<{ success: boolean }> => {
+      if (!api) {
+        throw new Error('API not available');
+      }
+      return api.pullRequests.deletePullRequest(id);
+    },
+    [api],
+  );
 
   return useSDKMutation(mutationFn);
 }

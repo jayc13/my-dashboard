@@ -4,4 +4,3 @@ export { default as JiraCard } from './JiraCard';
 
 export type { TooltipIconButtonProps } from './TooltipIconButton';
 export type { TooltipButtonProps } from './TooltipButton';
-

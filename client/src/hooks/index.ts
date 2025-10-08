@@ -11,3 +11,4 @@ export * from './useE2ERun';
 
 // Other hooks
 export * from './useFCM';
+export * from './useKeyboardShortcuts';

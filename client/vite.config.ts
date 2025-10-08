@@ -8,12 +8,13 @@ export default defineConfig(({ mode }) => ({
   plugins: [
     react(),
     // Add bundle analyzer for analyze mode
-    mode === 'analyze' && visualizer({
-      filename: 'dist/bundle-analysis.html',
-      open: true,
-      gzipSize: true,
-      brotliSize: true,
-    }),
+    mode === 'analyze' &&
+      visualizer({
+        filename: 'dist/bundle-analysis.html',
+        open: true,
+        gzipSize: true,
+        brotliSize: true,
+      }),
   ].filter(Boolean),
   // Load environment variables from .env.test for testing
   envDir: '.',
@@ -49,7 +50,7 @@ export default defineConfig(({ mode }) => ({
     },
     rollupOptions: {
       output: {
-        manualChunks: (id) => {
+        manualChunks: id => {
           // Vendor chunks for large libraries
           if (id.includes('node_modules')) {
             // MUI and related packages
@@ -106,13 +107,7 @@ export default defineConfig(({ mode }) => ({
         'src/utils/**/*.{ts,tsx}',
         'src/components/**/*.{ts,tsx}',
       ],
-      exclude: [
-        '**/*.d.ts',
-        '**/*.config.*',
-        '**/mockData',
-        '**/*.test.*',
-        '**/*.spec.*',
-      ],
+      exclude: ['**/*.d.ts', '**/*.config.*', '**/mockData', '**/*.test.*', '**/*.spec.*'],
     },
   },
 }));

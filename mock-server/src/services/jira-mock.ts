@@ -87,7 +87,7 @@ export function createJiraMockRouter(): Router {
           id: '2',
           name: 'High'
         },
-        labels: ['manual_qa', 'testing'],
+        labels: ['testing'],
         created: randomPastDate(5, 8),
         updated: randomPastDate(1, 2)
       }
@@ -247,6 +247,7 @@ export function createJiraMockRouter(): Router {
       
       // Filter by assignee
       if (jqlStr.includes('assignee = currentUser()')) {
+        console.log('[JIRA] Applying assignee filter for currentUser()');
         filteredIssues = filteredIssues.filter(issue => 
           issue.fields.assignee?.displayName === 'John Developer'
         );
@@ -254,6 +255,7 @@ export function createJiraMockRouter(): Router {
       
       // Filter by status
       if (jqlStr.includes('status = "In Progress"')) {
+        console.log(`[JIRA] Searching issues with JQL: ${jqlStr}`);
         filteredIssues = filteredIssues.filter(issue => 
           issue.fields.status.name === 'In Progress'
         );
@@ -261,41 +263,25 @@ export function createJiraMockRouter(): Router {
       
       // Filter by project
       if (jqlStr.includes('project = DASH')) {
+        console.log('[JIRA] Applying project DASH filter');
         filteredIssues = filteredIssues.filter(issue => 
           issue.key.startsWith('DASH-')
         );
       }
 
       // Filter for manual QA tasks (by label or summary)
-      if (jqlStr.toLowerCase().includes('manual') && jqlStr.toLowerCase().includes('qa')) {
+      if (jqlStr.toLowerCase().includes('manual_qa')) {
+        console.log('[JIRA] Applying manual QA filter');
         filteredIssues = filteredIssues.filter(issue =>
           issue.fields.labels?.includes('manual_qa') ||
           issue.fields.summary.toLowerCase().includes('manual') ||
           issue.fields.summary.toLowerCase().includes('qa')
         );
-      }
 
-      // Filter by labels
-      if (jqlStr.toLowerCase().includes('labels in')) {
-        const labelMatch = jqlStr.match(/labels in \("([^"]+)"\)/i);
-        if (labelMatch && labelMatch[1]) {
-          const label = labelMatch[1];
-          filteredIssues = filteredIssues.filter(issue =>
-            issue.fields.labels?.includes(label) || false
-          );
-        }
-      }
-
-      // Filter out specific statuses (NOT IN)
-      if (jqlStr.includes('NOT IN')) {
-        const statusMatch = jqlStr.match(/status NOT IN \(([^)]+)\)/i);
-        if (statusMatch && statusMatch[1]) {
-          const excludedStatuses = statusMatch[1]
-            .split(',')
-            .map(s => s.trim().replace(/"/g, ''));
-          filteredIssues = filteredIssues.filter(issue =>
-            !excludedStatuses.includes(issue.fields.status.name)
-          );
+        if (Math.random() >= 0.7) {
+          filteredIssues = [];
+        } else {
+          filteredIssues = filteredIssues.slice(0, 3);
         }
       }
     }

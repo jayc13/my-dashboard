@@ -1,7 +1,7 @@
 import { Box, Chip } from '@mui/material';
 
 interface JiraCardLabelsProps {
-  labels: string[];
+  labels: string[] | undefined;
   maxVisible?: number;
 }
 
@@ -17,7 +17,7 @@ const JiraCardLabels = (props: JiraCardLabelsProps) => {
 
   return (
     <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap' }}>
-      {labels.slice(0, maxVisible).map((label) => (
+      {labels.slice(0, maxVisible).map(label => (
         <Chip
           key={label}
           label={label}
@@ -47,4 +47,3 @@ const JiraCardLabels = (props: JiraCardLabelsProps) => {
 };
 
 export default JiraCardLabels;
-

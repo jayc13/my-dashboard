@@ -22,7 +22,7 @@ const LoginPage: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!apiKey.trim()) {
       setError('API Security Key is required');
       return;
@@ -100,11 +100,7 @@ const LoginPage: React.FC = () => {
               )}
 
               {/* Login Form */}
-              <Box
-                component="form"
-                onSubmit={handleSubmit}
-                sx={{ width: '100%' }}
-              >
+              <Box component="form" onSubmit={handleSubmit} sx={{ width: '100%' }}>
                 <Stack spacing={3}>
                   <TextField
                     fullWidth

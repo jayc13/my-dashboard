@@ -1,14 +1,5 @@
 import { useState } from 'react';
-import {
-  Box,
-  Card,
-  CardContent,
-  Grid,
-  IconButton,
-  Link,
-  Stack,
-  Typography,
-} from '@mui/material';
+import { Box, Card, CardContent, Grid, IconButton, Link, Stack, Typography } from '@mui/material';
 import Tooltip from '@mui/material/Tooltip';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CancelIcon from '@mui/icons-material/Cancel';
@@ -49,8 +40,7 @@ const ProjectCard = ({ result, onUpdate, onContextMenu }: ProjectCardProps) => {
         <CardContent style={{ padding: 8 }}>
           <Grid container alignItems="center" justifyContent="space-between">
             <Grid size={{ xs: 12, sm: 6 }}>
-              <Stack direction="row" alignItems="center" spacing={1}
-                     sx={{ mb: { xs: 1, sm: 0 } }}>
+              <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: { xs: 1, sm: 0 } }}>
                 <Tooltip
                   title={`Last updated at ${new Date(result.lastRunAt).toLocaleString()}`}
                   placement="right"
@@ -71,7 +61,9 @@ const ProjectCard = ({ result, onUpdate, onContextMenu }: ProjectCardProps) => {
                   <strong>{result.app.name}</strong>
                 </Link>
                 <Typography variant="body2" sx={{ fontSize: 12 }} color="textSecondary">
-                  {updating ? 'Updating...' : `Last run: ${new Date(result.lastRunAt).toLocaleString()}`}
+                  {updating
+                    ? 'Updating...'
+                    : `Last run: ${new Date(result.lastRunAt).toLocaleString()}`}
                 </Typography>
                 <IconButton
                   size="small"
@@ -85,7 +77,7 @@ const ProjectCard = ({ result, onUpdate, onContextMenu }: ProjectCardProps) => {
                     setUpdating(false);
                   }}
                 >
-                  <RefreshIcon sx={{ fontSize: 16 }}/>
+                  <RefreshIcon sx={{ fontSize: 16 }} />
                 </IconButton>
               </Stack>
             </Grid>
@@ -105,19 +97,10 @@ const ProjectCard = ({ result, onUpdate, onContextMenu }: ProjectCardProps) => {
                 padding: '0 8px',
               }}
             >
-              <Stack
-                direction="row"
-                alignItems="center"
-                justifyContent="start"
-                spacing={2}
-              >
+              <Stack direction="row" alignItems="center" justifyContent="start" spacing={2}>
                 <Box display="flex" alignItems="center" justifyContent="space-evenly" gap={1}>
-                  <CheckCircleIcon sx={{ color: 'success.main', fontSize: 20 }}/>
-                  <Typography
-                    variant="subtitle1"
-                    color="success.main"
-                    sx={{ cursor: 'default' }}
-                  >
+                  <CheckCircleIcon sx={{ color: 'success.main', fontSize: 20 }} />
+                  <Typography variant="subtitle1" color="success.main" sx={{ cursor: 'default' }}>
                     {result.passedRuns}
                   </Typography>
                 </Box>
@@ -127,12 +110,8 @@ const ProjectCard = ({ result, onUpdate, onContextMenu }: ProjectCardProps) => {
                   arrow
                 >
                   <Box display="flex" alignItems="center" justifyContent="space-evenly" gap={1}>
-                    <CancelIcon sx={{ color: 'error.main', fontSize: 20 }}/>
-                    <Typography
-                      variant="subtitle1"
-                      color="error.main"
-                      sx={{ cursor: 'default' }}
-                    >
+                    <CancelIcon sx={{ color: 'error.main', fontSize: 20 }} />
+                    <Typography variant="subtitle1" color="error.main" sx={{ cursor: 'default' }}>
                       {result.failedRuns}
                     </Typography>
                   </Box>

@@ -16,8 +16,7 @@ const PullRequestsPage = lazy(() => import('./pages/PullRequestsPage.tsx'));
 const TasksPage = lazy(() => import('./pages/TasksPage.tsx'));
 const AppsPage = lazy(() => import('./pages/AppsPage.tsx'));
 
-
-function SnackbarCloseButton({ snackbarKey } : { snackbarKey: SnackbarKey }) {
+function SnackbarCloseButton({ snackbarKey }: { snackbarKey: SnackbarKey }) {
   const { closeSnackbar } = useSnackbar();
 
   return (
@@ -29,69 +28,71 @@ function SnackbarCloseButton({ snackbarKey } : { snackbarKey: SnackbarKey }) {
 
 // Protected Routes Component
 const ProtectedApp: React.FC = () => {
-    const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, isLoading } = useAuth();
 
-    if (isLoading) {
-        return (
-            <Box
-                sx={{
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    minHeight: '100vh',
-                }}
-            >
-                <CircularProgress/>
-            </Box>
-        );
-    }
-
-    if (!isAuthenticated) {
-        return <LoginPage/>;
-    }
-
+  if (isLoading) {
     return (
-        <SDKProvider>
-              <Layout>
-                  <NotificationPermission/>
-                  <Suspense fallback={
-                      <Box
-                          sx={{
-                              display: 'flex',
-                              justifyContent: 'center',
-                              alignItems: 'center',
-                              minHeight: '50vh',
-                          }}
-                      >
-                          <CircularProgress/>
-                      </Box>
-                  }>
-                      <Routes>
-                          <Route index element={<TasksPage/>}/>
-                          <Route path="/e2e-dashboard" element={<E2EPage/>}/>
-                          <Route path="/pull_requests" element={<PullRequestsPage/>}/>
-                          <Route path="/apps" element={<AppsPage/>}/>
-                      </Routes>
-                  </Suspense>
-                  <SnackbarProvider
-                      anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-                      autoHideDuration={2000}
-                      maxSnack={3}
-                      action={snackbarKey => <SnackbarCloseButton snackbarKey={snackbarKey} />}
-                  />
-              </Layout>
-        </SDKProvider>
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          minHeight: '100vh',
+        }}
+      >
+        <CircularProgress />
+      </Box>
     );
+  }
+
+  if (!isAuthenticated) {
+    return <LoginPage />;
+  }
+
+  return (
+    <SDKProvider>
+      <Layout>
+        <NotificationPermission />
+        <Suspense
+          fallback={
+            <Box
+              sx={{
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                minHeight: '50vh',
+              }}
+            >
+              <CircularProgress />
+            </Box>
+          }
+        >
+          <Routes>
+            <Route index element={<TasksPage />} />
+            <Route path="/e2e-dashboard" element={<E2EPage />} />
+            <Route path="/pull_requests" element={<PullRequestsPage />} />
+            <Route path="/apps" element={<AppsPage />} />
+          </Routes>
+        </Suspense>
+        <SnackbarProvider
+          anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+          autoHideDuration={2000}
+          maxSnack={3}
+          action={snackbarKey => <SnackbarCloseButton snackbarKey={snackbarKey} />}
+        />
+      </Layout>
+    </SDKProvider>
+  );
 };
 
 function App() {
-    return (
-        <AuthProvider>
-            <BrowserRouter>
-                <ProtectedApp/>
-            </BrowserRouter>
-        </AuthProvider>
-    );
+  return (
+    <AuthProvider>
+      <BrowserRouter>
+        <ProtectedApp />
+      </BrowserRouter>
+    </AuthProvider>
+  );
 }
 
 export default App;

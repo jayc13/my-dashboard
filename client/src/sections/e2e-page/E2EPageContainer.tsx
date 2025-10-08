@@ -4,25 +4,20 @@ import E2EPage from '@/sections/e2e-page/E2EPage.tsx';
 import { DateTime } from 'luxon';
 
 const E2EPageContainer = () => {
-  const {
-    data,
-    loading,
-    error,
-    refetch: refetchData,
-  } = useE2ERunReport();
+  const { data, loading, error, refetch: refetchData } = useE2ERunReport();
 
   // Memoize the params object to prevent infinite re-renders
-  const prevDayParams = useMemo(() => ({
-    date: DateTime.now().minus({ days: 1 }).toUTC().toISODate().slice(0, 10),
-    enrichments: {
-      includeDetails: false,
-    },
-  }), []); // Empty deps array since we want yesterday's date calculated once
+  const prevDayParams = useMemo(
+    () => ({
+      date: DateTime.now().minus({ days: 1 }).toUTC().toISODate().slice(0, 10),
+      enrichments: {
+        includeDetails: false,
+      },
+    }),
+    [],
+  ); // Empty deps array since we want yesterday's date calculated once
 
-  const {
-    data: prevData,
-    refetch: refetchPrevData,
-  } = useE2ERunReport({
+  const { data: prevData, refetch: refetchPrevData } = useE2ERunReport({
     params: prevDayParams,
   });
 
@@ -41,7 +36,15 @@ const E2EPageContainer = () => {
     await refetchPrevData();
   };
 
-  return <E2EPage data={data} prevData={prevData} loading={loading && !data} error={error} refetch={refetch} />;
+  return (
+    <E2EPage
+      data={data}
+      prevData={prevData}
+      loading={loading && !data}
+      error={error}
+      refetch={refetch}
+    />
+  );
 };
 
 export default E2EPageContainer;

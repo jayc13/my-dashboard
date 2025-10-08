@@ -43,15 +43,15 @@ function analyzeBundle() {
 
   if (fs.existsSync(assetsPath)) {
     const assetFiles = fs.readdirSync(assetsPath);
-    
+
     assetFiles.forEach(file => {
       const filePath = path.join(assetsPath, file);
       const stats = fs.statSync(filePath);
       const size = stats.size;
-      
+
       totalSize += size;
       files.push({ name: file, size, path: filePath });
-      
+
       if (file.endsWith('.js')) {
         jsSize += size;
       } else if (file.endsWith('.css')) {
@@ -87,7 +87,8 @@ function analyzeBundle() {
 
   // Recommendations
   console.log('\n💡 Optimization Tips:');
-  if (jsSize > 1024 * 1024) { // > 1MB
+  if (jsSize > 1024 * 1024) {
+    // > 1MB
     console.log('  • Consider code splitting to reduce initial bundle size');
     console.log('  • Use dynamic imports for large libraries');
   }

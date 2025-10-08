@@ -147,17 +147,21 @@ export abstract class BaseClient {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const errorData = await response.json().catch(() => ({})) as any;
 
-        // Extract error message from new format { success: false, error: { message: ... } }
+        // Extract error message and details from new format { success: false, error: { message: ..., details: [...] } }
         let errorMessage = 'Unknown error';
+        let errorDetails = undefined;
+
         if (errorData.error) {
           if (typeof errorData.error === 'string') {
             errorMessage = errorData.error;
-          } else if (errorData.error.message) {
-            errorMessage = errorData.error.message;
+          } else if (typeof errorData.error === 'object') {
+            errorMessage = errorData.error.message || 'Unknown error';
+            // Pass the full error object as APIErrorDetails
+            errorDetails = errorData.error;
           }
         }
 
-        throw new APIError(response.status, errorMessage, errorData);
+        throw new APIError(response.status, errorMessage, errorDetails);
       }
 
       // Handle empty responses
