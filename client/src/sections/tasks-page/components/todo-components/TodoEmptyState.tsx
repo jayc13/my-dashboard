@@ -18,6 +18,7 @@ export const TodoEmptyState: React.FC = () => {
         borderRadius: 3,
         mb: 3,
       }}
+      data-testid="todo-empty-state"
     >
       {/* Icon Illustration */}
       <Box
