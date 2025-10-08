@@ -376,7 +376,7 @@ export function validateAndSanitizeString(
     });
   }
 
-  // Return empty string as-is to allow clearing optional fields
+  // Return the sanitized string value, which may be empty, non-empty, or undefined depending on input and options
   return sanitized;
 }
 
