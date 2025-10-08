@@ -40,14 +40,12 @@ describe('AppDialog', () => {
 
   it('renders in edit mode when editingApp is provided', () => {
     const mockApp: Application = {
-      id: '1',
+      id: 1,
       name: 'Existing App',
       code: 'existing-app',
       pipelineUrl: '',
       e2eTriggerConfiguration: '',
       watching: false,
-      createdAt: '2024-01-01',
-      updatedAt: '2024-01-01',
     };
 
     render(

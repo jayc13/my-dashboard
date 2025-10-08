@@ -5,17 +5,22 @@ import type { GithubPullRequestDetails } from '@/types';
 
 describe('PRStatusBanner', () => {
   const baseDetails: GithubPullRequestDetails = {
+    id: 123,
     number: 123,
     title: 'Test PR',
     state: 'open',
+    isDraft: false,
     url: 'https://github.com/owner/repo/pull/123',
     createdAt: '2024-01-01T00:00:00Z',
     updatedAt: '2024-01-01T00:00:00Z',
+    closedAt: null,
+    mergedAt: null,
     merged: false,
     mergeableState: 'unknown',
     labels: [],
     author: {
       username: 'testuser',
+      avatarUrl: 'https://github.com/testuser.png',
       htmlUrl: 'https://github.com/testuser',
     },
   };
@@ -40,7 +45,7 @@ describe('PRStatusBanner', () => {
         details={{
           ...baseDetails,
           mergeableState: 'dirty',
-          labels: [{ name: 'Ready For Review' }],
+          labels: [{ name: 'Ready For Review', color: 'green' }],
         }}
       />,
     );

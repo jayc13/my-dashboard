@@ -1,7 +1,7 @@
 import { Box, Chip } from '@mui/material';
 
 interface JiraCardLabelsProps {
-  labels: string[];
+  labels: string[] | undefined;
   maxVisible?: number;
 }
 

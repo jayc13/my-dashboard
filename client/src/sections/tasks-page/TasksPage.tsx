@@ -29,7 +29,7 @@ const TasksPage = (props: TasksPageProps) => {
   return (
     <Grid container spacing={2} data-testid="tasks-page">
       <Grid size={{ xs: 12, sm: 6, md: 4 }}>
-        <ToDoListSection isWideMode={false} />
+        <ToDoListSection />
       </Grid>
       <Grid size={{ xs: 12, sm: 6, md: 4 }}>
         <JiraListSection

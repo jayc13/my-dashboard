@@ -29,20 +29,22 @@ describe('PRCard', () => {
     id: 'pr-1',
     repository: 'owner/repo',
     pullRequestNumber: 123,
-    createdAt: '2024-01-01T00:00:00Z',
-    updatedAt: '2024-01-01T00:00:00Z',
   };
 
   const mockDetails: GithubPullRequestDetails = {
+    id: 123,
     number: 123,
     title: 'Test PR',
     state: 'open',
+    isDraft: false,
     url: 'https://github.com/owner/repo/pull/123',
     createdAt: '2024-01-01T00:00:00Z',
     updatedAt: '2024-01-01T00:00:00Z',
+    closedAt: null,
+    mergedAt: null,
     merged: false,
     mergeableState: 'clean',
-    labels: [{ name: 'bug' }],
+    labels: [{ name: 'bug', color: 'red' }],
     author: {
       username: 'testuser',
       htmlUrl: 'https://github.com/testuser',

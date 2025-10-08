@@ -33,7 +33,7 @@ vi.mock('notistack', () => ({
   enqueueSnackbar: vi.fn(),
 }));
 
-import { usePullRequests, useAddPullRequest, useDeletePullRequest } from '@/hooks';
+import { usePullRequests } from '@/hooks';
 import { enqueueSnackbar } from 'notistack';
 
 describe('PullRequestsPageContainer', () => {
@@ -218,14 +218,6 @@ describe('PullRequestsPageContainer', () => {
   });
 
   it('handles delete pull request error', async () => {
-    const mockPR = {
-      id: 'pr-1',
-      repository: 'owner/repo',
-      pullRequestNumber: 123,
-      createdAt: '2024-01-01T00:00:00Z',
-      updatedAt: '2024-01-01T00:00:00Z',
-    };
-
     vi.mocked(usePullRequests).mockReturnValue({
       data: [],
       loading: false,

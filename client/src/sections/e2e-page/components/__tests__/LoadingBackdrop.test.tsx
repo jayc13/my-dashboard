@@ -6,15 +6,16 @@ import type { DetailedE2EReport } from '@my-dashboard/types';
 describe('LoadingBackdrop', () => {
   const mockData: DetailedE2EReport = {
     summary: {
+      id: 1,
+      date: '2024-01-01',
       status: 'pending',
-      totalTests: 10,
-      passedTests: 0,
-      failedTests: 0,
-      skippedTests: 0,
-      duration: 0,
+      totalRuns: 10,
+      passedRuns: 0,
+      failedRuns: 0,
+      successRate: 0,
     },
     message: 'Running tests...',
-    projects: [],
+    details: [],
   };
 
   it('renders backdrop open when loading and data status is pending', () => {
@@ -50,7 +51,7 @@ describe('LoadingBackdrop', () => {
       ...mockData,
       summary: {
         ...mockData.summary,
-        status: 'passed',
+        status: 'ready',
       },
     };
     const { container } = render(<LoadingBackdrop data={completedData} loading={true} />);

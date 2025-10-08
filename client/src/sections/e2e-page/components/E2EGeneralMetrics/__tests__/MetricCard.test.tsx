@@ -8,6 +8,7 @@ describe('MetricCard', () => {
     const stat: MetricCardProps['stat'] = {
       label: 'Total Tests',
       value: 100,
+      hasTrend: false,
     };
 
     render(<MetricCard stat={stat} />);
@@ -19,6 +20,7 @@ describe('MetricCard', () => {
     const stat: MetricCardProps['stat'] = {
       label: 'Duration',
       value: 3600,
+      hasTrend: false,
       formattedValue: val => `${val}s`,
     };
 
@@ -31,6 +33,7 @@ describe('MetricCard', () => {
       label: 'Pass Rate',
       value: 95,
       prevValue: 90,
+      hasTrend: true,
     };
 
     render(<MetricCard stat={stat} />);
@@ -42,6 +45,7 @@ describe('MetricCard', () => {
     const stat: MetricCardProps['stat'] = {
       label: 'Total Tests',
       value: 100,
+      hasTrend: false,
     };
 
     render(<MetricCard stat={stat} />);
@@ -53,6 +57,7 @@ describe('MetricCard', () => {
       label: 'Duration',
       value: 3600,
       prevValue: 3000,
+      hasTrend: true,
       formattedValue: val => `${val}s`,
     };
 
@@ -65,6 +70,7 @@ describe('MetricCard', () => {
       label: 'Failed Tests',
       value: 5,
       prevValue: 10,
+      hasTrend: true,
       inverseTrend: true,
     };
 

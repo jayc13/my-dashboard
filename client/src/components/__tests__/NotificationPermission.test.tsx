@@ -22,6 +22,7 @@ describe('NotificationPermission', () => {
   it('renders warning when notifications are not supported', async () => {
     const { useFCM } = await import('@/hooks');
     vi.mocked(useFCM).mockReturnValue({
+      token: null,
       isSupported: false,
       isPermissionGranted: false,
       requestPermission: mockRequestPermission,
@@ -35,6 +36,7 @@ describe('NotificationPermission', () => {
   it('renders nothing when permission is already granted', async () => {
     const { useFCM } = await import('@/hooks');
     vi.mocked(useFCM).mockReturnValue({
+      token: 'mock-token',
       isSupported: true,
       isPermissionGranted: true,
       requestPermission: mockRequestPermission,
@@ -48,6 +50,7 @@ describe('NotificationPermission', () => {
   it('renders alert when permission is not granted', async () => {
     const { useFCM } = await import('@/hooks');
     vi.mocked(useFCM).mockReturnValue({
+      token: null,
       isSupported: true,
       isPermissionGranted: false,
       requestPermission: mockRequestPermission,
@@ -61,6 +64,7 @@ describe('NotificationPermission', () => {
   it('renders error alert when there is an error', async () => {
     const { useFCM } = await import('@/hooks');
     vi.mocked(useFCM).mockReturnValue({
+      token: null,
       isSupported: true,
       isPermissionGranted: false,
       requestPermission: mockRequestPermission,
@@ -74,6 +78,7 @@ describe('NotificationPermission', () => {
   it('opens dialog when enable button is clicked', async () => {
     const { useFCM } = await import('@/hooks');
     vi.mocked(useFCM).mockReturnValue({
+      token: null,
       isSupported: true,
       isPermissionGranted: false,
       requestPermission: mockRequestPermission,
@@ -90,6 +95,7 @@ describe('NotificationPermission', () => {
   it('dismisses alert when dismiss button is clicked', async () => {
     const { useFCM } = await import('@/hooks');
     vi.mocked(useFCM).mockReturnValue({
+      token: null,
       isSupported: true,
       isPermissionGranted: false,
       requestPermission: mockRequestPermission,

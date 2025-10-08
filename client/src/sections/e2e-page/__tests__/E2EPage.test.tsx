@@ -21,15 +21,16 @@ describe('E2EPage', () => {
 
   const mockData: DetailedE2EReport = {
     summary: {
-      status: 'passed',
-      totalTests: 100,
-      passedTests: 95,
-      failedTests: 5,
-      skippedTests: 0,
-      duration: 1000,
+      id: 1,
+      date: '2024-01-01',
+      status: 'ready',
+      totalRuns: 100,
+      passedRuns: 95,
+      failedRuns: 5,
+      successRate: 95,
     },
     message: 'Tests completed',
-    projects: [],
+    details: [],
   };
 
   beforeEach(() => {

@@ -1,10 +1,9 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 import E2EPageContainer from '../E2EPageContainer';
 import type { DetailedE2EReport } from '@my-dashboard/types';
 
 const mockRefetchData = vi.fn();
-const mockRefetchPrevData = vi.fn();
 
 // Mock the hooks
 vi.mock('@/hooks', () => ({
@@ -13,7 +12,7 @@ vi.mock('@/hooks', () => ({
 
 // Mock E2EPage component
 vi.mock('../E2EPage.tsx', () => ({
-  default: ({ data, prevData, loading, error, refetch }: any) => (
+  default: ({ loading, error, refetch }: any) => (
     <div data-testid="e2e-page">
       <div data-testid="loading">{loading ? 'Loading' : 'Not Loading'}</div>
       <div data-testid="error">{error ? 'Error' : 'No Error'}</div>
@@ -27,15 +26,16 @@ vi.mock('../E2EPage.tsx', () => ({
 describe('E2EPageContainer', () => {
   const mockData: DetailedE2EReport = {
     summary: {
-      status: 'passed',
-      totalTests: 100,
-      passedTests: 95,
-      failedTests: 5,
-      skippedTests: 0,
-      duration: 1000,
+      id: 1,
+      date: '2024-01-01',
+      status: 'ready',
+      totalRuns: 100,
+      passedRuns: 95,
+      failedRuns: 5,
+      successRate: 95,
     },
     message: 'Tests completed',
-    projects: [],
+    details: [],
   };
 
   beforeEach(() => {
