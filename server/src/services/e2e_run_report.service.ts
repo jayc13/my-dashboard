@@ -231,6 +231,24 @@ export class E2ERunReportService {
   }
 
   /**
+   * Convert ISO 8601 datetime string to MySQL TIMESTAMP format
+   * MySQL expects 'YYYY-MM-DD HH:MM:SS' format
+   */
+  private static convertToMySQLTimestamp(isoString: string | null): string | null {
+    if (!isoString) {
+      return null;
+    }
+    try {
+      const date = new Date(isoString);
+      // Format: YYYY-MM-DD HH:MM:SS
+      return date.toISOString().slice(0, 19).replace('T', ' ');
+    } catch (error) {
+      Logger.error('Error converting datetime to MySQL format', { isoString, error });
+      return null;
+    }
+  }
+
+  /**
    * Create a new report detail
    */
   static async createDetail(
@@ -250,8 +268,8 @@ export class E2ERunReportService {
           detail.failedRuns,
           detail.successRate,
           detail.lastRunStatus,
-          detail.lastFailedRunAt,
-          detail.lastRunAt,
+          this.convertToMySQLTimestamp(detail.lastFailedRunAt),
+          this.convertToMySQLTimestamp(detail.lastRunAt),
         ],
       );
       return this.getDetailById(result.insertId!);
@@ -295,11 +313,11 @@ export class E2ERunReportService {
       }
       if (detail.lastFailedRunAt !== undefined) {
         updates.push('last_failed_run_at = ?');
-        values.push(detail.lastFailedRunAt);
+        values.push(this.convertToMySQLTimestamp(detail.lastFailedRunAt));
       }
       if (detail.lastRunAt !== undefined) {
         updates.push('last_run_at = ?');
-        values.push(detail.lastRunAt);
+        values.push(this.convertToMySQLTimestamp(detail.lastRunAt));
       }
 
       if (updates.length === 0) {
