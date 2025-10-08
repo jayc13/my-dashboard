@@ -58,10 +58,16 @@ describe('SDK Utility', () => {
       expect(sdk).toBeDefined();
 
       // Restore
-      if (originalUrl) process.env.API_URL = originalUrl;
-      else delete process.env.API_URL;
-      if (originalKey) process.env.API_KEY = originalKey;
-      else delete process.env.API_KEY;
+      if (originalUrl) {
+        process.env.API_URL = originalUrl;
+      } else {
+        delete process.env.API_URL;
+      }
+      if (originalKey) {
+        process.env.API_KEY = originalKey;
+      } else {
+        delete process.env.API_KEY;
+      }
     });
 
     it('should handle missing environment variables', async () => {
@@ -78,8 +84,12 @@ describe('SDK Utility', () => {
       expect(sdk).toBeDefined();
 
       // Restore
-      if (originalUrl) process.env.API_URL = originalUrl;
-      if (originalKey) process.env.API_KEY = originalKey;
+      if (originalUrl) {
+        process.env.API_URL = originalUrl;
+      }
+      if (originalKey) {
+        process.env.API_KEY = originalKey;
+      }
     });
   });
 

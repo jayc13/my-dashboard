@@ -188,7 +188,9 @@ describe('Redis Utility', () => {
 
       // Get the connect handler and call it
       const connectHandler = mockRedis.on.mock.calls.find((call: any[]) => call[0] === 'connect')?.[1];
-      if (connectHandler) connectHandler();
+      if (connectHandler) {
+        connectHandler();
+      }
 
       expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('connected'));
       consoleSpy.mockRestore();
@@ -202,7 +204,9 @@ describe('Redis Utility', () => {
 
       // Get the error handler and call it
       const errorHandler = mockRedis.on.mock.calls.find((call: any[]) => call[0] === 'error')?.[1];
-      if (errorHandler) errorHandler(new Error('Test error'));
+      if (errorHandler) {
+        errorHandler(new Error('Test error'));
+      }
 
       expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('error'), expect.any(Error));
       consoleSpy.mockRestore();
@@ -216,7 +220,9 @@ describe('Redis Utility', () => {
 
       // Get the close handler and call it
       const closeHandler = mockRedis.on.mock.calls.find((call: any[]) => call[0] === 'close')?.[1];
-      if (closeHandler) closeHandler();
+      if (closeHandler) {
+        closeHandler();
+      }
 
       expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('closed'));
       consoleSpy.mockRestore();
