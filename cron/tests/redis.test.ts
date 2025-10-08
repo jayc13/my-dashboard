@@ -187,7 +187,7 @@ describe('Redis Utility', () => {
       getRedisClient();
 
       // Get the connect handler and call it
-      const connectHandler = mockRedis.on.mock.calls.find((call: any[]) => call[0] === 'connect')?.[1];
+      const connectHandler = mockRedis.on.mock.calls.find((call: [string, () => void]) => call[0] === 'connect')?.[1];
       if (connectHandler) {
         connectHandler();
       }
@@ -203,7 +203,7 @@ describe('Redis Utility', () => {
       getRedisClient();
 
       // Get the error handler and call it
-      const errorHandler = mockRedis.on.mock.calls.find((call: any[]) => call[0] === 'error')?.[1];
+      const errorHandler = mockRedis.on.mock.calls.find((call: [string, (err: Error) => void]) => call[0] === 'error')?.[1];
       if (errorHandler) {
         errorHandler(new Error('Test error'));
       }
@@ -219,7 +219,7 @@ describe('Redis Utility', () => {
       getRedisClient();
 
       // Get the close handler and call it
-      const closeHandler = mockRedis.on.mock.calls.find((call: any[]) => call[0] === 'close')?.[1];
+      const closeHandler = mockRedis.on.mock.calls.find((call: [string, () => void]) => call[0] === 'close')?.[1];
       if (closeHandler) {
         closeHandler();
       }
