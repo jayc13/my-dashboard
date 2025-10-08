@@ -395,8 +395,8 @@ export class E2ERunReportService {
     const updatedStatus = updatedStatuses[0];
 
     const updatedDetail = await this.updateDetail(detailRun.id, {
-      lastRunAt: DateTime.fromISO(updatedStatus.lastRunAt).toISODate()!,
-      lastFailedRunAt: updatedStatus.lastFailedRunAt ? DateTime.fromISO(updatedStatus.lastFailedRunAt).toISODate() : null,
+      lastRunAt: updatedStatus.lastRunAt,
+      lastFailedRunAt: updatedStatus.lastFailedRunAt ? updatedStatus.lastFailedRunAt : null,
       lastRunStatus: updatedStatus.lastRunStatus as 'passed' | 'failed',
       totalRuns: updatedStatus.totalRuns,
       passedRuns: updatedStatus.passedRuns,

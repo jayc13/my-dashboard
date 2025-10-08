@@ -10,8 +10,8 @@ import {
   DetailedE2EReportEnrichments,
   E2EReportDetail,
 } from '@my-dashboard/types/e2e';
-import { ValidationError, DatabaseError, NotFoundError } from '../errors/AppError';
-import { validateId, validateJSON } from '../utils/validation';
+import { ValidationError, DatabaseError, NotFoundError } from '../errors';
+import { validateId, validateJSON } from '../utils';
 
 
 export async function getReport(req: Request, res: Response, next: NextFunction) {

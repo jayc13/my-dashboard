@@ -314,8 +314,8 @@ export class E2EReportProcessor {
           failedRuns: appData.failedRuns,
           successRate: appData.successRate,
           lastRunStatus: appData.lastRunStatus as 'passed' | 'failed',
-          lastFailedRunAt: appData.lastFailedRunAt ? DateTime.fromISO(appData.lastFailedRunAt).toISODate() : null,
-          lastRunAt: DateTime.fromISO(appData.lastRunAt).toISODate()!,
+          lastFailedRunAt: appData.lastFailedRunAt ? appData.lastFailedRunAt : null,
+          lastRunAt: appData.lastRunAt,
         });
 
         if (detail) {
@@ -406,8 +406,8 @@ export class E2EReportProcessor {
     // Fetch data from Cypress API
     const projectData = await api.getDailyRunsPerProject({
       projects: projectNames,
-      startDate: DateTime.fromJSDate(startDate).toUTC().toISO()!,
-      endDate: DateTime.fromJSDate(targetDate).toUTC().toISO()!,
+      startDate: DateTime.fromJSDate(startDate).toUTC().toFormat('yyyy-LL-dd'),
+      endDate: DateTime.fromJSDate(targetDate).toUTC().toFormat('yyyy-LL-dd'),
     });
 
     // Group results by project
