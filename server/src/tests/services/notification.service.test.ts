@@ -1,29 +1,35 @@
 /**
  * Notification Service Tests
- * 
+ *
  * Tests for NotificationService including:
  * - CRUD operations for notifications
  * - FCM integration
  */
 
-import { NotificationService } from '../../services/notification.service';
-import { FCMService } from '../../services/fcm.service';
 import { db } from '../../db/database';
 
 // Mock dependencies
 jest.mock('../../db/database');
-jest.mock('../../services/fcm.service');
+
+const mockSendToAllDevices = jest.fn().mockResolvedValue({ successCount: 1, failureCount: 0 });
+
+jest.mock('../../services/fcm.service', () => {
+  return {
+    FCMService: jest.fn().mockImplementation(() => {
+      return {
+        sendToAllDevices: mockSendToAllDevices,
+      };
+    }),
+  };
+});
+
+import { NotificationService } from '../../services/notification.service';
 
 describe('NotificationService', () => {
   const mockDb = db as jest.Mocked<typeof db>;
-  let mockFCMService: jest.Mocked<FCMService>;
 
   beforeEach(() => {
     jest.clearAllMocks();
-    mockFCMService = {
-      sendToAllDevices: jest.fn(),
-    } as any;
-    (FCMService as jest.MockedClass<typeof FCMService>).mockImplementation(() => mockFCMService);
   });
 
   describe('getAll', () => {
@@ -94,11 +100,6 @@ describe('NotificationService', () => {
         created_at: '2025-10-08T10:00:00Z',
       });
 
-      mockFCMService.sendToAllDevices.mockResolvedValue({
-        successCount: 5,
-        failureCount: 0,
-      });
-
       const result = await NotificationService.create(newNotification);
 
       expect(result).toEqual({
@@ -116,7 +117,8 @@ describe('NotificationService', () => {
         ['New Notification', 'New Message', 'https://example.com', 'info'],
       );
 
-      expect(mockFCMService.sendToAllDevices).toHaveBeenCalledWith({
+      // FCM service is called but we don't fail if it throws
+      expect(mockSendToAllDevices).toHaveBeenCalledWith({
         title: 'New Notification',
         body: 'New Message',
         data: {
@@ -145,7 +147,7 @@ describe('NotificationService', () => {
         created_at: '2025-10-08T10:00:00Z',
       });
 
-      mockFCMService.sendToAllDevices.mockResolvedValue({
+      mockSendToAllDevices.mockResolvedValue({
         successCount: 3,
         failureCount: 0,
       });
@@ -177,7 +179,7 @@ describe('NotificationService', () => {
         created_at: '2025-10-08T10:00:00Z',
       });
 
-      mockFCMService.sendToAllDevices.mockRejectedValue(new Error('FCM error'));
+      mockSendToAllDevices.mockRejectedValue(new Error('FCM error'));
 
       const result = await NotificationService.create(newNotification);
 
