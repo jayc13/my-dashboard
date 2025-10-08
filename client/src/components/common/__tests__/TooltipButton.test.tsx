@@ -34,7 +34,7 @@ describe('TooltipButton', () => {
         render(
             <TooltipButton variant="contained" color="primary" disabled>
                 Styled Button
-            </TooltipButton>
+            </TooltipButton>,
         );
         
         const button = screen.getByRole('button', { name: 'Styled Button' });
@@ -48,7 +48,7 @@ describe('TooltipButton', () => {
                 tooltipProps={{ placement: 'top' }}
             >
                 Custom
-            </TooltipButton>
+            </TooltipButton>,
         );
         
         expect(screen.getByRole('button', { name: 'Custom' })).toBeInTheDocument();

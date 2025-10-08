@@ -7,7 +7,7 @@ describe('MetricsGrid', () => {
         render(
             <MetricsGrid>
                 <div>Metric 1</div>
-            </MetricsGrid>
+            </MetricsGrid>,
         );
         expect(screen.getByText('Metric 1')).toBeInTheDocument();
     });
@@ -18,7 +18,7 @@ describe('MetricsGrid', () => {
                 <div>Metric 1</div>
                 <div>Metric 2</div>
                 <div>Metric 3</div>
-            </MetricsGrid>
+            </MetricsGrid>,
         );
         expect(screen.getByText('Metric 1')).toBeInTheDocument();
         expect(screen.getByText('Metric 2')).toBeInTheDocument();

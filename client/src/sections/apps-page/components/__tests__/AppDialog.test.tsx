@@ -31,7 +31,7 @@ describe('AppDialog', () => {
                 onClose={mockOnClose}
                 onSubmit={mockOnSubmit}
                 onFormDataChange={mockOnFormDataChange}
-            />
+            />,
         );
         
         expect(screen.getByText('Add New App')).toBeInTheDocument();
@@ -60,7 +60,7 @@ describe('AppDialog', () => {
                 onClose={mockOnClose}
                 onSubmit={mockOnSubmit}
                 onFormDataChange={mockOnFormDataChange}
-            />
+            />,
         );
         
         expect(screen.getByText('Edit App')).toBeInTheDocument();
@@ -78,7 +78,7 @@ describe('AppDialog', () => {
                 onClose={mockOnClose}
                 onSubmit={mockOnSubmit}
                 onFormDataChange={mockOnFormDataChange}
-            />
+            />,
         );
         
         expect(screen.queryByTestId('app-dialog')).not.toBeInTheDocument();
@@ -95,7 +95,7 @@ describe('AppDialog', () => {
                 onClose={mockOnClose}
                 onSubmit={mockOnSubmit}
                 onFormDataChange={mockOnFormDataChange}
-            />
+            />,
         );
 
         const nameInput = screen.getByTestId('app-name-input').querySelector('input');
@@ -122,7 +122,7 @@ describe('AppDialog', () => {
                 onClose={mockOnClose}
                 onSubmit={mockOnSubmit}
                 onFormDataChange={mockOnFormDataChange}
-            />
+            />,
         );
 
         const nameInput = screen.getByTestId('app-name-input').querySelector('input')!;
@@ -142,7 +142,7 @@ describe('AppDialog', () => {
                 onClose={mockOnClose}
                 onSubmit={mockOnSubmit}
                 onFormDataChange={mockOnFormDataChange}
-            />
+            />,
         );
 
         const codeInput = screen.getByTestId('app-code-input').querySelector('input')!;
@@ -162,7 +162,7 @@ describe('AppDialog', () => {
                 onClose={mockOnClose}
                 onSubmit={mockOnSubmit}
                 onFormDataChange={mockOnFormDataChange}
-            />
+            />,
         );
 
         const watchingSwitch = screen.getByTestId('app-watching-switch').querySelector('input')!;
@@ -182,7 +182,7 @@ describe('AppDialog', () => {
                 onClose={mockOnClose}
                 onSubmit={mockOnSubmit}
                 onFormDataChange={mockOnFormDataChange}
-            />
+            />,
         );
         
         const cancelButton = screen.getByTestId('app-cancel-button');
@@ -202,7 +202,7 @@ describe('AppDialog', () => {
                 onClose={mockOnClose}
                 onSubmit={mockOnSubmit}
                 onFormDataChange={mockOnFormDataChange}
-            />
+            />,
         );
         
         const submitButton = screen.getByTestId('app-submit-button');
@@ -222,7 +222,7 @@ describe('AppDialog', () => {
                 onClose={mockOnClose}
                 onSubmit={mockOnSubmit}
                 onFormDataChange={mockOnFormDataChange}
-            />
+            />,
         );
         
         expect(screen.getByTestId('app-cancel-button')).toBeDisabled();
@@ -240,7 +240,7 @@ describe('AppDialog', () => {
                 onClose={mockOnClose}
                 onSubmit={mockOnSubmit}
                 onFormDataChange={mockOnFormDataChange}
-            />
+            />,
         );
         
         expect(screen.getByTestId('app-cancel-button')).toBeDisabled();

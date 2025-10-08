@@ -53,7 +53,7 @@ describe('JiraList', () => {
         isLoading={true}
         hasError={false}
         refresh={mockRefresh}
-      />
+      />,
     );
 
     expect(screen.getByTestId('jira-list-my-tickets')).toBeInTheDocument();
@@ -69,7 +69,7 @@ describe('JiraList', () => {
         isLoading={false}
         hasError={true}
         refresh={mockRefresh}
-      />
+      />,
     );
 
     expect(screen.getByTestId('jira-list-error-my-tickets')).toBeInTheDocument();
@@ -84,7 +84,7 @@ describe('JiraList', () => {
         isLoading={false}
         hasError={false}
         refresh={mockRefresh}
-      />
+      />,
     );
 
     expect(screen.getByTestId('jira-list-empty-my-tickets')).toBeInTheDocument();
@@ -99,7 +99,7 @@ describe('JiraList', () => {
         isLoading={false}
         hasError={false}
         refresh={mockRefresh}
-      />
+      />,
     );
 
     expect(screen.getByTestId('jira-list-container-my-tickets')).toBeInTheDocument();
@@ -117,7 +117,7 @@ describe('JiraList', () => {
         isLoading={false}
         hasError={false}
         refresh={mockRefresh}
-      />
+      />,
     );
 
     expect(screen.getByTestId('jira-list-title-my-tickets')).toHaveTextContent('My Tickets (2)');
@@ -131,7 +131,7 @@ describe('JiraList', () => {
         isLoading={false}
         hasError={false}
         refresh={mockRefresh}
-      />
+      />,
     );
 
     const refreshButton = screen.getByTestId('jira-list-refresh-my-tickets');
@@ -157,7 +157,7 @@ describe('JiraList', () => {
         isLoading={true}
         hasError={false}
         refresh={mockRefresh}
-      />
+      />,
     );
 
     // Should show the tickets, not the loading skeleton
@@ -173,7 +173,7 @@ describe('JiraList', () => {
         isLoading={false}
         hasError={false}
         refresh={mockRefresh}
-      />
+      />,
     );
 
     expect(screen.getByTestId('jira-list-manual-testing-tasks')).toBeInTheDocument();

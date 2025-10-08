@@ -52,7 +52,7 @@ describe('NotificationCenter', () => {
             <NotificationCenter
                 notifications={mockNotifications}
                 refetchNotifications={mockRefetch}
-            />
+            />,
         );
 
         expect(screen.getByTestId('notification-icon')).toBeInTheDocument();
@@ -64,7 +64,7 @@ describe('NotificationCenter', () => {
             <NotificationCenter
                 notifications={mockNotifications}
                 refetchNotifications={mockRefetch}
-            />
+            />,
         );
 
         const badge = screen.getByTestId('notification-badge');
@@ -76,7 +76,7 @@ describe('NotificationCenter', () => {
             <NotificationCenter
                 notifications={mockNotifications}
                 refetchNotifications={mockRefetch}
-            />
+            />,
         );
 
         const icon = screen.getByTestId('notification-icon');
@@ -94,7 +94,7 @@ describe('NotificationCenter', () => {
             <NotificationCenter
                 notifications={mockNotifications}
                 refetchNotifications={mockRefetch}
-            />
+            />,
         );
 
         const icon = screen.getByTestId('notification-icon');
@@ -111,7 +111,7 @@ describe('NotificationCenter', () => {
             <NotificationCenter
                 notifications={[]}
                 refetchNotifications={mockRefetch}
-            />
+            />,
         );
 
         const icon = screen.getByTestId('notification-icon');
@@ -130,7 +130,7 @@ describe('NotificationCenter', () => {
             <NotificationCenter
                 notifications={mockNotifications}
                 refetchNotifications={mockRefetch}
-            />
+            />,
         );
 
         const icon = screen.getByTestId('notification-icon');
@@ -154,7 +154,7 @@ describe('NotificationCenter', () => {
             <NotificationCenter
                 notifications={mockNotifications}
                 refetchNotifications={mockRefetch}
-            />
+            />,
         );
 
         const icon = screen.getByTestId('notification-icon');
@@ -168,7 +168,7 @@ describe('NotificationCenter', () => {
         await waitFor(() => {
             expect(enqueueSnackbar).toHaveBeenCalledWith(
                 'Failed to mark notification as read',
-                { variant: 'error' }
+                { variant: 'error' },
             );
         });
     });
@@ -180,7 +180,7 @@ describe('NotificationCenter', () => {
             <NotificationCenter
                 notifications={mockNotifications}
                 refetchNotifications={mockRefetch}
-            />
+            />,
         );
 
         const icon = screen.getByTestId('notification-icon');
@@ -204,7 +204,7 @@ describe('NotificationCenter', () => {
             <NotificationCenter
                 notifications={mockNotifications}
                 refetchNotifications={mockRefetch}
-            />
+            />,
         );
 
         const icon = screen.getByTestId('notification-icon');
@@ -218,7 +218,7 @@ describe('NotificationCenter', () => {
         await waitFor(() => {
             expect(enqueueSnackbar).toHaveBeenCalledWith(
                 'Failed to delete notification',
-                { variant: 'error' }
+                { variant: 'error' },
             );
         });
     });
@@ -230,7 +230,7 @@ describe('NotificationCenter', () => {
             <NotificationCenter
                 notifications={mockNotifications}
                 refetchNotifications={mockRefetch}
-            />
+            />,
         );
 
         const icon = screen.getByTestId('notification-icon');
@@ -254,7 +254,7 @@ describe('NotificationCenter', () => {
             <NotificationCenter
                 notifications={mockNotifications}
                 refetchNotifications={mockRefetch}
-            />
+            />,
         );
 
         const icon = screen.getByTestId('notification-icon');
@@ -276,7 +276,7 @@ describe('NotificationCenter', () => {
             <NotificationCenter
                 notifications={null}
                 refetchNotifications={mockRefetch}
-            />
+            />,
         );
 
         const icon = screen.getByTestId('notification-icon');
@@ -288,7 +288,7 @@ describe('NotificationCenter', () => {
             <NotificationCenter
                 notifications={undefined}
                 refetchNotifications={mockRefetch}
-            />
+            />,
         );
 
         const icon = screen.getByTestId('notification-icon');

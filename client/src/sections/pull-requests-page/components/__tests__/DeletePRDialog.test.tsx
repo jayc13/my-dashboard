@@ -17,7 +17,7 @@ describe('DeletePRDialog', () => {
                 isDeleting={false}
                 onConfirm={mockOnConfirm}
                 onCancel={mockOnCancel}
-            />
+            />,
         );
         
         expect(screen.getByTestId('delete-pr-dialog')).toBeInTheDocument();
@@ -32,7 +32,7 @@ describe('DeletePRDialog', () => {
                 isDeleting={false}
                 onConfirm={mockOnConfirm}
                 onCancel={mockOnCancel}
-            />
+            />,
         );
         
         expect(screen.queryByTestId('delete-pr-dialog')).not.toBeInTheDocument();
@@ -45,7 +45,7 @@ describe('DeletePRDialog', () => {
                 isDeleting={false}
                 onConfirm={mockOnConfirm}
                 onCancel={mockOnCancel}
-            />
+            />,
         );
         
         const cancelButton = screen.getByTestId('pr-delete-cancel-button');
@@ -61,7 +61,7 @@ describe('DeletePRDialog', () => {
                 isDeleting={false}
                 onConfirm={mockOnConfirm}
                 onCancel={mockOnCancel}
-            />
+            />,
         );
         
         const confirmButton = screen.getByTestId('pr-delete-confirm-button');
@@ -77,7 +77,7 @@ describe('DeletePRDialog', () => {
                 isDeleting={true}
                 onConfirm={mockOnConfirm}
                 onCancel={mockOnCancel}
-            />
+            />,
         );
         
         const cancelButton = screen.getByTestId('pr-delete-cancel-button');

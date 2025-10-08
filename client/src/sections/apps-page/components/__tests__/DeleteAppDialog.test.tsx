@@ -17,7 +17,7 @@ describe('DeleteAppDialog', () => {
                 isDeleting={false}
                 onConfirm={mockOnConfirm}
                 onCancel={mockOnCancel}
-            />
+            />,
         );
         
         expect(screen.getByTestId('delete-app-dialog')).toBeInTheDocument();
@@ -32,7 +32,7 @@ describe('DeleteAppDialog', () => {
                 isDeleting={false}
                 onConfirm={mockOnConfirm}
                 onCancel={mockOnCancel}
-            />
+            />,
         );
         
         expect(screen.queryByTestId('delete-app-dialog')).not.toBeInTheDocument();
@@ -45,7 +45,7 @@ describe('DeleteAppDialog', () => {
                 isDeleting={false}
                 onConfirm={mockOnConfirm}
                 onCancel={mockOnCancel}
-            />
+            />,
         );
         
         const cancelButton = screen.getByTestId('app-delete-cancel-button');
@@ -61,7 +61,7 @@ describe('DeleteAppDialog', () => {
                 isDeleting={false}
                 onConfirm={mockOnConfirm}
                 onCancel={mockOnCancel}
-            />
+            />,
         );
         
         const confirmButton = screen.getByTestId('app-delete-confirm-button');
@@ -77,7 +77,7 @@ describe('DeleteAppDialog', () => {
                 isDeleting={true}
                 onConfirm={mockOnConfirm}
                 onCancel={mockOnCancel}
-            />
+            />,
         );
         
         const cancelButton = screen.getByTestId('app-delete-cancel-button');

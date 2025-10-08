@@ -90,7 +90,7 @@ describe('TodoFilters', () => {
         overdueCount={0}
         dueSoonCount={0}
         dueTodayCount={0}
-      />
+      />,
     );
 
     // When counts are 0, they are not displayed (only shown when > 0)

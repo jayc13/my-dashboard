@@ -39,7 +39,7 @@ describe('NotificationList', () => {
                 notifications={[]}
                 onMarkAsRead={mockOnMarkAsRead}
                 onDelete={mockOnDelete}
-            />
+            />,
         );
 
         expect(screen.getByTestId('empty-notifications')).toBeInTheDocument();
@@ -52,7 +52,7 @@ describe('NotificationList', () => {
                 notifications={mockNotifications}
                 onMarkAsRead={mockOnMarkAsRead}
                 onDelete={mockOnDelete}
-            />
+            />,
         );
 
         expect(screen.getByTestId('notification-list')).toBeInTheDocument();
@@ -66,7 +66,7 @@ describe('NotificationList', () => {
                 notifications={mockNotifications}
                 onMarkAsRead={mockOnMarkAsRead}
                 onDelete={mockOnDelete}
-            />
+            />,
         );
 
         expect(screen.getByText('Test Notification 1')).toBeInTheDocument();

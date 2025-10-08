@@ -74,7 +74,7 @@ describe('JiraCard Components', () => {
                     assignee="John Doe"
                     updated="2024-01-15T10:30:00Z"
                     status="In Progress"
-                />
+                />,
             );
             expect(screen.getByText('TEST-123')).toBeInTheDocument();
             expect(screen.getByText('In Progress')).toBeInTheDocument();
@@ -87,7 +87,7 @@ describe('JiraCard Components', () => {
                     assignee="Jane"
                     updated="2024-01-15T10:30:00Z"
                     status="To Do"
-                />
+                />,
             );
             expect(screen.getByText('To Do')).toBeInTheDocument();
 
@@ -97,7 +97,7 @@ describe('JiraCard Components', () => {
                     assignee="Bob"
                     updated="2024-01-15T10:30:00Z"
                     status="Done"
-                />
+                />,
             );
             expect(screen.getByText('Done')).toBeInTheDocument();
         });
@@ -110,7 +110,7 @@ describe('JiraCard Components', () => {
                     parentKey="PARENT-123"
                     parentSummary="Parent ticket summary"
                     ticketKey="TEST-456"
-                />
+                />,
             );
             expect(screen.getByText(/PARENT-123/)).toBeInTheDocument();
             expect(screen.getByText(/Parent ticket summary/)).toBeInTheDocument();
@@ -122,7 +122,7 @@ describe('JiraCard Components', () => {
                     parentKey="PARENT-789"
                     parentSummary="Another parent"
                     ticketKey="TEST-999"
-                />
+                />,
             );
             expect(screen.getByTestId('jira-card-parent-TEST-999')).toBeInTheDocument();
         });

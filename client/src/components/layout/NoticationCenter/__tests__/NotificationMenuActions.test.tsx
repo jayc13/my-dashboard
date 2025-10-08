@@ -17,7 +17,7 @@ describe('NotificationMenuActions', () => {
                 notificationsLength={0}
                 onMarkAllAsRead={mockOnMarkAllAsRead}
                 onDeleteAll={mockOnDeleteAll}
-            />
+            />,
         );
 
         expect(container.firstChild).toBeNull();
@@ -30,7 +30,7 @@ describe('NotificationMenuActions', () => {
                 notificationsLength={5}
                 onMarkAllAsRead={mockOnMarkAllAsRead}
                 onDeleteAll={mockOnDeleteAll}
-            />
+            />,
         );
 
         expect(screen.queryByTestId('mark-all-as-read')).not.toBeInTheDocument();
@@ -44,7 +44,7 @@ describe('NotificationMenuActions', () => {
                 notificationsLength={5}
                 onMarkAllAsRead={mockOnMarkAllAsRead}
                 onDeleteAll={mockOnDeleteAll}
-            />
+            />,
         );
 
         expect(screen.getByTestId('mark-all-as-read')).toBeInTheDocument();
@@ -58,7 +58,7 @@ describe('NotificationMenuActions', () => {
                 notificationsLength={5}
                 onMarkAllAsRead={mockOnMarkAllAsRead}
                 onDeleteAll={mockOnDeleteAll}
-            />
+            />,
         );
 
         const markAllButton = screen.getByTestId('mark-all-as-read');
@@ -74,7 +74,7 @@ describe('NotificationMenuActions', () => {
                 notificationsLength={5}
                 onMarkAllAsRead={mockOnMarkAllAsRead}
                 onDeleteAll={mockOnDeleteAll}
-            />
+            />,
         );
 
         const deleteAllButton = screen.getByTestId('delete-all');

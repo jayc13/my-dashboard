@@ -12,7 +12,7 @@ describe('Layout', () => {
         render(
             <Layout>
                 <div data-testid="test-content">Test Content</div>
-            </Layout>
+            </Layout>,
         );
 
         expect(screen.getByTestId('header')).toBeInTheDocument();
@@ -23,7 +23,7 @@ describe('Layout', () => {
         const { container } = render(
             <Layout>
                 <div>Content</div>
-            </Layout>
+            </Layout>,
         );
 
         const mainElement = container.querySelector('main');

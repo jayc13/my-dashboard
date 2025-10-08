@@ -131,7 +131,7 @@ describe('PRCard', () => {
             expect(navigator.clipboard.writeText).toHaveBeenCalledWith(mockDetails.url);
             expect(enqueueSnackbar).toHaveBeenCalledWith(
                 'Pull Request URL copied!',
-                { variant: 'success', preventDuplicate: false }
+                { variant: 'success', preventDuplicate: false },
             );
         });
     });

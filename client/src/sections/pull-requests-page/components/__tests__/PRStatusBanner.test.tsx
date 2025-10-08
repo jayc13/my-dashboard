@@ -42,7 +42,7 @@ describe('PRStatusBanner', () => {
                     mergeableState: 'dirty',
                     labels: [{ name: 'Ready For Review' }],
                 }}
-            />
+            />,
         );
         
         expect(screen.getByText('Ready for Review')).toBeInTheDocument();
@@ -57,7 +57,7 @@ describe('PRStatusBanner', () => {
                     mergeableState: 'clean',
                     labels: [{ name: 'Ready For Review' }],
                 }}
-            />
+            />,
         );
         
         expect(screen.getByText('Approved')).toBeInTheDocument();
@@ -66,7 +66,7 @@ describe('PRStatusBanner', () => {
 
     it('shows no banner for closed PRs', () => {
         const { container } = render(
-            <PRStatusBanner details={{ ...baseDetails, state: 'closed' }} />
+            <PRStatusBanner details={{ ...baseDetails, state: 'closed' }} />,
         );
         
         expect(container.firstChild).toBeNull();
@@ -74,7 +74,7 @@ describe('PRStatusBanner', () => {
 
     it('shows no banner when no special conditions are met', () => {
         const { container } = render(
-            <PRStatusBanner details={{ ...baseDetails, mergeableState: 'dirty' }} />
+            <PRStatusBanner details={{ ...baseDetails, mergeableState: 'dirty' }} />,
         );
         
         expect(container.firstChild).toBeNull();

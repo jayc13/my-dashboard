@@ -142,7 +142,7 @@ describe('PullRequestsPageContainer', () => {
         // Enter valid URL
         const input = screen.getByLabelText(/GitHub Pull Request URL/);
         fireEvent.change(input, { 
-            target: { value: 'https://github.com/owner/repo/pull/123' } 
+            target: { value: 'https://github.com/owner/repo/pull/123' }, 
         });
 
         // Click add
@@ -158,7 +158,7 @@ describe('PullRequestsPageContainer', () => {
 
         expect(enqueueSnackbar).toHaveBeenCalledWith(
             'Pull request added successfully',
-            { variant: 'success' }
+            { variant: 'success' },
         );
         expect(mockRefetch).toHaveBeenCalled();
     });
@@ -182,7 +182,7 @@ describe('PullRequestsPageContainer', () => {
         // Enter valid URL
         const input = screen.getByLabelText(/GitHub Pull Request URL/);
         fireEvent.change(input, { 
-            target: { value: 'https://github.com/owner/repo/pull/123' } 
+            target: { value: 'https://github.com/owner/repo/pull/123' }, 
         });
 
         // Click add
@@ -192,7 +192,7 @@ describe('PullRequestsPageContainer', () => {
         await waitFor(() => {
             expect(enqueueSnackbar).toHaveBeenCalledWith(
                 'Failed to add pull request',
-                { variant: 'error' }
+                { variant: 'error' },
             );
         });
     });

@@ -45,7 +45,7 @@ describe('E2EPage', () => {
                 loading={false}
                 error={error}
                 refetch={mockRefetch}
-            />
+            />,
         );
         
         expect(screen.getByText('Error fetching information')).toBeInTheDocument();
@@ -59,7 +59,7 @@ describe('E2EPage', () => {
                 loading={false}
                 error={null}
                 refetch={mockRefetch}
-            />
+            />,
         );
         
         expect(screen.getByTestId('e2e-page')).toBeInTheDocument();
@@ -75,7 +75,7 @@ describe('E2EPage', () => {
                 loading={true}
                 error={null}
                 refetch={mockRefetch}
-            />
+            />,
         );
         
         expect(screen.getByTestId('loading-backdrop')).toBeInTheDocument();
@@ -89,7 +89,7 @@ describe('E2EPage', () => {
                 loading={false}
                 error={null}
                 refetch={mockRefetch}
-            />
+            />,
         );
         
         expect(screen.getByTestId('e2e-page')).toBeInTheDocument();
