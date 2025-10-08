@@ -32,9 +32,7 @@ describe('E2EGeneralMetrics', () => {
   });
 
   it('renders loading skeletons when isLoading is true', () => {
-    const { container } = render(
-      <E2EGeneralMetrics data={mockData} isLoading={true} />,
-    );
+    const { container } = render(<E2EGeneralMetrics data={mockData} isLoading={true} />);
 
     const skeletons = container.querySelectorAll('.MuiSkeleton-root');
     expect(skeletons.length).toBe(4);

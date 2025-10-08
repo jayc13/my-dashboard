@@ -60,10 +60,12 @@ describe('PRStatusBanner', () => {
         details={{
           ...baseDetails,
           mergeableState: 'clean',
-          labels: [{
-            name: 'Ready For Review',
-            color: 'red',
-          }],
+          labels: [
+            {
+              name: 'Ready For Review',
+              color: 'red',
+            },
+          ],
         }}
       />,
     );
