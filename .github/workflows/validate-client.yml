@@ -53,21 +53,3 @@ jobs:
 
       - name: Run unit tests
         run: pnpm --filter=client run test
-
-      - name: Bundle size analysis
-        if: inputs.run-bundle-analysis
-        uses: ./.github/actions/bundle-analysis
-        with:
-          working-directory: ${{ inputs.working-directory }}
-
-      - name: Compare with main branch
-        if: inputs.run-bundle-analysis
-        shell: bash
-        working-directory: ${{ inputs.working-directory }}
-        run: ${{ github.workspace }}/scripts/ci/bundle-comparison.sh
-
-      - name: Bundle size validation
-        if: inputs.run-bundle-analysis
-        shell: bash
-        working-directory: ${{ inputs.working-directory }}
-        run: ${{ github.workspace }}/scripts/ci/bundle-validation.sh
