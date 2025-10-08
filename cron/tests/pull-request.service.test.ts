@@ -8,7 +8,7 @@
  * - Error handling
  */
 
-import { PullRequestService } from '../src/services/pull-request.service';
+import { PullRequestService, PRWithDetails } from '@/services/pull-request.service';
 import { GithubPullRequestDetails, PullRequest } from '@my-dashboard/types';
 
 // Mock SDK
@@ -134,9 +134,9 @@ describe('PullRequestService', () => {
   describe('filterByState', () => {
     it('should filter PRs by open state', () => {
       const prs = [
-        { state: 'open', number: 1 } as any,
-        { state: 'closed', number: 2 } as any,
-        { state: 'open', number: 3 } as any,
+        { state: 'open', number: 1 } as PRWithDetails,
+        { state: 'closed', number: 2 } as PRWithDetails,
+        { state: 'open', number: 3 } as PRWithDetails,
       ];
 
       const result = PullRequestService.filterByState(prs, 'open');
@@ -148,9 +148,9 @@ describe('PullRequestService', () => {
 
     it('should filter PRs by closed state', () => {
       const prs = [
-        { state: 'open', number: 1 } as any,
-        { state: 'closed', number: 2 } as any,
-        { state: 'closed', number: 3 } as any,
+        { state: 'open', number: 1 } as PRWithDetails,
+        { state: 'closed', number: 2 } as PRWithDetails,
+        { state: 'closed', number: 3 } as PRWithDetails,
       ];
 
       const result = PullRequestService.filterByState(prs, 'closed');
@@ -164,9 +164,9 @@ describe('PullRequestService', () => {
   describe('filterByMerged', () => {
     it('should filter merged PRs', () => {
       const prs = [
-        { merged: true, number: 1 } as any,
-        { merged: false, number: 2 } as any,
-        { merged: true, number: 3 } as any,
+        { merged: true, number: 1 } as PRWithDetails,
+        { merged: false, number: 2 } as PRWithDetails,
+        { merged: true, number: 3 } as PRWithDetails,
       ];
 
       const result = PullRequestService.filterByMerged(prs, true);
@@ -178,9 +178,9 @@ describe('PullRequestService', () => {
 
     it('should filter non-merged PRs', () => {
       const prs = [
-        { merged: true, number: 1 } as any,
-        { merged: false, number: 2 } as any,
-        { merged: false, number: 3 } as any,
+        { merged: true, number: 1 } as PRWithDetails,
+        { merged: false, number: 2 } as PRWithDetails,
+        { merged: false, number: 3 } as PRWithDetails,
       ];
 
       const result = PullRequestService.filterByMerged(prs, false);
@@ -194,10 +194,10 @@ describe('PullRequestService', () => {
   describe('filterByMergeableState', () => {
     it('should filter PRs by mergeable state', () => {
       const prs = [
-        { mergeableState: 'clean', number: 1 } as any,
-        { mergeableState: 'dirty', number: 2 } as any,
-        { mergeableState: 'unstable', number: 3 } as any,
-        { mergeableState: 'clean', number: 4 } as any,
+        { mergeableState: 'clean', number: 1 } as PRWithDetails,
+        { mergeableState: 'dirty', number: 2 } as PRWithDetails,
+        { mergeableState: 'unstable', number: 3 } as PRWithDetails,
+        { mergeableState: 'clean', number: 4 } as PRWithDetails,
       ];
 
       const result = PullRequestService.filterByMergeableState(prs, ['clean', 'unstable']);
@@ -208,8 +208,8 @@ describe('PullRequestService', () => {
 
     it('should return empty array when no PRs match', () => {
       const prs = [
-        { mergeableState: 'dirty', number: 1 } as any,
-        { mergeableState: 'dirty', number: 2 } as any,
+        { mergeableState: 'dirty', number: 1 } as PRWithDetails,
+        { mergeableState: 'dirty', number: 2 } as PRWithDetails,
       ];
 
       const result = PullRequestService.filterByMergeableState(prs, ['clean']);
@@ -254,16 +254,16 @@ describe('PullRequestService', () => {
       const eightDaysAgo = new Date(now.getTime() - 8 * 24 * 60 * 60 * 1000);
 
       const prs = [
-        { createdAt: twoDaysAgo.toISOString(), number: 1 } as any,
-        { createdAt: fiveDaysAgo.toISOString(), number: 2 } as any,
-        { createdAt: eightDaysAgo.toISOString(), number: 3 } as any,
+        { createdAt: twoDaysAgo.toISOString(), number: 1 } as PRWithDetails,
+        { createdAt: fiveDaysAgo.toISOString(), number: 2 } as PRWithDetails,
+        { createdAt: eightDaysAgo.toISOString(), number: 3 } as PRWithDetails,
       ];
 
       // Filter manually since filterByMinAge doesn't exist
       const result = prs.filter(pr => PullRequestService.calculateAgeInDays(pr.createdAt) >= 3);
 
       expect(result).toHaveLength(2);
-      expect(result.map((pr: any) => pr.number)).toEqual([2, 3]);
+      expect(result.map((pr: PRWithDetails) => pr.number)).toEqual([2, 3]);
     });
 
     it('should return empty array when no PRs meet minimum age', () => {
@@ -271,8 +271,8 @@ describe('PullRequestService', () => {
       const yesterday = new Date(now.getTime() - 1 * 24 * 60 * 60 * 1000);
 
       const prs = [
-        { createdAt: yesterday.toISOString(), number: 1 } as any,
-        { createdAt: now.toISOString(), number: 2 } as any,
+        { createdAt: yesterday.toISOString(), number: 1 } as PRWithDetails,
+        { createdAt: now.toISOString(), number: 2 } as PRWithDetails,
       ];
 
       // Filter manually since filterByMinAge doesn't exist

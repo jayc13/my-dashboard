@@ -9,7 +9,7 @@
  */
 
 import pullRequestsManagementJob from '../src/jobs/pull-requests-management.job';
-import { PullRequestService } from '../src/services/pull-request.service';
+import { PullRequestService, PRWithDetails } from '../src/services/pull-request.service';
 import { publishNotificationRequest } from '../src/services/notification.service';
 
 // Mock Redis client
@@ -360,11 +360,11 @@ describe('Pull Requests Management Job', () => {
       });
 
       (PullRequestService.filterByState as jest.Mock).mockReturnValue(mockPRs.slice(0, 2));
-      (PullRequestService.filterByMerged as jest.Mock).mockImplementation((prs: any[], merged: boolean) => {
+      (PullRequestService.filterByMerged as jest.Mock).mockImplementation((prs: PRWithDetails[], merged: boolean) => {
         if (merged) {
           return [mockPRs[2]];
         }
-        return prs.filter((pr: any) => !pr.merged);
+        return prs.filter((pr: PRWithDetails) => !pr.merged);
       });
       (PullRequestService.filterByMergeableState as jest.Mock).mockImplementation((prs, states) => {
         if (states.includes('clean')) {
