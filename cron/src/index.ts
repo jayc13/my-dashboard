@@ -2,9 +2,8 @@ import * as cron from 'node-cron';
 import * as dotenv from 'dotenv';
 import config from 'config';
 import runReportE2EJob from '@/jobs/report-e2e.job';
-import isPrApprovedJob from '@/jobs/is-pr-approved.job';
+import pullRequestsManagementJob from '@/jobs/pull-requests-management.job';
 import manualTicketsReminderJob from '@/jobs/manualTicketsReminder.job';
-import prReminderJob from '@/jobs/pr-reminder.job';
 import { testRedisConnection } from '@/utils/redis';
 import { getSDK } from '@/utils/sdk';
 
@@ -17,9 +16,8 @@ dotenv.config({ quiet: true });
 function getSchedules() {
   return {
     reportE2E: config.get<string>('jobs.report_e2e.schedule'),
-    isPrApproved: config.get<string>('jobs.is_pr_approved.schedule'),
+    pullRequestsManagement: config.get<string>('jobs.pull_requests_management.schedule'),
     manualTicketsReminder: config.get<string>('jobs.manual_tickets_reminder.schedule'),
-    prReminder: config.get<string>('jobs.pr_reminder.schedule'),
   };
 }
 
@@ -30,31 +28,24 @@ function initializeCronJobs() {
   const schedules = getSchedules();
 
   console.log(`Starting E2E Report cron job with schedule: ${schedules.reportE2E}`);
-  // Schedule the report job
+  // Schedule the E2E report job
   cron.schedule(schedules.reportE2E, async () => {
     console.log(`Running E2E Report job at ${new Date().toISOString()}`);
     await runReportE2EJob();
   });
 
-  console.log(`Starting checking for PRs approved cron job with schedule: ${schedules.isPrApproved}`);
-  // Schedule the report job
-  cron.schedule(schedules.isPrApproved, async () => {
-    console.log(`Checking if there are PRs approved at ${new Date().toISOString()}`);
-    await isPrApprovedJob();
+  console.log(`Starting Pull Requests Management cron job with schedule: ${schedules.pullRequestsManagement}`);
+  // Schedule the unified PR management job (combines is-pr-approved, pr-reminder, and delete-merged-prs)
+  cron.schedule(schedules.pullRequestsManagement, async () => {
+    console.log(`Running Pull Requests Management job at ${new Date().toISOString()}`);
+    await pullRequestsManagementJob();
   });
 
   console.log(`Starting checking for Manual Testing tickets job with schedule: ${schedules.manualTicketsReminder}`);
-  // Schedule the report job
+  // Schedule the manual tickets reminder job
   cron.schedule(schedules.manualTicketsReminder, async () => {
     console.log(`Checking if there are Manual Testing to do today: ${new Date().toISOString()}`);
     await manualTicketsReminderJob();
-  });
-
-  console.log(`Starting PR reminder job with schedule: ${schedules.prReminder}`);
-  // Schedule the PR reminder job
-  cron.schedule(schedules.prReminder, async () => {
-    console.log(`Checking for old PRs at ${new Date().toISOString()}`);
-    await prReminderJob();
   });
 }
 

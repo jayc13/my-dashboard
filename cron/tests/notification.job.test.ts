@@ -179,10 +179,58 @@ describe('Notification Job', () => {
       
       // Should be valid JSON
       expect(() => JSON.parse(messageString)).not.toThrow();
-      
+
       const parsed = JSON.parse(messageString);
       expect(typeof parsed).toBe('object');
       expect(parsed).not.toBeNull();
+    });
+  });
+
+  describe('notificationService default export', () => {
+    const notificationService = require('../src/services/notification.service').default;
+
+    it('should be a function', () => {
+      expect(typeof notificationService).toBe('function');
+    });
+
+    it('should execute without errors', async () => {
+      mockPublish.mockResolvedValue(1);
+
+      await expect(notificationService()).resolves.not.toThrow();
+    });
+
+    it('should publish test notification', async () => {
+      mockPublish.mockResolvedValue(1);
+
+      await notificationService();
+
+      expect(mockPublish).toHaveBeenCalled();
+      const publishedMessage = JSON.parse(mockPublish.mock.calls[0][1]);
+      expect(publishedMessage.title).toBe('Test Notification');
+    });
+
+    it('should handle errors gracefully', async () => {
+      mockPublish.mockRejectedValue(new Error('Redis error'));
+
+      await expect(notificationService()).resolves.not.toThrow();
+    });
+
+    it('should log execution details', async () => {
+      const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
+      mockPublish.mockResolvedValue(1);
+
+      await notificationService();
+
+      expect(consoleSpy).toHaveBeenCalled();
+      consoleSpy.mockRestore();
+    });
+
+    it('should return undefined', async () => {
+      mockPublish.mockResolvedValue(1);
+
+      const result = await notificationService();
+
+      expect(result).toBeUndefined();
     });
   });
 });

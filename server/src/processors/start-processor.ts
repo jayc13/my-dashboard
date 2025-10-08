@@ -6,6 +6,7 @@
  * This script starts all processors that listen for Redis messages:
  * - E2E Report Processor: Generates E2E test reports
  * - Notification Processor: Creates notifications
+ * - Pull Request Processor: Handles pull request operations
  *
  * Usage:
  *   npm run processor
@@ -15,6 +16,7 @@
 
 import { E2EReportProcessor } from './e2e_report.processor';
 import { NotificationProcessor } from './notification.processor';
+import { PullRequestProcessor } from './pull-request.processor';
 import { testRedisConnection } from '../config/redis';
 import { testMySQLConnection } from '../db/mysql';
 import { Logger } from '../utils/logger';
@@ -24,6 +26,7 @@ dotenv.config({ quiet: true });
 
 let e2eProcessor: E2EReportProcessor | null = null;
 let notificationProcessor: NotificationProcessor | null = null;
+let pullRequestProcessor: PullRequestProcessor | null = null;
 
 /**
  * Start all processors
@@ -60,6 +63,12 @@ export async function startProcessor() {
     notificationProcessor = NotificationProcessor.getInstance();
     await notificationProcessor.start();
     Logger.debug('[Startup] Notification Processor started');
+
+    // Start Pull Request Processor
+    Logger.debug('[Startup] Starting Pull Request Processor...');
+    pullRequestProcessor = PullRequestProcessor.getInstance();
+    await pullRequestProcessor.start();
+    Logger.debug('[Startup] Pull Request Processor started');
 
     Logger.debug('[Startup] All processors are running');
     Logger.debug('='.repeat(60));
