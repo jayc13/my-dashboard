@@ -1,7 +1,6 @@
 import { DatabaseRow, db } from '../db/database';
 import { E2EReportSummary, E2EReportDetail } from '@my-dashboard/types/e2e';
 import { CypressAppReportData, E2EReportProcessor } from '../processors/e2e_report.processor';
-import { DateTime } from 'luxon';
 import { Logger } from '../utils/logger';
 
 /**
