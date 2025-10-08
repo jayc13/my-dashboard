@@ -88,47 +88,51 @@ describe('FCMService', () => {
     });
   });
 
-  describe('registerToken', () => {
-    it('should register device token', async () => {
-      const mockResult = { insertId: 1 };
-      const mockToken = {
-        id: 1,
-        token: 'test-token',
-        created_at: '2025-10-08T10:00:00Z',
-      };
+  describe('registerDeviceToken', () => {
+    it('should register new device token', async () => {
+      mockDb.get.mockResolvedValue(undefined);
+      mockDb.run.mockResolvedValue({ changes: 1 });
 
-      mockDb.run.mockResolvedValue(mockResult);
-      mockDb.get.mockResolvedValue(mockToken);
+      const result = await service.registerDeviceToken('test-token');
 
-      const result = await service.registerToken('test-token');
+      expect(result).toBe(true);
+      expect(mockDb.run).toHaveBeenCalled();
+    });
 
-      expect(result).toBeDefined();
-      expect(result.token).toBe('test-token');
+    it('should update existing device token', async () => {
+      mockDb.get.mockResolvedValue({ token: 'test-token' });
+      mockDb.run.mockResolvedValue({ changes: 1 });
+
+      const result = await service.registerDeviceToken('test-token');
+
+      expect(result).toBe(true);
     });
   });
 
-  describe('unregisterToken', () => {
+  describe('unregisterDeviceToken', () => {
     it('should unregister device token', async () => {
       mockDb.run.mockResolvedValue({ changes: 1 });
 
-      await service.unregisterToken('test-token');
+      const result = await service.unregisterDeviceToken('test-token');
 
+      expect(result).toBe(true);
       expect(mockDb.run).toHaveBeenCalled();
     });
   });
 
-  describe('getAllTokens', () => {
+  describe('getAllDeviceTokens', () => {
     it('should return all device tokens', async () => {
       const mockTokens = [
-        { id: 1, token: 'token1', created_at: '2025-10-08T10:00:00Z' },
-        { id: 2, token: 'token2', created_at: '2025-10-08T11:00:00Z' },
+        { token: 'token1' },
+        { token: 'token2' },
       ];
 
       mockDb.all.mockResolvedValue(mockTokens);
 
-      const result = await service.getAllTokens();
+      const result = await service.getAllDeviceTokens();
 
       expect(result).toHaveLength(2);
+      expect(result[0]).toBe('token1');
     });
   });
 

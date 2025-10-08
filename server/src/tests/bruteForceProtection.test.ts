@@ -27,6 +27,8 @@ describe('Brute Force Protection', () => {
     mockRequest = {
       ip: '127.0.0.1',
       path: '/api/test',
+      connection: { remoteAddress: '127.0.0.1' } as any,
+      socket: { remoteAddress: '127.0.0.1' } as any,
     };
     mockResponse = {
       status: jest.fn().mockReturnThis(),

@@ -1,10 +1,10 @@
 /**
  * Start Processor Tests
- * 
+ *
  * Tests for start-processor
  */
 
-import { startProcessors } from '../processors/start-processor';
+import { startProcessor } from '../processors/start-processor';
 
 // Mock dependencies
 jest.mock('../processors/notification.processor', () => ({
@@ -31,31 +31,40 @@ jest.mock('../processors/e2e_report.processor', () => ({
   },
 }));
 
+jest.mock('../config/redis', () => ({
+  testRedisConnection: jest.fn().mockResolvedValue(true),
+}));
+
+jest.mock('../db/mysql', () => ({
+  testMySQLConnection: jest.fn().mockResolvedValue(true),
+}));
+
 describe('Start Processor', () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
-  describe('startProcessors', () => {
+  describe('startProcessor', () => {
     it('should start all processors', async () => {
       const NotificationProcessor = require('../processors/notification.processor').NotificationProcessor;
       const PullRequestProcessor = require('../processors/pull-request.processor').PullRequestProcessor;
       const E2EReportProcessor = require('../processors/e2e_report.processor').E2EReportProcessor;
 
-      await startProcessors();
+      await startProcessor();
 
       expect(NotificationProcessor.getInstance).toHaveBeenCalled();
       expect(PullRequestProcessor.getInstance).toHaveBeenCalled();
       expect(E2EReportProcessor.getInstance).toHaveBeenCalled();
     });
 
-    it('should handle errors gracefully', async () => {
-      const NotificationProcessor = require('../processors/notification.processor').NotificationProcessor;
-      NotificationProcessor.getInstance.mockImplementation(() => {
-        throw new Error('Processor error');
-      });
+    it('should handle connection errors gracefully', async () => {
+      const { testRedisConnection } = require('../config/redis');
+      testRedisConnection.mockResolvedValue(false);
 
-      await expect(startProcessors()).rejects.toThrow();
+      await startProcessor();
+
+      // Should not throw, just log error
+      expect(testRedisConnection).toHaveBeenCalled();
     });
   });
 });
