@@ -14,4 +14,3 @@ describe('ToDoListSection', () => {
     expect(screen.getByTestId('todo-list-mock')).toHaveTextContent('ToDoList Component');
   });
 });
-

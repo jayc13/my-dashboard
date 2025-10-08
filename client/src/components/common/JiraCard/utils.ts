@@ -27,7 +27,11 @@ export const getStatusColor = (
   status: string,
 ): 'default' | 'primary' | 'secondary' | 'error' | 'info' | 'success' | 'warning' => {
   const statusLower = status.toLowerCase();
-  if (statusLower.includes('done') || statusLower.includes('closed') || statusLower.includes('resolved')) {
+  if (
+    statusLower.includes('done') ||
+    statusLower.includes('closed') ||
+    statusLower.includes('resolved')
+  ) {
     return 'success';
   }
   if (statusLower.includes('progress') || statusLower.includes('review')) {
@@ -36,7 +40,11 @@ export const getStatusColor = (
   if (statusLower.includes('blocked')) {
     return 'error';
   }
-  if (statusLower.includes('todo') || statusLower.includes('open') || statusLower.includes('backlog')) {
+  if (
+    statusLower.includes('todo') ||
+    statusLower.includes('open') ||
+    statusLower.includes('backlog')
+  ) {
     return 'default';
   }
   return 'info';
@@ -52,4 +60,3 @@ export const getRelativeTime = (dateString: string): string => {
     return dateString;
   }
 };
-

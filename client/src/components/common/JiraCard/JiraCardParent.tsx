@@ -41,4 +41,3 @@ const JiraCardParent = (props: JiraCardParentProps) => {
 };
 
 export default JiraCardParent;
-

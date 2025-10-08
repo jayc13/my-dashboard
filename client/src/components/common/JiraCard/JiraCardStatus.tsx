@@ -24,4 +24,3 @@ const JiraCardStatus = (props: JiraCardStatusProps) => {
 };
 
 export default JiraCardStatus;
-

@@ -51,9 +51,7 @@ vi.mock('../../layout/ThemeSwitcher', () => ({
 
 vi.mock('../../layout/NotificationCenter', () => ({
   default: ({ notifications }: { notifications: Notification[] }) => (
-    <div data-testid="notification-center">
-      Notification Center ({notifications?.length || 0})
-    </div>
+    <div data-testid="notification-center">Notification Center ({notifications?.length || 0})</div>
   ),
 }));
 
@@ -62,9 +60,7 @@ const theme = createTheme();
 
 // Wrapper component for tests
 const TestWrapper = ({ children }: { children: React.ReactNode }) => (
-  <ThemeProvider theme={theme}>
-    {children}
-  </ThemeProvider>
+  <ThemeProvider theme={theme}>{children}</ThemeProvider>
 );
 
 describe('Header Component', () => {
@@ -111,10 +107,10 @@ describe('Header Component', () => {
     );
 
     const menuButton = screen.getByLabelText('open menu');
-    
+
     // Open the sidebar
     fireEvent.click(menuButton);
-    
+
     await waitFor(() => {
       expect(screen.getByText('Menu')).toBeInTheDocument();
     });

@@ -1,10 +1,7 @@
 import { useCallback } from 'react';
 import { useSDKData, useSDKMutation, type UseSDKDataOptions } from './useSDKData';
 import { useSDK } from '../contexts/useSDK';
-import type {
-  Application,
-  ApplicationDetails,
-} from '@my-dashboard/types';
+import type { Application, ApplicationDetails } from '@my-dashboard/types';
 
 /**
  * Hook for apps data
@@ -44,12 +41,15 @@ export function useApp(id: number, options?: UseSDKDataOptions) {
 export function useCreateApp() {
   const { api } = useSDK();
 
-  const mutationFn = useCallback(async (data: Application): Promise<Application> => {
-    if (!api) {
-      throw new Error('API not available');
-    }
-    return api.applications.createApplication(data);
-  }, [api]);
+  const mutationFn = useCallback(
+    async (data: Application): Promise<Application> => {
+      if (!api) {
+        throw new Error('API not available');
+      }
+      return api.applications.createApplication(data);
+    },
+    [api],
+  );
 
   return useSDKMutation(mutationFn);
 }
@@ -60,12 +60,15 @@ export function useCreateApp() {
 export function useUpdateApp() {
   const { api } = useSDK();
 
-  const mutationFn = useCallback(async ({ id, data }: { id: number; data: Application }): Promise<Application> => {
-    if (!api) {
-      throw new Error('API not available');
-    }
-    return api.applications.updateApplication(id, data);
-  }, [api]);
+  const mutationFn = useCallback(
+    async ({ id, data }: { id: number; data: Application }): Promise<Application> => {
+      if (!api) {
+        throw new Error('API not available');
+      }
+      return api.applications.updateApplication(id, data);
+    },
+    [api],
+  );
 
   return useSDKMutation(mutationFn);
 }
@@ -76,12 +79,15 @@ export function useUpdateApp() {
 export function useDeleteApp() {
   const { api } = useSDK();
 
-  const mutationFn = useCallback(async (id: number): Promise<{ success: boolean }> => {
-    if (!api) {
-      throw new Error('API not available');
-    }
-    return api.applications.deleteApplication(id);
-  }, [api]);
+  const mutationFn = useCallback(
+    async (id: number): Promise<{ success: boolean }> => {
+      if (!api) {
+        throw new Error('API not available');
+      }
+      return api.applications.deleteApplication(id);
+    },
+    [api],
+  );
 
   return useSDKMutation(mutationFn);
 }

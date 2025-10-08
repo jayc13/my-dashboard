@@ -35,11 +35,5 @@ export const SDKProvider: React.FC<SDKProviderProps> = ({ children }) => {
     isReady: isAuthenticated && api !== null,
   };
 
-  return (
-    <SDKContext.Provider value={value}>
-      {children}
-    </SDKContext.Provider>
-  );
+  return <SDKContext.Provider value={value}>{children}</SDKContext.Provider>;
 };
-
-

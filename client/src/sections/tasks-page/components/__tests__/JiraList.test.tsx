@@ -177,7 +177,8 @@ describe('JiraList', () => {
     );
 
     expect(screen.getByTestId('jira-list-manual-testing-tasks')).toBeInTheDocument();
-    expect(screen.getByTestId('jira-list-title-manual-testing-tasks')).toHaveTextContent('Manual Testing Tasks (2)');
+    expect(screen.getByTestId('jira-list-title-manual-testing-tasks')).toHaveTextContent(
+      'Manual Testing Tasks (2)',
+    );
   });
 });
-

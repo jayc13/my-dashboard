@@ -3,9 +3,8 @@ import { describe, it, expect } from 'vitest';
 import NotificationMenuHeader from '../NotificationMenuHeader';
 
 describe('NotificationMenuHeader', () => {
-    it('renders the header text', () => {
-        render(<NotificationMenuHeader />);
-        expect(screen.getByText('Notifications')).toBeInTheDocument();
-    });
+  it('renders the header text', () => {
+    render(<NotificationMenuHeader />);
+    expect(screen.getByText('Notifications')).toBeInTheDocument();
+  });
 });
-

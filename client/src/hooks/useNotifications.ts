@@ -1,10 +1,7 @@
 import { useCallback } from 'react';
 import { useSDKData, useSDKMutation, type UseSDKDataOptions } from './useSDKData';
 import { useSDK } from '../contexts/useSDK';
-import type {
-  Notification,
-  NotificationQueryParams,
-} from '@my-dashboard/types';
+import type { Notification, NotificationQueryParams } from '@my-dashboard/types';
 
 /**
  * Hook for notifications data
@@ -25,7 +22,10 @@ export function useNotifications(options?: UseSDKDataOptions) {
 /**
  * Hook for notifications data with query parameters
  */
-export function useNotificationsWithParams(params: NotificationQueryParams = {}, options?: UseSDKDataOptions) {
+export function useNotificationsWithParams(
+  params: NotificationQueryParams = {},
+  options?: UseSDKDataOptions,
+) {
   const { api } = useSDK();
 
   const fetcher = useCallback(async (): Promise<Notification[]> => {
@@ -44,12 +44,15 @@ export function useNotificationsWithParams(params: NotificationQueryParams = {},
 export function useMarkNotificationAsRead() {
   const { api } = useSDK();
 
-  const mutationFn = useCallback(async (id: number): Promise<{ success: boolean }> => {
-    if (!api) {
-      throw new Error('API not available');
-    }
-    return api.notifications.markNotificationAsRead(id);
-  }, [api]);
+  const mutationFn = useCallback(
+    async (id: number): Promise<{ success: boolean }> => {
+      if (!api) {
+        throw new Error('API not available');
+      }
+      return api.notifications.markNotificationAsRead(id);
+    },
+    [api],
+  );
 
   return useSDKMutation(mutationFn);
 }
@@ -60,12 +63,15 @@ export function useMarkNotificationAsRead() {
 export function useDeleteNotification() {
   const { api } = useSDK();
 
-  const mutationFn = useCallback(async (id: number): Promise<{ success: boolean }> => {
-    if (!api) {
-      throw new Error('API not available');
-    }
-    return api.notifications.deleteNotification(id);
-  }, [api]);
+  const mutationFn = useCallback(
+    async (id: number): Promise<{ success: boolean }> => {
+      if (!api) {
+        throw new Error('API not available');
+      }
+      return api.notifications.deleteNotification(id);
+    },
+    [api],
+  );
 
   return useSDKMutation(mutationFn);
 }

@@ -23,7 +23,6 @@ export const TodoFilters: React.FC<TodoFiltersProps> = ({
   dueTodayCount,
 }) => {
   return (
-
     <Box
       sx={{
         display: 'flex',
@@ -33,7 +32,6 @@ export const TodoFilters: React.FC<TodoFiltersProps> = ({
         my: 1,
       }}
     >
-
       {/* Filter Buttons */}
       <ToggleButtonGroup
         value={filterType}
@@ -53,7 +51,8 @@ export const TodoFilters: React.FC<TodoFiltersProps> = ({
             py: 0.5,
             border: '1px solid',
             borderColor: 'divider',
-            backgroundColor: (theme) => theme.palette.mode === 'light' ? '#ffffff' : theme.palette.grey[900],
+            backgroundColor: theme =>
+              theme.palette.mode === 'light' ? '#ffffff' : theme.palette.grey[900],
             fontSize: '0.75rem',
             '&.Mui-selected': {
               backgroundColor: 'primary.main',
@@ -139,4 +138,3 @@ export const TodoFilters: React.FC<TodoFiltersProps> = ({
     </Box>
   );
 };
-

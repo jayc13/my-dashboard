@@ -20,9 +20,7 @@ const theme = createTheme();
 
 // Wrapper component for tests
 const TestWrapper = ({ children }: { children: React.ReactNode }) => (
-  <ThemeProvider theme={theme}>
-    {children}
-  </ThemeProvider>
+  <ThemeProvider theme={theme}>{children}</ThemeProvider>
 );
 
 describe('ThemeSwitcher Component', () => {
@@ -79,7 +77,7 @@ describe('ThemeSwitcher Component', () => {
 
     const button = screen.getByRole('button');
     fireEvent.click(button);
-    
+
     expect(mockSetMode).toHaveBeenCalledWith('light');
   });
 });

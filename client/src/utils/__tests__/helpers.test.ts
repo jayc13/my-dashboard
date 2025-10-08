@@ -64,7 +64,7 @@ describe('helpers', () => {
       const mockResponse = { ok: true, json: () => Promise.resolve({ data: 'test' }) };
       const existingHeaders = {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer token',
+        Authorization: 'Bearer token',
       };
 
       mockLocalStorage.getItem.mockReturnValue(mockApiKey);
@@ -80,7 +80,7 @@ describe('helpers', () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': 'Bearer token',
+          Authorization: 'Bearer token',
           'x-api-key': mockApiKey,
         },
         body: JSON.stringify({ test: 'data' }),

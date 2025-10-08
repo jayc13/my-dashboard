@@ -11,7 +11,11 @@ interface NotificationListItemProps {
   onDelete: (id: number) => Promise<void>;
 }
 
-const NotificationListItem: React.FC<NotificationListItemProps> = ({ notification: n, onMarkAsRead, onDelete }) => (
+const NotificationListItem: React.FC<NotificationListItemProps> = ({
+  notification: n,
+  onMarkAsRead,
+  onDelete,
+}) => (
   <Stack
     direction="row"
     alignItems="flex-start"
@@ -43,7 +47,7 @@ const NotificationListItem: React.FC<NotificationListItemProps> = ({ notificatio
         pr: 3,
       }}
       variant={n.isRead ? 'outlined' : 'filled'}
-      onClick={async (e) => {
+      onClick={async e => {
         e.stopPropagation();
         if (!n.link) {
           return;
@@ -70,7 +74,7 @@ const NotificationListItem: React.FC<NotificationListItemProps> = ({ notificatio
                 onMarkAsRead(n.id!);
               }}
             >
-              <CheckIcon fontSize="small" data-testid="TaskAltIcon"/>
+              <CheckIcon fontSize="small" data-testid="TaskAltIcon" />
             </IconButton>
           )}
           {n.isRead && (
@@ -84,12 +88,12 @@ const NotificationListItem: React.FC<NotificationListItemProps> = ({ notificatio
                 onDelete(n.id!);
               }}
             >
-              <DeleteIcon fontSize="small" data-testid="DeleteIcon"/>
+              <DeleteIcon fontSize="small" data-testid="DeleteIcon" />
             </IconButton>
           )}
         </>
       }
-      severity={n.type as 'info' | 'warning' | 'error' | 'success' || 'info'}
+      severity={(n.type as 'info' | 'warning' | 'error' | 'success') || 'info'}
     >
       <Stack direction="row" alignItems="center" justifyContent="space-between" spacing={1}>
         <AlertTitle
@@ -106,13 +110,14 @@ const NotificationListItem: React.FC<NotificationListItemProps> = ({ notificatio
               width: 8,
               height: 8,
               borderRadius: '50%',
-              background: n.type === 'success'
-                ? '#2e7d32'
-                : n.type === 'error'
-                  ? '#d32f2f'
-                  : n.type === 'warning'
-                    ? '#ed6c02'
-                    : '#1976d2',
+              background:
+                n.type === 'success'
+                  ? '#2e7d32'
+                  : n.type === 'error'
+                    ? '#d32f2f'
+                    : n.type === 'warning'
+                      ? '#ed6c02'
+                      : '#1976d2',
               right: -2,
               top: -2,
               boxShadow: '0 0 0 2px #fff',
@@ -127,7 +132,7 @@ const NotificationListItem: React.FC<NotificationListItemProps> = ({ notificatio
         sx={{ fontSize: 12, mt: 0.5 }}
         data-testid={`notification-time-${n.id}`}
       >
-        {(DateTime.fromISO(n.createdAt, { zone: 'utc' }).toLocal()).toFormat('dd/MM/yyyy HH:mm')}
+        {DateTime.fromISO(n.createdAt, { zone: 'utc' }).toLocal().toFormat('dd/MM/yyyy HH:mm')}
       </Typography>
       <Typography
         variant="body1"
@@ -142,4 +147,3 @@ const NotificationListItem: React.FC<NotificationListItemProps> = ({ notificatio
 );
 
 export default NotificationListItem;
-

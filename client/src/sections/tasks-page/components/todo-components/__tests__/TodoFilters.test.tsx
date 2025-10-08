@@ -19,7 +19,7 @@ describe('TodoFilters', () => {
 
   it('renders all filter buttons', () => {
     render(<TodoFilters {...defaultProps} />);
-    
+
     expect(screen.getByText(/All/i)).toBeInTheDocument();
     expect(screen.getByText(/Overdue/i)).toBeInTheDocument();
     expect(screen.getByText(/Due Soon/i)).toBeInTheDocument();
@@ -28,7 +28,7 @@ describe('TodoFilters', () => {
 
   it('displays correct counts for each filter', () => {
     render(<TodoFilters {...defaultProps} />);
-    
+
     expect(screen.getByText('2')).toBeInTheDocument(); // overdue count
     expect(screen.getByText('3')).toBeInTheDocument(); // due soon count
     expect(screen.getByText('1')).toBeInTheDocument(); // today count
@@ -36,7 +36,7 @@ describe('TodoFilters', () => {
 
   it('calls onFilterChange when a filter is clicked', () => {
     render(<TodoFilters {...defaultProps} />);
-    
+
     const overdueButton = screen.getByText(/Overdue/i).closest('button');
     if (overdueButton) {
       fireEvent.click(overdueButton);
@@ -46,14 +46,14 @@ describe('TodoFilters', () => {
 
   it('highlights the selected filter', () => {
     render(<TodoFilters {...defaultProps} filterType="overdue" />);
-    
+
     const overdueButton = screen.getByText(/Overdue/i).closest('button');
     expect(overdueButton).toHaveClass('Mui-selected');
   });
 
   it('does not call onFilterChange when clicking the already selected filter', () => {
     render(<TodoFilters {...defaultProps} filterType="all" />);
-    
+
     const allButton = screen.getByText(/All/i).closest('button');
     if (allButton) {
       fireEvent.click(allButton);
@@ -65,7 +65,7 @@ describe('TodoFilters', () => {
 
   it('changes filter to due-soon', () => {
     render(<TodoFilters {...defaultProps} />);
-    
+
     const dueSoonButton = screen.getByText(/Due Soon/i).closest('button');
     if (dueSoonButton) {
       fireEvent.click(dueSoonButton);
@@ -75,7 +75,7 @@ describe('TodoFilters', () => {
 
   it('changes filter to today', () => {
     render(<TodoFilters {...defaultProps} />);
-    
+
     const todayButton = screen.getByText(/Today/i).closest('button');
     if (todayButton) {
       fireEvent.click(todayButton);
@@ -84,17 +84,9 @@ describe('TodoFilters', () => {
   });
 
   it('renders with zero counts', () => {
-    render(
-      <TodoFilters
-        {...defaultProps}
-        overdueCount={0}
-        dueSoonCount={0}
-        dueTodayCount={0}
-      />,
-    );
+    render(<TodoFilters {...defaultProps} overdueCount={0} dueSoonCount={0} dueTodayCount={0} />);
 
     // When counts are 0, they are not displayed (only shown when > 0)
     expect(screen.queryByText('0')).not.toBeInTheDocument();
   });
 });
-

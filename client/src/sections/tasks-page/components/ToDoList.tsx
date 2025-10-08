@@ -1,13 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { DateTime } from 'luxon';
 import { useSnackbar } from 'notistack';
-import {
-  useTodos,
-  useCreateTodo,
-  useUpdateTodo,
-  useDeleteTodo,
-  useToggleTodo,
-} from '@/hooks';
+import { useTodos, useCreateTodo, useUpdateTodo, useDeleteTodo, useToggleTodo } from '@/hooks';
 import {
   Alert,
   Box,
@@ -55,11 +49,21 @@ const ToDoListWidget = () => {
   const [undoSnackbarKey, setUndoSnackbarKey] = useState<string | number | null>(null);
 
   // SDK hooks
-  const { data: toDoListData, loading: isLoadingList, error: todosError, refetch: fetchToDoList } = useTodos({
+  const {
+    data: toDoListData,
+    loading: isLoadingList,
+    error: todosError,
+    refetch: fetchToDoList,
+  } = useTodos({
     refetchInterval: 3 * 60 * 1000, // Refresh every 3 minutes
   });
   const { mutate: createTodo, loading: isCreating } = useCreateTodo();
-  const { mutate: updateTodo, loading: isUpdating, error: updateError, reset: resetUpdateError } = useUpdateTodo();
+  const {
+    mutate: updateTodo,
+    loading: isUpdating,
+    error: updateError,
+    reset: resetUpdateError,
+  } = useUpdateTodo();
   const { mutate: deleteTodo, loading: isDeleting } = useDeleteTodo();
   const { mutate: toggleTodo, loading: isToggling } = useToggleTodo();
 
@@ -68,7 +72,9 @@ const ToDoListWidget = () => {
     try {
       await toggleTodo({ id, isCompleted: checked });
       await fetchToDoList();
-      enqueueSnackbar(checked ? 'Task completed! 🎉' : 'Task marked as active', { variant: 'success' });
+      enqueueSnackbar(checked ? 'Task completed! 🎉' : 'Task marked as active', {
+        variant: 'success',
+      });
     } catch {
       // Revert on error
       await fetchToDoList();
@@ -96,7 +102,7 @@ const ToDoListWidget = () => {
       const snackbarKey = enqueueSnackbar('Task deleted', {
         variant: 'info',
         autoHideDuration: 6000,
-        action: (key) => (
+        action: key => (
           <Button
             color="inherit"
             size="small"
@@ -286,9 +292,7 @@ const ToDoListWidget = () => {
       )}
 
       {/* Statistics Dashboard */}
-      {toDoListData && toDoListData.length > 0 && (
-        <TodoStats todos={toDoListData}/>
-      )}
+      {toDoListData && toDoListData.length > 0 && <TodoStats todos={toDoListData} />}
 
       {/* Filters */}
       {toDoListData && toDoListData.length > 0 && (
@@ -304,15 +308,13 @@ const ToDoListWidget = () => {
       <Box data-testid="todo-list">
         {isLoadingList && !toDoListData && (
           <Stack direction="column" spacing={2} data-testid="todo-loading">
-            <Skeleton variant="rectangular" height={50}/>
-            <Skeleton variant="rectangular" height={50}/>
-            <Skeleton variant="rectangular" height={50}/>
+            <Skeleton variant="rectangular" height={50} />
+            <Skeleton variant="rectangular" height={50} />
+            <Skeleton variant="rectangular" height={50} />
           </Stack>
         )}
 
-        {!isLoadingList && sortedToDoList.length === 0 && (
-          <TodoEmptyState/>
-        )}
+        {!isLoadingList && sortedToDoList.length === 0 && <TodoEmptyState />}
 
         {/* Active Todos Section */}
         {activeTodos.length > 0 && (
@@ -396,10 +398,10 @@ const ToDoListWidget = () => {
                 {completedTodos.length}
               </Typography>
               <IconButton size="small" sx={{ ml: 'auto' }}>
-                {showCompleted ? <ExpandLessIcon/> : <ExpandMoreIcon/>}
+                {showCompleted ? <ExpandLessIcon /> : <ExpandMoreIcon />}
               </IconButton>
             </Box>
-            <Divider sx={{ mb: 2 }}/>
+            <Divider sx={{ mb: 2 }} />
             <Collapse in={showCompleted}>
               <List sx={{ padding: 0 }}>
                 {completedTodos.map((todo: ToDoItem) => (

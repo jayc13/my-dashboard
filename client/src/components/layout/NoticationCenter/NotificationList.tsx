@@ -10,10 +10,20 @@ interface NotificationListProps {
   onDelete: (id: number) => Promise<void>;
 }
 
-const NotificationList: React.FC<NotificationListProps> = ({ notifications, onMarkAsRead, onDelete }) => {
+const NotificationList: React.FC<NotificationListProps> = ({
+  notifications,
+  onMarkAsRead,
+  onDelete,
+}) => {
   if (!notifications.length) {
     return (
-      <Stack alignItems="center" justifyContent="center" py={4} sx={{ color: 'text.secondary' }} data-testid="empty-notifications">
+      <Stack
+        alignItems="center"
+        justifyContent="center"
+        py={4}
+        sx={{ color: 'text.secondary' }}
+        data-testid="empty-notifications"
+      >
         <NotificationsIcon sx={{ fontSize: 48, mb: 1, color: 'divider' }} />
         <Typography variant="body2">No notifications</Typography>
       </Stack>

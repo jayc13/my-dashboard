@@ -30,22 +30,25 @@ interface TodoItemProps {
 }
 
 export const TodoItem: React.FC<TodoItemProps> = ({
-                                                    todo,
-                                                    isToggling,
-                                                    onToggle,
-                                                    onEdit,
-                                                    onDelete,
-                                                  }) => {
+  todo,
+  isToggling,
+  onToggle,
+  onEdit,
+  onDelete,
+}) => {
   const [collapsed, setCollapsed] = useState(true);
   // Parse date without time - treat as date only
   const dueDate = todo.dueDate ? DateTime.fromISO(todo.dueDate).startOf('day') : null;
   const now = DateTime.now().startOf('day'); // Compare dates only, not times
   const isOverdue = dueDate && dueDate < now && !todo.isCompleted;
   const isDueToday = dueDate && dueDate.hasSame(now, 'day') && !todo.isCompleted;
-  const isDueSoon = dueDate && !todo.isCompleted && (() => {
-    const diff = dueDate.diff(now, 'days').days;
-    return diff > 0 && diff <= 2;
-  })();
+  const isDueSoon =
+    dueDate &&
+    !todo.isCompleted &&
+    (() => {
+      const diff = dueDate.diff(now, 'days').days;
+      return diff > 0 && diff <= 2;
+    })();
 
   // Get relative time for due date (days only, no hours/minutes)
   const getRelativeTime = () => {
@@ -129,7 +132,13 @@ export const TodoItem: React.FC<TodoItemProps> = ({
     return undefined;
   };
 
-  const dueDateColor = isOverdue ? 'error' : isDueToday ? 'warning' : isDueSoon ? 'primary' : 'default';
+  const dueDateColor = isOverdue
+    ? 'error'
+    : isDueToday
+      ? 'warning'
+      : isDueSoon
+        ? 'primary'
+        : 'default';
 
   return (
     <Fade in={true} timeout={300}>
@@ -148,13 +157,15 @@ export const TodoItem: React.FC<TodoItemProps> = ({
         variant="outlined"
         data-testid={`todo-item-${todo.id}`}
       >
-        <Box sx={{
-          display: 'flex',
-          alignItems: 'flex-start',
-          p: 2,
-          pr: 1,
-          gap: 0.5,
-        }}>
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'flex-start',
+            p: 2,
+            pr: 1,
+            gap: 0.5,
+          }}
+        >
           <Checkbox
             edge="start"
             checked={todo.isCompleted}
@@ -162,7 +173,7 @@ export const TodoItem: React.FC<TodoItemProps> = ({
             disableRipple
             disabled={isToggling}
             onChange={(_, checked) => onToggle(todo.id!, checked)}
-            onClick={(e) => e.stopPropagation()}
+            onClick={e => e.stopPropagation()}
             data-testid={`todo-checkbox-${todo.id}`}
             sx={{
               mt: 0,
@@ -176,11 +187,13 @@ export const TodoItem: React.FC<TodoItemProps> = ({
               minWidth: 0,
               mt: 0.5,
               cursor: hasExpandableContent ? 'pointer' : 'default',
-              '&:hover': hasExpandableContent ? {
-                '& .expand-indicator': {
-                  opacity: 1,
-                },
-              } : {},
+              '&:hover': hasExpandableContent
+                ? {
+                    '& .expand-indicator': {
+                      opacity: 1,
+                    },
+                  }
+                : {},
             }}
             onClick={() => {
               if (hasExpandableContent) {
@@ -268,7 +281,7 @@ export const TodoItem: React.FC<TodoItemProps> = ({
               {/* Link - Always visible */}
               {linkDomain && (
                 <Chip
-                  icon={<LinkIcon sx={{ fontSize: 14 }}/>}
+                  icon={<LinkIcon sx={{ fontSize: 14 }} />}
                   label={linkDomain}
                   size="small"
                   variant="outlined"
@@ -280,7 +293,7 @@ export const TodoItem: React.FC<TodoItemProps> = ({
                       backgroundColor: 'action.hover',
                     },
                   }}
-                  onClick={(e) => {
+                  onClick={e => {
                     e.stopPropagation();
                     window.open(todo.link, '_blank');
                   }}
@@ -290,7 +303,6 @@ export const TodoItem: React.FC<TodoItemProps> = ({
 
             {/* Expandable Content - Description Only */}
             <Collapse in={!collapsed} timeout="auto" unmountOnExit>
-
               {/* Description */}
               {todo.description && (
                 <Box sx={{ mt: 1 }}>
@@ -372,9 +384,7 @@ export const TodoItem: React.FC<TodoItemProps> = ({
                     }}
                     data-testid={`todo-description-${todo.id}`}
                   >
-                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                      {todo.description}
-                    </ReactMarkdown>
+                    <ReactMarkdown remarkPlugins={[remarkGfm]}>{todo.description}</ReactMarkdown>
                   </Box>
                 </Box>
               )}
@@ -384,7 +394,7 @@ export const TodoItem: React.FC<TodoItemProps> = ({
           {/* Action Buttons */}
           <Box
             data-testid={`todo-actions-${todo.id}`}
-            onClick={(e) => e.stopPropagation()}
+            onClick={e => e.stopPropagation()}
             sx={{
               display: 'flex',
               gap: 0.5,
@@ -408,7 +418,7 @@ export const TodoItem: React.FC<TodoItemProps> = ({
                 transition: 'all 0.2s ease-in-out',
               }}
             >
-              <EditIcon sx={{ fontSize: 18 }}/>
+              <EditIcon sx={{ fontSize: 18 }} />
             </TooltipIconButton>
             <TooltipIconButton
               tooltip="Delete task"
@@ -427,7 +437,7 @@ export const TodoItem: React.FC<TodoItemProps> = ({
                 transition: 'all 0.2s ease-in-out',
               }}
             >
-              <DeleteIcon sx={{ fontSize: 18 }}/>
+              <DeleteIcon sx={{ fontSize: 18 }} />
             </TooltipIconButton>
           </Box>
         </Box>
@@ -435,4 +445,3 @@ export const TodoItem: React.FC<TodoItemProps> = ({
     </Fade>
   );
 };
-

@@ -134,31 +134,34 @@ export function useSDKMutation<TData, TVariables = void>(
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<APIError | Error | null>(null);
 
-  const mutate = useCallback(async (variables: TVariables): Promise<TData> => {
-    if (!isReady || !api) {
-      throw new Error('SDK not ready');
-    }
-
-    setLoading(true);
-    setError(null);
-
-    try {
-      return await mutationFn(variables);
-    } catch (err) {
-      const error = err instanceof Error ? err : new Error('Unknown error occurred');
-
-      // Handle 401 errors by logging out the user
-      if (err instanceof APIError && err.status === 401) {
-        logout();
-        throw err; // Still throw the error for the caller to handle
+  const mutate = useCallback(
+    async (variables: TVariables): Promise<TData> => {
+      if (!isReady || !api) {
+        throw new Error('SDK not ready');
       }
 
-      setError(error);
-      throw error;
-    } finally {
-      setLoading(false);
-    }
-  }, [api, isReady, mutationFn, logout]);
+      setLoading(true);
+      setError(null);
+
+      try {
+        return await mutationFn(variables);
+      } catch (err) {
+        const error = err instanceof Error ? err : new Error('Unknown error occurred');
+
+        // Handle 401 errors by logging out the user
+        if (err instanceof APIError && err.status === 401) {
+          logout();
+          throw err; // Still throw the error for the caller to handle
+        }
+
+        setError(error);
+        throw error;
+      } finally {
+        setLoading(false);
+      }
+    },
+    [api, isReady, mutationFn, logout],
+  );
 
   const reset = useCallback(() => {
     setError(null);

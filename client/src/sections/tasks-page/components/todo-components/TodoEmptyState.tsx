@@ -11,7 +11,8 @@ export const TodoEmptyState: React.FC = () => {
       sx={{
         p: 6,
         textAlign: 'center',
-        background: 'linear-gradient(135deg, rgba(25, 118, 210, 0.03) 0%, rgba(156, 39, 176, 0.03) 100%)',
+        background:
+          'linear-gradient(135deg, rgba(25, 118, 210, 0.03) 0%, rgba(156, 39, 176, 0.03) 100%)',
         border: '2px dashed',
         borderColor: 'divider',
         borderRadius: 3,
@@ -47,7 +48,7 @@ export const TodoEmptyState: React.FC = () => {
             }}
           />
         </Box>
-        
+
         <Box
           sx={{
             position: 'absolute',
@@ -111,8 +112,8 @@ export const TodoEmptyState: React.FC = () => {
           mx: 'auto',
         }}
       >
-        Start organizing your work by creating your first task below. 
-        Track deadlines, add descriptions, and stay on top of your goals!
+        Start organizing your work by creating your first task below. Track deadlines, add
+        descriptions, and stay on top of your goals!
       </Typography>
 
       {/* Features List */}
@@ -125,19 +126,34 @@ export const TodoEmptyState: React.FC = () => {
           mt: 4,
         }}
       >
-        <Box sx={{ textAlign: 'center', maxWidth: 150 }} display="flex" flexDirection="column" alignItems="center">
+        <Box
+          sx={{ textAlign: 'center', maxWidth: 150 }}
+          display="flex"
+          flexDirection="column"
+          alignItems="center"
+        >
           <CheckCircleOutlineIcon sx={{ fontSize: 32, color: 'primary.main', mb: 1 }} />
           <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 500 }}>
             Track Progress
           </Typography>
         </Box>
-        <Box sx={{ textAlign: 'center', maxWidth: 150 }} display="flex" flexDirection="column" alignItems="center">
+        <Box
+          sx={{ textAlign: 'center', maxWidth: 150 }}
+          display="flex"
+          flexDirection="column"
+          alignItems="center"
+        >
           <PlaylistAddCheckIcon sx={{ fontSize: 32, color: 'primary.main', mb: 1 }} />
           <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 500 }}>
             Set Deadlines
           </Typography>
         </Box>
-        <Box sx={{ textAlign: 'center', maxWidth: 150 }} display="flex" flexDirection="column" alignItems="center">
+        <Box
+          sx={{ textAlign: 'center', maxWidth: 150 }}
+          display="flex"
+          flexDirection="column"
+          alignItems="center"
+        >
           <TrendingUpIcon sx={{ fontSize: 32, color: 'primary.main', mb: 1 }} />
           <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 500 }}>
             Stay Organized
@@ -147,4 +163,3 @@ export const TodoEmptyState: React.FC = () => {
     </Paper>
   );
 };
-

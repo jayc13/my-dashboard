@@ -19,12 +19,15 @@ export const TodoStats: React.FC<TodoStatsProps> = ({ todos }) => {
 
   return (
     <Box display="flex" alignItems="center" justifyContent="space-between">
-      <Typography variant="caption" sx={{
-        color: 'text.secondary',
-        mt: 0.5,
-        display: 'block',
-        fontSize: { xs: '0.65rem', sm: '0.75rem' },
-      }}>
+      <Typography
+        variant="caption"
+        sx={{
+          color: 'text.secondary',
+          mt: 0.5,
+          display: 'block',
+          fontSize: { xs: '0.65rem', sm: '0.75rem' },
+        }}
+      >
         {completedTasks} of {totalTasks} tasks completed
       </Typography>
       <Typography
@@ -37,4 +40,3 @@ export const TodoStats: React.FC<TodoStatsProps> = ({ todos }) => {
     </Box>
   );
 };
-

@@ -50,4 +50,3 @@ const JiraCardMetadata = (props: JiraCardMetadataProps) => {
 };
 
 export default JiraCardMetadata;
-

@@ -8,7 +8,6 @@ import type {
   E2EReportDetail,
 } from '@my-dashboard/types';
 
-
 interface UseE2ERunReportOptions extends UseSDKDataOptions {
   params?: DetailedE2EReportOptions;
 }
@@ -41,12 +40,15 @@ export function useE2ERunReport(options?: UseE2ERunReportOptions) {
 export function useTriggerManualRun() {
   const { api } = useSDK();
 
-  const mutationFn = useCallback(async (appId: number): Promise<E2EManualRun> => {
-    if (!api) {
-      throw new Error('API not available');
-    }
-    return api.triggerManualRun(appId);
-  }, [api]);
+  const mutationFn = useCallback(
+    async (appId: number): Promise<E2EManualRun> => {
+      if (!api) {
+        throw new Error('API not available');
+      }
+      return api.triggerManualRun(appId);
+    },
+    [api],
+  );
 
   return useSDKMutation(mutationFn);
 }
@@ -57,12 +59,15 @@ export function useTriggerManualRun() {
 export function useGetAppLastStatus() {
   const { api } = useSDK();
 
-  const mutationFn = useCallback(async (data: {summaryId: number; appId: number}): Promise<E2EReportDetail> => {
-    if (!api) {
-      throw new Error('API not available');
-    }
-    return api.getAppLastStatus(data.summaryId, data.appId);
-  }, [api]);
+  const mutationFn = useCallback(
+    async (data: { summaryId: number; appId: number }): Promise<E2EReportDetail> => {
+      if (!api) {
+        throw new Error('API not available');
+      }
+      return api.getAppLastStatus(data.summaryId, data.appId);
+    },
+    [api],
+  );
 
   return useSDKMutation(mutationFn);
 }

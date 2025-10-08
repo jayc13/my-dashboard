@@ -31,4 +31,3 @@ const JiraCardAssignee = (props: JiraCardAssigneeProps) => {
 };
 
 export default JiraCardAssignee;
-

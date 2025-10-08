@@ -19,27 +19,19 @@ describe('TodoStats', () => {
   });
 
   it('displays correct stats for all incomplete todos', () => {
-    const todos = [
-      createTodo(1, false),
-      createTodo(2, false),
-      createTodo(3, false),
-    ];
+    const todos = [createTodo(1, false), createTodo(2, false), createTodo(3, false)];
 
     render(<TodoStats todos={todos} />);
-    
+
     expect(screen.getByText('0 of 3 tasks completed')).toBeInTheDocument();
     expect(screen.getByText('0%')).toBeInTheDocument();
   });
 
   it('displays correct stats for all completed todos', () => {
-    const todos = [
-      createTodo(1, true),
-      createTodo(2, true),
-      createTodo(3, true),
-    ];
+    const todos = [createTodo(1, true), createTodo(2, true), createTodo(3, true)];
 
     render(<TodoStats todos={todos} />);
-    
+
     expect(screen.getByText('3 of 3 tasks completed')).toBeInTheDocument();
     expect(screen.getByText('100%')).toBeInTheDocument();
   });
@@ -53,7 +45,7 @@ describe('TodoStats', () => {
     ];
 
     render(<TodoStats todos={todos} />);
-    
+
     expect(screen.getByText('2 of 4 tasks completed')).toBeInTheDocument();
     expect(screen.getByText('50%')).toBeInTheDocument();
   });
@@ -62,7 +54,7 @@ describe('TodoStats', () => {
     const todos = [createTodo(1, false)];
 
     render(<TodoStats todos={todos} />);
-    
+
     expect(screen.getByText('0 of 1 tasks completed')).toBeInTheDocument();
     expect(screen.getByText('0%')).toBeInTheDocument();
   });
@@ -71,22 +63,17 @@ describe('TodoStats', () => {
     const todos = [createTodo(1, true)];
 
     render(<TodoStats todos={todos} />);
-    
+
     expect(screen.getByText('1 of 1 tasks completed')).toBeInTheDocument();
     expect(screen.getByText('100%')).toBeInTheDocument();
   });
 
   it('rounds completion percentage correctly', () => {
-    const todos = [
-      createTodo(1, true),
-      createTodo(2, false),
-      createTodo(3, false),
-    ];
+    const todos = [createTodo(1, true), createTodo(2, false), createTodo(3, false)];
 
     render(<TodoStats todos={todos} />);
-    
+
     // 1/3 = 33.33%, should round to 33%
     expect(screen.getByText('33%')).toBeInTheDocument();
   });
 });
-

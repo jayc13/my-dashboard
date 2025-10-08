@@ -30,4 +30,3 @@ const JiraCardSummary = (props: JiraCardSummaryProps) => {
 };
 
 export default JiraCardSummary;
-

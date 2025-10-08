@@ -14,10 +14,7 @@ const LoadingBackdrop = (props: LoadingBackdropProps) => {
   const message = data?.message || 'Loading...';
 
   return (
-    <Backdrop
-      sx={(theme) => ({ color: '#fff', zIndex: theme.zIndex.appBar - 2 })}
-      open={open}
-    >
+    <Backdrop sx={theme => ({ color: '#fff', zIndex: theme.zIndex.appBar - 2 })} open={open}>
       <Stack direction="column" alignItems="center" spacing={2}>
         <CircularProgress color="inherit" size={60} />
         <Typography variant="h6" color="inherit">
@@ -29,4 +26,3 @@ const LoadingBackdrop = (props: LoadingBackdropProps) => {
 };
 
 export default LoadingBackdrop;
-

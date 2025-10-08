@@ -9,4 +9,3 @@ const NotificationMenuHeader = () => (
 );
 
 export default NotificationMenuHeader;
-

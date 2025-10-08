@@ -24,10 +24,9 @@ describe('TodoEmptyState', () => {
 
   it('renders icons', () => {
     const { container } = render(<TodoEmptyState />);
-    
+
     // Check that SVG icons are rendered
     const icons = container.querySelectorAll('svg');
     expect(icons.length).toBeGreaterThan(0);
   });
 });
-

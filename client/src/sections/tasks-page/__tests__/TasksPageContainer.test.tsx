@@ -62,9 +62,7 @@ describe('TasksPageContainer', () => {
     };
 
     const mockManualTesting = {
-      issues: [
-        { id: '3', key: 'TEST-1', summary: 'Test task 1', status: 'In Progress' },
-      ],
+      issues: [{ id: '3', key: 'TEST-1', summary: 'Test task 1', status: 'In Progress' }],
     };
 
     mockUseMyJiraTickets.mockReturnValue({
@@ -128,4 +126,3 @@ describe('TasksPageContainer', () => {
     expect(screen.getByTestId('manual-testing-count')).toHaveTextContent('0');
   });
 });
-

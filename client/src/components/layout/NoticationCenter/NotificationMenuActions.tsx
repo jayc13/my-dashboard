@@ -8,12 +8,24 @@ interface NotificationMenuActionsProps {
   onDeleteAll: () => void;
 }
 
-const NotificationMenuActions: React.FC<NotificationMenuActionsProps> = ({ unreadCount, notificationsLength, onMarkAllAsRead, onDeleteAll }) => {
+const NotificationMenuActions: React.FC<NotificationMenuActionsProps> = ({
+  unreadCount,
+  notificationsLength,
+  onMarkAllAsRead,
+  onDeleteAll,
+}) => {
   if (!notificationsLength) {
-return null;
-}
+    return null;
+  }
   return (
-    <Stack direction="row" spacing={2} px={2} py={1} justifyContent="flex-end" sx={{ borderBottom: theme => `1px solid ${theme.palette.divider}` }}>
+    <Stack
+      direction="row"
+      spacing={2}
+      px={2}
+      py={1}
+      justifyContent="flex-end"
+      sx={{ borderBottom: theme => `1px solid ${theme.palette.divider}` }}
+    >
       {unreadCount > 0 && (
         <Link
           component="button"
@@ -43,4 +55,3 @@ return null;
 };
 
 export default NotificationMenuActions;
-
