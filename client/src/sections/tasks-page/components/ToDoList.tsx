@@ -363,6 +363,7 @@ const ToDoListWidget = () => {
         {completedTodos.length > 0 && (
           <Box>
             <Box
+              data-testid="completed-tasks-toggle"
               sx={{
                 display: 'flex',
                 alignItems: 'center',
@@ -403,7 +404,7 @@ const ToDoListWidget = () => {
             </Box>
             <Divider sx={{ mb: 2 }} />
             <Collapse in={showCompleted}>
-              <List sx={{ padding: 0 }}>
+              <List sx={{ padding: 0 }} data-testid="completed-tasks-list">
                 {completedTodos.map((todo: ToDoItem) => (
                   <TodoItem
                     key={todo.id}

@@ -182,6 +182,7 @@ export const TodoItem: React.FC<TodoItemProps> = ({
           />
 
           <Box
+            data-testid={`todo-content-${todo.id}`}
             sx={{
               flex: 1,
               minWidth: 0,
@@ -221,6 +222,7 @@ export const TodoItem: React.FC<TodoItemProps> = ({
               {hasExpandableContent && (
                 <Box
                   className="expand-indicator"
+                  data-testid={`todo-expand-toggle-${todo.id}`}
                   sx={{
                     display: 'inline-flex',
                     alignItems: 'center',
@@ -285,6 +287,7 @@ export const TodoItem: React.FC<TodoItemProps> = ({
                   label={linkDomain}
                   size="small"
                   variant="outlined"
+                  data-testid={`todo-link-button-${todo.id}`}
                   sx={{
                     height: 22,
                     fontSize: '0.75rem',

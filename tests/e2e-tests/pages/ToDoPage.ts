@@ -79,7 +79,7 @@ export class ToDoPage {
     // Sections
     this.activeTasksSection = page.locator('text=Active Tasks');
     this.completedTasksSection = page.locator('text=Completed Tasks');
-    this.completedTasksToggle = this.completedTasksSection.locator('..');
+    this.completedTasksToggle = page.locator('[data-testid="completed-tasks-toggle"]');
 
     // Form dialog
     this.formDialog = page.locator('[data-testid="todo-form-dialog"]');
@@ -163,6 +163,20 @@ export class ToDoPage {
      */
   getTodoLinkButton(id: number): Locator {
     return this.page.locator(`[data-testid="todo-link-button-${id}"]`);
+  }
+
+  /**
+     * Get todo expand/collapse toggle by ID
+     */
+  getTodoExpandToggle(id: number): Locator {
+    return this.page.locator(`[data-testid="todo-expand-toggle-${id}"]`);
+  }
+
+  /**
+     * Get todo content area (clickable to expand/collapse) by ID
+     */
+  getTodoContent(id: number): Locator {
+    return this.page.locator(`[data-testid="todo-content-${id}"]`);
   }
 
   /**
@@ -461,8 +475,13 @@ export class ToDoPage {
      * Check if completed tasks section is expanded
      */
   async isCompletedTasksExpanded(): Promise<boolean> {
-    const expandIcon = this.completedTasksToggle.locator('svg[data-testid="ExpandLessIcon"]');
-    return await expandIcon.isVisible();
+    const completedTasksList = this.page.locator('[data-testid="completed-tasks-list"]');
+    try {
+      await completedTasksList.waitFor({ state: 'visible', timeout: 1000 });
+      return true;
+    } catch {
+      return false;
+    }
   }
 
   /**
@@ -495,5 +514,50 @@ export class ToDoPage {
      */
   async areFiltersVisible(): Promise<boolean> {
     return await this.filterAllButton.isVisible();
+  }
+
+  /**
+     * Expand a todo item to show its description
+     */
+  async expandTodoItem(id: number): Promise<void> {
+    const isExpanded = await this.isTodoItemExpanded(id);
+    if (!isExpanded) {
+      await this.getTodoContent(id).click();
+      // Wait for the expand animation
+      await this.page.waitForTimeout(300);
+    }
+  }
+
+  /**
+     * Collapse a todo item to hide its description
+     */
+  async collapseTodoItem(id: number): Promise<void> {
+    const isExpanded = await this.isTodoItemExpanded(id);
+    if (isExpanded) {
+      await this.getTodoContent(id).click();
+      // Wait for the collapse animation
+      await this.page.waitForTimeout(300);
+    }
+  }
+
+  /**
+     * Check if a todo item is expanded (description visible)
+     */
+  async isTodoItemExpanded(id: number): Promise<boolean> {
+    const description = this.getTodoDescription(id);
+    try {
+      await description.waitFor({ state: 'visible', timeout: 1000 });
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  /**
+     * Check if a todo item has expandable content (has "See more" button)
+     */
+  async todoHasExpandableContent(id: number): Promise<boolean> {
+    const expandToggle = this.getTodoExpandToggle(id);
+    return await expandToggle.isVisible();
   }
 }
