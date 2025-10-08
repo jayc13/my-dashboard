@@ -38,6 +38,20 @@ export class ToDoPage {
   readonly deleteCancelButton: Locator;
   readonly deleteConfirmButton: Locator;
 
+  // Filters
+  readonly filterAllButton: Locator;
+  readonly filterOverdueButton: Locator;
+  readonly filterTodayButton: Locator;
+  readonly filterDueSoonButton: Locator;
+
+  // Stats
+  readonly todoStats: Locator;
+
+  // Sections
+  readonly activeTasksSection: Locator;
+  readonly completedTasksSection: Locator;
+  readonly completedTasksToggle: Locator;
+
   constructor(page: Page) {
     this.page = page;
 
@@ -52,6 +66,20 @@ export class ToDoPage {
     this.quickAddForm = page.locator('[data-testid="todo-quick-add-form"]');
     this.quickAddInput = page.locator('[data-testid="todo-quick-add-input"] input');
     this.quickAddButton = page.locator('[data-testid="todo-quick-add-button"]');
+
+    // Filters
+    this.filterAllButton = page.locator('button[value="all"][aria-label="all tasks"]');
+    this.filterOverdueButton = page.locator('button[value="overdue"][aria-label="overdue tasks"]');
+    this.filterTodayButton = page.locator('button[value="today"][aria-label="due today"]');
+    this.filterDueSoonButton = page.locator('button[value="due-soon"][aria-label="due soon"]');
+
+    // Stats
+    this.todoStats = page.locator('text=/\\d+ of \\d+ tasks completed/');
+
+    // Sections
+    this.activeTasksSection = page.locator('text=Active Tasks');
+    this.completedTasksSection = page.locator('text=Completed Tasks');
+    this.completedTasksToggle = this.completedTasksSection.locator('..');
 
     // Form dialog
     this.formDialog = page.locator('[data-testid="todo-form-dialog"]');
@@ -357,5 +385,115 @@ export class ToDoPage {
      */
   async waitForTodoRemoved(previousCount: number): Promise<void> {
     await this.waitForTodoCount(previousCount - 1);
+  }
+
+  /**
+     * Click a filter button
+     */
+  async clickFilter(filter: 'all' | 'overdue' | 'today' | 'due-soon'): Promise<void> {
+    const filterMap = {
+      all: this.filterAllButton,
+      overdue: this.filterOverdueButton,
+      today: this.filterTodayButton,
+      'due-soon': this.filterDueSoonButton,
+    };
+    await filterMap[filter].click();
+  }
+
+  /**
+     * Get the badge count for a filter
+     */
+  async getFilterBadgeCount(filter: 'overdue' | 'today' | 'due-soon'): Promise<number> {
+    const filterMap = {
+      overdue: this.filterOverdueButton,
+      today: this.filterTodayButton,
+      'due-soon': this.filterDueSoonButton,
+    };
+    const badge = filterMap[filter].locator('span').filter({ hasText: /^\d+$/ });
+    const isVisible = await badge.isVisible();
+    if (!isVisible) {
+      return 0;
+    }
+    const text = await badge.textContent();
+    return parseInt(text || '0', 10);
+  }
+
+  /**
+     * Check if a filter is selected
+     */
+  async isFilterSelected(filter: 'all' | 'overdue' | 'today' | 'due-soon'): Promise<boolean> {
+    const filterMap = {
+      all: this.filterAllButton,
+      overdue: this.filterOverdueButton,
+      today: this.filterTodayButton,
+      'due-soon': this.filterDueSoonButton,
+    };
+    const classes = await filterMap[filter].getAttribute('class');
+    return classes?.includes('Mui-selected') || false;
+  }
+
+  /**
+     * Get stats text (e.g., "2 of 5 tasks completed")
+     */
+  async getStatsText(): Promise<string> {
+    return (await this.todoStats.textContent()) || '';
+  }
+
+  /**
+     * Get completion percentage from stats
+     */
+  async getCompletionPercentage(): Promise<number> {
+    const percentText = await this.page
+      .locator('text=/\\d+%/')
+      .filter({ has: this.todoStats })
+      .textContent();
+    return parseInt(percentText?.replace('%', '') || '0', 10);
+  }
+
+  /**
+     * Toggle completed tasks section
+     */
+  async toggleCompletedTasks(): Promise<void> {
+    await this.completedTasksToggle.click();
+  }
+
+  /**
+     * Check if completed tasks section is expanded
+     */
+  async isCompletedTasksExpanded(): Promise<boolean> {
+    const expandIcon = this.completedTasksToggle.locator('svg[data-testid="ExpandLessIcon"]');
+    return await expandIcon.isVisible();
+  }
+
+  /**
+     * Get count of active tasks from section header
+     */
+  async getActiveTasksCount(): Promise<number> {
+    const badge = this.activeTasksSection.locator('..').locator('text=/^\\d+$/');
+    const text = await badge.textContent();
+    return parseInt(text || '0', 10);
+  }
+
+  /**
+     * Get count of completed tasks from section header
+     */
+  async getCompletedTasksCount(): Promise<number> {
+    const badge = this.completedTasksSection.locator('..').locator('text=/^\\d+$/');
+    const text = await badge.textContent();
+    return parseInt(text || '0', 10);
+  }
+
+  /**
+     * Check if stats are visible
+     */
+  async areStatsVisible(): Promise<boolean> {
+    return await this.todoStats.isVisible();
+  }
+
+  /**
+     * Check if filters are visible
+     */
+  async areFiltersVisible(): Promise<boolean> {
+    return await this.filterAllButton.isVisible();
   }
 }

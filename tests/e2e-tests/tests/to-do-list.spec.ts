@@ -307,4 +307,242 @@ test.describe('ToDo List Test Suite', () => {
       await expect(todoPage.emptyState).toBeVisible();
     });
   });
+
+  // ========================================
+  // NEW FEATURES TESTS
+  // ========================================
+
+  test.describe('Todo Statistics', () => {
+    test.beforeEach(async () => {
+      await truncateTables(['todos']);
+      await todoPage.goto();
+    });
+
+    test('should not display stats when no todos exist', async () => {
+      expect(await todoPage.areStatsVisible()).toBe(false);
+    });
+
+    test('should display stats when todos exist', async () => {
+      // Create a todo
+      await todoPage.quickAddTodo('Test Todo 1');
+      await todoPage.waitForTodoCount(1);
+
+      // Stats should be visible
+      expect(await todoPage.areStatsVisible()).toBe(true);
+      const statsText = await todoPage.getStatsText();
+      expect(statsText).toContain('0 of 1 tasks completed');
+    });
+
+    test('should update stats when todos are completed', async () => {
+      // Create multiple todos
+      await todoPage.quickAddTodo('Test Todo 1');
+      await todoPage.waitForTodoCount(1);
+      await todoPage.quickAddTodo('Test Todo 2');
+      await todoPage.waitForTodoCount(2);
+      await todoPage.quickAddTodo('Test Todo 3');
+      await todoPage.waitForTodoCount(3);
+
+      // Initially 0% complete
+      let statsText = await todoPage.getStatsText();
+      expect(statsText).toContain('0 of 3 tasks completed');
+
+      // Complete one todo
+      const todoItems = await todoPage.getAllTodoItems();
+      const firstTodoId = TodoTestUtils.extractTodoIdFromTestId(
+        (await todoItems[0].getAttribute('data-testid')) || '',
+      );
+      if (firstTodoId) {
+        await todoPage.toggleTodoCompletion(firstTodoId);
+        await page.waitForTimeout(500); // Wait for UI update
+
+        // Should show 1 of 3 completed (33%)
+        statsText = await todoPage.getStatsText();
+        expect(statsText).toContain('1 of 3 tasks completed');
+      }
+    });
+
+    test('should show 100% when all todos are completed', async () => {
+      // Create a todo
+      await todoPage.quickAddTodo('Test Todo');
+      await todoPage.waitForTodoCount(1);
+
+      // Complete it
+      const todoItems = await todoPage.getAllTodoItems();
+      const todoId = TodoTestUtils.extractTodoIdFromTestId(
+        (await todoItems[0].getAttribute('data-testid')) || '',
+      );
+      if (todoId) {
+        await todoPage.toggleTodoCompletion(todoId);
+        await page.waitForTimeout(500); // Wait for UI update
+
+        // Should show 100%
+        const statsText = await todoPage.getStatsText();
+        expect(statsText).toContain('1 of 1 tasks completed');
+      }
+    });
+  });
+
+  test.describe('Todo Filters', () => {
+    test.beforeEach(async () => {
+      await truncateTables(['todos']);
+      await todoPage.goto();
+    });
+
+    test('should not display filters when no todos exist', async () => {
+      expect(await todoPage.areFiltersVisible()).toBe(false);
+    });
+
+    test('should display filters when todos exist', async () => {
+      // Create a todo
+      await todoPage.quickAddTodo('Test Todo');
+      await todoPage.waitForTodoCount(1);
+
+      // Filters should be visible
+      expect(await todoPage.areFiltersVisible()).toBe(true);
+      expect(await todoPage.isFilterSelected('all')).toBe(true);
+    });
+
+    test('should filter overdue todos', async () => {
+      // Create an overdue todo (yesterday)
+      const yesterday = new Date();
+      yesterday.setDate(yesterday.getDate() - 1);
+      const overdueDate = yesterday.toISOString().split('T')[0];
+
+      await todoPage.quickAddTodo('Overdue Todo');
+      await todoPage.waitForTodoCount(1);
+
+      // Edit to add due date
+      const todoItems = await todoPage.getAllTodoItems();
+      const todoId = TodoTestUtils.extractTodoIdFromTestId(
+        (await todoItems[0].getAttribute('data-testid')) || '',
+      );
+      if (todoId) {
+        await todoPage.editTodo(todoId, { dueDate: overdueDate });
+        await page.waitForTimeout(500);
+
+        // Check overdue filter badge
+        const overdueCount = await todoPage.getFilterBadgeCount('overdue');
+        expect(overdueCount).toBe(1);
+
+        // Click overdue filter
+        await todoPage.clickFilter('overdue');
+        await page.waitForTimeout(300);
+
+        // Should show the overdue todo
+        expect(await todoPage.getTodoCount()).toBe(1);
+      }
+    });
+
+    test('should filter due today todos', async () => {
+      // Create a todo due today
+      const today = new Date().toISOString().split('T')[0];
+
+      await todoPage.quickAddTodo('Due Today Todo');
+      await todoPage.waitForTodoCount(1);
+
+      // Edit to add due date
+      const todoItems = await todoPage.getAllTodoItems();
+      const todoId = TodoTestUtils.extractTodoIdFromTestId(
+        (await todoItems[0].getAttribute('data-testid')) || '',
+      );
+      if (todoId) {
+        await todoPage.editTodo(todoId, { dueDate: today });
+        await page.waitForTimeout(500);
+
+        // Check today filter badge
+        const todayCount = await todoPage.getFilterBadgeCount('today');
+        expect(todayCount).toBe(1);
+
+        // Click today filter
+        await todoPage.clickFilter('today');
+        await page.waitForTimeout(300);
+
+        // Should show the todo
+        expect(await todoPage.getTodoCount()).toBe(1);
+      }
+    });
+  });
+
+  test.describe('Completed Tasks Section', () => {
+    test.beforeEach(async () => {
+      await truncateTables(['todos']);
+      await todoPage.goto();
+    });
+
+    test('should separate active and completed tasks', async () => {
+      // Create multiple todos
+      await todoPage.quickAddTodo('Active Todo 1');
+      await todoPage.waitForTodoCount(1);
+      await todoPage.quickAddTodo('Active Todo 2');
+      await todoPage.waitForTodoCount(2);
+
+      // Complete one todo
+      const todoItems = await todoPage.getAllTodoItems();
+      const firstTodoId = TodoTestUtils.extractTodoIdFromTestId(
+        (await todoItems[0].getAttribute('data-testid')) || '',
+      );
+      if (firstTodoId) {
+        await todoPage.toggleTodoCompletion(firstTodoId);
+        await page.waitForTimeout(500);
+
+        // Should show Active Tasks section
+        await expect(todoPage.activeTasksSection).toBeVisible();
+        // Should show Completed Tasks section
+        await expect(todoPage.completedTasksSection).toBeVisible();
+      }
+    });
+
+    test('should toggle completed tasks section', async () => {
+      // Create and complete a todo
+      await todoPage.quickAddTodo('Test Todo');
+      await todoPage.waitForTodoCount(1);
+
+      const todoItems = await todoPage.getAllTodoItems();
+      const todoId = TodoTestUtils.extractTodoIdFromTestId(
+        (await todoItems[0].getAttribute('data-testid')) || '',
+      );
+      if (todoId) {
+        await todoPage.toggleTodoCompletion(todoId);
+        await page.waitForTimeout(500);
+
+        // Initially expanded (or collapsed based on default)
+        const initialState = await todoPage.isCompletedTasksExpanded();
+
+        // Toggle
+        await todoPage.toggleCompletedTasks();
+        await page.waitForTimeout(300);
+
+        // Should be opposite state
+        const newState = await todoPage.isCompletedTasksExpanded();
+        expect(newState).toBe(!initialState);
+      }
+    });
+
+    test('should display correct counts in section headers', async () => {
+      // Create multiple todos
+      await todoPage.quickAddTodo('Active Todo 1');
+      await todoPage.waitForTodoCount(1);
+      await todoPage.quickAddTodo('Active Todo 2');
+      await todoPage.waitForTodoCount(2);
+      await todoPage.quickAddTodo('Active Todo 3');
+      await todoPage.waitForTodoCount(3);
+
+      // Complete one
+      const todoItems = await todoPage.getAllTodoItems();
+      const firstTodoId = TodoTestUtils.extractTodoIdFromTestId(
+        (await todoItems[0].getAttribute('data-testid')) || '',
+      );
+      if (firstTodoId) {
+        await todoPage.toggleTodoCompletion(firstTodoId);
+        await page.waitForTimeout(500);
+
+        // Check counts
+        const activeCount = await todoPage.getActiveTasksCount();
+        const completedCount = await todoPage.getCompletedTasksCount();
+
+        expect(activeCount).toBe(2);
+        expect(completedCount).toBe(1);
+      }
+    });
+  });
 });
