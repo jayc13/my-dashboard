@@ -14,7 +14,7 @@ module.exports = {
     '!src/tests/**',
     '!src/index.ts',
   ],
-  coverageDirectory: 'coverage',
+  coverageDirectory: '.coverage-report',
   coverageReporters: ['text', 'lcov', 'html'],
   setupFilesAfterEnv: ['<rootDir>/src/tests/setup.ts'],
   testTimeout: 10000,
