@@ -2,321 +2,256 @@
  * E2E Report Processor Tests
  * 
  * Tests for the E2E Report Processor functionality including:
- * - Message processing from Redis queue
+ * - Static utility methods
+ * - Singleton pattern
+ * - Message handling
  * - Report generation
- * - Retry mechanism with exponential backoff
- * - Dead letter queue handling
- * - Error handling
  */
 
-// Mock types based on expected processor behavior
-interface E2EReportMessage {
-  date: string;
-  requestId: string;
-  retryCount: number;
-}
-
-interface RetryData {
-  payload: E2EReportMessage;
-  retryAt: number;
-  error: string;
-}
-
-// Mock Redis client
-const mockRedisClient = {
-  lpop: jest.fn(),
-  rpush: jest.fn(),
-  zadd: jest.fn(),
-  zrangebyscore: jest.fn(),
-  zrem: jest.fn(),
-  publish: jest.fn(),
+// Mock Redis client and subscriber
+const mockClient = {
+  rpush: jest.fn().mockResolvedValue(1),
+  lpop: jest.fn().mockResolvedValue(null),
+  zadd: jest.fn().mockResolvedValue(1),
+  zrangebyscore: jest.fn().mockResolvedValue([]),
+  zrem: jest.fn().mockResolvedValue(1),
+  publish: jest.fn().mockResolvedValue(1),
   quit: jest.fn().mockResolvedValue(undefined),
-  on: jest.fn(),
 };
 
-// Mock Redis subscriber
-const mockRedisSubscriber = {
+const mockSubscriber = {
   subscribe: jest.fn().mockResolvedValue(undefined),
   unsubscribe: jest.fn().mockResolvedValue(undefined),
   on: jest.fn(),
   quit: jest.fn().mockResolvedValue(undefined),
 };
 
-// Mock services
-const mockE2ERunReportService = {
-  getSummaryByDate: jest.fn(),
-  createSummary: jest.fn(),
-  updateSummary: jest.fn(),
-  createDetail: jest.fn(),
-};
-
-const mockAppService = {
-  getWatchingApps: jest.fn(),
-};
-
-const mockCypressDashboardAPI = {
-  getDailyRunsPerProject: jest.fn(),
-};
-
-// Mock modules
-jest.mock('ioredis', () => {
-  return jest.fn().mockImplementation(() => mockRedisClient);
-});
-
-jest.mock('../../services/app.service', () => ({
-  AppService: mockAppService,
+// Mock modules BEFORE imports
+jest.mock('../../config/redis', () => ({
+  getRedisClient: jest.fn(() => mockClient),
+  getRedisSubscriber: jest.fn(() => mockSubscriber),
 }));
 
-jest.mock('../../services/cypress.service', () => ({
-  CypressDashboardAPI: jest.fn().mockImplementation(() => mockCypressDashboardAPI),
-}));
+jest.mock('../../services/e2e_run_report.service');
+jest.mock('../../services/app.service');
+jest.mock('../../services/cypress.service');
+
+import { E2EReportProcessor, publishE2EReportRequest } from '../../processors/e2e_report.processor';
+import { E2ERunReportService } from '../../services/e2e_run_report.service';
+import { AppService } from '../../services/app.service';
+import { CypressDashboardAPI } from '../../services/cypress.service';
+import { getRedisClient } from '../../config/redis';
 
 describe('E2EReportProcessor', () => {
+  const mockE2ERunReportService = E2ERunReportService as jest.Mocked<typeof E2ERunReportService>;
+  const mockAppService = AppService as jest.Mocked<typeof AppService>;
+
   beforeEach(() => {
     jest.clearAllMocks();
     process.env.CYPRESS_API_KEY = 'test-api-key';
-    process.env.REDIS_URL = 'redis://localhost:6379';
   });
 
   afterEach(() => {
     delete process.env.CYPRESS_API_KEY;
-    delete process.env.REDIS_URL;
   });
 
-  describe('Message Processing', () => {
-    it('should process a valid message from the queue', async () => {
-      const message: E2EReportMessage = {
-        date: '2025-10-01',
+  describe('Static Methods', () => {
+    describe('getRunStatus', () => {
+      it('should return "passed" when all runs passed', () => {
+        const runs = [
+          { status: 'passed', run_number: 1, created_at: '2025-10-08T10:00:00Z' },
+          { status: 'passed', run_number: 1, created_at: '2025-10-08T10:00:00Z' },
+        ];
+
+        const status = E2EReportProcessor.getRunStatus(runs as any);
+
+        expect(status).toBe('passed');
+      });
+
+      it('should return "failed" when any run failed', () => {
+        const runs = [
+          { status: 'passed', run_number: 1, created_at: '2025-10-08T10:00:00Z' },
+          { status: 'failed', run_number: 1, created_at: '2025-10-08T10:00:00Z' },
+        ];
+
+        const status = E2EReportProcessor.getRunStatus(runs as any);
+
+        expect(status).toBe('failed');
+      });
+
+      it('should return "failed" when all runs failed', () => {
+        const runs = [
+          { status: 'failed', run_number: 1, created_at: '2025-10-08T10:00:00Z' },
+          { status: 'failed', run_number: 1, created_at: '2025-10-08T10:00:00Z' },
+        ];
+
+        const status = E2EReportProcessor.getRunStatus(runs as any);
+
+        expect(status).toBe('failed');
+      });
+
+      it('should ignore runs with "noTests" status', () => {
+        const runs = [
+          { status: 'passed', run_number: 1, created_at: '2025-10-08T10:00:00Z' },
+          { status: 'noTests', run_number: 1, created_at: '2025-10-08T10:00:00Z' },
+        ];
+
+        const status = E2EReportProcessor.getRunStatus(runs as any);
+
+        expect(status).toBe('passed');
+      });
+
+      it('should handle empty runs array', () => {
+        const runs: any[] = [];
+
+        const status = E2EReportProcessor.getRunStatus(runs);
+
+        expect(status).toBe('passed');
+      });
+
+      it('should handle runs with only "noTests" status', () => {
+        const runs = [
+          { status: 'noTests', run_number: 1, created_at: '2025-10-08T10:00:00Z' },
+          { status: 'noTests', run_number: 1, created_at: '2025-10-08T10:00:00Z' },
+        ];
+
+        const status = E2EReportProcessor.getRunStatus(runs as any);
+
+        expect(status).toBe('passed');
+      });
+    });
+  });
+
+  describe('Singleton Pattern', () => {
+    it('should return the same instance', () => {
+      const instance1 = E2EReportProcessor.getInstance();
+      const instance2 = E2EReportProcessor.getInstance();
+
+      expect(instance1).toBe(instance2);
+    });
+
+    it('should create instance successfully', () => {
+      const instance = E2EReportProcessor.getInstance();
+
+      expect(instance).toBeDefined();
+      expect(instance).toBeInstanceOf(E2EReportProcessor);
+    });
+  });
+
+  describe('start', () => {
+    it('should subscribe to the e2e:report:generate channel', async () => {
+      const processor = E2EReportProcessor.getInstance();
+
+      await processor.start();
+
+      expect(mockSubscriber.subscribe).toHaveBeenCalledWith('e2e:report:generate');
+      expect(mockSubscriber.on).toHaveBeenCalledWith('message', expect.any(Function));
+    });
+  });
+
+  describe('stop', () => {
+    it('should unsubscribe from the e2e:report:generate channel', async () => {
+      const processor = E2EReportProcessor.getInstance();
+
+      await processor.stop();
+
+      expect(mockSubscriber.unsubscribe).toHaveBeenCalledWith('e2e:report:generate');
+    });
+  });
+
+  describe('Message Handling', () => {
+    it('should add valid message to queue', async () => {
+      const processor = E2EReportProcessor.getInstance();
+      await processor.start();
+
+      const message = {
+        date: '2025-10-08',
         requestId: 'test-123',
         retryCount: 0,
       };
 
-      mockRedisClient.lpop
-        .mockResolvedValueOnce(JSON.stringify(message))
-        .mockResolvedValueOnce(null);
+      const messageHandler = mockSubscriber.on.mock.calls[0][1];
+      await messageHandler('e2e:report:generate', JSON.stringify(message));
 
-      mockAppService.getWatchingApps.mockResolvedValue([
-        { id: 1, name: 'App1', code: 'app1', watching: true },
-      ]);
-
-      mockCypressDashboardAPI.getDailyRunsPerProject.mockResolvedValue({
-        App1: [
-          { run_number: 1, status: 'passed', created_at: '2025-10-01T10:00:00Z' },
-        ],
-      });
-
-      mockE2ERunReportService.getSummaryByDate.mockResolvedValue(null);
-      mockE2ERunReportService.createSummary.mockResolvedValue({ id: 1 });
-      mockE2ERunReportService.createDetail.mockResolvedValue({ id: 1 });
-
-      // Simulate processing
-      expect(message.date).toBe('2025-10-01');
-      expect(message.requestId).toBe('test-123');
-      expect(message.retryCount).toBe(0);
+      expect(mockClient.rpush).toHaveBeenCalledWith('e2e:report:queue', JSON.stringify(message));
     });
 
     it('should handle invalid JSON in message', async () => {
-      mockRedisClient.lpop
-        .mockResolvedValueOnce('invalid json')
-        .mockResolvedValueOnce(null);
+      const processor = E2EReportProcessor.getInstance();
+      await processor.start();
 
-      // Should log error and continue
-      expect(mockRedisClient.lpop).toBeDefined();
+      const invalidMessage = 'invalid json';
+
+      const messageHandler = mockSubscriber.on.mock.calls[0][1];
+      await messageHandler('e2e:report:generate', invalidMessage);
+
+      // Should not add to queue when JSON is invalid
+      expect(mockClient.rpush).not.toHaveBeenCalled();
     });
 
-    it('should handle missing API key', async () => {
-      delete process.env.CYPRESS_API_KEY;
+    it('should ignore messages from other channels', async () => {
+      const processor = E2EReportProcessor.getInstance();
+      await processor.start();
 
-      const message: E2EReportMessage = {
-        date: '2025-10-01',
+      const message = {
+        date: '2025-10-08',
         requestId: 'test-123',
         retryCount: 0,
       };
 
-      mockRedisClient.lpop
-        .mockResolvedValueOnce(JSON.stringify(message))
-        .mockResolvedValueOnce(null);
+      const messageHandler = mockSubscriber.on.mock.calls[0][1];
+      await messageHandler('other:channel', JSON.stringify(message));
 
-      // Should throw error or move to DLQ
-      expect(process.env.CYPRESS_API_KEY).toBeUndefined();
+      // Should not process messages from other channels
+      expect(mockClient.rpush).not.toHaveBeenCalled();
     });
 
-    it('should handle no watching apps', async () => {
-      const message: E2EReportMessage = {
-        date: '2025-10-01',
-        requestId: 'test-123',
-        retryCount: 0,
+    it('should process message without requestId', async () => {
+      const processor = E2EReportProcessor.getInstance();
+      await processor.start();
+
+      const message = {
+        date: '2025-10-08',
       };
 
-      mockRedisClient.lpop
-        .mockResolvedValueOnce(JSON.stringify(message))
-        .mockResolvedValueOnce(null);
+      const messageHandler = mockSubscriber.on.mock.calls[0][1];
+      await messageHandler('e2e:report:generate', JSON.stringify(message));
 
-      mockAppService.getWatchingApps.mockResolvedValue([]);
-
-      // Should complete without error
-      expect(mockAppService.getWatchingApps).toBeDefined();
+      expect(mockClient.rpush).toHaveBeenCalledWith('e2e:report:queue', JSON.stringify(message));
     });
   });
+});
 
-  describe('Retry Mechanism', () => {
-    it('should schedule retry with 5 second delay on first failure', () => {
-      const message: E2EReportMessage = {
-        date: '2025-10-01',
-        requestId: 'test-123',
-        retryCount: 0,
-      };
-
-      const error = new Error('Database error');
-      const retryDelay = 5000 * Math.pow(2, message.retryCount); // 5000ms
-
-      expect(retryDelay).toBe(5000);
-      expect(message.retryCount).toBe(0);
-    });
-
-    it('should schedule retry with 10 second delay on second failure', () => {
-      const message: E2EReportMessage = {
-        date: '2025-10-01',
-        requestId: 'test-123',
-        retryCount: 1,
-      };
-
-      const retryDelay = 5000 * Math.pow(2, message.retryCount); // 10000ms
-
-      expect(retryDelay).toBe(10000);
-      expect(message.retryCount).toBe(1);
-    });
-
-    it('should schedule retry with 20 second delay on third failure', () => {
-      const message: E2EReportMessage = {
-        date: '2025-10-01',
-        requestId: 'test-123',
-        retryCount: 2,
-      };
-
-      const retryDelay = 5000 * Math.pow(2, message.retryCount); // 20000ms
-
-      expect(retryDelay).toBe(20000);
-      expect(message.retryCount).toBe(2);
-    });
-
-    it('should include error message in retry data', () => {
-      const message: E2EReportMessage = {
-        date: '2025-10-01',
-        requestId: 'test-123',
-        retryCount: 0,
-      };
-
-      const error = new Error('Connection timeout');
-      const retryData: RetryData = {
-        payload: { ...message, retryCount: message.retryCount + 1 },
-        retryAt: Date.now() + 5000,
-        error: error.message,
-      };
-
-      expect(retryData.error).toBe('Connection timeout');
-      expect(retryData.payload.retryCount).toBe(1);
-    });
+describe('publishE2EReportRequest', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
   });
 
-  describe('Dead Letter Queue', () => {
-    it('should move to DLQ after 3 retries', () => {
-      const message: E2EReportMessage = {
-        date: '2025-10-01',
-        requestId: 'test-123',
-        retryCount: 3,
-      };
+  it('should publish report request with date and requestId', async () => {
+    await publishE2EReportRequest('2025-10-08', 'test-123');
 
-      const maxRetries = 3;
-      const shouldMoveToDLQ = message.retryCount >= maxRetries;
-
-      expect(shouldMoveToDLQ).toBe(true);
-    });
-
-    it('should include retry count in DLQ message', () => {
-      const message: E2EReportMessage = {
-        date: '2025-10-01',
-        requestId: 'test-123',
-        retryCount: 3,
-      };
-
-      const error = new Error('Persistent error');
-      const dlqMessage = {
-        ...message,
-        error: error.message,
-        errorStack: error.stack,
-        timestamp: new Date().toISOString(),
-      };
-
-      expect(dlqMessage.retryCount).toBe(3);
-      expect(dlqMessage.error).toBe('Persistent error');
-      expect(dlqMessage.timestamp).toBeDefined();
-    });
-
-    it('should not retry after max retries', () => {
-      const message: E2EReportMessage = {
-        date: '2025-10-01',
-        requestId: 'test-123',
-        retryCount: 3,
-      };
-
-      const maxRetries = 3;
-      const shouldRetry = message.retryCount < maxRetries;
-
-      expect(shouldRetry).toBe(false);
-    });
+    expect(mockClient.publish).toHaveBeenCalledWith(
+      'e2e:report:generate',
+      JSON.stringify({ date: '2025-10-08', requestId: 'test-123' })
+    );
   });
 
-  describe('Retry Queue Processing', () => {
-    it('should identify ready retries', () => {
-      const now = Date.now();
-      const retryData: RetryData = {
-        payload: {
-          date: '2025-10-01',
-          requestId: 'test-123',
-          retryCount: 1,
-        },
-        retryAt: now - 1000, // Ready to retry
-        error: 'Previous error',
-      };
+  it('should publish report request with only date', async () => {
+    await publishE2EReportRequest('2025-10-08');
 
-      const isReady = retryData.retryAt <= now;
-
-      expect(isReady).toBe(true);
-    });
-
-    it('should not process retries that are not ready yet', () => {
-      const now = Date.now();
-      const retryData: RetryData = {
-        payload: {
-          date: '2025-10-01',
-          requestId: 'test-123',
-          retryCount: 1,
-        },
-        retryAt: now + 5000, // Not ready yet
-        error: 'Previous error',
-      };
-
-      const isReady = retryData.retryAt <= now;
-
-      expect(isReady).toBe(false);
-    });
+    expect(mockClient.publish).toHaveBeenCalledWith(
+      'e2e:report:generate',
+      JSON.stringify({ date: '2025-10-08', requestId: undefined })
+    );
   });
 
-  describe('Redis Connection', () => {
-    it('should handle Redis connection errors', () => {
-      const error = new Error('Redis connection failed');
-      
-      expect(error.message).toBe('Redis connection failed');
-    });
+  it('should handle different date formats', async () => {
+    await publishE2EReportRequest('2025-12-31', 'year-end');
 
-    it('should close connections gracefully', async () => {
-      await mockRedisClient.quit();
-      await mockRedisSubscriber.quit();
-
-      expect(mockRedisClient.quit).toHaveBeenCalled();
-      expect(mockRedisSubscriber.quit).toHaveBeenCalled();
-    });
+    expect(mockClient.publish).toHaveBeenCalledWith(
+      'e2e:report:generate',
+      JSON.stringify({ date: '2025-12-31', requestId: 'year-end' })
+    );
   });
 });
 
