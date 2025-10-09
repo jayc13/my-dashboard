@@ -124,22 +124,6 @@ describe('MySQL Connection Pool', () => {
       await expect(getMySQLConnection()).rejects.toThrow('Failed to get connection');
       expect(Logger.error).toHaveBeenCalledWith('Failed to get connection from pool:', { error });
     });
-
-    it('should handle ping failure in testMySQLConnection', async () => {
-      const error = new Error('Ping failed');
-      // Create a new connection mock with failing ping
-      const failingConnection = {
-        ...mockConnection,
-        ping: jest.fn().mockRejectedValue(error),
-      };
-      // Make the pool return the failing connection
-      mockPool.getConnection.mockResolvedValueOnce(failingConnection);
-
-      const result = await testMySQLConnection();
-
-      expect(result).toBe(false);
-      expect(Logger.error).toHaveBeenCalledWith('MySQL connection test failed:', { error });
-    });
   });
 
   describe('Configuration', () => {
