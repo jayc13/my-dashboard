@@ -13,6 +13,7 @@ import { NotificationService } from '../../services/notification.service';
 import { DatabaseError } from '../../errors/AppError';
 
 // Mock dependencies
+jest.mock('../../services/fcm.service');
 jest.mock('../../services/notification.service');
 
 describe('NotificationController', () => {
