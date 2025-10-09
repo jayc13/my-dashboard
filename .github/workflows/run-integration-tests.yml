@@ -147,6 +147,7 @@ jobs:
             cat mock-server.log
             exit 1
           fi
+          echo ""
           echo "✅ Mock server health check passed. Status: $HEALTH_STATUS"
 
       - name: Start server in background
@@ -215,6 +216,7 @@ jobs:
             tail -n 100 server.log 2>/dev/null || echo "No server logs available"
             exit 1
           fi
+          echo ""
           echo "✅ Server health check passed. Status: $HEALTH_STATUS"
 
       - name: Run integration tests

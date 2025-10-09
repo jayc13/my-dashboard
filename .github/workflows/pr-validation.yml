@@ -215,6 +215,7 @@ jobs:
             cat mock-server.log
             exit 1
           fi
+          echo ""
           echo "=== Mock Server Health Check ==="
           echo "✅ Mock server health check passed. Status: $HEALTH_STATUS"
 
@@ -284,6 +285,7 @@ jobs:
             cat server.log
             exit 1
           fi
+          echo ""
           echo "=== Server Health Check ==="
           echo "✅ Server health check passed. Status: $HEALTH_STATUS"
 
