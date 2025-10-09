@@ -140,6 +140,24 @@ describe('E2EReportProcessor', () => {
     });
   });
 
+  describe('start', () => {
+    it('should subscribe to the e2e:report:generate channel', async () => {
+      const processor = E2EReportProcessor.getInstance();
+
+      await processor.start();
+
+      expect(mockSubscriber.subscribe).toHaveBeenCalledWith('e2e:report:generate');
+    });
+
+    it('should set up message handler', async () => {
+      const processor = E2EReportProcessor.getInstance();
+
+      await processor.start();
+
+      expect(mockSubscriber.on).toHaveBeenCalledWith('message', expect.any(Function));
+    });
+  });
+
   describe('stop', () => {
     it('should unsubscribe from the e2e:report:generate channel', async () => {
       const processor = E2EReportProcessor.getInstance();
@@ -150,7 +168,323 @@ describe('E2EReportProcessor', () => {
     });
   });
 
+  describe('handleMessage', () => {
+    beforeEach(() => {
+      jest.clearAllMocks();
+    });
 
+    it('should parse message and add to queue', async () => {
+      const message = JSON.stringify({ date: '2025-10-08' });
+      mockClient.rpush = jest.fn().mockResolvedValue(1);
+
+      const processor = E2EReportProcessor.getInstance();
+      await (processor as any).handleMessage(message);
+
+      expect(mockClient.rpush).toHaveBeenCalledWith('e2e:report:queue', message);
+    });
+
+    it('should handle invalid JSON', async () => {
+      const message = 'invalid json';
+
+      const processor = E2EReportProcessor.getInstance();
+      await (processor as any).handleMessage(message);
+
+      expect(mockClient.rpush).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('processQueue', () => {
+    beforeEach(() => {
+      jest.clearAllMocks();
+      process.env.CYPRESS_API_KEY = 'test-api-key';
+    });
+
+    it('should process messages from queue', async () => {
+      const message = JSON.stringify({ date: '2025-10-08' });
+      mockClient.lpop = jest.fn()
+        .mockResolvedValueOnce(message)
+        .mockResolvedValueOnce(null);
+
+      const mockSummary = {
+        id: 1,
+        date: '2025-10-08',
+        status: 'ready',
+        totalRuns: 0,
+        passedRuns: 0,
+        failedRuns: 0,
+        successRate: 0,
+      };
+
+      mockE2ERunReportService.getSummaryByDate = jest.fn().mockResolvedValue(mockSummary);
+
+      const processor = E2EReportProcessor.getInstance();
+      await (processor as any).processQueue();
+
+      expect(mockClient.lpop).toHaveBeenCalledWith('e2e:report:queue');
+    });
+
+    it('should not process if already processing', async () => {
+      const processor = E2EReportProcessor.getInstance();
+      (processor as any).isProcessing = true;
+
+      await (processor as any).processQueue();
+
+      expect(mockClient.lpop).not.toHaveBeenCalled();
+    });
+
+    it('should handle errors and schedule retry', async () => {
+      const message = JSON.stringify({ date: '2025-10-08', retryCount: 0 });
+      mockClient.lpop = jest.fn()
+        .mockResolvedValueOnce(message)
+        .mockResolvedValueOnce(null);
+
+      mockE2ERunReportService.getSummaryByDate = jest.fn().mockRejectedValue(new Error('Database error'));
+      mockClient.zadd = jest.fn().mockResolvedValue(1);
+
+      const processor = E2EReportProcessor.getInstance();
+      await (processor as any).processQueue();
+
+      expect(mockClient.zadd).toHaveBeenCalled();
+    });
+
+    it('should move to dead letter queue after max retries', async () => {
+      const message = JSON.stringify({ date: '2025-10-08', retryCount: 3 });
+      mockClient.lpop = jest.fn()
+        .mockResolvedValueOnce(message)
+        .mockResolvedValueOnce(null);
+
+      mockE2ERunReportService.getSummaryByDate = jest.fn().mockRejectedValue(new Error('Database error'));
+      mockClient.rpush = jest.fn().mockResolvedValue(1);
+
+      const processor = E2EReportProcessor.getInstance();
+      await (processor as any).processQueue();
+
+      expect(mockClient.rpush).toHaveBeenCalledWith('e2e:report:dlq', expect.any(String));
+    });
+  });
+
+  describe('generateReport', () => {
+    beforeEach(() => {
+      jest.clearAllMocks();
+      process.env.CYPRESS_API_KEY = 'test-api-key';
+    });
+
+    it('should skip processing when summary exists and is ready', async () => {
+      const mockSummary = {
+        id: 1,
+        date: '2025-10-08',
+        status: 'ready',
+        totalRuns: 10,
+        passedRuns: 8,
+        failedRuns: 2,
+        successRate: 0.8,
+      };
+
+      mockE2ERunReportService.getSummaryByDate = jest.fn().mockResolvedValue(mockSummary);
+
+      const processor = E2EReportProcessor.getInstance();
+      await (processor as any).generateReport({ date: '2025-10-08' });
+
+      expect(mockE2ERunReportService.getSummaryByDate).toHaveBeenCalledWith('2025-10-08');
+      expect(mockE2ERunReportService.createSummary).not.toHaveBeenCalled();
+    });
+
+    it('should create new summary when none exists', async () => {
+      const mockSummary = {
+        id: 1,
+        date: '2025-10-08',
+        status: 'pending',
+        totalRuns: 0,
+        passedRuns: 0,
+        failedRuns: 0,
+        successRate: 0,
+      };
+
+      mockE2ERunReportService.getSummaryByDate = jest.fn().mockResolvedValueOnce(null);
+      mockE2ERunReportService.createSummary = jest.fn().mockResolvedValue(mockSummary);
+      mockE2ERunReportService.deleteDetailsBySummaryId = jest.fn().mockResolvedValue(undefined);
+      mockE2ERunReportService.createDetail = jest.fn().mockResolvedValue({ id: 1 });
+      mockE2ERunReportService.updateSummary = jest.fn().mockResolvedValue(undefined);
+
+      const mockCypressAPI = {
+        getDailyRunsPerProject: jest.fn().mockResolvedValue([]),
+      };
+      (CypressDashboardAPI as jest.MockedClass<typeof CypressDashboardAPI>).mockImplementation(() => mockCypressAPI as any);
+
+      mockAppService.getWatching = jest.fn().mockResolvedValue([]);
+
+      const processor = E2EReportProcessor.getInstance();
+      await (processor as any).generateReport({ date: '2025-10-08' });
+
+      expect(mockE2ERunReportService.createSummary).toHaveBeenCalledWith({
+        date: '2025-10-08',
+        status: 'pending',
+        totalRuns: 0,
+        passedRuns: 0,
+        failedRuns: 0,
+        successRate: 0,
+      });
+    });
+
+    it('should update existing summary when status is not ready', async () => {
+      const mockSummary = {
+        id: 1,
+        date: '2025-10-08',
+        status: 'pending',
+        totalRuns: 0,
+        passedRuns: 0,
+        failedRuns: 0,
+        successRate: 0,
+      };
+
+      mockE2ERunReportService.getSummaryByDate = jest.fn().mockResolvedValue(mockSummary);
+      mockE2ERunReportService.deleteDetailsBySummaryId = jest.fn().mockResolvedValue(undefined);
+      mockE2ERunReportService.createDetail = jest.fn().mockResolvedValue({ id: 1 });
+      mockE2ERunReportService.updateSummary = jest.fn().mockResolvedValue(undefined);
+
+      const mockCypressAPI = {
+        getDailyRunsPerProject: jest.fn().mockResolvedValue([]),
+      };
+      (CypressDashboardAPI as jest.MockedClass<typeof CypressDashboardAPI>).mockImplementation(() => mockCypressAPI as any);
+
+      mockAppService.getWatching = jest.fn().mockResolvedValue([]);
+
+      const processor = E2EReportProcessor.getInstance();
+      await (processor as any).generateReport({ date: '2025-10-08' });
+
+      expect(mockE2ERunReportService.createSummary).not.toHaveBeenCalled();
+      expect(mockE2ERunReportService.updateSummary).toHaveBeenCalled();
+    });
+
+    it('should throw error when summary creation fails', async () => {
+      mockE2ERunReportService.getSummaryByDate = jest.fn().mockResolvedValue(null);
+      mockE2ERunReportService.createSummary = jest.fn().mockResolvedValue(null);
+
+      const processor = E2EReportProcessor.getInstance();
+
+      await expect((processor as any).generateReport({ date: '2025-10-08' }))
+        .rejects.toThrow('Failed to create summary');
+    });
+
+    it('should process report data and create details', async () => {
+      const mockSummary = {
+        id: 1,
+        date: '2025-10-08',
+        status: 'pending',
+        totalRuns: 0,
+        passedRuns: 0,
+        failedRuns: 0,
+        successRate: 0,
+      };
+
+      mockE2ERunReportService.getSummaryByDate = jest.fn().mockResolvedValueOnce(null);
+      mockE2ERunReportService.createSummary = jest.fn().mockResolvedValue(mockSummary);
+      mockE2ERunReportService.deleteDetailsBySummaryId = jest.fn().mockResolvedValue(undefined);
+      mockE2ERunReportService.createDetail = jest.fn().mockResolvedValue({ id: 1 });
+      mockE2ERunReportService.updateSummary = jest.fn().mockResolvedValue(undefined);
+
+      const mockCypressAPI = {
+        getDailyRunsPerProject: jest.fn().mockResolvedValue([
+          {
+            project_name: 'App1',
+            run_number: 1,
+            status: 'passed',
+            created_at: '2025-10-08T10:00:00Z',
+          },
+        ]),
+      };
+      (CypressDashboardAPI as jest.MockedClass<typeof CypressDashboardAPI>).mockImplementation(() => mockCypressAPI as any);
+
+      mockAppService.getWatching = jest.fn().mockResolvedValue([
+        {
+          id: 1,
+          name: 'App1',
+          code: 'app1',
+          pipelineUrl: 'https://example.com',
+          e2eTriggerConfiguration: null,
+          watching: true,
+        },
+      ]);
+
+      const processor = E2EReportProcessor.getInstance();
+      await (processor as any).generateReport({ date: '2025-10-08' });
+
+      expect(mockE2ERunReportService.createDetail).toHaveBeenCalled();
+      expect(mockE2ERunReportService.updateSummary).toHaveBeenCalledWith(1, {
+        status: 'ready',
+        totalRuns: 1,
+        passedRuns: 1,
+        failedRuns: 0,
+        successRate: 1,
+      });
+    });
+
+    it('should handle errors and update summary status to failed', async () => {
+      const mockSummary = {
+        id: 1,
+        date: '2025-10-08',
+        status: 'pending',
+        totalRuns: 0,
+        passedRuns: 0,
+        failedRuns: 0,
+        successRate: 0,
+      };
+
+      mockE2ERunReportService.getSummaryByDate = jest.fn()
+        .mockResolvedValueOnce(null)
+        .mockResolvedValueOnce(mockSummary);
+      mockE2ERunReportService.createSummary = jest.fn().mockResolvedValue(mockSummary);
+      mockE2ERunReportService.deleteDetailsBySummaryId = jest.fn().mockRejectedValue(new Error('Database error'));
+      mockE2ERunReportService.updateSummary = jest.fn().mockResolvedValue(undefined);
+
+      const processor = E2EReportProcessor.getInstance();
+
+      await expect((processor as any).generateReport({ date: '2025-10-08' }))
+        .rejects.toThrow('Database error');
+
+      expect(mockE2ERunReportService.updateSummary).toHaveBeenCalledWith(1, {
+        status: 'failed',
+      });
+    });
+
+    it('should include requestId in log messages', async () => {
+      const mockSummary = {
+        id: 1,
+        date: '2025-10-08',
+        status: 'ready',
+        totalRuns: 10,
+        passedRuns: 8,
+        failedRuns: 2,
+        successRate: 0.8,
+      };
+
+      mockE2ERunReportService.getSummaryByDate = jest.fn().mockResolvedValue(mockSummary);
+
+      const processor = E2EReportProcessor.getInstance();
+      await (processor as any).generateReport({ date: '2025-10-08', requestId: 'test-123' });
+
+      expect(mockE2ERunReportService.getSummaryByDate).toHaveBeenCalledWith('2025-10-08');
+    });
+
+    it('should include retry count in log messages', async () => {
+      const mockSummary = {
+        id: 1,
+        date: '2025-10-08',
+        status: 'ready',
+        totalRuns: 10,
+        passedRuns: 8,
+        failedRuns: 2,
+        successRate: 0.8,
+      };
+
+      mockE2ERunReportService.getSummaryByDate = jest.fn().mockResolvedValue(mockSummary);
+
+      const processor = E2EReportProcessor.getInstance();
+      await (processor as any).generateReport({ date: '2025-10-08', retryCount: 2 });
+
+      expect(mockE2ERunReportService.getSummaryByDate).toHaveBeenCalledWith('2025-10-08');
+    });
+  });
 
   describe('fetchCypressData', () => {
     it('should fetch and process cypress data for watching apps', async () => {
