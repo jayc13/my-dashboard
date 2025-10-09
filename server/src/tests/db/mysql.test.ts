@@ -5,6 +5,8 @@
  */
 
 import mysql from 'mysql2/promise';
+import { getMySQLPool, getMySQLConnection, closeMySQLConnection, testMySQLConnection } from '../../db/mysql';
+import { Logger } from '../../utils/logger';
 
 // Mock mysql2/promise
 jest.mock('mysql2/promise');
@@ -25,10 +27,7 @@ describe('MySQL Connection Pool', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    
-    // Reset the module to clear the pool singleton
-    jest.resetModules();
-    
+
     mockConnection = {
       execute: jest.fn(),
       query: jest.fn(),
@@ -44,12 +43,6 @@ describe('MySQL Connection Pool', () => {
     };
 
     (mysql.createPool as jest.Mock).mockReturnValue(mockPool);
-  });
-
-  afterEach(async () => {
-    // Clean up any existing pool
-    const { closeMySQLConnection } = require('../../db/mysql');
-    await closeMySQLConnection();
   });
 
   describe('getMySQLPool', () => {

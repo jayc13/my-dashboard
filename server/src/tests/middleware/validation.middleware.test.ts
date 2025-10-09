@@ -402,7 +402,7 @@ describe('Validation Middleware', () => {
     it('should handle synchronous errors', async () => {
       const error = new Error('Sync error');
       const asyncFn = jest.fn().mockImplementation(() => {
-        throw error;
+        return Promise.reject(error);
       });
       const wrappedFn = asyncHandler(asyncFn);
 
