@@ -65,6 +65,28 @@ describe('FCMController', () => {
 
       expect(mockNext).toHaveBeenCalledWith(expect.any(Error));
     });
+
+    it('should call next with InternalServerError when service returns false', async () => {
+      mockRequest.body = { token: 'test-token-that-is-long-enough' };
+      mockFCMService.registerDeviceToken.mockResolvedValue(false);
+
+      await controller.registerToken(mockRequest as Request, mockResponse as Response, mockNext);
+
+      expect(mockNext).toHaveBeenCalledWith(expect.objectContaining({
+        message: 'Failed to register device token',
+      }));
+    });
+
+    it('should call next with InternalServerError when service throws error', async () => {
+      mockRequest.body = { token: 'test-token-that-is-long-enough' };
+      mockFCMService.registerDeviceToken.mockRejectedValue(new Error('Database error'));
+
+      await controller.registerToken(mockRequest as Request, mockResponse as Response, mockNext);
+
+      expect(mockNext).toHaveBeenCalledWith(expect.objectContaining({
+        message: 'Failed to register device token',
+      }));
+    });
   });
 });
 
