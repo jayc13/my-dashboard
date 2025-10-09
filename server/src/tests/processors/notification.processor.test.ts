@@ -2,59 +2,83 @@
  * Notification Processor Tests
  *
  * Tests for the Notification Processor functionality including:
+ * - Singleton pattern
+ * - Starting and stopping the processor
  * - Message processing from Redis pub/sub
  * - Notification creation
  * - Error handling
  */
 
-// Mock types based on expected processor behavior
-interface NotificationInput {
-  title: string;
-  message: string;
-  link?: string;
-  type: 'success' | 'error' | 'info' | 'warning';
-}
-
-// Mock Redis client for notification processor
-const mockNotificationRedisClient = {
-  publish: jest.fn(),
+// Mock Redis subscriber
+const mockSubscriber = {
   subscribe: jest.fn().mockResolvedValue(undefined),
   unsubscribe: jest.fn().mockResolvedValue(undefined),
   on: jest.fn(),
   quit: jest.fn().mockResolvedValue(undefined),
 };
 
-// Mock NotificationService
-const mockNotificationService = {
-  create: jest.fn(),
-  getAll: jest.fn(),
-  getOne: jest.fn(),
-  markAsRead: jest.fn(),
-  delete: jest.fn(),
-};
-
-// Mock modules
-jest.mock('ioredis', () => {
-  return jest.fn().mockImplementation(() => mockNotificationRedisClient);
-});
-
-jest.mock('../../services/notification.service', () => ({
-  NotificationService: mockNotificationService,
+// Mock modules BEFORE imports
+jest.mock('../../config/redis', () => ({
+  getRedisSubscriber: jest.fn(() => mockSubscriber),
 }));
 
+jest.mock('../../config/firebase-config', () => ({
+  initializeFirebase: jest.fn(() => ({
+    messaging: jest.fn(() => ({
+      send: jest.fn(),
+      sendEachForMulticast: jest.fn(),
+    })),
+  })),
+}));
+
+jest.mock('../../services/notification.service');
+
+import { NotificationProcessor } from '../../processors/notification.processor';
+import { NotificationService } from '../../services/notification.service';
+
 describe('NotificationProcessor', () => {
+  const mockNotificationService = NotificationService as jest.Mocked<typeof NotificationService>;
+
   beforeEach(() => {
     jest.clearAllMocks();
-    process.env.REDIS_URL = 'redis://localhost:6379';
   });
 
-  afterEach(() => {
-    delete process.env.REDIS_URL;
+  describe('Singleton Pattern', () => {
+    it('should return the same instance', () => {
+      const instance1 = NotificationProcessor.getInstance();
+      const instance2 = NotificationProcessor.getInstance();
+
+      expect(instance1).toBe(instance2);
+    });
   });
 
-  describe('Message Processing', () => {
+  describe('start', () => {
+    it('should subscribe to the notification channel', async () => {
+      const processor = NotificationProcessor.getInstance();
+
+      await processor.start();
+
+      expect(mockSubscriber.subscribe).toHaveBeenCalledWith('notification:create');
+      expect(mockSubscriber.on).toHaveBeenCalledWith('message', expect.any(Function));
+    });
+  });
+
+  describe('stop', () => {
+    it('should unsubscribe from the notification channel', async () => {
+      const processor = NotificationProcessor.getInstance();
+
+      await processor.stop();
+
+      expect(mockSubscriber.unsubscribe).toHaveBeenCalledWith('notification:create');
+    });
+  });
+
+  describe('Message Handling', () => {
     it('should process a valid notification message', async () => {
-      const message: NotificationInput = {
+      const processor = NotificationProcessor.getInstance();
+      await processor.start();
+
+      const message = {
         title: 'Test Notification',
         message: 'This is a test notification',
         type: 'info',
@@ -71,34 +95,23 @@ describe('NotificationProcessor', () => {
         createdAt: new Date().toISOString(),
       });
 
-      // Simulate processing
-      expect(message.title).toBe('Test Notification');
-      expect(message.message).toBe('This is a test notification');
-      expect(message.type).toBe('info');
-    });
+      // Get the message handler
+      const messageHandler = mockSubscriber.on.mock.calls[0][1];
+      await messageHandler('notification:create', JSON.stringify(message));
 
-    it('should handle invalid JSON in message', async () => {
-      const invalidMessage = 'invalid json';
-
-      // Should log error and continue
-      expect(() => JSON.parse(invalidMessage)).toThrow();
-    });
-
-    it('should handle notification creation failure', async () => {
-      const message: NotificationInput = {
+      expect(mockNotificationService.create).toHaveBeenCalledWith({
         title: 'Test Notification',
         message: 'This is a test notification',
-        type: 'error',
-      };
-
-      mockNotificationService.create.mockRejectedValue(new Error('Database error'));
-
-      // Should handle error gracefully
-      expect(mockNotificationService.create).toBeDefined();
+        type: 'info',
+        link: '/test',
+      });
     });
 
-    it('should process notification without optional fields', async () => {
-      const message: NotificationInput = {
+    it('should process notification without optional link', async () => {
+      const processor = NotificationProcessor.getInstance();
+      await processor.start();
+
+      const message = {
         title: 'Simple Notification',
         message: 'Simple message',
         type: 'success',
@@ -113,75 +126,63 @@ describe('NotificationProcessor', () => {
         createdAt: new Date().toISOString(),
       });
 
-      // Simulate processing
-      expect(message.title).toBe('Simple Notification');
-      expect(message.link).toBeUndefined();
-    });
-  });
+      const messageHandler = mockSubscriber.on.mock.calls[0][1];
+      await messageHandler('notification:create', JSON.stringify(message));
 
-  describe('Notification Types', () => {
-    it('should handle success notification', async () => {
-      const message: NotificationInput = {
-        title: 'Success',
-        message: 'Operation completed successfully',
+      expect(mockNotificationService.create).toHaveBeenCalledWith({
+        title: 'Simple Notification',
+        message: 'Simple message',
         type: 'success',
-      };
-
-      expect(message.type).toBe('success');
+      });
     });
 
-    it('should handle error notification', async () => {
-      const message: NotificationInput = {
-        title: 'Error',
-        message: 'Operation failed',
+    it('should handle invalid JSON in message', async () => {
+      const processor = NotificationProcessor.getInstance();
+      await processor.start();
+
+      const invalidMessage = 'invalid json';
+
+      const messageHandler = mockSubscriber.on.mock.calls[0][1];
+      await messageHandler('notification:create', invalidMessage);
+
+      // Should not call create when JSON is invalid
+      expect(mockNotificationService.create).not.toHaveBeenCalled();
+    });
+
+    it('should handle notification creation failure', async () => {
+      const processor = NotificationProcessor.getInstance();
+      await processor.start();
+
+      const message = {
+        title: 'Test Notification',
+        message: 'This is a test notification',
         type: 'error',
       };
 
-      expect(message.type).toBe('error');
+      mockNotificationService.create.mockRejectedValue(new Error('Database error'));
+
+      const messageHandler = mockSubscriber.on.mock.calls[0][1];
+      await messageHandler('notification:create', JSON.stringify(message));
+
+      // Should handle error gracefully without throwing
+      expect(mockNotificationService.create).toHaveBeenCalled();
     });
 
-    it('should handle info notification', async () => {
-      const message: NotificationInput = {
-        title: 'Info',
-        message: 'Information message',
+    it('should ignore messages from other channels', async () => {
+      const processor = NotificationProcessor.getInstance();
+      await processor.start();
+
+      const message = {
+        title: 'Test',
+        message: 'Test',
         type: 'info',
       };
 
-      expect(message.type).toBe('info');
-    });
+      const messageHandler = mockSubscriber.on.mock.calls[0][1];
+      await messageHandler('other:channel', JSON.stringify(message));
 
-    it('should handle warning notification', async () => {
-      const message: NotificationInput = {
-        title: 'Warning',
-        message: 'Warning message',
-        type: 'warning',
-      };
-
-      expect(message.type).toBe('warning');
-    });
-  });
-
-  describe('Publisher Function', () => {
-    it('should publish notification request to Redis', async () => {
-      const title = 'Test Notification';
-      const message = 'Test message';
-      const type = 'info';
-      const link = '/test';
-
-      mockNotificationRedisClient.publish.mockResolvedValue(1);
-
-      const notification: NotificationInput = {
-        title,
-        message,
-        link,
-        type,
-      };
-
-      // Simulate publishing
-      expect(notification.title).toBe(title);
-      expect(notification.message).toBe(message);
-      expect(notification.type).toBe(type);
-      expect(notification.link).toBe(link);
+      // Should not process messages from other channels
+      expect(mockNotificationService.create).not.toHaveBeenCalled();
     });
   });
 });
