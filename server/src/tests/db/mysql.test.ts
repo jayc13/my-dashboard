@@ -173,6 +173,7 @@ describe('MySQL Connection Pool', () => {
   describe('closeMySQLConnection', () => {
     it('should close the pool if it exists', async () => {
       const { getMySQLPool, closeMySQLConnection } = require('../../db/mysql');
+      const { Logger } = require('../../utils/logger');
       getMySQLPool(); // Create pool
 
       await closeMySQLConnection();
@@ -207,6 +208,7 @@ describe('MySQL Connection Pool', () => {
       mockConnection.ping.mockResolvedValue(undefined);
 
       const { testMySQLConnection } = require('../../db/mysql');
+      const { Logger } = require('../../utils/logger');
       const result = await testMySQLConnection();
 
       expect(result).toBe(true);
@@ -220,6 +222,7 @@ describe('MySQL Connection Pool', () => {
       mockConnection.ping.mockRejectedValue(error);
 
       const { testMySQLConnection } = require('../../db/mysql');
+      const { Logger } = require('../../utils/logger');
       const result = await testMySQLConnection();
 
       expect(result).toBe(false);
@@ -231,6 +234,7 @@ describe('MySQL Connection Pool', () => {
       mockPool.getConnection.mockRejectedValue(error);
 
       const { testMySQLConnection } = require('../../db/mysql');
+      const { Logger } = require('../../utils/logger');
       const result = await testMySQLConnection();
 
       expect(result).toBe(false);
