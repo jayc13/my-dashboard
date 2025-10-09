@@ -16,12 +16,15 @@ describe('Error Handler Middleware', () => {
   beforeEach(() => {
     mockRequest = {
       method: 'GET',
-      path: '/test',
+      url: '/test',
       query: {},
       body: {},
       ip: '127.0.0.1',
       get: jest.fn(),
       connection: { remoteAddress: '127.0.0.1' } as any,
+      get path() {
+        return this.url;
+      },
     };
     mockResponse = {
       status: jest.fn().mockReturnThis(),
@@ -207,7 +210,7 @@ describe('Error Handler Middleware', () => {
   it('should include request details in error response', () => {
     const error = new Error('Test error');
     mockRequest.method = 'POST';
-    mockRequest.path = '/api/test';
+    mockRequest.url = '/api/test';
 
     errorHandler(error, mockRequest as Request, mockResponse as Response, mockNext);
 

@@ -21,7 +21,10 @@ describe('API Key Validator Middleware', () => {
   beforeEach(() => {
     mockRequest = {
       header: jest.fn(),
-      path: '/api/test',
+      url: '/api/test',
+      get path() {
+        return this.url;
+      },
     };
     mockResponse = {};
     mockNext = jest.fn();
@@ -60,7 +63,7 @@ describe('API Key Validator Middleware', () => {
   });
 
   it('should allow /health endpoint without API key', () => {
-    mockRequest.path = '/health';
+    mockRequest.url = '/health';
     (mockRequest.header as jest.Mock).mockReturnValue(undefined);
 
     apiKeyValidator(mockRequest as Request, mockResponse as Response, mockNext);
