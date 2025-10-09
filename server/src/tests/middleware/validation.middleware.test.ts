@@ -83,8 +83,6 @@ describe('Validation Middleware', () => {
       expect(mockNext).toHaveBeenCalledWith(expect.any(Error));
     });
   });
-});
-
 
   describe('validateBodyNotEmpty', () => {
     const { validateBodyNotEmpty } = require('../../middleware/validation.middleware');

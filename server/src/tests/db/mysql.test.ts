@@ -1,12 +1,10 @@
 /**
  * MySQL Connection Pool Tests
- * 
+ *
  * Tests for MySQL connection pool management
  */
 
 import mysql from 'mysql2/promise';
-import { getMySQLPool, getMySQLConnection, closeMySQLConnection, testMySQLConnection } from '../../db/mysql';
-import { Logger } from '../../utils/logger';
 
 // Mock mysql2/promise
 jest.mock('mysql2/promise');
@@ -57,6 +55,7 @@ describe('MySQL Connection Pool', () => {
   describe('getMySQLPool', () => {
     it('should create a new pool on first call', () => {
       const { getMySQLPool } = require('../../db/mysql');
+      const { Logger } = require('../../utils/logger');
       const pool = getMySQLPool();
 
       expect(pool).toBeDefined();

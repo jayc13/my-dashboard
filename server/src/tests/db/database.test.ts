@@ -37,6 +37,15 @@ describe('Database', () => {
     (mysql.getMySQLPool as jest.Mock).mockReturnValue(mockPool);
   });
 
+  afterEach(async () => {
+    // Clear any transaction state
+    try {
+      await db.rollback();
+    } catch (error) {
+      // Ignore errors if no transaction in progress
+    }
+  });
+
   describe('DatabaseManager singleton', () => {
     it('should return the same instance', () => {
       const instance1 = DatabaseManager.getInstance();

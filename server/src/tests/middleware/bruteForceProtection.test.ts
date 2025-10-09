@@ -220,6 +220,10 @@ describe('Brute Force Protection Middleware', () => {
       const ip1Request = { ...mockRequest, ip: '192.168.1.1' };
       const ip2Request = { ...mockRequest, ip: '192.168.1.2' };
 
+      // Clear any existing attempts for both IPs
+      bruteForceProtection.clearFailedAttempts(ip1Request as Request);
+      bruteForceProtection.clearFailedAttempts(ip2Request as Request);
+
       bruteForceProtection.recordFailedAttempt(ip1Request as Request);
       bruteForceProtection.recordFailedAttempt(ip2Request as Request);
 
