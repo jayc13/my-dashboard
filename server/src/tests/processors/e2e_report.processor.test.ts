@@ -138,17 +138,6 @@ describe('E2EReportProcessor', () => {
     });
   });
 
-  describe('start', () => {
-    it('should subscribe to the e2e:report:generate channel', async () => {
-      const processor = E2EReportProcessor.getInstance();
-
-      await processor.start();
-
-      expect(mockSubscriber.subscribe).toHaveBeenCalledWith('e2e:report:generate');
-      expect(mockSubscriber.on).toHaveBeenCalledWith('message', expect.any(Function));
-    });
-  });
-
   describe('stop', () => {
     it('should unsubscribe from the e2e:report:generate channel', async () => {
       const processor = E2EReportProcessor.getInstance();
@@ -159,65 +148,136 @@ describe('E2EReportProcessor', () => {
     });
   });
 
-  describe('Message Handling', () => {
-    it('should add valid message to queue', async () => {
-      const processor = E2EReportProcessor.getInstance();
-      await processor.start();
-
-      const message = {
-        date: '2025-10-08',
-        requestId: 'test-123',
-        retryCount: 0,
+  describe('fetchCypressData', () => {
+    it('should fetch and process cypress data for watching apps', async () => {
+      const mockCypressAPI = {
+        getDailyRunsPerProject: jest.fn().mockResolvedValue([
+          {
+            project_name: 'App1',
+            run_number: 1,
+            status: 'passed',
+            created_at: '2025-10-08T10:00:00Z',
+          },
+          {
+            project_name: 'App1',
+            run_number: 2,
+            status: 'failed',
+            created_at: '2025-10-08T11:00:00Z',
+          },
+        ]),
       };
 
-      const messageHandler = mockSubscriber.on.mock.calls[0][1];
-      await messageHandler('e2e:report:generate', JSON.stringify(message));
+      (CypressDashboardAPI as jest.MockedClass<typeof CypressDashboardAPI>).mockImplementation(() => mockCypressAPI as any);
 
-      expect(mockClient.rpush).toHaveBeenCalledWith('e2e:report:queue', JSON.stringify(message));
+      mockAppService.getWatching = jest.fn().mockResolvedValue([
+        {
+          id: 1,
+          name: 'App1',
+          code: 'app1',
+          pipelineUrl: 'https://example.com',
+          e2eTriggerConfiguration: null,
+          watching: true,
+        },
+      ]);
+
+      const result = await E2EReportProcessor.fetchCypressData('2025-10-08');
+
+      expect(result).toBeDefined();
+      expect(Array.isArray(result)).toBe(true);
+      expect(result.length).toBe(1);
+      expect(result[0].appId).toBe(1);
+      expect(result[0].totalRuns).toBe(2);
+      expect(result[0].passedRuns).toBe(1);
+      expect(result[0].failedRuns).toBe(1);
     });
 
-    it('should handle invalid JSON in message', async () => {
-      const processor = E2EReportProcessor.getInstance();
-      await processor.start();
+    it('should return empty array when no watching apps', async () => {
+      mockAppService.getWatching = jest.fn().mockResolvedValue([]);
 
-      const invalidMessage = 'invalid json';
+      const result = await E2EReportProcessor.fetchCypressData('2025-10-08');
 
-      const messageHandler = mockSubscriber.on.mock.calls[0][1];
-      await messageHandler('e2e:report:generate', invalidMessage);
-
-      // Should not add to queue when JSON is invalid
-      expect(mockClient.rpush).not.toHaveBeenCalled();
+      expect(result).toEqual([]);
     });
 
-    it('should ignore messages from other channels', async () => {
-      const processor = E2EReportProcessor.getInstance();
-      await processor.start();
-
-      const message = {
-        date: '2025-10-08',
-        requestId: 'test-123',
-        retryCount: 0,
+    it('should filter apps by appIds option', async () => {
+      const mockCypressAPI = {
+        getDailyRunsPerProject: jest.fn().mockResolvedValue([
+          {
+            project_name: 'App1',
+            run_number: 1,
+            status: 'passed',
+            created_at: '2025-10-08T10:00:00Z',
+          },
+        ]),
       };
 
-      const messageHandler = mockSubscriber.on.mock.calls[0][1];
-      await messageHandler('other:channel', JSON.stringify(message));
+      (CypressDashboardAPI as jest.MockedClass<typeof CypressDashboardAPI>).mockImplementation(() => mockCypressAPI as any);
 
-      // Should not process messages from other channels
-      expect(mockClient.rpush).not.toHaveBeenCalled();
+      mockAppService.getById = jest.fn().mockResolvedValue({
+        id: 1,
+        name: 'App1',
+        code: 'app1',
+        pipelineUrl: 'https://example.com',
+        e2eTriggerConfiguration: null,
+        watching: true,
+      });
+
+      const result = await E2EReportProcessor.fetchCypressData('2025-10-08', { appIds: [1] });
+
+      expect(result).toBeDefined();
+      expect(result.length).toBe(1);
+      expect(result[0].appId).toBe(1);
+      expect(mockAppService.getById).toHaveBeenCalledWith(1);
     });
 
-    it('should process message without requestId', async () => {
-      const processor = E2EReportProcessor.getInstance();
-      await processor.start();
+    it('should throw error when CYPRESS_API_KEY is missing', async () => {
+      delete process.env.CYPRESS_API_KEY;
 
-      const message = {
-        date: '2025-10-08',
+      await expect(E2EReportProcessor.fetchCypressData('2025-10-08')).rejects.toThrow('CYPRESS_API_KEY environment variable is not set');
+    });
+
+    it('should calculate success rate correctly', async () => {
+      const mockCypressAPI = {
+        getDailyRunsPerProject: jest.fn().mockResolvedValue([
+          {
+            project_name: 'App1',
+            run_number: 1,
+            status: 'passed',
+            created_at: '2025-10-08T10:00:00Z',
+          },
+          {
+            project_name: 'App1',
+            run_number: 2,
+            status: 'passed',
+            created_at: '2025-10-08T11:00:00Z',
+          },
+          {
+            project_name: 'App1',
+            run_number: 3,
+            status: 'passed',
+            created_at: '2025-10-08T12:00:00Z',
+          },
+        ]),
       };
 
-      const messageHandler = mockSubscriber.on.mock.calls[0][1];
-      await messageHandler('e2e:report:generate', JSON.stringify(message));
+      (CypressDashboardAPI as jest.MockedClass<typeof CypressDashboardAPI>).mockImplementation(() => mockCypressAPI as any);
 
-      expect(mockClient.rpush).toHaveBeenCalledWith('e2e:report:queue', JSON.stringify(message));
+      mockAppService.getWatching = jest.fn().mockResolvedValue([
+        {
+          id: 1,
+          name: 'App1',
+          code: 'app1',
+          pipelineUrl: 'https://example.com',
+          e2eTriggerConfiguration: null,
+          watching: true,
+        },
+      ]);
+
+      const result = await E2EReportProcessor.fetchCypressData('2025-10-08');
+
+      expect(result[0].successRate).toBe(1);
+      expect(result[0].passedRuns).toBe(3);
+      expect(result[0].failedRuns).toBe(0);
     });
   });
 });
