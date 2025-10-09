@@ -130,7 +130,7 @@ describe('AppController', () => {
         code: 'newapp', 
         pipelineUrl: 'https://example.com',
         e2eTriggerConfiguration: '{"key":"value"}',
-        watching: false 
+        watching: false, 
       };
       mockRequest.body = {
         name: 'New App',

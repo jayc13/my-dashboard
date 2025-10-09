@@ -44,7 +44,7 @@ describe('Error Handler Middleware', () => {
           code: 'TEST_ERROR',
           statusCode: 400,
         }),
-      })
+      }),
     );
   });
 
@@ -61,7 +61,7 @@ describe('Error Handler Middleware', () => {
           message: 'Validation failed',
           code: 'VALIDATION_ERROR',
         }),
-      })
+      }),
     );
   });
 
@@ -86,7 +86,7 @@ describe('Error Handler Middleware', () => {
           message: 'Generic error',
           statusCode: 500,
         }),
-      })
+      }),
     );
   });
 
@@ -103,7 +103,7 @@ describe('Error Handler Middleware', () => {
         error: expect.objectContaining({
           stack: expect.any(String),
         }),
-      })
+      }),
     );
 
     process.env.NODE_ENV = originalEnv;
@@ -136,7 +136,7 @@ describe('Error Handler Middleware', () => {
           message: 'Invalid reference: Related resource does not exist',
           code: 'FOREIGN_KEY_CONSTRAINT',
         }),
-      })
+      }),
     );
   });
 
@@ -153,7 +153,7 @@ describe('Error Handler Middleware', () => {
           message: 'Resource already exists',
           code: 'DUPLICATE_RESOURCE',
         }),
-      })
+      }),
     );
   });
 
@@ -168,7 +168,7 @@ describe('Error Handler Middleware', () => {
         error: expect.objectContaining({
           code: 'DUPLICATE_RESOURCE',
         }),
-      })
+      }),
     );
   });
 
@@ -184,7 +184,7 @@ describe('Error Handler Middleware', () => {
           message: 'Missing required field',
           code: 'MISSING_REQUIRED_FIELD',
         }),
-      })
+      }),
     );
   });
 
@@ -200,7 +200,7 @@ describe('Error Handler Middleware', () => {
           message: 'Invalid JSON in request body',
           code: 'INVALID_JSON',
         }),
-      })
+      }),
     );
   });
 
@@ -248,7 +248,7 @@ describe('Error Handler Middleware', () => {
           message: 'Database operation failed',
           code: 'DATABASE_ERROR',
         }),
-      })
+      }),
     );
   });
 
@@ -263,7 +263,7 @@ describe('Error Handler Middleware', () => {
         error: expect.objectContaining({
           code: 'DATABASE_ERROR',
         }),
-      })
+      }),
     );
   });
 
@@ -279,7 +279,7 @@ describe('Error Handler Middleware', () => {
           message: 'An unexpected error occurred',
           code: 'UNKNOWN_ERROR',
         }),
-      })
+      }),
     );
   });
 

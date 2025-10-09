@@ -47,7 +47,7 @@ describe('Database Migrations', () => {
       await runMigrations();
 
       expect(db.exec).toHaveBeenCalledWith(
-        expect.stringContaining('CREATE TABLE IF NOT EXISTS migrations')
+        expect.stringContaining('CREATE TABLE IF NOT EXISTS migrations'),
       );
     });
 
@@ -64,7 +64,7 @@ describe('Database Migrations', () => {
       // Should not apply the migration again
       expect(db.run).not.toHaveBeenCalledWith(
         'INSERT INTO migrations (name) VALUES (?)',
-        [appliedMigration]
+        [appliedMigration],
       );
     });
 
@@ -83,12 +83,12 @@ describe('Database Migrations', () => {
 
       expect(fs.readFileSync).toHaveBeenCalledWith(
         path.join(MIGRATIONS_DIR, newMigration),
-        'utf8'
+        'utf8',
       );
       expect(db.exec).toHaveBeenCalledWith(migrationSQL);
       expect(db.run).toHaveBeenCalledWith(
         'INSERT INTO migrations (name) VALUES (?)',
-        [newMigration]
+        [newMigration],
       );
       expect(Logger.info).toHaveBeenCalledWith(`Migration applied: ${newMigration}`);
     });
@@ -109,17 +109,17 @@ describe('Database Migrations', () => {
       expect(fs.readFileSync).toHaveBeenNthCalledWith(
         1,
         path.join(MIGRATIONS_DIR, '001_first.sql'),
-        'utf8'
+        'utf8',
       );
       expect(fs.readFileSync).toHaveBeenNthCalledWith(
         2,
         path.join(MIGRATIONS_DIR, '002_second.sql'),
-        'utf8'
+        'utf8',
       );
       expect(fs.readFileSync).toHaveBeenNthCalledWith(
         3,
         path.join(MIGRATIONS_DIR, '003_third.sql'),
-        'utf8'
+        'utf8',
       );
     });
 

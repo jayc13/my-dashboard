@@ -78,7 +78,7 @@ describe('E2EManualRunController', () => {
     it('should call next with ValidationError when app does not exist', async () => {
       mockRequest.body = { appId: 999 };
       (E2EManualRunService.create as jest.Mock).mockRejectedValue(
-        new Error('FOREIGN KEY constraint failed')
+        new Error('FOREIGN KEY constraint failed'),
       );
 
       await controller.create(mockRequest as Request, mockResponse as Response, mockNext);
@@ -87,14 +87,14 @@ describe('E2EManualRunController', () => {
       expect(mockNext).toHaveBeenCalledWith(
         expect.objectContaining({
           message: 'Invalid appId: app does not exist',
-        })
+        }),
       );
     });
 
     it('should call next with ConflictError when manual run is already in progress', async () => {
       mockRequest.body = { appId: 5 };
       (E2EManualRunService.create as jest.Mock).mockRejectedValue(
-        new Error('manual run is already in progress')
+        new Error('manual run is already in progress'),
       );
 
       await controller.create(mockRequest as Request, mockResponse as Response, mockNext);

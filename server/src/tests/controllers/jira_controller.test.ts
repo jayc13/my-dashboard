@@ -68,7 +68,7 @@ describe('Jira Controller', () => {
       await getManualQATasks(mockRequest as Request, mockResponse as Response, mockNext);
 
       expect(mockJiraService.fetchIssues).toHaveBeenCalledWith(
-        expect.stringContaining('labels in ("manual_qa")')
+        expect.stringContaining('labels in ("manual_qa")'),
       );
       expect(mockResponse.status).toHaveBeenCalledWith(200);
       expect(mockResponse.json).toHaveBeenCalledWith({
@@ -112,7 +112,7 @@ describe('Jira Controller', () => {
       await getMyTickets(mockRequest as Request, mockResponse as Response, mockNext);
 
       expect(mockJiraService.fetchIssues).toHaveBeenCalledWith(
-        expect.stringContaining('assignee = currentUser()')
+        expect.stringContaining('assignee = currentUser()'),
       );
       expect(mockResponse.status).toHaveBeenCalledWith(200);
       expect(mockResponse.json).toHaveBeenCalledWith({

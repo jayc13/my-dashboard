@@ -146,7 +146,7 @@ describe('MySQL Connection Pool', () => {
       });
 
       expect(Logger.info).toHaveBeenCalledWith(
-        expect.stringContaining('test-host:3307/test-db')
+        expect.stringContaining('test-host:3307/test-db'),
       );
     });
 
@@ -169,7 +169,7 @@ describe('MySQL Connection Pool', () => {
       });
 
       expect(Logger.info).toHaveBeenCalledWith(
-        expect.stringContaining('localhost:3306/cypress_dashboard')
+        expect.stringContaining('localhost:3306/cypress_dashboard'),
       );
     });
   });

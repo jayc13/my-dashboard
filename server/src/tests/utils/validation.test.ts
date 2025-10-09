@@ -79,7 +79,7 @@ describe('Validation Utils', () => {
       const data = { name: '' };
       try {
         validateRequiredFields(data, ['name', 'email', 'phone']);
-        fail('Should have thrown ValidationError');
+        throw new Error('Should have thrown ValidationError');
       } catch (error) {
         expect(error).toBeInstanceOf(ValidationError);
         const validationError = error as ValidationError;

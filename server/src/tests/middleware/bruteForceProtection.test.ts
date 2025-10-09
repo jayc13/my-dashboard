@@ -48,7 +48,7 @@ describe('Brute Force Protection Middleware', () => {
       bruteForceProtection.checkBlocked(
         mockRequest as Request,
         mockResponse as Response,
-        mockNext
+        mockNext,
       );
 
       expect(mockNext).toHaveBeenCalledWith();
@@ -63,7 +63,7 @@ describe('Brute Force Protection Middleware', () => {
       bruteForceProtection.checkBlocked(
         mockRequest as Request,
         mockResponse as Response,
-        mockNext
+        mockNext,
       );
 
       expect(mockNext).toHaveBeenCalledWith();
@@ -79,7 +79,7 @@ describe('Brute Force Protection Middleware', () => {
       bruteForceProtection.checkBlocked(
         mockRequest as Request,
         mockResponse as Response,
-        mockNext
+        mockNext,
       );
 
       expect(mockResponse.status).toHaveBeenCalledWith(429);
@@ -87,7 +87,7 @@ describe('Brute Force Protection Middleware', () => {
         expect.objectContaining({
           error: expect.stringContaining('Too many failed attempts'),
           retryAfter: expect.any(Number),
-        })
+        }),
       );
       expect(mockNext).not.toHaveBeenCalled();
     });
@@ -101,7 +101,7 @@ describe('Brute Force Protection Middleware', () => {
       bruteForceProtection.checkBlocked(
         mockRequest as Request,
         mockResponse as Response,
-        mockNext
+        mockNext,
       );
 
       const jsonCall = (mockResponse.json as jest.Mock).mock.calls[0][0];
@@ -122,7 +122,7 @@ describe('Brute Force Protection Middleware', () => {
       bruteForceProtection.checkBlocked(
         ip1Request as Request,
         mockResponse as Response,
-        mockNext
+        mockNext,
       );
       expect(mockResponse.status).toHaveBeenCalledWith(429);
 
@@ -131,7 +131,7 @@ describe('Brute Force Protection Middleware', () => {
       bruteForceProtection.checkBlocked(
         ip2Request as Request,
         mockResponse as Response,
-        mockNext
+        mockNext,
       );
       expect(mockNext).toHaveBeenCalledWith();
       expect(mockResponse.status).not.toHaveBeenCalled();
@@ -147,7 +147,7 @@ describe('Brute Force Protection Middleware', () => {
       bruteForceProtection.checkBlocked(
         noIpRequest as Request,
         mockResponse as Response,
-        mockNext
+        mockNext,
       );
 
       expect(mockNext).toHaveBeenCalledWith();
@@ -261,7 +261,7 @@ describe('Brute Force Protection Middleware', () => {
       securityHeaders(
         mockRequest as Request,
         mockResponse as Response,
-        mockNext
+        mockNext,
       );
 
       // Wait for the random delay (50-150ms)
@@ -287,7 +287,7 @@ describe('Brute Force Protection Middleware', () => {
           expect(elapsed).toBeGreaterThanOrEqual(50);
           expect(elapsed).toBeLessThanOrEqual(150);
           done();
-        }
+        },
       );
 
       jest.advanceTimersByTime(150);

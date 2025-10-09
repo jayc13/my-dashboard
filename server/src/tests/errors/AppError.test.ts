@@ -152,12 +152,12 @@ describe('AppError', () => {
 
     it('should create not found error with resource name and id', () => {
       const error = new NotFoundError('User', 123);
-      expect(error.message).toBe("User with id '123' not found");
+      expect(error.message).toBe('User with id \'123\' not found');
     });
 
     it('should handle string ids', () => {
       const error = new NotFoundError('User', 'abc-123');
-      expect(error.message).toBe("User with id 'abc-123' not found");
+      expect(error.message).toBe('User with id \'abc-123\' not found');
     });
   });
 

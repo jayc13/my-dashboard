@@ -102,7 +102,7 @@ describe('Routes', () => {
       const router = createToDoListRouter();
       const routes = (router as any).stack;
       const getRoute = routes.find((r: any) =>
-        r.route && r.route.path === '/' && r.route.methods.get
+        r.route && r.route.path === '/' && r.route.methods.get,
       );
       expect(getRoute).toBeDefined();
     });
@@ -111,7 +111,7 @@ describe('Routes', () => {
       const router = createToDoListRouter();
       const routes = (router as any).stack;
       const getByIdRoute = routes.find((r: any) =>
-        r.route && r.route.path === '/:id' && r.route.methods.get
+        r.route && r.route.path === '/:id' && r.route.methods.get,
       );
       expect(getByIdRoute).toBeDefined();
     });
@@ -120,7 +120,7 @@ describe('Routes', () => {
       const router = createToDoListRouter();
       const routes = (router as any).stack;
       const postRoute = routes.find((r: any) =>
-        r.route && r.route.path === '/' && r.route.methods.post
+        r.route && r.route.path === '/' && r.route.methods.post,
       );
       expect(postRoute).toBeDefined();
     });
@@ -129,7 +129,7 @@ describe('Routes', () => {
       const router = createToDoListRouter();
       const routes = (router as any).stack;
       const putRoute = routes.find((r: any) =>
-        r.route && r.route.path === '/:id' && r.route.methods.put
+        r.route && r.route.path === '/:id' && r.route.methods.put,
       );
       expect(putRoute).toBeDefined();
     });
@@ -138,7 +138,7 @@ describe('Routes', () => {
       const router = createToDoListRouter();
       const routes = (router as any).stack;
       const deleteRoute = routes.find((r: any) =>
-        r.route && r.route.path === '/:id' && r.route.methods.delete
+        r.route && r.route.path === '/:id' && r.route.methods.delete,
       );
       expect(deleteRoute).toBeDefined();
     });
@@ -155,7 +155,7 @@ describe('Routes', () => {
       const router = createAppsRouter();
       const routes = (router as any).stack;
       const getRoute = routes.find((r: any) =>
-        r.route && r.route.path === '/' && r.route.methods.get
+        r.route && r.route.path === '/' && r.route.methods.get,
       );
       expect(getRoute).toBeDefined();
     });
@@ -164,7 +164,7 @@ describe('Routes', () => {
       const router = createAppsRouter();
       const routes = (router as any).stack;
       const getByIdRoute = routes.find((r: any) =>
-        r.route && r.route.path === '/:id' && r.route.methods.get
+        r.route && r.route.path === '/:id' && r.route.methods.get,
       );
       expect(getByIdRoute).toBeDefined();
     });
@@ -173,7 +173,7 @@ describe('Routes', () => {
       const router = createAppsRouter();
       const routes = (router as any).stack;
       const postRoute = routes.find((r: any) =>
-        r.route && r.route.path === '/' && r.route.methods.post
+        r.route && r.route.path === '/' && r.route.methods.post,
       );
       expect(postRoute).toBeDefined();
     });
@@ -182,7 +182,7 @@ describe('Routes', () => {
       const router = createAppsRouter();
       const routes = (router as any).stack;
       const putRoute = routes.find((r: any) =>
-        r.route && r.route.path === '/:id' && r.route.methods.put
+        r.route && r.route.path === '/:id' && r.route.methods.put,
       );
       expect(putRoute).toBeDefined();
     });
@@ -191,7 +191,7 @@ describe('Routes', () => {
       const router = createAppsRouter();
       const routes = (router as any).stack;
       const deleteRoute = routes.find((r: any) =>
-        r.route && r.route.path === '/:id' && r.route.methods.delete
+        r.route && r.route.path === '/:id' && r.route.methods.delete,
       );
       expect(deleteRoute).toBeDefined();
     });
@@ -208,7 +208,7 @@ describe('Routes', () => {
       const router = createAuthRouter();
       const routes = (router as any).stack;
       const postRoute = routes.find((r: any) =>
-        r.route && r.route.path === '/validate' && r.route.methods.post
+        r.route && r.route.path === '/validate' && r.route.methods.post,
       );
       expect(postRoute).toBeDefined();
     });
@@ -232,7 +232,7 @@ describe('Routes', () => {
       const router = createE2EManualRunsRouter();
       const routes = (router as any).stack;
       const postRoute = routes.find((r: any) =>
-        r.route && r.route.path === '/' && r.route.methods.post
+        r.route && r.route.path === '/' && r.route.methods.post,
       );
       expect(postRoute).toBeDefined();
     });
@@ -249,7 +249,7 @@ describe('Routes', () => {
       const router = createE2ERunReportRouter();
       const routes = (router as any).stack;
       const getRoute = routes.find((r: any) =>
-        r.route && r.route.path === '/' && r.route.methods.get
+        r.route && r.route.path === '/' && r.route.methods.get,
       );
       expect(getRoute).toBeDefined();
     });
@@ -258,7 +258,7 @@ describe('Routes', () => {
       const router = createE2ERunReportRouter();
       const routes = (router as any).stack;
       const getRoute = routes.find((r: any) =>
-        r.route && r.route.path === '/:summaryId/:appId' && r.route.methods.get
+        r.route && r.route.path === '/:summaryId/:appId' && r.route.methods.get,
       );
       expect(getRoute).toBeDefined();
     });
@@ -275,7 +275,7 @@ describe('Routes', () => {
       const router = createFCMRouter();
       const routes = (router as any).stack;
       const postRoute = routes.find((r: any) =>
-        r.route && r.route.path === '/register-token' && r.route.methods.post
+        r.route && r.route.path === '/register-token' && r.route.methods.post,
       );
       expect(postRoute).toBeDefined();
     });
@@ -292,7 +292,7 @@ describe('Routes', () => {
       const router = createJiraRouter();
       const routes = (router as any).stack;
       const getRoute = routes.find((r: any) =>
-        r.route && r.route.path === '/manual_qa' && r.route.methods.get
+        r.route && r.route.path === '/manual_qa' && r.route.methods.get,
       );
       expect(getRoute).toBeDefined();
     });
@@ -301,7 +301,7 @@ describe('Routes', () => {
       const router = createJiraRouter();
       const routes = (router as any).stack;
       const getRoute = routes.find((r: any) =>
-        r.route && r.route.path === '/my_tickets' && r.route.methods.get
+        r.route && r.route.path === '/my_tickets' && r.route.methods.get,
       );
       expect(getRoute).toBeDefined();
     });
@@ -318,7 +318,7 @@ describe('Routes', () => {
       const router = createNotificationRouter();
       const routes = (router as any).stack;
       const getRoute = routes.find((r: any) =>
-        r.route && r.route.path === '/' && r.route.methods.get
+        r.route && r.route.path === '/' && r.route.methods.get,
       );
       expect(getRoute).toBeDefined();
     });
@@ -327,7 +327,7 @@ describe('Routes', () => {
       const router = createNotificationRouter();
       const routes = (router as any).stack;
       const patchRoute = routes.find((r: any) =>
-        r.route && r.route.path === '/:id/read' && r.route.methods.patch
+        r.route && r.route.path === '/:id/read' && r.route.methods.patch,
       );
       expect(patchRoute).toBeDefined();
     });
@@ -336,7 +336,7 @@ describe('Routes', () => {
       const router = createNotificationRouter();
       const routes = (router as any).stack;
       const deleteRoute = routes.find((r: any) =>
-        r.route && r.route.path === '/:id' && r.route.methods.delete
+        r.route && r.route.path === '/:id' && r.route.methods.delete,
       );
       expect(deleteRoute).toBeDefined();
     });
@@ -353,7 +353,7 @@ describe('Routes', () => {
       const router = createPullRequestRouter();
       const routes = (router as any).stack;
       const getRoute = routes.find((r: any) =>
-        r.route && r.route.path === '/' && r.route.methods.get
+        r.route && r.route.path === '/' && r.route.methods.get,
       );
       expect(getRoute).toBeDefined();
     });
@@ -362,7 +362,7 @@ describe('Routes', () => {
       const router = createPullRequestRouter();
       const routes = (router as any).stack;
       const postRoute = routes.find((r: any) =>
-        r.route && r.route.path === '/' && r.route.methods.post
+        r.route && r.route.path === '/' && r.route.methods.post,
       );
       expect(postRoute).toBeDefined();
     });
@@ -371,7 +371,7 @@ describe('Routes', () => {
       const router = createPullRequestRouter();
       const routes = (router as any).stack;
       const getByIdRoute = routes.find((r: any) =>
-        r.route && r.route.path === '/:id' && r.route.methods.get
+        r.route && r.route.path === '/:id' && r.route.methods.get,
       );
       expect(getByIdRoute).toBeDefined();
     });
@@ -380,7 +380,7 @@ describe('Routes', () => {
       const router = createPullRequestRouter();
       const routes = (router as any).stack;
       const deleteRoute = routes.find((r: any) =>
-        r.route && r.route.path === '/:id' && r.route.methods.delete
+        r.route && r.route.path === '/:id' && r.route.methods.delete,
       );
       expect(deleteRoute).toBeDefined();
     });

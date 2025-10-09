@@ -899,7 +899,7 @@ describe('publishE2EReportRequest', () => {
 
     expect(mockClient.publish).toHaveBeenCalledWith(
       'e2e:report:generate',
-      JSON.stringify({ date: '2025-10-08', requestId: 'test-123' })
+      JSON.stringify({ date: '2025-10-08', requestId: 'test-123' }),
     );
   });
 
@@ -908,7 +908,7 @@ describe('publishE2EReportRequest', () => {
 
     expect(mockClient.publish).toHaveBeenCalledWith(
       'e2e:report:generate',
-      JSON.stringify({ date: '2025-10-08', requestId: undefined })
+      JSON.stringify({ date: '2025-10-08', requestId: undefined }),
     );
   });
 
@@ -917,7 +917,7 @@ describe('publishE2EReportRequest', () => {
 
     expect(mockClient.publish).toHaveBeenCalledWith(
       'e2e:report:generate',
-      JSON.stringify({ date: '2025-12-31', requestId: 'year-end' })
+      JSON.stringify({ date: '2025-12-31', requestId: 'year-end' }),
     );
   });
 });

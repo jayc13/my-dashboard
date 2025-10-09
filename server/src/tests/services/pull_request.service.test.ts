@@ -135,7 +135,7 @@ describe('PullRequestService', () => {
 
     it('should throw error when required fields are missing', async () => {
       await expect(service.addPullRequest({ pullRequestNumber: 0, repository: '' })).rejects.toThrow(
-        'Pull request number and repository are required'
+        'Pull request number and repository are required',
       );
     });
 

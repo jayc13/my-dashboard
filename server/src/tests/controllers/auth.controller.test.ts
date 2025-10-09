@@ -145,7 +145,7 @@ describe('AuthController', () => {
       await controller.validateApiKey(mockRequest as Request, mockResponse as Response);
 
       expect(Logger.warn).toHaveBeenCalledWith(
-        expect.stringContaining('Failed API key validation attempt from IP:')
+        expect.stringContaining('Failed API key validation attempt from IP:'),
       );
     });
 

@@ -12,7 +12,7 @@ module.exports = [
       parserOptions: {
         ecmaVersion: 'latest',
         sourceType: 'module',
-        project: './tsconfig.json',
+        project: './tsconfig.eslint.json',
       },
       globals: {
         ...globals.node,
@@ -85,7 +85,7 @@ module.exports = [
       parserOptions: {
         ecmaVersion: 'latest',
         sourceType: 'module',
-        project: './tsconfig.json',
+        project: './tsconfig.eslint.json',
       },
       globals: {
         ...globals.node,
@@ -101,6 +101,7 @@ module.exports = [
       'no-console': 'off', // Allow console.log in tests
       '@typescript-eslint/no-explicit-any': 'off', // Allow any in tests
       '@typescript-eslint/no-unused-vars': 'off', // Allow unused vars in tests
+      '@typescript-eslint/no-require-imports': 'off', // Allow require() in tests for mocking
     },
   },
   {
