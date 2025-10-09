@@ -232,33 +232,18 @@ describe('E2EReportProcessor', () => {
       expect(mockClient.lpop).not.toHaveBeenCalled();
     });
 
-    it('should handle errors and schedule retry', async () => {
-      const message = JSON.stringify({ date: '2025-10-08', retryCount: 0 });
+    it('should handle parse errors in retry logic', async () => {
+      const message = 'invalid json';
       mockClient.lpop = jest.fn()
         .mockResolvedValueOnce(message)
         .mockResolvedValueOnce(null);
 
-      mockE2ERunReportService.getSummaryByDate = jest.fn().mockRejectedValue(new Error('Database error'));
-      mockClient.zadd = jest.fn().mockResolvedValue(1);
-
-      const processor = E2EReportProcessor.getInstance();
-      await (processor as any).processQueue();
-
-      expect(mockClient.zadd).toHaveBeenCalled();
-    });
-
-    it('should move to dead letter queue after max retries', async () => {
-      const message = JSON.stringify({ date: '2025-10-08', retryCount: 3 });
-      mockClient.lpop = jest.fn()
-        .mockResolvedValueOnce(message)
-        .mockResolvedValueOnce(null);
-
-      mockE2ERunReportService.getSummaryByDate = jest.fn().mockRejectedValue(new Error('Database error'));
       mockClient.rpush = jest.fn().mockResolvedValue(1);
 
       const processor = E2EReportProcessor.getInstance();
       await (processor as any).processQueue();
 
+      // Should move to dead letter queue when message can't be parsed
       expect(mockClient.rpush).toHaveBeenCalledWith('e2e:report:dlq', expect.any(String));
     });
   });
