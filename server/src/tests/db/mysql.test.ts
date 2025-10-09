@@ -142,7 +142,8 @@ describe('MySQL Connection Pool', () => {
       });
 
       const { getMySQLPool } = require('../../db/mysql');
-      
+      const { Logger } = require('../../utils/logger');
+
       expect(() => getMySQLPool()).toThrow('Pool creation failed');
       expect(Logger.error).toHaveBeenCalledWith('Failed to create MySQL connection pool:', { error });
     });
@@ -162,6 +163,7 @@ describe('MySQL Connection Pool', () => {
       mockPool.getConnection.mockRejectedValue(error);
 
       const { getMySQLConnection } = require('../../db/mysql');
+      const { Logger } = require('../../utils/logger');
 
       await expect(getMySQLConnection()).rejects.toThrow('Connection failed');
       expect(Logger.error).toHaveBeenCalledWith('Failed to get connection from pool:', { error });
