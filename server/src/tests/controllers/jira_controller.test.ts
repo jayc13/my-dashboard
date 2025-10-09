@@ -1,24 +1,34 @@
 /**
  * Jira Controller Tests
- * 
+ *
  * Tests for jira_controller including:
  * - Get manual QA tasks
  * - Get my tickets
  */
 
 import { Request, Response, NextFunction } from 'express';
-import { getManualQATasks, getMyTickets } from '../../controllers/jira_controller';
-import { JiraService } from '../../services/jira.service';
 import { ExternalServiceError } from '../../errors';
 
-// Mock dependencies
-jest.mock('../../services/jira.service');
+// Create mock instance
+const mockJiraService = {
+  fetchIssues: jest.fn(),
+  formatJiraIssue: jest.fn(),
+};
+
+// Mock dependencies before importing controller
+jest.mock('../../services/jira.service', () => {
+  return {
+    JiraService: jest.fn().mockImplementation(() => mockJiraService),
+  };
+});
+
+// Import after mocking
+import { getManualQATasks, getMyTickets } from '../../controllers/jira_controller';
 
 describe('Jira Controller', () => {
   let mockRequest: Partial<Request>;
   let mockResponse: Partial<Response>;
   let mockNext: NextFunction;
-  let mockJiraService: jest.Mocked<JiraService>;
 
   beforeEach(() => {
     mockRequest = {
@@ -31,15 +41,6 @@ describe('Jira Controller', () => {
       status: jest.fn().mockReturnThis(),
     };
     mockNext = jest.fn();
-
-    // Mock JiraService instance methods
-    mockJiraService = {
-      fetchIssues: jest.fn(),
-      formatJiraIssue: jest.fn(),
-    } as any;
-
-    // Mock the JiraService constructor
-    (JiraService as jest.MockedClass<typeof JiraService>).mockImplementation(() => mockJiraService);
 
     jest.clearAllMocks();
   });

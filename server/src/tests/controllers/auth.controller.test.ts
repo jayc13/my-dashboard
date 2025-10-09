@@ -107,7 +107,7 @@ describe('AuthController', () => {
       expect(mockResponse.status).toHaveBeenCalledWith(400);
       expect(mockResponse.json).toHaveBeenCalledWith({
         valid: false,
-        message: 'API key cannot be empty',
+        message: 'API key is required and must be a string',
       });
     });
 

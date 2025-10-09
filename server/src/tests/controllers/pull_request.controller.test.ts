@@ -1,6 +1,6 @@
 /**
  * Pull Request Controller Tests
- * 
+ *
  * Tests for PullRequestController including:
  * - List pull requests
  * - Add pull request
@@ -9,12 +9,23 @@
  */
 
 import { Request, Response, NextFunction } from 'express';
-import { PullRequestController } from '../../controllers/pull_request.controller';
-import { PullRequestService } from '../../services/pull_request.service';
 import { NotFoundError, ValidationError, DatabaseError, ExternalServiceError } from '../../errors/AppError';
 
-// Mock dependencies
-jest.mock('../../services/pull_request.service');
+// Create mock instance
+const mockPullRequestService = {
+  listPullRequests: jest.fn(),
+  addPullRequest: jest.fn(),
+  getPullRequestById: jest.fn(),
+  deletePullRequest: jest.fn(),
+};
+
+// Mock dependencies before importing controller
+jest.mock('../../services/pull_request.service', () => {
+  return {
+    PullRequestService: jest.fn().mockImplementation(() => mockPullRequestService),
+  };
+});
+
 jest.mock('../../services/github.service', () => ({
   GitHubService: {
     getPullRequestDetails: jest.fn(),
@@ -22,6 +33,7 @@ jest.mock('../../services/github.service', () => ({
 }));
 
 // Import after mocking
+import { PullRequestController } from '../../controllers/pull_request.controller';
 import { GitHubService } from '../../services/github.service';
 
 describe('PullRequestController', () => {
@@ -29,20 +41,8 @@ describe('PullRequestController', () => {
   let mockRequest: Partial<Request>;
   let mockResponse: Partial<Response>;
   let mockNext: NextFunction;
-  let mockPullRequestService: jest.Mocked<PullRequestService>;
 
   beforeEach(() => {
-    mockPullRequestService = {
-      listPullRequests: jest.fn(),
-      addPullRequest: jest.fn(),
-      getPullRequestById: jest.fn(),
-      deletePullRequest: jest.fn(),
-    } as any;
-
-    (PullRequestService as jest.MockedClass<typeof PullRequestService>).mockImplementation(
-      () => mockPullRequestService
-    );
-
     controller = new PullRequestController();
     mockRequest = {
       params: {},
