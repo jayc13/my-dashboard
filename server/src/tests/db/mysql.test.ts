@@ -99,5 +99,95 @@ describe('MySQL Connection Pool', () => {
       expect(Logger.info).toHaveBeenCalledWith('MySQL connection test successful');
     });
   });
+
+  describe('Error Handling', () => {
+    it('should handle pool creation errors', () => {
+      // Close existing pool first
+      closeMySQLConnection();
+
+      const error = new Error('Pool creation failed');
+      (mysql.createPool as jest.Mock).mockImplementationOnce(() => {
+        throw error;
+      });
+
+      // Use isolateModules to get a fresh instance
+      jest.isolateModules(() => {
+        const { getMySQLPool: getPool } = require('../../db/mysql');
+        expect(() => getPool()).toThrow('Pool creation failed');
+      });
+    });
+
+    it('should log error when getting connection fails', async () => {
+      const error = new Error('Failed to get connection');
+      mockPool.getConnection.mockRejectedValueOnce(error);
+
+      await expect(getMySQLConnection()).rejects.toThrow('Failed to get connection');
+      expect(Logger.error).toHaveBeenCalledWith('Failed to get connection from pool:', { error });
+    });
+
+    it('should handle ping failure in testMySQLConnection', async () => {
+      const error = new Error('Ping failed');
+      // Create a new connection mock with failing ping
+      const failingConnection = {
+        ...mockConnection,
+        ping: jest.fn().mockRejectedValue(error),
+      };
+      // Make the pool return the failing connection
+      mockPool.getConnection.mockResolvedValueOnce(failingConnection);
+
+      const result = await testMySQLConnection();
+
+      expect(result).toBe(false);
+      expect(Logger.error).toHaveBeenCalledWith('MySQL connection test failed:', { error });
+    });
+  });
+
+  describe('Configuration', () => {
+    it('should use environment variables for configuration', () => {
+      // Close existing pool first
+      closeMySQLConnection();
+
+      process.env.MYSQL_HOST = 'test-host';
+      process.env.MYSQL_PORT = '3307';
+      process.env.MYSQL_USER = 'test-user';
+      process.env.MYSQL_PASSWORD = 'test-pass';
+      process.env.MYSQL_DATABASE = 'test-db';
+      process.env.MYSQL_CONNECTION_LIMIT = '20';
+
+      // Use isolateModules to get a fresh instance
+      jest.isolateModules(() => {
+        const { getMySQLPool: getPool } = require('../../db/mysql');
+        const pool = getPool();
+        expect(pool).toBeDefined();
+      });
+
+      expect(Logger.info).toHaveBeenCalledWith(
+        expect.stringContaining('test-host:3307/test-db')
+      );
+    });
+
+    it('should use default values when environment variables are not set', () => {
+      // Close existing pool first
+      closeMySQLConnection();
+
+      delete process.env.MYSQL_HOST;
+      delete process.env.MYSQL_PORT;
+      delete process.env.MYSQL_USER;
+      delete process.env.MYSQL_PASSWORD;
+      delete process.env.MYSQL_DATABASE;
+      delete process.env.MYSQL_CONNECTION_LIMIT;
+
+      // Use isolateModules to get a fresh instance
+      jest.isolateModules(() => {
+        const { getMySQLPool: getPool } = require('../../db/mysql');
+        const pool = getPool();
+        expect(pool).toBeDefined();
+      });
+
+      expect(Logger.info).toHaveBeenCalledWith(
+        expect.stringContaining('localhost:3306/cypress_dashboard')
+      );
+    });
+  });
 });
 

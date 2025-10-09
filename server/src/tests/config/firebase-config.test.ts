@@ -20,11 +20,18 @@ jest.mock('firebase-admin', () => ({
 }));
 
 describe('Firebase Config', () => {
+  let originalEnv: typeof process.env;
+
   beforeEach(() => {
     jest.clearAllMocks();
+    originalEnv = { ...process.env };
     process.env.FIREBASE_PROJECT_ID = 'test-project';
     process.env.FIREBASE_CLIENT_EMAIL = 'test@test.com';
     process.env.FIREBASE_PRIVATE_KEY = 'test-key';
+  });
+
+  afterEach(() => {
+    process.env = originalEnv;
   });
 
   describe('initializeFirebase', () => {
@@ -42,6 +49,31 @@ describe('Firebase Config', () => {
     it('should handle missing environment variables', () => {
       delete process.env.FIREBASE_PROJECT_ID;
       expect(() => initializeFirebase()).toThrow();
+    });
+
+    it('should initialize with service account path', () => {
+      // Reset apps array to allow re-initialization
+      const admin = require('firebase-admin');
+      admin.apps.length = 0;
+
+      process.env.FIREBASE_SERVICE_ACCOUNT_PATH = '/path/to/service-account.json';
+
+      const result = initializeFirebase();
+      expect(result).toBeDefined();
+      expect(admin.credential.cert).toHaveBeenCalledWith('/path/to/service-account.json');
+    });
+
+    it('should initialize with environment variables when no service account path', () => {
+      const admin = require('firebase-admin');
+      admin.apps.length = 0;
+
+      delete process.env.FIREBASE_SERVICE_ACCOUNT_PATH;
+      process.env.FIREBASE_PROJECT_ID = 'test-project';
+      process.env.FIREBASE_CLIENT_EMAIL = 'test@test.com';
+      process.env.FIREBASE_PRIVATE_KEY = 'test-key';
+
+      const result = initializeFirebase();
+      expect(result).toBeDefined();
     });
   });
 });
