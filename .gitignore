@@ -12,6 +12,7 @@
 */**/node_modules
 */**/data
 */**/reports
+*/**/logs
 
 # Jest coverage directory
 */**/.coverage-report

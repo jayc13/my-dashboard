@@ -215,6 +215,7 @@ jobs:
             cat mock-server.log
             exit 1
           fi
+          echo ""
           echo "=== Mock Server Health Check ==="
           echo "✅ Mock server health check passed. Status: $HEALTH_STATUS"
 
@@ -284,6 +285,7 @@ jobs:
             cat server.log
             exit 1
           fi
+          echo ""
           echo "=== Server Health Check ==="
           echo "✅ Server health check passed. Status: $HEALTH_STATUS"
 
@@ -355,10 +357,6 @@ jobs:
           if [ -f ./client/client.pid ]; then
             kill $(cat ./client/client.pid) || true
           fi
-          # Kill any remaining processes on the ports using fuser (available in GitHub Actions)
-          fuser -k 3001/tcp || true
-          fuser -k ${{ secrets.SERVER_PORT || '3000' }}/tcp || true
-          fuser -k ${{ secrets.CLIENT_PORT || '4173' }}/tcp || true
 
   # Job 14: Final validation and summary
   validation-summary:

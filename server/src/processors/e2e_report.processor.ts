@@ -33,17 +33,10 @@ interface FetchCypressDataOptions {
 export class E2EReportProcessor {
   private static instance: E2EReportProcessor;
   private subscriber: ReturnType<typeof getRedisSubscriber>;
-  private client: ReturnType<typeof getRedisClient>;
-  private isProcessing: boolean = false;
   private readonly CHANNEL_NAME = 'e2e:report:generate';
-  private readonly QUEUE_NAME = 'e2e:report:queue';
-  private readonly RETRY_QUEUE_NAME = 'e2e:report:retry';
-  private readonly MAX_RETRIES = 3;
-  private readonly RETRY_DELAY_MS = 5000; // 5 seconds base delay
 
   private constructor() {
     this.subscriber = getRedisSubscriber();
-    this.client = getRedisClient();
   }
 
   /**
@@ -73,12 +66,6 @@ export class E2EReportProcessor {
       }
     });
 
-    // Also process any existing messages in the queue
-    this.processQueue();
-
-    // Start retry queue processor
-    this.processRetryQueue();
-
     Logger.debug('[E2E Report Processor] Started successfully');
   }
 
@@ -99,170 +86,20 @@ export class E2EReportProcessor {
       const payload: E2EReportMessage = JSON.parse(message);
       Logger.debug('[E2E Report Processor] Received message', { payload });
 
-      // Add to queue for processing
-      await this.client.rpush(this.QUEUE_NAME, message);
-      Logger.debug('[E2E Report Processor] Added to queue', { date: payload.date });
-
-      // Process the queue if not already processing
-      if (!this.isProcessing) {
-        this.processQueue();
-      }
+      await this.generateReport(payload);
     } catch (error) {
       Logger.error('[E2E Report Processor] Error handling message', { error });
     }
   }
 
   /**
-   * Process messages from the queue
-   */
-  private async processQueue(): Promise<void> {
-    if (this.isProcessing) {
-      return;
-    }
-
-    this.isProcessing = true;
-
-    try {
-      while (true) {
-        // Get next message from queue
-        const message = await this.client.lpop(this.QUEUE_NAME);
-
-        if (!message) {
-          // Queue is empty
-          break;
-        }
-
-        try {
-          const payload: E2EReportMessage = JSON.parse(message);
-          await this.generateReport(payload);
-        } catch (error) {
-          Logger.error('[E2E Report Processor] Error processing message', { error });
-
-          // Retry logic
-          try {
-            const payload: E2EReportMessage = JSON.parse(message);
-            const retryCount = payload.retryCount || 0;
-
-            if (retryCount < this.MAX_RETRIES) {
-              // Schedule retry with exponential backoff
-              await this.scheduleRetry(payload, retryCount, error);
-            } else {
-              // Max retries reached, move to dead letter queue
-              Logger.error('[E2E Report Processor] Max retries reached', {
-                maxRetries: this.MAX_RETRIES,
-                date: payload.date,
-              });
-              await this.handleFailedMessage(message, error);
-            }
-          } catch (parseError) {
-            // If we can't parse the message, send to dead letter queue
-            Logger.error('[E2E Report Processor] Failed to parse message for retry', { parseError });
-            await this.handleFailedMessage(message, error);
-          }
-        }
-      }
-    } finally {
-      this.isProcessing = false;
-    }
-  }
-
-  /**
-   * Schedule a retry with exponential backoff
-   */
-  private async scheduleRetry(payload: E2EReportMessage, currentRetryCount: number, error: unknown): Promise<void> {
-    const retryCount = currentRetryCount + 1;
-    const retryPayload: E2EReportMessage = {
-      ...payload,
-      retryCount,
-    };
-
-    // Calculate delay with exponential backoff: 5s, 10s, 20s
-    const delayMs = this.RETRY_DELAY_MS * Math.pow(2, currentRetryCount);
-    const retryAt = Date.now() + delayMs;
-
-    // Store in sorted set with score as timestamp
-    const retryData = {
-      payload: retryPayload,
-      retryAt,
-      error: error instanceof Error ? error.message : String(error),
-    };
-
-    await this.client.zadd(this.RETRY_QUEUE_NAME, retryAt, JSON.stringify(retryData));
-
-    const delaySeconds = Math.round(delayMs / 1000);
-    Logger.debug('[E2E Report Processor] Retry scheduled', {
-      retryCount,
-      maxRetries: this.MAX_RETRIES,
-      date: payload.date,
-      delaySeconds,
-    });
-  }
-
-  /**
-   * Process retry queue - check for messages ready to retry
-   */
-  private async processRetryQueue(): Promise<void> {
-    const processRetries = async () => {
-      try {
-        const now = Date.now();
-
-        // Get messages that are ready to retry (score <= now)
-        const messages = await this.client.zrangebyscore(
-          this.RETRY_QUEUE_NAME,
-          '-inf',
-          now.toString(),
-          'LIMIT',
-          0,
-          10, // Process up to 10 retries at a time
-        );
-
-        for (const message of messages) {
-          try {
-            const retryData = JSON.parse(message);
-            const { payload } = retryData;
-
-            // Remove from retry queue
-            await this.client.zrem(this.RETRY_QUEUE_NAME, message);
-
-            // Add back to main queue for processing
-            await this.client.rpush(this.QUEUE_NAME, JSON.stringify(payload));
-            Logger.debug('[E2E Report Processor] Moving retry to main queue', {
-              date: payload.date,
-              retryCount: payload.retryCount,
-              maxRetries: this.MAX_RETRIES,
-            });
-
-            // Trigger queue processing
-            if (!this.isProcessing) {
-              this.processQueue();
-            }
-          } catch (error) {
-            Logger.error('[E2E Report Processor] Error processing retry message', { error });
-            // Remove invalid message from retry queue
-            await this.client.zrem(this.RETRY_QUEUE_NAME, message);
-          }
-        }
-      } catch (error) {
-        Logger.error('[E2E Report Processor] Error in retry queue processor', { error });
-      }
-    };
-
-    // Check retry queue every 2 seconds
-    setInterval(processRetries, 2000);
-
-    // Process immediately on start
-    processRetries();
-  }
-
-  /**
    * Generate E2E report for the given date
    */
   private async generateReport(payload: E2EReportMessage): Promise<void> {
-    const { date, requestId, retryCount = 0 } = payload;
+    const { date, requestId } = payload;
     const logPrefix = requestId ? `[${requestId}]` : '';
-    const retryInfo = retryCount > 0 ? ` (Retry ${retryCount}/${this.MAX_RETRIES})` : '';
 
-    Logger.debug(`${logPrefix} [E2E Report Processor] Generating report for date`, { date, retryInfo });
+    Logger.debug(`${logPrefix} [E2E Report Processor] Generating report for date`, { date });
 
     try {
       // Check if summary already exists
@@ -346,16 +183,7 @@ export class E2EReportProcessor {
 
     } catch (error) {
       Logger.error(`${logPrefix} [E2E Report Processor] Error generating report`, { error });
-
-      // Update summary status to failed
-      const summary = await E2ERunReportService.getSummaryByDate(date);
-      if (summary) {
-        await E2ERunReportService.updateSummary(summary.id, {
-          status: 'failed',
-        });
-      }
-
-      throw error;
+      // Don't throw - just log the error and continue
     }
   }
 
@@ -502,40 +330,6 @@ export class E2EReportProcessor {
       .every(r => r.status === 'passed') ? 'passed' : 'failed';
   }
 
-  /**
-   * Handle failed message processing
-   */
-  private async handleFailedMessage(message: string, error: unknown): Promise<void> {
-    const deadLetterQueue = 'e2e:report:failed';
-
-    try {
-      // Parse message to get retry count
-      let retryCount = 0;
-      let date = 'unknown';
-      try {
-        const payload: E2EReportMessage = JSON.parse(message);
-        retryCount = payload.retryCount || 0;
-        date = payload.date;
-      } catch (parseError) {
-        // Ignore parse errors, use defaults
-        Logger.error('[E2E Report Processor] Parse error in failed message handler', { parseError });
-      }
-
-      const failedMessage = {
-        message,
-        error: error instanceof Error ? error.message : String(error),
-        errorStack: error instanceof Error ? error.stack : undefined,
-        retryCount,
-        date,
-        timestamp: new Date().toISOString(),
-      };
-
-      await this.client.rpush(deadLetterQueue, JSON.stringify(failedMessage));
-      Logger.warn('[E2E Report Processor] Added failed message to dead letter queue', { date, retryCount });
-    } catch (err) {
-      Logger.error('[E2E Report Processor] Error adding to dead letter queue', { err });
-    }
-  }
 }
 
 /**

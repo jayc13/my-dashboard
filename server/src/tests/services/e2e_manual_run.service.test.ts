@@ -1,12 +1,12 @@
-import { E2EManualRunService, E2EManualRunInput } from '../services/e2e_manual_run.service';
-import { AppService } from '../services/app.service';
-import { CircleCIService, CircleCIWorkflow } from '../services/circle_ci.service';
-import { db } from '../db/database';
+import { E2EManualRunService, E2EManualRunInput } from '../../services/e2e_manual_run.service';
+import { AppService } from '../../services/app.service';
+import { CircleCIService, CircleCIWorkflow } from '../../services/circle_ci.service';
+import { db } from '../../db/database';
 
 // Mock dependencies
-jest.mock('../db/database');
-jest.mock('../services/app.service');
-jest.mock('../services/circle_ci.service');
+jest.mock('../../db/database');
+jest.mock('../../services/app.service');
+jest.mock('../../services/circle_ci.service');
 
 describe('E2EManualRunService', () => {
   const mockDb = db as jest.Mocked<typeof db>;

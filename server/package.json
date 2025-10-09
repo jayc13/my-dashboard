@@ -11,10 +11,8 @@
     "lint": "eslint .",
     "lint-fix": "eslint . --fix",
     "test": "jest",
-    "typecheck": "tsc --noEmit",
-    "processor": "node dist/processor/start-processor.js",
-    "processor:dev": "ts-node-dev --respawn src/processor/start-processor.ts",
-    "publish-report": "ts-node src/examples/publish-e2e-report-request.ts"
+    "test:coverage": "jest --coverage",
+    "typecheck": "tsc --noEmit"
   },
   "engines": {
     "node": "v22.20.0"

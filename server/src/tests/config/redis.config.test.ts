@@ -1,6 +1,6 @@
 /**
  * Redis Configuration Tests
- * 
+ *
  * Tests for Redis connection management including:
  * - Client creation and singleton pattern
  * - Subscriber creation
@@ -48,12 +48,27 @@ jest.mock('ioredis', () => {
   });
 });
 
+// Mock Logger
+jest.mock('../../utils/logger', () => ({
+  Logger: {
+    info: jest.fn(),
+    error: jest.fn(),
+    warn: jest.fn(),
+    debug: jest.fn(),
+  },
+}));
+
+// Import after mocks
+import { getRedisClient, getRedisSubscriber, closeRedisConnections, testRedisConnection } from '../../config/redis';
+
 describe('Redis Configuration', () => {
   let originalEnv: typeof process.env;
 
   beforeEach(() => {
     jest.clearAllMocks();
     originalEnv = { ...process.env };
+    // Reset module to clear singleton instances
+    jest.resetModules();
   });
 
   afterEach(() => {
@@ -299,7 +314,7 @@ describe('Redis Configuration', () => {
       const errorHandler = jest.fn();
 
       client.on('error', errorHandler);
-      
+
       const error = new Error('ECONNREFUSED');
       client.emit('error', error);
 
@@ -311,7 +326,7 @@ describe('Redis Configuration', () => {
       const errorHandler = jest.fn();
 
       client.on('error', errorHandler);
-      
+
       const error = new Error('NOAUTH Authentication required');
       client.emit('error', error);
 
@@ -323,11 +338,78 @@ describe('Redis Configuration', () => {
       const errorHandler = jest.fn();
 
       client.on('error', errorHandler);
-      
+
       const error = new Error('Connection timeout');
       client.emit('error', error);
 
       expect(errorHandler).toHaveBeenCalledWith(error);
+    });
+  });
+
+  describe('Actual Redis Functions', () => {
+    // Note: These tests verify the actual redis.ts functions are called correctly
+    // The actual Redis connection is mocked, so we're testing the wrapper logic
+
+    it('should create and return Redis client', () => {
+      const client = getRedisClient();
+      expect(client).toBeDefined();
+      expect(client.url).toBe('redis://localhost:6379');
+    });
+
+    it('should return same client instance (singleton)', () => {
+      const client1 = getRedisClient();
+      const client2 = getRedisClient();
+      expect(client1).toBe(client2);
+    });
+
+    it('should create and return Redis subscriber', () => {
+      const subscriber = getRedisSubscriber();
+      expect(subscriber).toBeDefined();
+      expect(subscriber.url).toBe('redis://localhost:6379');
+    });
+
+    it('should return same subscriber instance (singleton)', () => {
+      const subscriber1 = getRedisSubscriber();
+      const subscriber2 = getRedisSubscriber();
+      expect(subscriber1).toBe(subscriber2);
+    });
+
+    it('should close all Redis connections', async () => {
+      const client = getRedisClient();
+      const subscriber = getRedisSubscriber();
+
+      await closeRedisConnections();
+
+      // After closing, new instances should be created
+      const newClient = getRedisClient();
+      const newSubscriber = getRedisSubscriber();
+
+      expect(newClient).toBeDefined();
+      expect(newSubscriber).toBeDefined();
+    });
+
+    it('should test Redis connection successfully', async () => {
+      const result = await testRedisConnection();
+      expect(result).toBe(true);
+    });
+
+    it('should handle Redis connection test failure', async () => {
+      const client = getRedisClient();
+      client.ping = jest.fn().mockRejectedValue(new Error('Connection failed'));
+
+      const result = await testRedisConnection();
+      expect(result).toBe(false);
+    });
+
+    it('should use custom REDIS_URL from environment', () => {
+      process.env.REDIS_URL = 'redis://custom:6380';
+
+      // Need to reset module to pick up new env var
+      jest.resetModules();
+      const { getRedisClient: getClient } = require('../../config/redis');
+
+      const client = getClient();
+      expect(client.url).toBe('redis://custom:6380');
     });
   });
 });

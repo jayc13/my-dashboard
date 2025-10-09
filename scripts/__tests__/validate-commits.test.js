@@ -102,25 +102,11 @@ describe('validate-commits npm script', () => {
     }, timeout);
 
     test('should accept branch name as argument', async () => {
-      // Try to use main branch if it exists, otherwise use current branch
-      let branchRef = 'main';
-      try {
-        execSync('git rev-parse --verify main', {
-          cwd: scriptsDir,
-          stdio: 'pipe',
-        });
-      } catch {
-        // If main doesn't exist, use the current branch
-        branchRef = execSync('git branch --show-current', {
-          cwd: scriptsDir,
-          encoding: 'utf8',
-        }).trim();
-      }
-      
-      if (branchRef) {
-        const output = runValidateCommits(branchRef);
-        expect(output).toBeDefined();
-      }
+      // Use HEAD~1 to ensure there's at least one commit to validate
+      // This simulates validating commits from a specific point
+      const branchRef = 'HEAD~1';
+      const output = runValidateCommits(branchRef);
+      expect(output).toBeDefined();
     }, timeout);
   });
 

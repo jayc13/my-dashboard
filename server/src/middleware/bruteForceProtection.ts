@@ -22,7 +22,8 @@ class BruteForceProtection {
 
   constructor() {
     // Clean up old entries periodically
-    setInterval(() => this.cleanup(), this.cleanupInterval);
+    // Use unref() to allow Node.js/Jest to exit even if this timer is active
+    setInterval(() => this.cleanup(), this.cleanupInterval).unref();
   }
 
   private cleanup(): void {
