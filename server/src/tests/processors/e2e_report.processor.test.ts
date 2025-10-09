@@ -173,37 +173,8 @@ describe('E2EReportProcessor', () => {
       jest.clearAllMocks();
     });
 
-    it('should parse message and add to queue', async () => {
+    it('should parse message and call generateReport', async () => {
       const message = JSON.stringify({ date: '2025-10-08' });
-      mockClient.rpush = jest.fn().mockResolvedValue(1);
-
-      const processor = E2EReportProcessor.getInstance();
-      await (processor as any).handleMessage(message);
-
-      expect(mockClient.rpush).toHaveBeenCalledWith('e2e:report:queue', message);
-    });
-
-    it('should handle invalid JSON', async () => {
-      const message = 'invalid json';
-
-      const processor = E2EReportProcessor.getInstance();
-      await (processor as any).handleMessage(message);
-
-      expect(mockClient.rpush).not.toHaveBeenCalled();
-    });
-  });
-
-  describe('processQueue', () => {
-    beforeEach(() => {
-      jest.clearAllMocks();
-      process.env.CYPRESS_API_KEY = 'test-api-key';
-    });
-
-    it('should process messages from queue', async () => {
-      const message = JSON.stringify({ date: '2025-10-08' });
-      mockClient.lpop = jest.fn()
-        .mockResolvedValueOnce(message)
-        .mockResolvedValueOnce(null);
 
       const mockSummary = {
         id: 1,
@@ -218,33 +189,19 @@ describe('E2EReportProcessor', () => {
       mockE2ERunReportService.getSummaryByDate = jest.fn().mockResolvedValue(mockSummary);
 
       const processor = E2EReportProcessor.getInstance();
-      await (processor as any).processQueue();
+      await (processor as any).handleMessage(message);
 
-      expect(mockClient.lpop).toHaveBeenCalledWith('e2e:report:queue');
+      expect(mockE2ERunReportService.getSummaryByDate).toHaveBeenCalledWith('2025-10-08');
     });
 
-    it('should not process if already processing', async () => {
-      const processor = E2EReportProcessor.getInstance();
-      (processor as any).isProcessing = true;
-
-      await (processor as any).processQueue();
-
-      expect(mockClient.lpop).not.toHaveBeenCalled();
-    });
-
-    it('should handle parse errors in retry logic', async () => {
+    it('should handle invalid JSON', async () => {
       const message = 'invalid json';
-      mockClient.lpop = jest.fn()
-        .mockResolvedValueOnce(message)
-        .mockResolvedValueOnce(null);
-
-      mockClient.rpush = jest.fn().mockResolvedValue(1);
 
       const processor = E2EReportProcessor.getInstance();
-      await (processor as any).processQueue();
+      await (processor as any).handleMessage(message);
 
-      // Should move to dead letter queue when message can't be parsed
-      expect(mockClient.rpush).toHaveBeenCalledWith('e2e:report:dlq', expect.any(String));
+      // Should not throw, just log error
+      expect(mockE2ERunReportService.getSummaryByDate).not.toHaveBeenCalled();
     });
   });
 
@@ -341,14 +298,16 @@ describe('E2EReportProcessor', () => {
       expect(mockE2ERunReportService.updateSummary).toHaveBeenCalled();
     });
 
-    it('should throw error when summary creation fails', async () => {
+    it('should handle error when summary creation fails', async () => {
       mockE2ERunReportService.getSummaryByDate = jest.fn().mockResolvedValue(null);
       mockE2ERunReportService.createSummary = jest.fn().mockResolvedValue(null);
 
       const processor = E2EReportProcessor.getInstance();
 
-      await expect((processor as any).generateReport({ date: '2025-10-08' }))
-        .rejects.toThrow('Failed to create summary');
+      // Should not throw, just log error
+      await (processor as any).generateReport({ date: '2025-10-08' });
+
+      expect(mockE2ERunReportService.createSummary).toHaveBeenCalled();
     });
 
     it('should process report data and create details', async () => {
@@ -404,7 +363,7 @@ describe('E2EReportProcessor', () => {
       });
     });
 
-    it('should handle errors and update summary status to failed', async () => {
+    it('should handle errors gracefully', async () => {
       const mockSummary = {
         id: 1,
         date: '2025-10-08',
@@ -415,21 +374,16 @@ describe('E2EReportProcessor', () => {
         successRate: 0,
       };
 
-      mockE2ERunReportService.getSummaryByDate = jest.fn()
-        .mockResolvedValueOnce(null)
-        .mockResolvedValueOnce(mockSummary);
+      mockE2ERunReportService.getSummaryByDate = jest.fn().mockResolvedValueOnce(null);
       mockE2ERunReportService.createSummary = jest.fn().mockResolvedValue(mockSummary);
       mockE2ERunReportService.deleteDetailsBySummaryId = jest.fn().mockRejectedValue(new Error('Database error'));
-      mockE2ERunReportService.updateSummary = jest.fn().mockResolvedValue(undefined);
 
       const processor = E2EReportProcessor.getInstance();
 
-      await expect((processor as any).generateReport({ date: '2025-10-08' }))
-        .rejects.toThrow('Database error');
+      // Should not throw, just log error
+      await (processor as any).generateReport({ date: '2025-10-08' });
 
-      expect(mockE2ERunReportService.updateSummary).toHaveBeenCalledWith(1, {
-        status: 'failed',
-      });
+      expect(mockE2ERunReportService.deleteDetailsBySummaryId).toHaveBeenCalled();
     });
 
     it('should include requestId in log messages', async () => {
@@ -447,25 +401,6 @@ describe('E2EReportProcessor', () => {
 
       const processor = E2EReportProcessor.getInstance();
       await (processor as any).generateReport({ date: '2025-10-08', requestId: 'test-123' });
-
-      expect(mockE2ERunReportService.getSummaryByDate).toHaveBeenCalledWith('2025-10-08');
-    });
-
-    it('should include retry count in log messages', async () => {
-      const mockSummary = {
-        id: 1,
-        date: '2025-10-08',
-        status: 'ready',
-        totalRuns: 10,
-        passedRuns: 8,
-        failedRuns: 2,
-        successRate: 0.8,
-      };
-
-      mockE2ERunReportService.getSummaryByDate = jest.fn().mockResolvedValue(mockSummary);
-
-      const processor = E2EReportProcessor.getInstance();
-      await (processor as any).generateReport({ date: '2025-10-08', retryCount: 2 });
 
       expect(mockE2ERunReportService.getSummaryByDate).toHaveBeenCalledWith('2025-10-08');
     });

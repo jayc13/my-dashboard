@@ -6,7 +6,7 @@
 
 import { Request, Response, NextFunction } from 'express';
 import { errorHandler } from '../../middleware/error_handler';
-import { AppError, ValidationError, NotFoundError } from '../../errors/AppError';
+import { AppError, ValidationError, NotFoundError } from '../../errors';
 
 describe('Error Handler Middleware', () => {
   let mockRequest: Partial<Request>;

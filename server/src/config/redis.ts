@@ -16,17 +16,6 @@ export function getRedisClient(): Redis {
     
     redisClient = new Redis(redisUrl, {
       maxRetriesPerRequest: 3,
-      retryStrategy: (times) => {
-        return Math.min(times * 50, 2000);
-      },
-      reconnectOnError: (err) => {
-        const targetError = 'READONLY';
-        if (err.message.includes(targetError)) {
-          // Only reconnect when the error contains "READONLY"
-          return true;
-        }
-        return false;
-      },
     });
 
     redisClient.on('connect', () => {
@@ -55,9 +44,6 @@ export function getRedisSubscriber(): Redis {
     
     redisSubscriber = new Redis(redisUrl, {
       maxRetriesPerRequest: 3,
-      retryStrategy: (times) => {
-        return Math.min(times * 50, 2000);
-      },
     });
 
     redisSubscriber.on('connect', () => {
