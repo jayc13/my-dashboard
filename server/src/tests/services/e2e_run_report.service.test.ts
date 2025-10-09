@@ -1,392 +1,691 @@
-import { E2EReportSummary, E2EReportDetail } from '@my-dashboard/types/e2e';
+/**
+ * E2E Run Report Service Tests
+ *
+ * Tests for E2ERunReportService including:
+ * - Report summary CRUD operations
+ * - Report detail CRUD operations
+ * - Data mapping and transformations
+ */
 
-// Mock database module
-const mockQuery = jest.fn();
-jest.mock('../../db/mysql', () => ({
-  testMySQLConnection: jest.fn().mockResolvedValue(true),
-}));
+import { E2ERunReportService } from '../../services/e2e_run_report.service';
+import { db } from '../../db/database';
 
-// Mock service class for testing
-class MockE2ERunReportService {
-  static async getSummaryById(id: number): Promise<E2EReportSummary | null> {
-    const result = await mockQuery('SELECT * FROM e2e_report_summaries WHERE id = ?', [id]);
-    if (!result || result.length === 0) {
-      return null;
-    }
-    const row = result[0];
-    return {
-      id: row.id,
-      date: row.date,
-      status: row.status,
-      totalRuns: row.total_runs,
-      passedRuns: row.passed_runs,
-      failedRuns: row.failed_runs,
-      successRate: row.success_rate,
-    };
-  }
-
-  static async getSummaryByDate(date: string): Promise<E2EReportSummary | null> {
-    const result = await mockQuery('SELECT * FROM e2e_report_summaries WHERE date = ?', [date]);
-    if (!result || result.length === 0) {
-      return null;
-    }
-    const row = result[0];
-    return {
-      id: row.id,
-      date: row.date,
-      status: row.status,
-      totalRuns: row.total_runs,
-      passedRuns: row.passed_runs,
-      failedRuns: row.failed_runs,
-      successRate: row.success_rate,
-    };
-  }
-
-  static async createSummary(summary: Omit<E2EReportSummary, 'id'>): Promise<E2EReportSummary> {
-    const result = await mockQuery(
-      'INSERT INTO e2e_report_summaries (date, status, total_runs, passed_runs, failed_runs, success_rate) VALUES (?, ?, ?, ?, ?, ?)',
-      [summary.date, summary.status, summary.totalRuns, summary.passedRuns, summary.failedRuns, summary.successRate],
-    );
-    return { id: result.insertId, ...summary };
-  }
-
-  static async updateSummary(id: number, updates: Partial<Omit<E2EReportSummary, 'id'>>): Promise<boolean> {
-    const result = await mockQuery('UPDATE e2e_report_summaries SET status = ?, total_runs = ?, passed_runs = ?, failed_runs = ?, success_rate = ? WHERE id = ?',
-      [updates.status, updates.totalRuns, updates.passedRuns, updates.failedRuns, updates.successRate, id],
-    );
-    return result.affectedRows > 0;
-  }
-
-  static async deleteSummary(id: number): Promise<boolean> {
-    const result = await mockQuery('DELETE FROM e2e_report_summaries WHERE id = ?', [id]);
-    return result.affectedRows > 0;
-  }
-
-  static async getDetailsBySummaryId(summaryId: number): Promise<E2EReportDetail[]> {
-    const result = await mockQuery('SELECT * FROM e2e_report_details WHERE report_summary_id = ?', [summaryId]);
-    return result.map((row: any) => ({
-      id: row.id,
-      reportSummaryId: row.report_summary_id,
-      appId: row.app_id,
-      totalRuns: row.total_runs,
-      passedRuns: row.passed_runs,
-      failedRuns: row.failed_runs,
-      successRate: row.success_rate,
-      lastRunStatus: row.last_run_status,
-      lastFailedRunAt: row.last_failed_run_at,
-      lastRunAt: row.last_run_at,
-    }));
-  }
-
-  static async createDetail(detail: Omit<E2EReportDetail, 'id'>): Promise<E2EReportDetail> {
-    const result = await mockQuery(
-      'INSERT INTO e2e_report_details (report_summary_id, app_id, total_runs, passed_runs, failed_runs, success_rate, last_run_status, last_failed_run_at, last_run_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
-      [detail.reportSummaryId, detail.appId, detail.totalRuns, detail.passedRuns, detail.failedRuns, detail.successRate, detail.lastRunStatus, detail.lastFailedRunAt, detail.lastRunAt],
-    );
-    return { id: result.insertId, ...detail };
-  }
-
-  static async deleteDetailsBySummaryId(summaryId: number): Promise<boolean> {
-    const result = await mockQuery('DELETE FROM e2e_report_details WHERE report_summary_id = ?', [summaryId]);
-    return result.affectedRows > 0;
-  }
-}
+// Mock dependencies
+jest.mock('../../db/database');
 
 describe('E2ERunReportService', () => {
+  const mockDb = db as jest.Mocked<typeof db>;
+
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
-  describe('getSummaryById', () => {
-    it('should return a summary by id', async () => {
-      const mockSummary = {
-        id: 1,
-        date: '2025-10-01',
-        status: 'ready',
-        total_runs: 50,
-        passed_runs: 45,
-        failed_runs: 5,
-        success_rate: 0.9,
-      };
+  describe('Report Summary Methods', () => {
+    describe('getSummaryById', () => {
+      it('should fetch report summary by ID', async () => {
+        const mockRow = {
+          id: 1,
+          date: '2025-10-08',
+          status: 'ready',
+          total_runs: 100,
+          passed_runs: 90,
+          failed_runs: 10,
+          success_rate: '90.00',
+        };
 
-      mockQuery.mockResolvedValue([mockSummary]);
+        mockDb.get.mockResolvedValue(mockRow);
 
-      const result = await MockE2ERunReportService.getSummaryById(1);
+        const result = await E2ERunReportService.getSummaryById(1);
 
-      expect(mockQuery).toHaveBeenCalledWith(
-        'SELECT * FROM e2e_report_summaries WHERE id = ?',
-        [1],
-      );
-      expect(result).toEqual({
-        id: 1,
-        date: '2025-10-01',
-        status: 'ready',
-        totalRuns: 50,
-        passedRuns: 45,
-        failedRuns: 5,
-        successRate: 0.9,
+        expect(result).toEqual({
+          id: 1,
+          date: '2025-10-08',
+          status: 'ready',
+          totalRuns: 100,
+          passedRuns: 90,
+          failedRuns: 10,
+          successRate: 90.00,
+        });
+        expect(mockDb.get).toHaveBeenCalledWith(
+          'SELECT * FROM e2e_report_summaries WHERE id = ?',
+          [1],
+        );
+      });
+
+      it('should return undefined when summary not found', async () => {
+        mockDb.get.mockResolvedValue(undefined);
+
+        const result = await E2ERunReportService.getSummaryById(999);
+
+        expect(result).toBeUndefined();
+      });
+
+      it('should throw error on database failure', async () => {
+        mockDb.get.mockRejectedValue(new Error('Database error'));
+
+        await expect(E2ERunReportService.getSummaryById(1)).rejects.toThrow('Database error');
       });
     });
 
-    it('should return null if summary not found', async () => {
-      mockQuery.mockResolvedValue([]);
+    describe('getSummaryByDate', () => {
+      it('should fetch report summary by date', async () => {
+        const mockRow = {
+          id: 1,
+          date: '2025-10-08',
+          status: 'ready',
+          total_runs: 100,
+          passed_runs: 90,
+          failed_runs: 10,
+          success_rate: '90.00',
+        };
 
-      const result = await MockE2ERunReportService.getSummaryById(999);
+        mockDb.get.mockResolvedValue(mockRow);
 
-      expect(result).toBeNull();
-    });
+        const result = await E2ERunReportService.getSummaryByDate('2025-10-08');
 
-    it('should handle database errors', async () => {
-      mockQuery.mockRejectedValue(new Error('Database error'));
+        expect(result).toEqual({
+          id: 1,
+          date: '2025-10-08',
+          status: 'ready',
+          totalRuns: 100,
+          passedRuns: 90,
+          failedRuns: 10,
+          successRate: 90.00,
+        });
+        expect(mockDb.get).toHaveBeenCalledWith(
+          'SELECT * FROM e2e_report_summaries WHERE date = ?',
+          ['2025-10-08'],
+        );
+      });
 
-      await expect(MockE2ERunReportService.getSummaryById(1)).rejects.toThrow('Database error');
-    });
-  });
+      it('should return undefined when summary not found for date', async () => {
+        mockDb.get.mockResolvedValue(undefined);
 
-  describe('getSummaryByDate', () => {
-    it('should return a summary by date', async () => {
-      const mockSummary = {
-        id: 1,
-        date: '2025-10-01',
-        status: 'ready',
-        total_runs: 50,
-        passed_runs: 45,
-        failed_runs: 5,
-        success_rate: 0.9,
-      };
+        const result = await E2ERunReportService.getSummaryByDate('2025-01-01');
 
-      mockQuery.mockResolvedValue([mockSummary]);
+        expect(result).toBeUndefined();
+      });
 
-      const result = await MockE2ERunReportService.getSummaryByDate('2025-10-01');
+      it('should throw error on database failure', async () => {
+        mockDb.get.mockRejectedValue(new Error('Database error'));
 
-      expect(mockQuery).toHaveBeenCalledWith(
-        'SELECT * FROM e2e_report_summaries WHERE date = ?',
-        ['2025-10-01'],
-      );
-      expect(result).toEqual({
-        id: 1,
-        date: '2025-10-01',
-        status: 'ready',
-        totalRuns: 50,
-        passedRuns: 45,
-        failedRuns: 5,
-        successRate: 0.9,
+        await expect(E2ERunReportService.getSummaryByDate('2025-10-08')).rejects.toThrow('Database error');
       });
     });
 
-    it('should return null if summary not found', async () => {
-      mockQuery.mockResolvedValue([]);
+    describe('createSummary', () => {
+      it('should create a new report summary', async () => {
+        const newSummary = {
+          date: '2025-10-08',
+          status: 'ready' as const,
+          totalRuns: 100,
+          passedRuns: 90,
+          failedRuns: 10,
+          successRate: 90.00,
+        };
 
-      const result = await MockE2ERunReportService.getSummaryByDate('2025-10-01');
+        const mockCreatedRow = {
+          id: 1,
+          date: '2025-10-08',
+          status: 'ready',
+          total_runs: 100,
+          passed_runs: 90,
+          failed_runs: 10,
+          success_rate: '90.00',
+        };
 
-      expect(result).toBeNull();
-    });
-  });
+        mockDb.run.mockResolvedValue({ insertId: 1, affectedRows: 1 });
+        mockDb.get.mockResolvedValue(mockCreatedRow);
 
-  describe('createSummary', () => {
-    it('should create a new summary', async () => {
-      const newSummary = {
-        date: '2025-10-01',
-        status: 'pending' as const,
-        totalRuns: 0,
-        passedRuns: 0,
-        failedRuns: 0,
-        successRate: 0,
-      };
+        const result = await E2ERunReportService.createSummary(newSummary);
 
-      mockQuery.mockResolvedValue({ insertId: 1 });
+        expect(result).toEqual({
+          id: 1,
+          date: '2025-10-08',
+          status: 'ready',
+          totalRuns: 100,
+          passedRuns: 90,
+          failedRuns: 10,
+          successRate: 90.00,
+        });
+        expect(mockDb.run).toHaveBeenCalledWith(
+          expect.stringContaining('INSERT INTO e2e_report_summaries'),
+          ['2025-10-08', 'ready', 100, 90, 10, 90.00],
+        );
+      });
 
-      const result = await MockE2ERunReportService.createSummary(newSummary);
+      it('should throw error on database failure', async () => {
+        const newSummary = {
+          date: '2025-10-08',
+          status: 'ready' as const,
+          totalRuns: 100,
+          passedRuns: 90,
+          failedRuns: 10,
+          successRate: 90.00,
+        };
 
-      expect(mockQuery).toHaveBeenCalledWith(
-        expect.stringContaining('INSERT INTO e2e_report_summaries'),
-        ['2025-10-01', 'pending', 0, 0, 0, 0],
-      );
-      expect(result).toEqual({
-        id: 1,
-        ...newSummary,
+        mockDb.run.mockRejectedValue(new Error('Database error'));
+
+        await expect(E2ERunReportService.createSummary(newSummary)).rejects.toThrow('Database error');
       });
     });
 
-    it('should handle duplicate date error', async () => {
-      const newSummary = {
-        date: '2025-10-01',
-        status: 'pending' as const,
-        totalRuns: 0,
-        passedRuns: 0,
-        failedRuns: 0,
-        successRate: 0,
-      };
+    describe('updateSummary', () => {
+      it('should update report summary with partial fields', async () => {
+        const updates = {
+          status: 'failed' as const,
+          totalRuns: 120,
+        };
 
-      mockQuery.mockRejectedValue({ code: 'ER_DUP_ENTRY' });
+        const mockUpdatedRow = {
+          id: 1,
+          date: '2025-10-08',
+          status: 'failed',
+          total_runs: 120,
+          passed_runs: 90,
+          failed_runs: 30,
+          success_rate: '75.00',
+        };
 
-      await expect(MockE2ERunReportService.createSummary(newSummary)).rejects.toMatchObject({
-        code: 'ER_DUP_ENTRY',
+        mockDb.run.mockResolvedValue({ affectedRows: 1, insertId: undefined });
+        mockDb.get.mockResolvedValue(mockUpdatedRow);
+
+        const result = await E2ERunReportService.updateSummary(1, updates);
+
+        expect(result).toBeDefined();
+        expect(mockDb.run).toHaveBeenCalledWith(
+          'UPDATE e2e_report_summaries SET status = ?, total_runs = ? WHERE id = ?',
+          ['failed', 120, 1],
+        );
+      });
+
+      it('should return existing summary when no updates provided', async () => {
+        const mockRow = {
+          id: 1,
+          date: '2025-10-08',
+          status: 'ready',
+          total_runs: 100,
+          passed_runs: 90,
+          failed_runs: 10,
+          success_rate: '90.00',
+        };
+
+        mockDb.get.mockResolvedValue(mockRow);
+
+        const result = await E2ERunReportService.updateSummary(1, {});
+
+        expect(result).toBeDefined();
+        expect(mockDb.run).not.toHaveBeenCalled();
+        expect(mockDb.get).toHaveBeenCalledWith(
+          'SELECT * FROM e2e_report_summaries WHERE id = ?',
+          [1],
+        );
+      });
+
+      it('should throw error on database failure', async () => {
+        mockDb.run.mockRejectedValue(new Error('Database error'));
+
+        await expect(
+          E2ERunReportService.updateSummary(1, { status: 'failed' }),
+        ).rejects.toThrow('Database error');
       });
     });
+
+    describe('deleteSummary', () => {
+      it('should delete report summary', async () => {
+        mockDb.run.mockResolvedValue({ affectedRows: 1, insertId: undefined });
+
+        await E2ERunReportService.deleteSummary(1);
+
+        expect(mockDb.run).toHaveBeenCalledWith(
+          'DELETE FROM e2e_report_summaries WHERE id = ?',
+          [1],
+        );
+      });
+
+      it('should throw error on database failure', async () => {
+        mockDb.run.mockRejectedValue(new Error('Database error'));
+
+        await expect(E2ERunReportService.deleteSummary(1)).rejects.toThrow('Database error');
+      });
+    });
+
   });
 
-  describe('updateSummary', () => {
-    it('should update a summary', async () => {
-      const updates = {
-        status: 'ready' as const,
-        totalRuns: 50,
-        passedRuns: 45,
-        failedRuns: 5,
-        successRate: 0.9,
-      };
 
-      mockQuery.mockResolvedValue({ affectedRows: 1 });
 
-      const result = await MockE2ERunReportService.updateSummary(1, updates);
 
-      expect(mockQuery).toHaveBeenCalledWith(
-        expect.stringContaining('UPDATE e2e_report_summaries SET'),
-        expect.arrayContaining(['ready', 50, 45, 5, 0.9, 1]),
-      );
-      expect(result).toBe(true);
+  describe('Report Detail Methods', () => {
+    describe('getDetailsBySummaryId', () => {
+      it('should fetch all details for a summary', async () => {
+        const mockRows = [
+          {
+            id: 1,
+            report_summary_id: 1,
+            app_id: 101,
+            total_runs: 10,
+            passed_runs: 9,
+            failed_runs: 1,
+            success_rate: '90.00',
+            last_run_status: 'passed',
+            last_failed_run_at: null,
+            last_run_at: '2025-10-08 10:00:00',
+          },
+          {
+            id: 2,
+            report_summary_id: 1,
+            app_id: 102,
+            total_runs: 5,
+            passed_runs: 4,
+            failed_runs: 1,
+            success_rate: '80.00',
+            last_run_status: 'failed',
+            last_failed_run_at: '2025-10-08 09:00:00',
+            last_run_at: '2025-10-08 09:00:00',
+          },
+        ];
+
+        mockDb.all.mockResolvedValue(mockRows);
+
+        const result = await E2ERunReportService.getDetailsBySummaryId(1);
+
+        expect(result).toHaveLength(2);
+        expect(result[0]).toEqual({
+          id: 1,
+          reportSummaryId: 1,
+          appId: 101,
+          totalRuns: 10,
+          passedRuns: 9,
+          failedRuns: 1,
+          successRate: 90.00,
+          lastRunStatus: 'passed',
+          lastFailedRunAt: null,
+          lastRunAt: new Date('2025-10-08 10:00:00').toISOString(),
+        });
+        expect(mockDb.all).toHaveBeenCalledWith(
+          'SELECT * FROM e2e_report_details WHERE report_summary_id = ? ORDER BY app_id ASC',
+          [1],
+        );
+      });
+
+      it('should return empty array when no details found', async () => {
+        mockDb.all.mockResolvedValue([]);
+
+        const result = await E2ERunReportService.getDetailsBySummaryId(999);
+
+        expect(result).toEqual([]);
+      });
+
+      it('should throw error on database failure', async () => {
+        mockDb.all.mockRejectedValue(new Error('Database error'));
+
+        await expect(E2ERunReportService.getDetailsBySummaryId(1)).rejects.toThrow('Database error');
+      });
     });
 
-    it('should return false if summary not found', async () => {
-      mockQuery.mockResolvedValue({ affectedRows: 0 });
-
-      const result = await MockE2ERunReportService.updateSummary(999, { status: 'ready' });
-
-      expect(result).toBe(false);
-    });
-  });
-
-  describe('deleteSummary', () => {
-    it('should delete a summary', async () => {
-      mockQuery.mockResolvedValue({ affectedRows: 1 });
-
-      const result = await MockE2ERunReportService.deleteSummary(1);
-
-      expect(mockQuery).toHaveBeenCalledWith(
-        'DELETE FROM e2e_report_summaries WHERE id = ?',
-        [1],
-      );
-      expect(result).toBe(true);
-    });
-
-    it('should return false if summary not found', async () => {
-      mockQuery.mockResolvedValue({ affectedRows: 0 });
-
-      const result = await MockE2ERunReportService.deleteSummary(999);
-
-      expect(result).toBe(false);
-    });
-  });
-
-  describe('getDetailsBySummaryId', () => {
-    it('should return details for a summary', async () => {
-      const mockDetails = [
-        {
+    describe('getDetailById', () => {
+      it('should fetch report detail by ID', async () => {
+        const mockRow = {
           id: 1,
           report_summary_id: 1,
-          app_id: 1,
+          app_id: 101,
           total_runs: 10,
           passed_runs: 9,
           failed_runs: 1,
-          success_rate: 0.9,
+          success_rate: '90.00',
           last_run_status: 'passed',
           last_failed_run_at: null,
-          last_run_at: '2025-10-01T10:00:00.000Z',
-        },
-        {
-          id: 2,
+          last_run_at: '2025-10-08 10:00:00',
+        };
+
+        mockDb.get.mockResolvedValue(mockRow);
+
+        const result = await E2ERunReportService.getDetailById(1);
+
+        expect(result).toEqual({
+          id: 1,
+          reportSummaryId: 1,
+          appId: 101,
+          totalRuns: 10,
+          passedRuns: 9,
+          failedRuns: 1,
+          successRate: 90.00,
+          lastRunStatus: 'passed',
+          lastFailedRunAt: null,
+          lastRunAt: new Date('2025-10-08 10:00:00').toISOString(),
+        });
+      });
+
+      it('should return undefined when detail not found', async () => {
+        mockDb.get.mockResolvedValue(undefined);
+
+        const result = await E2ERunReportService.getDetailById(999);
+
+        expect(result).toBeUndefined();
+      });
+
+      it('should throw error on database failure', async () => {
+        mockDb.get.mockRejectedValue(new Error('Database error'));
+
+        await expect(E2ERunReportService.getDetailById(1)).rejects.toThrow('Database error');
+      });
+    });
+
+    describe('getDetailBySummaryAndApp', () => {
+      it('should fetch detail by summary ID and app ID', async () => {
+        const mockRow = {
+          id: 1,
           report_summary_id: 1,
-          app_id: 2,
-          total_runs: 20,
-          passed_runs: 18,
-          failed_runs: 2,
-          success_rate: 0.9,
+          app_id: 101,
+          total_runs: 10,
+          passed_runs: 9,
+          failed_runs: 1,
+          success_rate: '90.00',
           last_run_status: 'passed',
-          last_failed_run_at: '2025-09-30T10:00:00.000Z',
-          last_run_at: '2025-10-01T10:00:00.000Z',
-        },
-      ];
+          last_failed_run_at: null,
+          last_run_at: '2025-10-08 10:00:00',
+        };
 
-      mockQuery.mockResolvedValue(mockDetails);
+        mockDb.get.mockResolvedValue(mockRow);
 
-      const result = await MockE2ERunReportService.getDetailsBySummaryId(1);
+        const result = await E2ERunReportService.getDetailBySummaryAndApp(1, 101);
 
-      expect(mockQuery).toHaveBeenCalledWith(
-        'SELECT * FROM e2e_report_details WHERE report_summary_id = ?',
-        [1],
-      );
-      expect(result).toHaveLength(2);
-      expect(result[0]).toEqual({
-        id: 1,
-        reportSummaryId: 1,
-        appId: 1,
-        totalRuns: 10,
-        passedRuns: 9,
-        failedRuns: 1,
-        successRate: 0.9,
-        lastRunStatus: 'passed',
-        lastFailedRunAt: null,
-        lastRunAt: '2025-10-01T10:00:00.000Z',
+        expect(result).toEqual({
+          id: 1,
+          reportSummaryId: 1,
+          appId: 101,
+          totalRuns: 10,
+          passedRuns: 9,
+          failedRuns: 1,
+          successRate: 90.00,
+          lastRunStatus: 'passed',
+          lastFailedRunAt: null,
+          lastRunAt: new Date('2025-10-08 10:00:00').toISOString(),
+        });
+        expect(mockDb.get).toHaveBeenCalledWith(
+          'SELECT * FROM e2e_report_details WHERE report_summary_id = ? AND app_id = ?',
+          [1, 101],
+        );
+      });
+
+      it('should return undefined when detail not found', async () => {
+        mockDb.get.mockResolvedValue(undefined);
+
+        const result = await E2ERunReportService.getDetailBySummaryAndApp(1, 999);
+
+        expect(result).toBeUndefined();
       });
     });
 
-    it('should return empty array if no details found', async () => {
-      mockQuery.mockResolvedValue([]);
 
-      const result = await MockE2ERunReportService.getDetailsBySummaryId(999);
+    describe('createDetail', () => {
+      it('should create a new report detail', async () => {
+        const newDetail = {
+          reportSummaryId: 1,
+          appId: 101,
+          totalRuns: 10,
+          passedRuns: 9,
+          failedRuns: 1,
+          successRate: 90.00,
+          lastRunStatus: 'passed' as const,
+          lastFailedRunAt: null,
+          lastRunAt: '2025-10-08T10:00:00Z',
+        };
 
-      expect(result).toEqual([]);
-    });
-  });
+        const mockCreatedRow = {
+          id: 1,
+          report_summary_id: 1,
+          app_id: 101,
+          total_runs: 10,
+          passed_runs: 9,
+          failed_runs: 1,
+          success_rate: '90.00',
+          last_run_status: 'passed',
+          last_failed_run_at: null,
+          last_run_at: '2025-10-08 10:00:00',
+        };
 
-  describe('createDetail', () => {
-    it('should create a new detail', async () => {
-      const newDetail = {
-        reportSummaryId: 1,
-        appId: 1,
-        totalRuns: 10,
-        passedRuns: 9,
-        failedRuns: 1,
-        successRate: 0.9,
-        lastRunStatus: 'passed',
-        lastFailedRunAt: null,
-        lastRunAt: '2025-10-01T10:00:00.000Z',
-      } as E2EReportDetail;
+        mockDb.run.mockResolvedValue({ insertId: 1, affectedRows: 1 });
+        mockDb.get.mockResolvedValue(mockCreatedRow);
 
-      mockQuery.mockResolvedValue({ insertId: 1 });
+        const result = await E2ERunReportService.createDetail(newDetail);
 
-      const result = await MockE2ERunReportService.createDetail(newDetail);
+        expect(result).toBeDefined();
+        expect(mockDb.run).toHaveBeenCalledWith(
+          expect.stringContaining('INSERT INTO e2e_report_details'),
+          expect.arrayContaining([1, 101, 10, 9, 1, 90.00, 'passed']),
+        );
+      });
 
-      expect(mockQuery).toHaveBeenCalledWith(
-        expect.stringContaining('INSERT INTO e2e_report_details'),
-        [1, 1, 10, 9, 1, 0.9, 'passed', null, '2025-10-01T10:00:00.000Z'],
-      );
-      expect(result).toEqual({
-        ...newDetail,
-        id: 1,
+      it('should throw error on database failure', async () => {
+        const newDetail = {
+          reportSummaryId: 1,
+          appId: 101,
+          totalRuns: 10,
+          passedRuns: 9,
+          failedRuns: 1,
+          successRate: 90.00,
+          lastRunStatus: 'passed' as const,
+          lastFailedRunAt: null,
+          lastRunAt: '2025-10-08T10:00:00Z',
+        };
+
+        mockDb.run.mockRejectedValue(new Error('Database error'));
+
+        await expect(E2ERunReportService.createDetail(newDetail)).rejects.toThrow('Database error');
       });
     });
-  });
 
-  describe('deleteDetailsBySummaryId', () => {
-    it('should delete all details for a summary', async () => {
-      mockQuery.mockResolvedValue({ affectedRows: 3 });
+    describe('updateDetail', () => {
+      it('should update report detail with partial fields', async () => {
+        const updates = {
+          totalRuns: 15,
+          passedRuns: 12,
+          failedRuns: 3,
+          successRate: 80.00,
+        };
 
-      const result = await MockE2ERunReportService.deleteDetailsBySummaryId(1);
+        const mockUpdatedRow = {
+          id: 1,
+          report_summary_id: 1,
+          app_id: 101,
+          total_runs: 15,
+          passed_runs: 12,
+          failed_runs: 3,
+          success_rate: '80.00',
+          last_run_status: 'passed',
+          last_failed_run_at: null,
+          last_run_at: '2025-10-08 10:00:00',
+        };
 
-      expect(mockQuery).toHaveBeenCalledWith(
-        'DELETE FROM e2e_report_details WHERE report_summary_id = ?',
-        [1],
-      );
-      expect(result).toBe(true);
+        mockDb.run.mockResolvedValue({ affectedRows: 1, insertId: undefined });
+        mockDb.get.mockResolvedValue(mockUpdatedRow);
+
+        const result = await E2ERunReportService.updateDetail(1, updates);
+
+        expect(result).toBeDefined();
+        expect(mockDb.run).toHaveBeenCalledWith(
+          expect.stringContaining('UPDATE e2e_report_details SET'),
+          expect.arrayContaining([15, 12, 3, 80.00, 1]),
+        );
+      });
+
+      it('should return existing detail when no updates provided', async () => {
+        const mockRow = {
+          id: 1,
+          report_summary_id: 1,
+          app_id: 101,
+          total_runs: 10,
+          passed_runs: 9,
+          failed_runs: 1,
+          success_rate: '90.00',
+          last_run_status: 'passed',
+          last_failed_run_at: null,
+          last_run_at: '2025-10-08 10:00:00',
+        };
+
+        mockDb.get.mockResolvedValue(mockRow);
+
+        const result = await E2ERunReportService.updateDetail(1, {});
+
+        expect(result).toBeDefined();
+        expect(mockDb.run).not.toHaveBeenCalled();
+      });
+
+      it('should throw error on database failure', async () => {
+        mockDb.run.mockRejectedValue(new Error('Database error'));
+
+        await expect(
+          E2ERunReportService.updateDetail(1, { totalRuns: 20 }),
+        ).rejects.toThrow('Database error');
+      });
     });
 
-    it('should return false if no details found', async () => {
-      mockQuery.mockResolvedValue({ affectedRows: 0 });
+    describe('deleteDetail', () => {
+      it('should delete report detail', async () => {
+        mockDb.run.mockResolvedValue({ affectedRows: 1, insertId: undefined });
 
-      const result = await MockE2ERunReportService.deleteDetailsBySummaryId(999);
+        await E2ERunReportService.deleteDetail(1);
 
-      expect(result).toBe(false);
+        expect(mockDb.run).toHaveBeenCalledWith(
+          'DELETE FROM e2e_report_details WHERE id = ?',
+          [1],
+        );
+      });
+
+      it('should throw error on database failure', async () => {
+        mockDb.run.mockRejectedValue(new Error('Database error'));
+
+        await expect(E2ERunReportService.deleteDetail(1)).rejects.toThrow('Database error');
+      });
+    });
+
+    describe('deleteDetailsBySummaryId', () => {
+      it('should delete all details for a summary', async () => {
+        mockDb.run.mockResolvedValue({ affectedRows: 3, insertId: undefined });
+
+        await E2ERunReportService.deleteDetailsBySummaryId(1);
+
+        expect(mockDb.run).toHaveBeenCalledWith(
+          'DELETE FROM e2e_report_details WHERE report_summary_id = ?',
+          [1],
+        );
+      });
+
+      it('should throw error on database failure', async () => {
+        mockDb.run.mockRejectedValue(new Error('Database error'));
+
+        await expect(E2ERunReportService.deleteDetailsBySummaryId(1)).rejects.toThrow('Database error');
+      });
+    });
+
+    describe('getSummaryWithDetails', () => {
+      it('should fetch summary with all its details', async () => {
+        const mockSummaryRow = {
+          id: 1,
+          date: '2025-10-08',
+          status: 'ready',
+          total_runs: 100,
+          passed_runs: 90,
+          failed_runs: 10,
+          success_rate: '90.00',
+        };
+
+        const mockDetailRows = [
+          {
+            id: 1,
+            report_summary_id: 1,
+            app_id: 101,
+            total_runs: 10,
+            passed_runs: 9,
+            failed_runs: 1,
+            success_rate: '90.00',
+            last_run_status: 'passed',
+            last_failed_run_at: null,
+            last_run_at: '2025-10-08 10:00:00',
+          },
+        ];
+
+        mockDb.get.mockResolvedValue(mockSummaryRow);
+        mockDb.all.mockResolvedValue(mockDetailRows);
+
+        const result = await E2ERunReportService.getSummaryWithDetails(1);
+
+        expect(result.summary).toBeDefined();
+        expect(result.details).toHaveLength(1);
+        expect(result.summary?.id).toBe(1);
+        expect(result.details[0].appId).toBe(101);
+      });
+
+      it('should return empty details when summary not found', async () => {
+        mockDb.get.mockResolvedValue(undefined);
+
+        const result = await E2ERunReportService.getSummaryWithDetails(999);
+
+        expect(result.summary).toBeUndefined();
+        expect(result.details).toEqual([]);
+      });
+
+      it('should throw error on database failure', async () => {
+        mockDb.get.mockRejectedValue(new Error('Database error'));
+
+        await expect(E2ERunReportService.getSummaryWithDetails(1)).rejects.toThrow('Database error');
+      });
+    });
+
+    describe('getSummaryByDateWithDetails', () => {
+      it('should fetch summary by date with all its details', async () => {
+        const mockSummaryRow = {
+          id: 1,
+          date: '2025-10-08',
+          status: 'ready',
+          total_runs: 100,
+          passed_runs: 90,
+          failed_runs: 10,
+          success_rate: '90.00',
+        };
+
+        const mockDetailRows = [
+          {
+            id: 1,
+            report_summary_id: 1,
+            app_id: 101,
+            total_runs: 10,
+            passed_runs: 9,
+            failed_runs: 1,
+            success_rate: '90.00',
+            last_run_status: 'passed',
+            last_failed_run_at: null,
+            last_run_at: '2025-10-08 10:00:00',
+          },
+        ];
+
+        mockDb.get.mockResolvedValue(mockSummaryRow);
+        mockDb.all.mockResolvedValue(mockDetailRows);
+
+        const result = await E2ERunReportService.getSummaryByDateWithDetails('2025-10-08');
+
+        expect(result.summary).toBeDefined();
+        expect(result.details).toHaveLength(1);
+        expect(result.summary?.date).toBe('2025-10-08');
+      });
+
+      it('should return empty details when summary not found for date', async () => {
+        mockDb.get.mockResolvedValue(undefined);
+
+        const result = await E2ERunReportService.getSummaryByDateWithDetails('2025-01-01');
+
+        expect(result.summary).toBeUndefined();
+        expect(result.details).toEqual([]);
+      });
+
+      it('should throw error on database failure', async () => {
+        mockDb.get.mockRejectedValue(new Error('Database error'));
+
+        await expect(
+          E2ERunReportService.getSummaryByDateWithDetails('2025-10-08'),
+        ).rejects.toThrow('Database error');
+      });
     });
   });
 });
