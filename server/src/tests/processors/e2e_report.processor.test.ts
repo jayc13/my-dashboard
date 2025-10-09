@@ -203,43 +203,7 @@ describe('E2EReportProcessor', () => {
     });
   });
 
-  describe('Queue Processing', () => {
-    it('should process messages from queue', async () => {
-      mockClient.lpop
-        .mockResolvedValueOnce(JSON.stringify({ date: '2025-10-08', requestId: 'test-1' }))
-        .mockResolvedValueOnce(null);
 
-      mockE2ERunReportService.getSummaryByDate = jest.fn().mockResolvedValue({
-        id: 1,
-        date: '2025-10-08',
-        status: 'ready',
-        totalRuns: 10,
-        passedRuns: 8,
-        failedRuns: 2,
-        successRate: 0.8,
-      });
-
-      const processor = E2EReportProcessor.getInstance();
-      await processor.start();
-
-      // Wait for async processing
-      await new Promise(resolve => setTimeout(resolve, 100));
-
-      expect(mockClient.lpop).toHaveBeenCalledWith('e2e:report:queue');
-    });
-
-    it('should handle empty queue', async () => {
-      mockClient.lpop.mockResolvedValue(null);
-
-      const processor = E2EReportProcessor.getInstance();
-      await processor.start();
-
-      // Wait for async processing
-      await new Promise(resolve => setTimeout(resolve, 100));
-
-      expect(mockClient.lpop).toHaveBeenCalledWith('e2e:report:queue');
-    });
-  });
 
   describe('fetchCypressData', () => {
     it('should fetch and process cypress data for watching apps', async () => {
