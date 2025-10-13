@@ -120,7 +120,7 @@ jobs:
   # Job 13: E2E testing
   e2e-testing:
     name: E2E Testing
-    container: mcr.microsoft.com/playwright:v1.55.1-noble
+    container: mcr.microsoft.com/playwright:v1.56.0-noble
     runs-on: ubuntu-latest
     needs: [ basic-validation, validate-packages-types, validate-packages-sdk, validate-client, validate-server, integration-testing ]
     if: (!cancelled()) && always() && (needs.basic-validation.result == 'success' || needs.basic-validation.outputs.tests-e2e-changed ) && (needs.basic-validation.outputs.client-changed == 'true' || needs.basic-validation.outputs.server-changed == 'true' || needs.basic-validation.outputs.github-changed == 'true') && (needs.integration-testing.result == 'success' || needs.integration-testing.result == 'skipped') && (needs.validate-client.result == 'success' || needs.validate-client.result == 'skipped') && (needs.validate-server.result == 'success' || needs.validate-server.result == 'skipped')
