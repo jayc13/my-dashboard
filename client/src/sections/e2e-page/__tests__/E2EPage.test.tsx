@@ -187,7 +187,9 @@ describe('E2EPage', () => {
   });
 
   it('re-enables button even if refetch fails', async () => {
-    const failingRefetch = vi.fn(() => Promise.reject(new Error('Refetch failed')));
+    const failingRefetch = vi.fn(async () => {
+      throw new Error('Refetch failed');
+    });
 
     render(
       <E2EPage

@@ -225,7 +225,9 @@ describe('PullRequestsPage', () => {
   });
 
   it('re-enables button even if refetch fails', async () => {
-    const failingRefetch = vi.fn(() => Promise.reject(new Error('Refetch failed')));
+    const failingRefetch = vi.fn(async () => {
+      throw new Error('Refetch failed');
+    });
 
     const propsWithFailingRefetch = {
       ...defaultProps,
