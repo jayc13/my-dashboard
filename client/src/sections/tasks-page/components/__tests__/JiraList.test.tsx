@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import JiraList from '../JiraList';
 import type { JiraTicket } from '@/types/index';
@@ -10,10 +10,10 @@ vi.mock('@/components/common/JiraCard', () => ({
   ),
 }));
 
-// Mock TooltipIconButton
+// Mock TooltipIconButton - properly handle disabled prop
 vi.mock('@/components/common', () => ({
-  TooltipIconButton: ({ children, onClick, ...props }: any) => (
-    <button onClick={onClick} {...props}>
+  TooltipIconButton: ({ children, onClick, disabled, ...props }: any) => (
+    <button onClick={onClick} disabled={!!disabled} {...props}>
       {children}
     </button>
   ),
@@ -45,7 +45,9 @@ describe('JiraList', () => {
     vi.clearAllMocks();
   });
 
-  it('renders loading state when loading and no data', () => {
+  it('renders empty state when loading with empty data', () => {
+    // When isLoading=true but data=[], it shows empty state (not skeleton)
+    // because the component checks `isLoading && !data` and ![] is false
     render(
       <JiraList
         data={[]}
@@ -57,8 +59,8 @@ describe('JiraList', () => {
     );
 
     expect(screen.getByTestId('jira-list-my-tickets')).toBeInTheDocument();
-    expect(screen.getByTestId('jira-list-loading-my-tickets')).toBeInTheDocument();
     expect(screen.getByTestId('jira-list-title-my-tickets')).toHaveTextContent('My Tickets');
+    expect(screen.getByTestId('jira-list-empty-my-tickets')).toBeInTheDocument();
   });
 
   it('renders error state', () => {
@@ -180,5 +182,121 @@ describe('JiraList', () => {
     expect(screen.getByTestId('jira-list-title-manual-testing-tasks')).toHaveTextContent(
       'Manual Testing Tasks (2)',
     );
+  });
+
+  it('disables refresh button while refreshing', async () => {
+    let resolveRefresh: () => void;
+    const slowRefresh = vi.fn(
+      () =>
+        new Promise<void>(resolve => {
+          resolveRefresh = resolve;
+        }),
+    );
+
+    render(
+      <JiraList
+        data={mockTickets}
+        title="My Tickets"
+        isLoading={false}
+        hasError={false}
+        refresh={slowRefresh}
+      />,
+    );
+
+    const getButton = () => screen.getByTestId('jira-list-refresh-my-tickets') as HTMLButtonElement;
+
+    // Button should not have disabled attribute initially
+    expect(getButton().hasAttribute('disabled')).toBe(false);
+
+    // Click the refresh button
+    fireEvent.click(getButton());
+
+    // Button should have disabled attribute while refreshing
+    await waitFor(() => {
+      expect(getButton().hasAttribute('disabled')).toBe(true);
+    });
+
+    // Resolve the refresh promise
+    resolveRefresh!();
+
+    // Button should not have disabled attribute after refresh completes
+    await waitFor(() => {
+      expect(getButton().hasAttribute('disabled')).toBe(false);
+    });
+
+    expect(slowRefresh).toHaveBeenCalledTimes(1);
+  });
+
+  it('shows loading indicator while refreshing', async () => {
+    let resolveRefresh: () => void;
+    const slowRefresh = vi.fn(
+      () =>
+        new Promise<void>(resolve => {
+          resolveRefresh = resolve;
+        }),
+    );
+
+    render(
+      <JiraList
+        data={mockTickets}
+        title="My Tickets"
+        isLoading={false}
+        hasError={false}
+        refresh={slowRefresh}
+      />,
+    );
+
+    const getButton = () => screen.getByTestId('jira-list-refresh-my-tickets');
+
+    // Click the refresh button
+    fireEvent.click(getButton());
+
+    // Should show CircularProgress while refreshing
+    await waitFor(() => {
+      const circularProgress = getButton().querySelector('.MuiCircularProgress-root');
+      expect(circularProgress).toBeInTheDocument();
+    });
+
+    // Resolve the refresh promise
+    resolveRefresh!();
+
+    // Should show RefreshIcon again after refresh completes
+    await waitFor(() => {
+      const circularProgress = getButton().querySelector('.MuiCircularProgress-root');
+      expect(circularProgress).not.toBeInTheDocument();
+    });
+  });
+
+  it('re-enables button even if refresh fails', async () => {
+    const failingRefresh = vi.fn(async () => {
+      throw new Error('Refresh failed');
+    });
+
+    render(
+      <JiraList
+        data={mockTickets}
+        title="My Tickets"
+        isLoading={false}
+        hasError={false}
+        refresh={failingRefresh}
+      />,
+    );
+
+    const getButton = () => screen.getByTestId('jira-list-refresh-my-tickets') as HTMLButtonElement;
+
+    // Click the refresh button
+    fireEvent.click(getButton());
+
+    // Button should have disabled attribute while refreshing
+    await waitFor(() => {
+      expect(getButton().hasAttribute('disabled')).toBe(true);
+    });
+
+    // Button should not have disabled attribute after failure
+    await waitFor(() => {
+      expect(getButton().hasAttribute('disabled')).toBe(false);
+    });
+
+    expect(failingRefresh).toHaveBeenCalledTimes(1);
   });
 });

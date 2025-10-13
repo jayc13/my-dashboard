@@ -1,4 +1,4 @@
-import { Alert, Box, Grid, Stack, Typography } from '@mui/material';
+import { Alert, Box, CircularProgress, Grid, Stack, Typography } from '@mui/material';
 import { TooltipIconButton } from '@/components/common';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import PRList from './components/PRList';
@@ -8,6 +8,7 @@ import AddPRDialog from './components/AddPRDialog';
 import DeletePRDialog from './components/DeletePRDialog';
 import PullRequestsSkeleton from './PullRequestsSkeleton';
 import type { PullRequest } from '@/types';
+import { useState } from 'react';
 
 export interface PullRequestsPageProps {
   pullRequestsData: PullRequest[] | undefined;
@@ -55,6 +56,17 @@ const PullRequestsPage = (props: PullRequestsPageProps) => {
     setUrlError,
   } = props;
 
+  const [isRefetching, setIsRefetching] = useState(false);
+
+  const handleRefetch = async () => {
+    setIsRefetching(true);
+    try {
+      await refetch();
+    } finally {
+      setIsRefetching(false);
+    }
+  };
+
   const hasPullRequests = pullRequestsData && pullRequestsData.length > 0;
 
   return (
@@ -64,8 +76,14 @@ const PullRequestsPage = (props: PullRequestsPageProps) => {
           <Typography variant="h4" gutterBottom>
             Pull Requests
           </Typography>
-          <TooltipIconButton tooltip="Refresh" size="small" onClick={() => refetch()}>
-            <RefreshIcon />
+          <TooltipIconButton
+            tooltip="Refresh"
+            size="small"
+            onClick={handleRefetch}
+            disabled={isRefetching}
+            data-testid="refresh-button"
+          >
+            {isRefetching ? <CircularProgress size={20} /> : <RefreshIcon />}
           </TooltipIconButton>
         </Stack>
         {hasPullRequests && <AddPRButton onClick={handleOpenAddDialog} />}

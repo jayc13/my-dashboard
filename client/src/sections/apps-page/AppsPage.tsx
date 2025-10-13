@@ -1,4 +1,4 @@
-import { Alert, Box, Card, Stack, Typography } from '@mui/material';
+import { Alert, Box, Card, CircularProgress, Stack, Typography } from '@mui/material';
 import { TooltipIconButton } from '@/components/common';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import AppsHeader from './components/AppsHeader';
@@ -7,6 +7,7 @@ import AppsDataGrid from './components/AppsDataGrid';
 import AppDialog from './components/AppDialog';
 import DeleteAppDialog from './components/DeleteAppDialog';
 import type { Application } from '@/types';
+import { useState } from 'react';
 
 export interface AppsPageProps {
   apps: Application[] | undefined;
@@ -65,6 +66,17 @@ const AppsPage = (props: AppsPageProps) => {
     setFormData,
   } = props;
 
+  const [isRefetching, setIsRefetching] = useState(false);
+
+  const handleRefetch = async () => {
+    setIsRefetching(true);
+    try {
+      await refetch();
+    } finally {
+      setIsRefetching(false);
+    }
+  };
+
   // Filter apps based on watching status and search query
   const filteredApps = (apps || [])
     .filter(app => (showOnlyWatching ? app.watching : true))
@@ -82,8 +94,14 @@ const AppsPage = (props: AppsPageProps) => {
           <Typography variant="h4" component="h1">
             Apps Management
           </Typography>
-          <TooltipIconButton tooltip="Refresh" size="small" onClick={() => refetch()}>
-            <RefreshIcon />
+          <TooltipIconButton
+            tooltip="Refresh"
+            size="small"
+            onClick={handleRefetch}
+            disabled={isRefetching}
+            data-testid="refresh-button"
+          >
+            {isRefetching ? <CircularProgress size={20} /> : <RefreshIcon />}
           </TooltipIconButton>
         </Stack>
         {!error && <AppsHeader onAddClick={() => handleOpenDialog()} />}

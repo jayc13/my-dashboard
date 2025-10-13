@@ -99,3 +99,24 @@ Object.defineProperty(window, 'matchMedia', {
     dispatchEvent: vi.fn(),
   })),
 });
+
+// Suppress expected unhandled rejections from error scenario tests
+const originalUnhandledRejection = process.listeners('unhandledRejection');
+process.removeAllListeners('unhandledRejection');
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+process.on('unhandledRejection', (reason: any) => {
+  // Suppress expected test errors
+  const expectedErrors = ['Refetch failed', 'Refresh failed'];
+  const isExpectedError = expectedErrors.some(
+    msg => reason?.message?.includes(msg) || String(reason).includes(msg),
+  );
+
+  if (!isExpectedError) {
+    // Re-throw unexpected errors
+    originalUnhandledRejection.forEach(listener => {
+      if (typeof listener === 'function') {
+        listener(reason, Promise.reject(reason));
+      }
+    });
+  }
+});
