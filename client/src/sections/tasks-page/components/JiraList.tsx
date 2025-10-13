@@ -1,8 +1,9 @@
-import { Alert, Grid, Skeleton, Stack } from '@mui/material';
+import { Alert, CircularProgress, Grid, Skeleton, Stack } from '@mui/material';
 import JiraCard from '@/components/common/JiraCard';
 import { TooltipIconButton } from '@/components/common';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import type { JiraTicket } from '@/types/index';
+import { useState } from 'react';
 
 interface ManualTestingProps {
   data: JiraTicket[];
@@ -20,6 +21,17 @@ const JiraList = (props: ManualTestingProps) => {
     hasError = false,
     refresh = () => Promise.resolve(),
   } = props;
+
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    try {
+      await refresh();
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
 
   const JiraListHeader = (props: { size?: number }) => {
     const { size = 0 } = props;
@@ -39,17 +51,18 @@ const JiraList = (props: ManualTestingProps) => {
           tooltip="Refresh"
           size="small"
           sx={{ ml: 1 }}
-          onClick={() => refresh()}
+          onClick={handleRefresh}
+          disabled={isRefreshing}
           data-testid={`jira-list-refresh-${title.toLowerCase().replace(/\s+/g, '-')}`}
         >
-          <RefreshIcon />
+          {isRefreshing ? <CircularProgress size={20} /> : <RefreshIcon />}
         </TooltipIconButton>
       </Grid>
     );
   };
 
   // Only show skeleton if loading AND no data exists yet
-  if (isLoading && data.length === 0) {
+  if (isLoading && !data) {
     return (
       <div data-testid={`jira-list-${title.toLowerCase().replace(/\s+/g, '-')}`}>
         <JiraListHeader />

@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 import E2EPage from '../E2EPage';
 import type { DetailedE2EReport } from '@my-dashboard/types';
@@ -14,6 +14,14 @@ vi.mock('../components/E2EGeneralMetrics', () => ({
 
 vi.mock('../components/LoadingBackdrop.tsx', () => ({
   default: () => <div data-testid="loading-backdrop">Loading</div>,
+}));
+
+vi.mock('@/components/common', () => ({
+  TooltipIconButton: ({ children, onClick, disabled, ...props }: any) => (
+    <button onClick={onClick} disabled={disabled} {...props}>
+      {children}
+    </button>
+  ),
 }));
 
 describe('E2EPage', () => {
@@ -76,5 +84,175 @@ describe('E2EPage', () => {
     );
 
     expect(screen.getByTestId('e2e-page')).toBeInTheDocument();
+  });
+
+  it('calls refetch when refresh button is clicked', () => {
+    render(
+      <E2EPage
+        data={mockData}
+        prevData={null}
+        loading={false}
+        error={null}
+        refetch={mockRefetch}
+      />,
+    );
+
+    const refreshButton = screen.getByTestId('refresh-button');
+    fireEvent.click(refreshButton);
+
+    expect(mockRefetch).toHaveBeenCalled();
+  });
+
+  it('disables refresh button while refetching', async () => {
+    let resolveRefetch: () => void;
+    const slowRefetch = vi.fn(
+      () =>
+        new Promise<void>(resolve => {
+          resolveRefetch = resolve;
+        }),
+    );
+
+    render(
+      <E2EPage
+        data={mockData}
+        prevData={null}
+        loading={false}
+        error={null}
+        refetch={slowRefetch}
+      />,
+    );
+
+    const refreshButton = screen.getByTestId('refresh-button') as HTMLButtonElement;
+
+    // Button should be enabled initially
+    expect(refreshButton.disabled).toBe(false);
+
+    // Click the refresh button
+    fireEvent.click(refreshButton);
+
+    // Button should be disabled while refetching
+    await waitFor(() => {
+      expect(refreshButton.disabled).toBe(true);
+    });
+
+    // Resolve the refetch promise
+    resolveRefetch!();
+
+    // Button should be enabled again after refetch completes
+    await waitFor(() => {
+      expect(refreshButton.disabled).toBe(false);
+    });
+
+    expect(slowRefetch).toHaveBeenCalledTimes(1);
+  });
+
+  it('shows loading indicator while refetching', async () => {
+    let resolveRefetch: () => void;
+    const slowRefetch = vi.fn(
+      () =>
+        new Promise<void>(resolve => {
+          resolveRefetch = resolve;
+        }),
+    );
+
+    render(
+      <E2EPage
+        data={mockData}
+        prevData={null}
+        loading={false}
+        error={null}
+        refetch={slowRefetch}
+      />,
+    );
+
+    const refreshButton = screen.getByTestId('refresh-button');
+
+    // Click the refresh button
+    fireEvent.click(refreshButton);
+
+    // Should show CircularProgress while refetching
+    await waitFor(() => {
+      const circularProgress = refreshButton.querySelector('.MuiCircularProgress-root');
+      expect(circularProgress).toBeInTheDocument();
+    });
+
+    // Resolve the refetch promise
+    resolveRefetch!();
+
+    // Should show RefreshIcon again after refetch completes
+    await waitFor(() => {
+      const circularProgress = refreshButton.querySelector('.MuiCircularProgress-root');
+      expect(circularProgress).not.toBeInTheDocument();
+    });
+  });
+
+  it('re-enables button even if refetch fails', async () => {
+    const failingRefetch = vi.fn(() => Promise.reject(new Error('Refetch failed')));
+
+    render(
+      <E2EPage
+        data={mockData}
+        prevData={null}
+        loading={false}
+        error={null}
+        refetch={failingRefetch}
+      />,
+    );
+
+    const refreshButton = screen.getByTestId('refresh-button') as HTMLButtonElement;
+
+    // Click the refresh button
+    fireEvent.click(refreshButton);
+
+    // Button should be disabled while refetching
+    await waitFor(() => {
+      expect(refreshButton.disabled).toBe(true);
+    });
+
+    // Button should be enabled again even after failure
+    await waitFor(() => {
+      expect(refreshButton.disabled).toBe(false);
+    });
+
+    expect(failingRefetch).toHaveBeenCalledTimes(1);
+  });
+
+  it('prevents multiple simultaneous refetch calls', async () => {
+    let resolveRefetch: () => void;
+    const slowRefetch = vi.fn(
+      () =>
+        new Promise<void>(resolve => {
+          resolveRefetch = resolve;
+        }),
+    );
+
+    render(
+      <E2EPage
+        data={mockData}
+        prevData={null}
+        loading={false}
+        error={null}
+        refetch={slowRefetch}
+      />,
+    );
+
+    const refreshButton = screen.getByTestId('refresh-button') as HTMLButtonElement;
+
+    // Click the refresh button multiple times
+    fireEvent.click(refreshButton);
+    fireEvent.click(refreshButton);
+    fireEvent.click(refreshButton);
+
+    // Should only call refetch once because button is disabled
+    await waitFor(() => {
+      expect(slowRefetch).toHaveBeenCalledTimes(1);
+    });
+
+    // Resolve the refetch promise
+    resolveRefetch!();
+
+    await waitFor(() => {
+      expect(refreshButton.disabled).toBe(false);
+    });
   });
 });

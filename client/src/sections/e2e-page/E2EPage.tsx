@@ -2,9 +2,10 @@ import TestResultsPerApp from '@/sections/e2e-page/components/TestResultsPerApp'
 import E2EGeneralMetrics from './components/E2EGeneralMetrics';
 import LoadingBackdrop from './components/LoadingBackdrop.tsx';
 import { TooltipIconButton } from '@/components/common';
-import { Alert, Card, Grid, Stack } from '@mui/material';
+import { Alert, Card, CircularProgress, Grid, Stack } from '@mui/material';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import type { DetailedE2EReport } from '@my-dashboard/types';
+import { useState } from 'react';
 
 interface E2EPageProps {
   data: DetailedE2EReport | null | undefined;
@@ -16,6 +17,17 @@ interface E2EPageProps {
 
 const E2EPage = (props: E2EPageProps) => {
   const { data, prevData, loading, error, refetch } = props;
+
+  const [isRefetching, setIsRefetching] = useState(false);
+
+  const handleRefetch = async () => {
+    setIsRefetching(true);
+    try {
+      await refetch();
+    } finally {
+      setIsRefetching(false);
+    }
+  };
 
   if (error) {
     return (
@@ -44,9 +56,11 @@ const E2EPage = (props: E2EPageProps) => {
                 tooltip="Refresh"
                 size="small"
                 sx={{ ml: 1 }}
-                onClick={() => refetch()}
+                onClick={handleRefetch}
+                disabled={isRefetching}
+                data-testid="refresh-button"
               >
-                <RefreshIcon />
+                {isRefetching ? <CircularProgress size={20} /> : <RefreshIcon />}
               </TooltipIconButton>
             </Grid>
             <E2EGeneralMetrics

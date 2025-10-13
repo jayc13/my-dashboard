@@ -12,8 +12,8 @@ vi.mock('@/components/common/JiraCard', () => ({
 
 // Mock TooltipIconButton
 vi.mock('@/components/common', () => ({
-  TooltipIconButton: ({ children, onClick, ...props }: any) => (
-    <button onClick={onClick} {...props}>
+  TooltipIconButton: ({ children, onClick, disabled, ...props }: any) => (
+    <button onClick={onClick} disabled={disabled} {...props}>
       {children}
     </button>
   ),
@@ -46,9 +46,10 @@ describe('JiraList', () => {
   });
 
   it('renders loading state when loading and no data', () => {
+    // Pass undefined to trigger loading skeleton (not empty array)
     render(
       <JiraList
-        data={[]}
+        data={undefined as any}
         title="My Tickets"
         isLoading={true}
         hasError={false}
@@ -180,5 +181,119 @@ describe('JiraList', () => {
     expect(screen.getByTestId('jira-list-title-manual-testing-tasks')).toHaveTextContent(
       'Manual Testing Tasks (2)',
     );
+  });
+
+  it('disables refresh button while refreshing', async () => {
+    let resolveRefresh: () => void;
+    const slowRefresh = vi.fn(
+      () =>
+        new Promise<void>(resolve => {
+          resolveRefresh = resolve;
+        }),
+    );
+
+    render(
+      <JiraList
+        data={mockTickets}
+        title="My Tickets"
+        isLoading={false}
+        hasError={false}
+        refresh={slowRefresh}
+      />,
+    );
+
+    const refreshButton = screen.getByTestId('jira-list-refresh-my-tickets') as HTMLButtonElement;
+
+    // Button should be enabled initially
+    expect(refreshButton.disabled).toBe(false);
+
+    // Click the refresh button
+    fireEvent.click(refreshButton);
+
+    // Button should be disabled while refreshing
+    await waitFor(() => {
+      expect(refreshButton.disabled).toBe(true);
+    });
+
+    // Resolve the refresh promise
+    resolveRefresh!();
+
+    // Button should be enabled again after refresh completes
+    await waitFor(() => {
+      expect(refreshButton.disabled).toBe(false);
+    });
+
+    expect(slowRefresh).toHaveBeenCalledTimes(1);
+  });
+
+  it('shows loading indicator while refreshing', async () => {
+    let resolveRefresh: () => void;
+    const slowRefresh = vi.fn(
+      () =>
+        new Promise<void>(resolve => {
+          resolveRefresh = resolve;
+        }),
+    );
+
+    render(
+      <JiraList
+        data={mockTickets}
+        title="My Tickets"
+        isLoading={false}
+        hasError={false}
+        refresh={slowRefresh}
+      />,
+    );
+
+    const refreshButton = screen.getByTestId('jira-list-refresh-my-tickets');
+
+    // Click the refresh button
+    fireEvent.click(refreshButton);
+
+    // Should show CircularProgress while refreshing
+    await waitFor(() => {
+      const circularProgress = refreshButton.querySelector('.MuiCircularProgress-root');
+      expect(circularProgress).toBeInTheDocument();
+    });
+
+    // Resolve the refresh promise
+    resolveRefresh!();
+
+    // Should show RefreshIcon again after refresh completes
+    await waitFor(() => {
+      const circularProgress = refreshButton.querySelector('.MuiCircularProgress-root');
+      expect(circularProgress).not.toBeInTheDocument();
+    });
+  });
+
+  it('re-enables button even if refresh fails', async () => {
+    const failingRefresh = vi.fn(() => Promise.reject(new Error('Refresh failed')));
+
+    render(
+      <JiraList
+        data={mockTickets}
+        title="My Tickets"
+        isLoading={false}
+        hasError={false}
+        refresh={failingRefresh}
+      />,
+    );
+
+    const refreshButton = screen.getByTestId('jira-list-refresh-my-tickets') as HTMLButtonElement;
+
+    // Click the refresh button
+    fireEvent.click(refreshButton);
+
+    // Button should be disabled while refreshing
+    await waitFor(() => {
+      expect(refreshButton.disabled).toBe(true);
+    });
+
+    // Button should be enabled again even after failure
+    await waitFor(() => {
+      expect(refreshButton.disabled).toBe(false);
+    });
+
+    expect(failingRefresh).toHaveBeenCalledTimes(1);
   });
 });
