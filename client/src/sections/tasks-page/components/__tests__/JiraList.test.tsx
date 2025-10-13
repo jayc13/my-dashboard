@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import JiraList from '../JiraList';
 import type { JiraTicket } from '@/types/index';
@@ -10,10 +10,10 @@ vi.mock('@/components/common/JiraCard', () => ({
   ),
 }));
 
-// Mock TooltipIconButton
+// Mock TooltipIconButton - properly handle disabled prop
 vi.mock('@/components/common', () => ({
   TooltipIconButton: ({ children, onClick, disabled, ...props }: any) => (
-    <button onClick={onClick} disabled={disabled} {...props}>
+    <button onClick={onClick} disabled={disabled === true} {...props}>
       {children}
     </button>
   ),
