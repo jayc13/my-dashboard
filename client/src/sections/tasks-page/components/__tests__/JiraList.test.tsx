@@ -203,17 +203,17 @@ describe('JiraList', () => {
       />,
     );
 
-    const refreshButton = screen.getByTestId('jira-list-refresh-my-tickets') as HTMLButtonElement;
+    const getButton = () => screen.getByTestId('jira-list-refresh-my-tickets') as HTMLButtonElement;
 
     // Button should not have disabled attribute initially
-    expect(refreshButton.hasAttribute('disabled')).toBe(false);
+    expect(getButton().hasAttribute('disabled')).toBe(false);
 
     // Click the refresh button
-    fireEvent.click(refreshButton);
+    fireEvent.click(getButton());
 
     // Button should have disabled attribute while refreshing
     await waitFor(() => {
-      expect(refreshButton.hasAttribute('disabled')).toBe(true);
+      expect(getButton().hasAttribute('disabled')).toBe(true);
     });
 
     // Resolve the refresh promise
@@ -221,7 +221,7 @@ describe('JiraList', () => {
 
     // Button should not have disabled attribute after refresh completes
     await waitFor(() => {
-      expect(refreshButton.hasAttribute('disabled')).toBe(false);
+      expect(getButton().hasAttribute('disabled')).toBe(false);
     });
 
     expect(slowRefresh).toHaveBeenCalledTimes(1);
@@ -246,14 +246,14 @@ describe('JiraList', () => {
       />,
     );
 
-    const refreshButton = screen.getByTestId('jira-list-refresh-my-tickets');
+    const getButton = () => screen.getByTestId('jira-list-refresh-my-tickets');
 
     // Click the refresh button
-    fireEvent.click(refreshButton);
+    fireEvent.click(getButton());
 
     // Should show CircularProgress while refreshing
     await waitFor(() => {
-      const circularProgress = refreshButton.querySelector('.MuiCircularProgress-root');
+      const circularProgress = getButton().querySelector('.MuiCircularProgress-root');
       expect(circularProgress).toBeInTheDocument();
     });
 
@@ -262,7 +262,7 @@ describe('JiraList', () => {
 
     // Should show RefreshIcon again after refresh completes
     await waitFor(() => {
-      const circularProgress = refreshButton.querySelector('.MuiCircularProgress-root');
+      const circularProgress = getButton().querySelector('.MuiCircularProgress-root');
       expect(circularProgress).not.toBeInTheDocument();
     });
   });
@@ -282,19 +282,19 @@ describe('JiraList', () => {
       />,
     );
 
-    const refreshButton = screen.getByTestId('jira-list-refresh-my-tickets') as HTMLButtonElement;
+    const getButton = () => screen.getByTestId('jira-list-refresh-my-tickets') as HTMLButtonElement;
 
     // Click the refresh button
-    fireEvent.click(refreshButton);
+    fireEvent.click(getButton());
 
     // Button should have disabled attribute while refreshing
     await waitFor(() => {
-      expect(refreshButton.hasAttribute('disabled')).toBe(true);
+      expect(getButton().hasAttribute('disabled')).toBe(true);
     });
 
     // Button should not have disabled attribute after failure
     await waitFor(() => {
-      expect(refreshButton.hasAttribute('disabled')).toBe(false);
+      expect(getButton().hasAttribute('disabled')).toBe(false);
     });
 
     expect(failingRefresh).toHaveBeenCalledTimes(1);
