@@ -16,8 +16,11 @@ vi.mock('../E2EPage.tsx', () => ({
     <div data-testid="e2e-page">
       <div data-testid="loading">{loading ? 'Loading' : 'Not Loading'}</div>
       <div data-testid="error">{error ? 'Error' : 'No Error'}</div>
-      <button onClick={refetch} data-testid="refetch-button">
+      <button onClick={() => refetch()} data-testid="refetch-button">
         Refetch
+      </button>
+      <button onClick={() => refetch(true)} data-testid="force-refetch-button">
+        Force Refetch
       </button>
     </div>
   ),
@@ -132,5 +135,81 @@ describe('E2EPageContainer', () => {
 
     // Should not have been called since status is 'passed'
     expect(mockRefetchData).not.toHaveBeenCalled();
+  });
+
+  it('calls both refetchData and refetchPrevData when refetch is called', async () => {
+    const { useE2ERunReport } = await import('@/hooks');
+    const mockRefetchPrevData = vi.fn().mockResolvedValue(undefined);
+    mockRefetchData.mockResolvedValue(undefined);
+
+    let callCount = 0;
+    vi.mocked(useE2ERunReport).mockImplementation(() => {
+      callCount++;
+      if (callCount === 1) {
+        // First call returns current data
+        return {
+          data: mockData,
+          loading: false,
+          error: null,
+          refetch: mockRefetchData,
+        };
+      } else {
+        // Second call returns previous data
+        return {
+          data: mockData,
+          loading: false,
+          error: null,
+          refetch: mockRefetchPrevData,
+        };
+      }
+    });
+
+    render(<E2EPageContainer />);
+
+    const refetchButton = screen.getByTestId('refetch-button');
+    refetchButton.click();
+
+    await vi.waitFor(() => {
+      expect(mockRefetchData).toHaveBeenCalledWith(undefined);
+      expect(mockRefetchPrevData).toHaveBeenCalledWith(undefined);
+    });
+  });
+
+  it('calls both refetchData and refetchPrevData with force=true when force refetch is called', async () => {
+    const { useE2ERunReport } = await import('@/hooks');
+    const mockRefetchPrevData = vi.fn().mockResolvedValue(undefined);
+    mockRefetchData.mockResolvedValue(undefined);
+
+    let callCount = 0;
+    vi.mocked(useE2ERunReport).mockImplementation(() => {
+      callCount++;
+      if (callCount === 1) {
+        // First call returns current data
+        return {
+          data: mockData,
+          loading: false,
+          error: null,
+          refetch: mockRefetchData,
+        };
+      } else {
+        // Second call returns previous data
+        return {
+          data: mockData,
+          loading: false,
+          error: null,
+          refetch: mockRefetchPrevData,
+        };
+      }
+    });
+
+    render(<E2EPageContainer />);
+
+    const forceRefetchButton = screen.getByTestId('force-refetch-button');
+    forceRefetchButton.click();
+
+    await vi.waitFor(() => {
+      expect(mockRefetchData).toHaveBeenCalledWith(true);
+      expect(mockRefetchPrevData).toHaveBeenCalledWith(true);
+    });
   });
 });
