@@ -276,6 +276,74 @@ describe('E2E Run Report Controller', () => {
       expect(E2EManualRunService.getByAppId).not.toHaveBeenCalled();
       expect(mockResponse.status).toHaveBeenCalledWith(200);
     });
+
+    it('should delete existing report and trigger regeneration when force=true', async () => {
+      const mockSummary = {
+        id: 1,
+        date: '2025-10-09',
+        status: 'ready',
+        totalRuns: 10,
+        passedRuns: 8,
+        failedRuns: 2,
+        successRate: 0.8,
+      };
+      mockRequest.query = { date: '2025-10-09', force: 'true' };
+      (E2ERunReportService.getSummaryByDate as jest.Mock).mockResolvedValue(mockSummary);
+      (E2ERunReportService.deleteSummary as jest.Mock).mockResolvedValue(undefined);
+
+      await getReport(mockRequest as Request, mockResponse as Response, mockNext);
+
+      expect(E2ERunReportService.getSummaryByDate).toHaveBeenCalledWith('2025-10-09');
+      expect(E2ERunReportService.deleteSummary).toHaveBeenCalledWith(1);
+      expect(publishE2EReportRequest).toHaveBeenCalledWith('2025-10-09');
+      expect(mockResponse.status).toHaveBeenCalledWith(202);
+      expect(mockResponse.send).toHaveBeenCalledWith({
+        success: true,
+        summary: expect.objectContaining({ status: 'pending' }),
+        details: [],
+        message: 'Report is being generated. Please check back later.',
+      });
+    });
+
+    it('should not delete report when force=false', async () => {
+      const mockSummary = {
+        id: 1,
+        date: '2025-10-09',
+        status: 'ready',
+        totalRuns: 10,
+        passedRuns: 8,
+        failedRuns: 2,
+        successRate: 0.8,
+      };
+      mockRequest.query = { date: '2025-10-09', force: 'false' };
+      (E2ERunReportService.getSummaryByDate as jest.Mock).mockResolvedValue(mockSummary);
+      (E2ERunReportService.getDetailsBySummaryId as jest.Mock).mockResolvedValue([]);
+
+      await getReport(mockRequest as Request, mockResponse as Response, mockNext);
+
+      expect(E2ERunReportService.deleteSummary).not.toHaveBeenCalled();
+      expect(mockResponse.status).toHaveBeenCalledWith(200);
+    });
+
+    it('should handle force=1 as true', async () => {
+      const mockSummary = {
+        id: 1,
+        date: '2025-10-09',
+        status: 'ready',
+        totalRuns: 10,
+        passedRuns: 8,
+        failedRuns: 2,
+        successRate: 0.8,
+      };
+      mockRequest.query = { date: '2025-10-09', force: '1' };
+      (E2ERunReportService.getSummaryByDate as jest.Mock).mockResolvedValue(mockSummary);
+      (E2ERunReportService.deleteSummary as jest.Mock).mockResolvedValue(undefined);
+
+      await getReport(mockRequest as Request, mockResponse as Response, mockNext);
+
+      expect(E2ERunReportService.deleteSummary).toHaveBeenCalledWith(1);
+      expect(publishE2EReportRequest).toHaveBeenCalledWith('2025-10-09');
+    });
   });
 
   describe('getLastProjectStatus', () => {

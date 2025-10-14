@@ -19,6 +19,22 @@ get:
         type: string
         format: date
         example: "2025-12-13"
+    - name: force
+      in: query
+      description: Force regeneration of the report from scratch by discarding existing report for the selected date
+      required: false
+      schema:
+        type: string
+        enum: ['true', 'false', '1', '0']
+        default: 'false'
+        example: "true"
+    - name: enrichments
+      in: query
+      description: JSON string containing enrichment options (includeDetails, includeAppInfo, includeManualRuns)
+      required: false
+      schema:
+        type: string
+        example: '{"includeDetails":true,"includeAppInfo":true,"includeManualRuns":true}'
   responses:
     '200':
       description: E2E reports retrieved successfully

@@ -19,6 +19,7 @@ export async function getReport(req: Request, res: Response, next: NextFunction)
     const {
       date = DateTime.now().toUTC().toISODate().slice(0, 10),
       enrichments = '{}',
+      force = 'false',
     } = req.query;
 
     let enrichmentsObj: DetailedE2EReportEnrichments = {
@@ -51,7 +52,16 @@ export async function getReport(req: Request, res: Response, next: NextFunction)
       }]);
     }
 
-    const summary = await E2ERunReportService.getSummaryByDate(date as string);
+    // Parse force parameter
+    const forceRegenerate = force === 'true' || force === '1';
+
+    let summary = await E2ERunReportService.getSummaryByDate(date as string);
+
+    // If force is true and a report exists, delete it to regenerate from scratch
+    if (forceRegenerate && summary) {
+      await E2ERunReportService.deleteSummary(summary.id);
+      summary = undefined;
+    }
 
     // If there is no summary, return a 202 Accepted status and trigger the generation of the report
     if (!summary) {

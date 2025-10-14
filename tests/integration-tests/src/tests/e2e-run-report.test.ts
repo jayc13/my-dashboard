@@ -285,6 +285,79 @@ describe('E2E Run Report API Integration Tests', () => {
       expect(response.details).toBeUndefined();
       expect(response.summary).toBeDefined();
     });
+
+    it('should delete existing report and regenerate when force=true', async () => {
+      const httpClient = testHelpers.getHttpClient();
+      const testDate = '2025-01-18';
+
+      // Create a test report summary
+      const [summaryResult] = await dbConnection.execute(
+        `INSERT INTO e2e_report_summaries
+        (date, status, total_runs, passed_runs, failed_runs, success_rate)
+        VALUES (?, 'ready', 10, 8, 2, 0.8000)`,
+        [testDate],
+      );
+      const summaryId = (summaryResult as any).insertId;
+
+      // Verify the report exists
+      const [existingReport] = await dbConnection.execute(
+        'SELECT * FROM e2e_report_summaries WHERE id = ?',
+        [summaryId],
+      );
+      expect((existingReport as any[]).length).toBe(1);
+
+      // Request with force=true
+      const response = await httpClient.get(`/api/e2e_run_report?date=${testDate}&force=true`, {
+        'x-api-key': apiKey,
+      });
+
+      // Should return 202 (pending) as the report is being regenerated
+      expect(response.status).toBe(202);
+
+      const responseBody = await response.json() as any;
+      expect(responseBody.summary.status).toBe('pending');
+      expect(responseBody.message).toContain('Report is being generated');
+
+      // Verify the old report was deleted
+      const [deletedReport] = await dbConnection.execute(
+        'SELECT * FROM e2e_report_summaries WHERE id = ?',
+        [summaryId],
+      );
+      expect((deletedReport as any[]).length).toBe(0);
+    });
+
+    it('should not delete report when force=false', async () => {
+      const httpClient = testHelpers.getHttpClient();
+      const testDate = '2025-01-19';
+
+      // Create a test report summary
+      const [summaryResult] = await dbConnection.execute(
+        `INSERT INTO e2e_report_summaries
+        (date, status, total_runs, passed_runs, failed_runs, success_rate)
+        VALUES (?, 'ready', 10, 8, 2, 0.8000)`,
+        [testDate],
+      );
+      const summaryId = (summaryResult as any).insertId;
+
+      // Request with force=false (or omitted)
+      const response = await httpClient.get(`/api/e2e_run_report?date=${testDate}&force=false`, {
+        'x-api-key': apiKey,
+      });
+
+      // Should return 200 (ready) as the existing report is returned
+      expect(response.status).toBe(200);
+
+      const responseBody = await response.json() as any;
+      expect(responseBody.summary.status).toBe('ready');
+      expect(responseBody.summary.id).toBe(summaryId);
+
+      // Verify the report still exists
+      const [existingReport] = await dbConnection.execute(
+        'SELECT * FROM e2e_report_summaries WHERE id = ?',
+        [summaryId],
+      );
+      expect((existingReport as any[]).length).toBe(1);
+    });
   });
 
   describe('GET /api/e2e_run_report/:summaryId/:appId', () => {
