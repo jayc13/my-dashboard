@@ -27,13 +27,13 @@ const E2EPageContainer = () => {
       return;
     }
 
-    const interval = setInterval(refetchData, 5000);
+    const interval = setInterval(() => refetchData(), 5000);
     return () => clearInterval(interval);
   }, [data?.summary.status, refetchData]);
 
-  const refetch = async () => {
-    await refetchData();
-    await refetchPrevData();
+  const refetch = async (force?: boolean) => {
+    await refetchData(force);
+    await refetchPrevData(force);
   };
 
   return (

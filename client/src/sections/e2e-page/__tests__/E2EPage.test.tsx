@@ -257,4 +257,301 @@ describe('E2EPage', () => {
       expect(refreshButton.disabled).toBe(false);
     });
   });
+
+  it('opens menu when dropdown button is clicked', async () => {
+    render(
+      <E2EPage
+        data={mockData}
+        prevData={null}
+        loading={false}
+        error={null}
+        refetch={mockRefetch}
+      />,
+    );
+
+    const menuButton = screen.getByTestId('refresh-menu-button');
+    fireEvent.click(menuButton);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('refresh-menu')).toBeInTheDocument();
+    });
+  });
+
+  it('closes menu when pressing Escape', async () => {
+    render(
+      <E2EPage
+        data={mockData}
+        prevData={null}
+        loading={false}
+        error={null}
+        refetch={mockRefetch}
+      />,
+    );
+
+    const menuButton = screen.getByTestId('refresh-menu-button');
+    fireEvent.click(menuButton);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('refresh-menu')).toBeInTheDocument();
+    });
+
+    // Press Escape to close menu
+    fireEvent.keyDown(screen.getByTestId('refresh-menu'), { key: 'Escape' });
+
+    await waitFor(() => {
+      expect(screen.queryByTestId('refresh-menu')).not.toBeInTheDocument();
+    });
+  });
+
+  it('calls refetch without force parameter when menu refresh is clicked', async () => {
+    render(
+      <E2EPage
+        data={mockData}
+        prevData={null}
+        loading={false}
+        error={null}
+        refetch={mockRefetch}
+      />,
+    );
+
+    const menuButton = screen.getByTestId('refresh-menu-button');
+    fireEvent.click(menuButton);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('refresh-menu')).toBeInTheDocument();
+    });
+
+    const menuRefreshItem = screen.getByTestId('menu-refresh');
+    fireEvent.click(menuRefreshItem);
+
+    await waitFor(() => {
+      expect(mockRefetch).toHaveBeenCalled();
+      // Check that it was called without the force parameter (or with undefined)
+      const calls = mockRefetch.mock.calls;
+      expect(calls.length).toBeGreaterThan(0);
+      // The first argument should be undefined or not provided
+      expect(calls[calls.length - 1][0]).toBeUndefined();
+    });
+
+    // Menu should close after clicking
+    await waitFor(() => {
+      expect(screen.queryByTestId('refresh-menu')).not.toBeInTheDocument();
+    });
+  });
+
+  it('opens confirmation modal when force regenerate is clicked', async () => {
+    render(
+      <E2EPage
+        data={mockData}
+        prevData={null}
+        loading={false}
+        error={null}
+        refetch={mockRefetch}
+      />,
+    );
+
+    const menuButton = screen.getByTestId('refresh-menu-button');
+    fireEvent.click(menuButton);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('refresh-menu')).toBeInTheDocument();
+    });
+
+    const forceRefreshItem = screen.getByTestId('menu-force-refresh');
+    fireEvent.click(forceRefreshItem);
+
+    // Confirmation modal should open
+    await waitFor(() => {
+      expect(screen.getByTestId('force-refresh-confirmation-modal')).toBeInTheDocument();
+    });
+
+    // Menu should close after clicking
+    await waitFor(() => {
+      expect(screen.queryByTestId('refresh-menu')).not.toBeInTheDocument();
+    });
+
+    // Refetch should not be called yet
+    expect(mockRefetch).not.toHaveBeenCalled();
+  });
+
+  it('calls refetch with force=true when confirmation is accepted', async () => {
+    render(
+      <E2EPage
+        data={mockData}
+        prevData={null}
+        loading={false}
+        error={null}
+        refetch={mockRefetch}
+      />,
+    );
+
+    const menuButton = screen.getByTestId('refresh-menu-button');
+    fireEvent.click(menuButton);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('refresh-menu')).toBeInTheDocument();
+    });
+
+    const forceRefreshItem = screen.getByTestId('menu-force-refresh');
+    fireEvent.click(forceRefreshItem);
+
+    // Wait for confirmation modal
+    await waitFor(() => {
+      expect(screen.getByTestId('force-refresh-confirmation-modal')).toBeInTheDocument();
+    });
+
+    // Click confirm button
+    const confirmButton = screen.getByTestId('force-refresh-confirm-button');
+    fireEvent.click(confirmButton);
+
+    // Refetch should be called with force=true
+    await waitFor(() => {
+      expect(mockRefetch).toHaveBeenCalledWith(true);
+    });
+
+    // Modal should close
+    await waitFor(() => {
+      expect(screen.queryByTestId('force-refresh-confirmation-modal')).not.toBeInTheDocument();
+    });
+  });
+
+  it('does not call refetch when confirmation is cancelled', async () => {
+    render(
+      <E2EPage
+        data={mockData}
+        prevData={null}
+        loading={false}
+        error={null}
+        refetch={mockRefetch}
+      />,
+    );
+
+    const menuButton = screen.getByTestId('refresh-menu-button');
+    fireEvent.click(menuButton);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('refresh-menu')).toBeInTheDocument();
+    });
+
+    const forceRefreshItem = screen.getByTestId('menu-force-refresh');
+    fireEvent.click(forceRefreshItem);
+
+    // Wait for confirmation modal
+    await waitFor(() => {
+      expect(screen.getByTestId('force-refresh-confirmation-modal')).toBeInTheDocument();
+    });
+
+    // Click cancel button
+    const cancelButton = screen.getByTestId('force-refresh-cancel-button');
+    fireEvent.click(cancelButton);
+
+    // Refetch should not be called
+    expect(mockRefetch).not.toHaveBeenCalled();
+
+    // Modal should close
+    await waitFor(() => {
+      expect(screen.queryByTestId('force-refresh-confirmation-modal')).not.toBeInTheDocument();
+    });
+  });
+
+  it('disables menu button while refetching', async () => {
+    let resolveRefetch: () => void;
+    const slowRefetch = vi.fn(
+      () =>
+        new Promise<void>(resolve => {
+          resolveRefetch = resolve;
+        }),
+    );
+
+    render(
+      <E2EPage
+        data={mockData}
+        prevData={null}
+        loading={false}
+        error={null}
+        refetch={slowRefetch}
+      />,
+    );
+
+    const menuButton = screen.getByTestId('refresh-menu-button') as HTMLButtonElement;
+    const refreshButton = screen.getByTestId('refresh-button');
+
+    // Buttons should be enabled initially
+    expect(menuButton.disabled).toBe(false);
+
+    // Click the refresh button to start refetching
+    fireEvent.click(refreshButton);
+
+    // Menu button should be disabled while refetching
+    await waitFor(() => {
+      expect(menuButton.disabled).toBe(true);
+    });
+
+    // Resolve the refetch promise
+    resolveRefetch!();
+
+    // Menu button should be enabled again after refetch completes
+    await waitFor(() => {
+      expect(menuButton.disabled).toBe(false);
+    });
+  });
+
+  it('disables confirmation modal buttons while refetching', async () => {
+    let resolveRefetch: () => void;
+    const slowRefetch = vi.fn(
+      () =>
+        new Promise<void>(resolve => {
+          resolveRefetch = resolve;
+        }),
+    );
+
+    render(
+      <E2EPage
+        data={mockData}
+        prevData={null}
+        loading={false}
+        error={null}
+        refetch={slowRefetch}
+      />,
+    );
+
+    const menuButton = screen.getByTestId('refresh-menu-button');
+    fireEvent.click(menuButton);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('refresh-menu')).toBeInTheDocument();
+    });
+
+    const forceRefreshItem = screen.getByTestId('menu-force-refresh');
+    fireEvent.click(forceRefreshItem);
+
+    // Wait for confirmation modal
+    await waitFor(() => {
+      expect(screen.getByTestId('force-refresh-confirmation-modal')).toBeInTheDocument();
+    });
+
+    const confirmButton = screen.getByTestId('force-refresh-confirm-button') as HTMLButtonElement;
+    const cancelButton = screen.getByTestId('force-refresh-cancel-button') as HTMLButtonElement;
+
+    // Buttons should be enabled initially
+    expect(confirmButton.disabled).toBe(false);
+    expect(cancelButton.disabled).toBe(false);
+
+    // Click confirm button
+    fireEvent.click(confirmButton);
+
+    // Buttons should be disabled while refetching
+    await waitFor(() => {
+      expect(confirmButton.disabled).toBe(true);
+      expect(cancelButton.disabled).toBe(true);
+    });
+
+    // Resolve the refetch promise
+    resolveRefetch!();
+
+    // Modal should close after refetch completes
+    await waitFor(() => {
+      expect(screen.queryByTestId('force-refresh-confirmation-modal')).not.toBeInTheDocument();
+    });
+  });
 });

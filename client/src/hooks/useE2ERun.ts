@@ -21,17 +21,45 @@ export function useE2ERunReport(options?: UseE2ERunReportOptions) {
   // Memoize params using JSON stringification to create a stable reference
   // This prevents infinite re-renders when params object is recreated with same values
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  const params = useMemo(() => options?.params, [JSON.stringify(options?.params)]);
+  const baseParams = useMemo(() => options?.params, [JSON.stringify(options?.params)]);
 
   const fetcher = useCallback(async (): Promise<DetailedE2EReport> => {
     if (!api) {
       throw new Error('API not available');
     }
 
-    return api.getE2EReport(params);
-  }, [api, params]);
+    return api.getE2EReport(baseParams);
+  }, [api, baseParams]);
 
-  return useSDKData(fetcher, options);
+  const result = useSDKData(fetcher, options);
+
+  // Override refetch to accept force parameter
+  const refetch = useCallback(
+    async (force?: boolean) => {
+      if (!api) {
+        throw new Error('API not available');
+      }
+
+      const params = {
+        ...baseParams,
+        force,
+      };
+
+      // Manually fetch with force parameter
+      const data = await api.getE2EReport(params);
+
+      // Trigger the original refetch to update state
+      await result.refetch();
+
+      return data;
+    },
+    [api, baseParams, result],
+  );
+
+  return {
+    ...result,
+    refetch,
+  };
 }
 
 /**
