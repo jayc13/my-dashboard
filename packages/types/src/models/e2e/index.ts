@@ -117,4 +117,5 @@ export interface DetailedE2EReportEnrichments {
 export interface DetailedE2EReportOptions {
     date?: string;
     enrichments?: DetailedE2EReportEnrichments;
+    force?: boolean; // Force regeneration of the report from scratch
 }

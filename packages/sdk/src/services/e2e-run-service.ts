@@ -30,6 +30,7 @@ export class E2ERunService extends BaseClient {
       params: {
         date: options.date,
         enrichments: options.enrichments ? JSON.stringify(options.enrichments) : undefined,
+        force: options.force ? 'true' : undefined,
       },
     });
   }
