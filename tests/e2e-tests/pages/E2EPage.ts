@@ -37,7 +37,7 @@ export class E2EPage {
     // Main container
     this.e2ePage = page.locator('[data-testid="e2e-page"]');
     this.pageTitle = page.locator('h2:has-text("E2E Tests")');
-    this.refreshButton = page.locator('button[aria-label="Refresh"]');
+    this.refreshButton = page.locator('[data-testid="refresh-button"]');
     this.errorAlert = page.locator('[role="alert"]');
     this.loadingBackdrop = page.locator('[class*="MuiBackdrop-root"]');
 
@@ -52,7 +52,7 @@ export class E2EPage {
     this.testResultsContainer = page.locator('[data-testid="e2e-page"]');
     this.projectCards = page.locator('[data-project-card]');
     this.noTestResultsMessage = page.locator('text=No test results available');
-    this.allTestsPassingMessage = page.locator('text=All tests are passing');
+    this.allTestsPassingMessage = page.locator('text=All apps are passing');
     this.pagination = page.locator('[role="navigation"]').filter({ hasText: /^1/ });
 
     // Context Menu
