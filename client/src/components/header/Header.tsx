@@ -4,6 +4,7 @@ import { useAuth } from '@/contexts/useAuth.ts';
 import { useNotifications } from '@/hooks';
 import HeaderLogo from './HeaderLogo.tsx';
 import HeaderActions from './HeaderActions.tsx';
+import HeaderNavigation from './HeaderNavigation.tsx';
 import NavigationDrawer from '../navigation-drawer/NavigationDrawer.tsx';
 import { getAppBarStyles, getToolbarStyles } from './headerStyles.ts';
 
@@ -56,6 +57,7 @@ const Header: React.FC = () => {
           }}
         >
           <HeaderLogo />
+          <HeaderNavigation onNavigate={handleNavigation} />
           <HeaderActions
             notifications={notifications}
             refetchNotifications={refetchNotifications}
