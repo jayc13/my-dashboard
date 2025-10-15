@@ -13,19 +13,21 @@ const LastRunStatusIcon: React.FC<{ result: DetailedE2EReportDetail }> = ({ resu
   const status = result.app?.lastRun?.status || result.lastRunStatus;
   switch (status) {
     case 'running':
-      return <Box
-        component="span"
-        sx={{
-          display: 'inline-block',
-          animation: 'spin 1s linear infinite',
-          '@keyframes spin': {
-            to: { transform: 'rotate(360deg)' },
-          },
-        }}
-        title="Running"
-      >
-        <FaCog color="#757575" size={28} />
-      </Box>;
+      return (
+        <Box
+          component="span"
+          sx={{
+            display: 'inline-block',
+            animation: 'spin 1s linear infinite',
+            '@keyframes spin': {
+              to: { transform: 'rotate(360deg)' },
+            },
+          }}
+          title="Running"
+        >
+          <FaCog color="#757575" size={28} />
+        </Box>
+      );
     case 'passed':
     case 'success':
       return <FaCheckCircle color="#4caf50" size={28} title="Passed" />;
