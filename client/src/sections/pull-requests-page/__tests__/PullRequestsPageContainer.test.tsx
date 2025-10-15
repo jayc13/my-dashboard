@@ -6,6 +6,7 @@ import PullRequestsPageContainer from '../PullRequestsPageContainer';
 const mockRefetch = vi.fn();
 const mockAddPullRequest = vi.fn();
 const mockDeletePullRequest = vi.fn();
+const mockUsePullRequestDetails = vi.fn();
 
 vi.mock('@/hooks', () => ({
   usePullRequests: vi.fn(() => ({
@@ -22,10 +23,7 @@ vi.mock('@/hooks', () => ({
     mutate: mockDeletePullRequest,
     loading: false,
   })),
-  usePullRequestDetails: vi.fn(() => ({
-    data: undefined,
-    loading: false,
-  })),
+  usePullRequestDetails: (id: string) => mockUsePullRequestDetails(id),
 }));
 
 // Mock notistack
@@ -39,6 +37,12 @@ import { enqueueSnackbar } from 'notistack';
 describe('PullRequestsPageContainer', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockRefetch.mockResolvedValue(undefined);
+    // Default mock for usePullRequestDetails
+    mockUsePullRequestDetails.mockReturnValue({
+      data: undefined,
+      loading: false,
+    });
   });
 
   it('renders with loading state', () => {
@@ -109,12 +113,12 @@ describe('PullRequestsPageContainer', () => {
     fireEvent.click(addButton);
 
     // Enter invalid URL
-    const input = screen.getByLabelText(/GitHub Pull Request URL/);
+    const input = screen.getByTestId('pr-url-input').querySelector('input') as HTMLInputElement;
     fireEvent.change(input, { target: { value: 'invalid-url' } });
 
-    // Click add
-    const submitButton = screen.getByRole('button', { name: /Add/i });
-    fireEvent.click(submitButton);
+    // Try to add
+    const addPRButton = screen.getByTestId('pr-add-button');
+    fireEvent.click(addPRButton);
 
     await waitFor(() => {
       expect(screen.getByText(/Invalid GitHub Pull Request URL format/)).toBeInTheDocument();
@@ -140,14 +144,14 @@ describe('PullRequestsPageContainer', () => {
     fireEvent.click(addButton);
 
     // Enter valid URL
-    const input = screen.getByLabelText(/GitHub Pull Request URL/);
+    const input = screen.getByTestId('pr-url-input').querySelector('input') as HTMLInputElement;
     fireEvent.change(input, {
       target: { value: 'https://github.com/owner/repo/pull/123' },
     });
 
-    // Click add
-    const submitButton = screen.getByRole('button', { name: /Add/i });
-    fireEvent.click(submitButton);
+    // Add
+    const addPRButton = screen.getByTestId('pr-add-button');
+    fireEvent.click(addPRButton);
 
     await waitFor(() => {
       expect(mockAddPullRequest).toHaveBeenCalledWith({
@@ -179,14 +183,14 @@ describe('PullRequestsPageContainer', () => {
     fireEvent.click(addButton);
 
     // Enter valid URL
-    const input = screen.getByLabelText(/GitHub Pull Request URL/);
+    const input = screen.getByTestId('pr-url-input').querySelector('input') as HTMLInputElement;
     fireEvent.change(input, {
       target: { value: 'https://github.com/owner/repo/pull/123' },
     });
 
-    // Click add
-    const submitButton = screen.getByRole('button', { name: /Add/i });
-    fireEvent.click(submitButton);
+    // Try to add
+    const addPRButton = screen.getByTestId('pr-add-button');
+    fireEvent.click(addPRButton);
 
     await waitFor(() => {
       expect(enqueueSnackbar).toHaveBeenCalledWith('Failed to add pull request', {
@@ -204,6 +208,24 @@ describe('PullRequestsPageContainer', () => {
       updatedAt: '2024-01-01T00:00:00Z',
     };
 
+    const mockDetails = {
+      id: 'pr-1',
+      number: 123,
+      title: 'Test PR',
+      url: 'https://github.com/owner/repo/pull/123',
+      state: 'open',
+      merged: false,
+      mergeableState: 'clean',
+      createdAt: '2024-01-01T00:00:00Z',
+      updatedAt: '2024-01-01T00:00:00Z',
+      author: {
+        username: 'testuser',
+        avatarUrl: 'https://example.com/avatar.png',
+        htmlUrl: 'https://github.com/testuser',
+      },
+      labels: [],
+    };
+
     vi.mocked(usePullRequests).mockReturnValue({
       data: [mockPR],
       loading: false,
@@ -211,27 +233,76 @@ describe('PullRequestsPageContainer', () => {
       refetch: mockRefetch,
     });
 
+    mockUsePullRequestDetails.mockReturnValue({
+      data: mockDetails,
+      loading: false,
+    });
+
     render(<PullRequestsPageContainer />);
 
-    // Should render the PR list
-    expect(screen.getByTestId('pull-requests-page')).toBeInTheDocument();
+    expect(screen.getByTestId('pr-card-pr-1')).toBeInTheDocument();
+    expect(screen.getByText('Test PR')).toBeInTheDocument();
   });
 
   it('handles delete pull request error', async () => {
+    const mockPR = {
+      id: 'pr-1',
+      repository: 'owner/repo',
+      pullRequestNumber: 123,
+      createdAt: '2024-01-01T00:00:00Z',
+      updatedAt: '2024-01-01T00:00:00Z',
+    };
+
+    const mockDetails = {
+      id: 'pr-1',
+      number: 123,
+      title: 'Test PR',
+      url: 'https://github.com/owner/repo/pull/123',
+      state: 'open',
+      merged: false,
+      mergeableState: 'clean',
+      createdAt: '2024-01-01T00:00:00Z',
+      updatedAt: '2024-01-01T00:00:00Z',
+      author: {
+        username: 'testuser',
+        avatarUrl: 'https://example.com/avatar.png',
+        htmlUrl: 'https://github.com/testuser',
+      },
+      labels: [],
+    };
+
     vi.mocked(usePullRequests).mockReturnValue({
-      data: [],
+      data: [mockPR],
       loading: false,
       error: null,
       refetch: mockRefetch,
     });
 
+    mockUsePullRequestDetails.mockReturnValue({
+      data: mockDetails,
+      loading: false,
+    });
+
+    mockDeletePullRequest.mockRejectedValue(new Error('Failed to delete'));
+
     render(<PullRequestsPageContainer />);
 
-    // Should render empty state
-    expect(screen.getByText(/No pull requests found/)).toBeInTheDocument();
+    // Open delete dialog
+    const deleteButton = screen.getByTestId('pr-delete-button-pr-1');
+    fireEvent.click(deleteButton);
+
+    // Confirm delete
+    const confirmButton = screen.getByTestId('pr-delete-confirm-button');
+    fireEvent.click(confirmButton);
+
+    await waitFor(() => {
+      expect(enqueueSnackbar).toHaveBeenCalledWith('Failed to delete pull request', {
+        variant: 'error',
+      });
+    });
   });
 
-  it('closes add dialog when handleCloseAddDialog is called', () => {
+  it('closes add dialog when handleCloseAddDialog is called', async () => {
     vi.mocked(usePullRequests).mockReturnValue({
       data: [],
       loading: false,
@@ -251,7 +322,10 @@ describe('PullRequestsPageContainer', () => {
     const cancelButton = screen.getByTestId('pr-cancel-button');
     fireEvent.click(cancelButton);
 
-    expect(screen.queryByTestId('add-pr-dialog')).not.toBeInTheDocument();
+    // Wait for the dialog to close (MUI dialogs have exit animations)
+    await waitFor(() => {
+      expect(screen.queryByTestId('add-pr-dialog')).not.toBeInTheDocument();
+    });
   });
 
   it('opens delete dialog when handleDeleteClick is called', async () => {
@@ -263,11 +337,34 @@ describe('PullRequestsPageContainer', () => {
       updatedAt: '2024-01-01T00:00:00Z',
     };
 
+    const mockDetails = {
+      id: 'pr-1',
+      number: 123,
+      title: 'Test PR',
+      url: 'https://github.com/owner/repo/pull/123',
+      state: 'open',
+      merged: false,
+      mergeableState: 'clean',
+      createdAt: '2024-01-01T00:00:00Z',
+      updatedAt: '2024-01-01T00:00:00Z',
+      author: {
+        username: 'testuser',
+        avatarUrl: 'https://example.com/avatar.png',
+        htmlUrl: 'https://github.com/testuser',
+      },
+      labels: [],
+    };
+
     vi.mocked(usePullRequests).mockReturnValue({
       data: [mockPR],
       loading: false,
       error: null,
       refetch: mockRefetch,
+    });
+
+    mockUsePullRequestDetails.mockReturnValue({
+      data: mockDetails,
+      loading: false,
     });
 
     render(<PullRequestsPageContainer />);
@@ -289,11 +386,34 @@ describe('PullRequestsPageContainer', () => {
       updatedAt: '2024-01-01T00:00:00Z',
     };
 
+    const mockDetails = {
+      id: 'pr-1',
+      number: 123,
+      title: 'Test PR',
+      url: 'https://github.com/owner/repo/pull/123',
+      state: 'open',
+      merged: false,
+      mergeableState: 'clean',
+      createdAt: '2024-01-01T00:00:00Z',
+      updatedAt: '2024-01-01T00:00:00Z',
+      author: {
+        username: 'testuser',
+        avatarUrl: 'https://example.com/avatar.png',
+        htmlUrl: 'https://github.com/testuser',
+      },
+      labels: [],
+    };
+
     vi.mocked(usePullRequests).mockReturnValue({
       data: [mockPR],
       loading: false,
       error: null,
       refetch: mockRefetch,
+    });
+
+    mockUsePullRequestDetails.mockReturnValue({
+      data: mockDetails,
+      loading: false,
     });
 
     mockDeletePullRequest.mockResolvedValue({});
@@ -327,6 +447,24 @@ describe('PullRequestsPageContainer', () => {
       updatedAt: '2024-01-01T00:00:00Z',
     };
 
+    const mockDetails = {
+      id: 'pr-1',
+      number: 123,
+      title: 'Test PR',
+      url: 'https://github.com/owner/repo/pull/123',
+      state: 'open',
+      merged: false,
+      mergeableState: 'clean',
+      createdAt: '2024-01-01T00:00:00Z',
+      updatedAt: '2024-01-01T00:00:00Z',
+      author: {
+        username: 'testuser',
+        avatarUrl: 'https://example.com/avatar.png',
+        htmlUrl: 'https://github.com/testuser',
+      },
+      labels: [],
+    };
+
     vi.mocked(usePullRequests).mockReturnValue({
       data: [mockPR],
       loading: false,
@@ -334,7 +472,12 @@ describe('PullRequestsPageContainer', () => {
       refetch: mockRefetch,
     });
 
-    mockDeletePullRequest.mockRejectedValue(new Error('Failed to delete'));
+    mockUsePullRequestDetails.mockReturnValue({
+      data: mockDetails,
+      loading: false,
+    });
+
+    mockDeletePullRequest.mockRejectedValue(new Error('Network error'));
 
     render(<PullRequestsPageContainer />);
 
@@ -362,11 +505,34 @@ describe('PullRequestsPageContainer', () => {
       updatedAt: '2024-01-01T00:00:00Z',
     };
 
+    const mockDetails = {
+      id: 'pr-1',
+      number: 123,
+      title: 'Test PR',
+      url: 'https://github.com/owner/repo/pull/123',
+      state: 'open',
+      merged: false,
+      mergeableState: 'clean',
+      createdAt: '2024-01-01T00:00:00Z',
+      updatedAt: '2024-01-01T00:00:00Z',
+      author: {
+        username: 'testuser',
+        avatarUrl: 'https://example.com/avatar.png',
+        htmlUrl: 'https://github.com/testuser',
+      },
+      labels: [],
+    };
+
     vi.mocked(usePullRequests).mockReturnValue({
       data: [mockPR],
       loading: false,
       error: null,
       refetch: mockRefetch,
+    });
+
+    mockUsePullRequestDetails.mockReturnValue({
+      data: mockDetails,
+      loading: false,
     });
 
     render(<PullRequestsPageContainer />);
@@ -381,7 +547,10 @@ describe('PullRequestsPageContainer', () => {
     const cancelButton = screen.getByTestId('pr-delete-cancel-button');
     fireEvent.click(cancelButton);
 
-    expect(screen.queryByTestId('delete-pr-dialog')).not.toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.queryByTestId('delete-pr-dialog')).not.toBeInTheDocument();
+    });
+
     expect(mockDeletePullRequest).not.toHaveBeenCalled();
   });
 });
