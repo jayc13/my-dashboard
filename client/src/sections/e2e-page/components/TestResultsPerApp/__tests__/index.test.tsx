@@ -275,31 +275,6 @@ describe('TestResultsPerApp index', () => {
       );
     });
 
-    it.skip('shows error when API is not available during context menu', async () => {
-      const data = [createMockData()];
-
-      // Mock useSDK to return null api BEFORE rendering
-      const originalApplications = mockApi.applications;
-      mockApi.applications = null as any;
-
-      render(<TestResultsPerApp data={data} isLoading={false} refetchData={mockRefetchData} />);
-
-      const card = screen.getByTestId('project-card-1');
-      fireEvent.contextMenu(card);
-
-      await waitFor(
-        () => {
-          expect(mockEnqueueSnackbar).toHaveBeenCalledWith('API is not available.', {
-            variant: 'error',
-          });
-        },
-        { timeout: 3000 },
-      );
-
-      // Restore mock
-      mockApi.applications = originalApplications;
-    });
-
     it('shows error when fetching app details fails', async () => {
       mockApi.applications.getApplication.mockResolvedValueOnce(null);
       const data = [createMockData()];

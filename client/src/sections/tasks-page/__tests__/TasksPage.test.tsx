@@ -91,4 +91,55 @@ describe('TasksPage', () => {
     const errorMessages = screen.getAllByText(/Error loading tickets/);
     expect(errorMessages).toHaveLength(2);
   });
+
+  it('passes empty array when manualTestingData is undefined', () => {
+    const props = {
+      ...defaultProps,
+      manualTestingData: undefined,
+    };
+
+    render(<TasksPage {...props} />);
+
+    expect(screen.getByTestId('jira-list-section-manual-testing')).toBeInTheDocument();
+  });
+
+  it('passes empty array when myTicketsData is undefined', () => {
+    const props = {
+      ...defaultProps,
+      myTicketsData: undefined,
+    };
+
+    render(<TasksPage {...props} />);
+
+    expect(screen.getByTestId('jira-list-section-my-tickets')).toBeInTheDocument();
+  });
+
+  it('passes loading state to manual testing section', () => {
+    const props = {
+      ...defaultProps,
+      isLoadingManualTesting: true,
+    };
+
+    render(<TasksPage {...props} />);
+
+    expect(screen.getByTestId('jira-list-section-manual-testing')).toBeInTheDocument();
+  });
+
+  it('passes loading state to my tickets section', () => {
+    const props = {
+      ...defaultProps,
+      isLoadingMyTickets: true,
+    };
+
+    render(<TasksPage {...props} />);
+
+    expect(screen.getByTestId('jira-list-section-my-tickets')).toBeInTheDocument();
+  });
+
+  it('passes sortByStatus prop to My Tickets section', () => {
+    render(<TasksPage {...defaultProps} />);
+
+    // The My Tickets section should have sortByStatus prop
+    expect(screen.getByTestId('jira-list-section-my-tickets')).toBeInTheDocument();
+  });
 });

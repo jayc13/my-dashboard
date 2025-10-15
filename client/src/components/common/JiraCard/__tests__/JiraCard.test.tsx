@@ -151,5 +151,33 @@ describe('JiraCard Components', () => {
       expect(screen.getByText('label2')).toBeInTheDocument();
       expect(screen.getByText('label3')).toBeInTheDocument();
     });
+
+    it('renders overflow indicator when labels exceed maxVisible', () => {
+      render(<JiraCardLabels labels={['label1', 'label2', 'label3', 'label4', 'label5']} />);
+      expect(screen.getByText('label1')).toBeInTheDocument();
+      expect(screen.getByText('label2')).toBeInTheDocument();
+      expect(screen.getByText('label3')).toBeInTheDocument();
+      expect(screen.getByText('+2')).toBeInTheDocument();
+      expect(screen.queryByText('label4')).not.toBeInTheDocument();
+      expect(screen.queryByText('label5')).not.toBeInTheDocument();
+    });
+
+    it('respects custom maxVisible prop', () => {
+      render(
+        <JiraCardLabels labels={['label1', 'label2', 'label3', 'label4', 'label5']} maxVisible={2} />,
+      );
+      expect(screen.getByText('label1')).toBeInTheDocument();
+      expect(screen.getByText('label2')).toBeInTheDocument();
+      expect(screen.getByText('+3')).toBeInTheDocument();
+      expect(screen.queryByText('label3')).not.toBeInTheDocument();
+    });
+
+    it('does not render overflow indicator when labels equal maxVisible', () => {
+      render(<JiraCardLabels labels={['label1', 'label2', 'label3']} maxVisible={3} />);
+      expect(screen.getByText('label1')).toBeInTheDocument();
+      expect(screen.getByText('label2')).toBeInTheDocument();
+      expect(screen.getByText('label3')).toBeInTheDocument();
+      expect(screen.queryByText(/^\+/)).not.toBeInTheDocument();
+    });
   });
 });

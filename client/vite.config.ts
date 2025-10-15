@@ -109,7 +109,14 @@ export default defineConfig(({ mode }) => ({
         'src/utils/**/*.{ts,tsx}',
         'src/components/**/*.{ts,tsx}',
       ],
-      exclude: ['**/*.d.ts', '**/*.config.*', '**/mockData', '**/*.test.*', '**/*.spec.*'],
+      exclude: [
+        '**/*.d.ts',
+        '**/*.config.*',
+        '**/mockData',
+        '**/*.test.*',
+        '**/*.spec.*',
+        '**/types.ts',
+      ],
     },
   },
 }));

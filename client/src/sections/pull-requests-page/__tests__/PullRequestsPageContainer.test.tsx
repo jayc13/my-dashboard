@@ -230,4 +230,158 @@ describe('PullRequestsPageContainer', () => {
     // Should render empty state
     expect(screen.getByText(/No pull requests found/)).toBeInTheDocument();
   });
+
+  it('closes add dialog when handleCloseAddDialog is called', () => {
+    vi.mocked(usePullRequests).mockReturnValue({
+      data: [],
+      loading: false,
+      error: null,
+      refetch: mockRefetch,
+    });
+
+    render(<PullRequestsPageContainer />);
+
+    // Open dialog
+    const addButton = screen.getByText(/Add Pull Request/);
+    fireEvent.click(addButton);
+
+    expect(screen.getByTestId('add-pr-dialog')).toBeInTheDocument();
+
+    // Close dialog
+    const cancelButton = screen.getByTestId('pr-cancel-button');
+    fireEvent.click(cancelButton);
+
+    expect(screen.queryByTestId('add-pr-dialog')).not.toBeInTheDocument();
+  });
+
+  it('opens delete dialog when handleDeleteClick is called', async () => {
+    const mockPR = {
+      id: 'pr-1',
+      repository: 'owner/repo',
+      pullRequestNumber: 123,
+      createdAt: '2024-01-01T00:00:00Z',
+      updatedAt: '2024-01-01T00:00:00Z',
+    };
+
+    vi.mocked(usePullRequests).mockReturnValue({
+      data: [mockPR],
+      loading: false,
+      error: null,
+      refetch: mockRefetch,
+    });
+
+    render(<PullRequestsPageContainer />);
+
+    // Find and click delete button
+    const deleteButton = screen.getByTestId('pr-delete-button-pr-1');
+    fireEvent.click(deleteButton);
+
+    // Delete dialog should be open
+    expect(screen.getByTestId('delete-pr-dialog')).toBeInTheDocument();
+  });
+
+  it('confirms delete and calls deletePullRequest', async () => {
+    const mockPR = {
+      id: 'pr-1',
+      repository: 'owner/repo',
+      pullRequestNumber: 123,
+      createdAt: '2024-01-01T00:00:00Z',
+      updatedAt: '2024-01-01T00:00:00Z',
+    };
+
+    vi.mocked(usePullRequests).mockReturnValue({
+      data: [mockPR],
+      loading: false,
+      error: null,
+      refetch: mockRefetch,
+    });
+
+    mockDeletePullRequest.mockResolvedValue({});
+
+    render(<PullRequestsPageContainer />);
+
+    // Open delete dialog
+    const deleteButton = screen.getByTestId('pr-delete-button-pr-1');
+    fireEvent.click(deleteButton);
+
+    // Confirm delete
+    const confirmButton = screen.getByTestId('pr-delete-confirm-button');
+    fireEvent.click(confirmButton);
+
+    await waitFor(() => {
+      expect(mockDeletePullRequest).toHaveBeenCalledWith('pr-1');
+    });
+
+    expect(enqueueSnackbar).toHaveBeenCalledWith('Pull request deleted successfully', {
+      variant: 'success',
+    });
+    expect(mockRefetch).toHaveBeenCalled();
+  });
+
+  it('handles delete error and shows error message', async () => {
+    const mockPR = {
+      id: 'pr-1',
+      repository: 'owner/repo',
+      pullRequestNumber: 123,
+      createdAt: '2024-01-01T00:00:00Z',
+      updatedAt: '2024-01-01T00:00:00Z',
+    };
+
+    vi.mocked(usePullRequests).mockReturnValue({
+      data: [mockPR],
+      loading: false,
+      error: null,
+      refetch: mockRefetch,
+    });
+
+    mockDeletePullRequest.mockRejectedValue(new Error('Failed to delete'));
+
+    render(<PullRequestsPageContainer />);
+
+    // Open delete dialog
+    const deleteButton = screen.getByTestId('pr-delete-button-pr-1');
+    fireEvent.click(deleteButton);
+
+    // Confirm delete
+    const confirmButton = screen.getByTestId('pr-delete-confirm-button');
+    fireEvent.click(confirmButton);
+
+    await waitFor(() => {
+      expect(enqueueSnackbar).toHaveBeenCalledWith('Failed to delete pull request', {
+        variant: 'error',
+      });
+    });
+  });
+
+  it('cancels delete and closes dialog', async () => {
+    const mockPR = {
+      id: 'pr-1',
+      repository: 'owner/repo',
+      pullRequestNumber: 123,
+      createdAt: '2024-01-01T00:00:00Z',
+      updatedAt: '2024-01-01T00:00:00Z',
+    };
+
+    vi.mocked(usePullRequests).mockReturnValue({
+      data: [mockPR],
+      loading: false,
+      error: null,
+      refetch: mockRefetch,
+    });
+
+    render(<PullRequestsPageContainer />);
+
+    // Open delete dialog
+    const deleteButton = screen.getByTestId('pr-delete-button-pr-1');
+    fireEvent.click(deleteButton);
+
+    expect(screen.getByTestId('delete-pr-dialog')).toBeInTheDocument();
+
+    // Cancel delete
+    const cancelButton = screen.getByTestId('pr-delete-cancel-button');
+    fireEvent.click(cancelButton);
+
+    expect(screen.queryByTestId('delete-pr-dialog')).not.toBeInTheDocument();
+    expect(mockDeletePullRequest).not.toHaveBeenCalled();
+  });
 });
