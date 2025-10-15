@@ -20,7 +20,7 @@ const HeaderNavigation: React.FC<HeaderNavigationProps> = ({ onNavigate }) => {
       }}
     >
       {NAVIGATION_ITEMS.map(item => (
-        <ListItem key={item.text} disablePadding sx={{ flex: '4 1 0', minWidth: 200 }}>
+        <ListItem key={item.text} disablePadding sx={{ flex: '1 1 0', minWidth: 200 }}>
           <ListItemButton
             onClick={() => onNavigate(item.path)}
             selected={currentPath === item.path}
