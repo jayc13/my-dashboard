@@ -9,6 +9,7 @@
  */
 
 describe('SDK Utility', () => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let getSDK: () => Promise<any>;
   let mockMyDashboardAPI: jest.Mock;
 
@@ -219,7 +220,7 @@ describe('SDK Utility', () => {
 
       try {
         await sdkModule.getSDK();
-      } catch (error) {
+      } catch {
         // Expected error
       }
 
