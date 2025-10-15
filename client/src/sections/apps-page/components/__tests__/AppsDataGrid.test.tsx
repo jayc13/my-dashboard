@@ -1,4 +1,4 @@
-import { render, screen, fireEvent, within } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 import AppsDataGrid from '../AppsDataGrid';
 import type { Application } from '@/types';
@@ -226,8 +226,6 @@ describe('AppsDataGrid', () => {
     render(<AppsDataGrid {...defaultProps} />);
 
     const toggleButton = screen.getByTestId('app-toggle-watching-app-one');
-    const tooltip =
-      toggleButton.closest('[title]') || toggleButton.parentElement?.closest('[title]');
 
     // The tooltip is rendered by MUI and may not be immediately visible
     expect(toggleButton).toBeInTheDocument();

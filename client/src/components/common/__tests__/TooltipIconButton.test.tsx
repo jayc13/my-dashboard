@@ -135,7 +135,7 @@ describe('TooltipIconButton', () => {
   });
 
   it('does not add link props when href is not provided', () => {
-    const { container } = render(
+    render(
       <TooltipIconButton aria-label="Regular Button">
         <DeleteIcon />
       </TooltipIconButton>,

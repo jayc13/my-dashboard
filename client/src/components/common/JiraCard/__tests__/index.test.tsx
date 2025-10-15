@@ -9,11 +9,14 @@ window.open = mockWindowOpen;
 
 describe('JiraCard index', () => {
   const mockTicket: JiraTicket = {
+    id: '10001',
     key: 'TEST-123',
     summary: 'Test ticket summary',
     status: 'In Progress',
     priority: 'High',
     assignee: 'John Doe',
+    reporter: 'Jane Smith',
+    created: '2024-01-10T10:30:00Z',
     updated: '2024-01-15T10:30:00Z',
     url: 'https://jira.example.com/browse/TEST-123',
     labels: ['frontend', 'urgent'],
@@ -63,7 +66,9 @@ describe('JiraCard index', () => {
     const ticketWithParent: JiraTicket = {
       ...mockTicket,
       parent: {
+        id: '10002',
         key: 'PARENT-456',
+        url: 'https://jira.example.com/browse/PARENT-456',
         summary: 'Parent ticket summary',
       },
     };
@@ -101,11 +106,14 @@ describe('JiraCard index', () => {
 
   it('renders with minimal ticket data', () => {
     const minimalTicket: JiraTicket = {
+      id: '10003',
       key: 'MIN-1',
       summary: 'Minimal ticket',
       status: 'To Do',
       priority: 'Medium',
       assignee: '',
+      reporter: 'Unknown',
+      created: '2024-01-01T00:00:00Z',
       updated: '2024-01-01T00:00:00Z',
       url: 'https://jira.example.com/browse/MIN-1',
       labels: [],
