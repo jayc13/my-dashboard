@@ -87,7 +87,7 @@ describe('ContextMenu', () => {
     });
 
     it('should display "Not Configured" when e2eTriggerConfiguration is null', () => {
-      const resultWithoutConfig = { ...mockResult, e2eTriggerConfiguration: null };
+      const resultWithoutConfig = { ...mockResult, e2eTriggerConfiguration: undefined };
       render(<ContextMenu {...defaultProps} result={resultWithoutConfig} />);
       expect(screen.getByText('Not Configured')).toBeInTheDocument();
     });
@@ -145,7 +145,7 @@ describe('ContextMenu', () => {
     });
 
     it('should not render "Open in Pipelines" when pipelineUrl is null', () => {
-      const resultWithoutPipeline = { ...mockResult, pipelineUrl: null };
+      const resultWithoutPipeline = { ...mockResult, pipelineUrl: undefined };
       render(<ContextMenu {...defaultProps} result={resultWithoutPipeline} />);
 
       expect(screen.queryByText('Open in Pipelines')).not.toBeInTheDocument();
@@ -180,7 +180,7 @@ describe('ContextMenu', () => {
     });
 
     it('should disable "Trigger E2E Runs" when e2eTriggerConfiguration is not set', () => {
-      const resultWithoutConfig = { ...mockResult, e2eTriggerConfiguration: null };
+      const resultWithoutConfig = { ...mockResult, e2eTriggerConfiguration: undefined };
       render(<ContextMenu {...defaultProps} result={resultWithoutConfig} />);
 
       const triggerButton = screen.getByText('Trigger E2E Runs');
