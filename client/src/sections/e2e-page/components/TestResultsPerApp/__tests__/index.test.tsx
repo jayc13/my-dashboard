@@ -59,13 +59,22 @@ vi.mock('../ProjectCard', () => ({
 }));
 
 vi.mock('../ContextMenu.tsx', () => ({
-  default: ({ loadingAppDetails, onOpenUrl, onCopyProjectName, onCopyProjectCode, onTriggerE2ERuns, result }: any) => (
+  default: ({
+    loadingAppDetails,
+    onOpenUrl,
+    onCopyProjectName,
+    onCopyProjectCode,
+    onTriggerE2ERuns,
+    result,
+  }: any) => (
     <div data-testid="context-menu">
       {loadingAppDetails ? (
         <div data-testid="context-menu-loading">Loading...</div>
       ) : (
         <>
-          <button onClick={() => onOpenUrl(result?.pipelineUrl || 'https://example.com')}>Open URL</button>
+          <button onClick={() => onOpenUrl(result?.pipelineUrl || 'https://example.com')}>
+            Open URL
+          </button>
           <button onClick={onCopyProjectName}>Copy Name</button>
           <button onClick={onCopyProjectCode}>Copy Code</button>
           <button onClick={onTriggerE2ERuns}>Trigger E2E</button>
@@ -250,14 +259,20 @@ describe('TestResultsPerApp index', () => {
       fireEvent.contextMenu(card);
 
       // First it should show loading
-      await waitFor(() => {
-        expect(screen.getByTestId('context-menu-loading')).toBeInTheDocument();
-      }, { timeout: 1000 });
+      await waitFor(
+        () => {
+          expect(screen.getByTestId('context-menu-loading')).toBeInTheDocument();
+        },
+        { timeout: 1000 },
+      );
 
       // Then it should show the actual menu after loading
-      await waitFor(() => {
-        expect(screen.getByText('Open URL')).toBeInTheDocument();
-      }, { timeout: 3000 });
+      await waitFor(
+        () => {
+          expect(screen.getByText('Open URL')).toBeInTheDocument();
+        },
+        { timeout: 3000 },
+      );
     });
 
     it.skip('shows error when API is not available during context menu', async () => {
@@ -272,11 +287,14 @@ describe('TestResultsPerApp index', () => {
       const card = screen.getByTestId('project-card-1');
       fireEvent.contextMenu(card);
 
-      await waitFor(() => {
-        expect(mockEnqueueSnackbar).toHaveBeenCalledWith('API is not available.', {
-          variant: 'error',
-        });
-      }, { timeout: 3000 });
+      await waitFor(
+        () => {
+          expect(mockEnqueueSnackbar).toHaveBeenCalledWith('API is not available.', {
+            variant: 'error',
+          });
+        },
+        { timeout: 3000 },
+      );
 
       // Restore mock
       mockApi.applications = originalApplications;
@@ -290,11 +308,14 @@ describe('TestResultsPerApp index', () => {
       const card = screen.getByTestId('project-card-1');
       fireEvent.contextMenu(card);
 
-      await waitFor(() => {
-        expect(mockEnqueueSnackbar).toHaveBeenCalledWith('Failed to fetch application details.', {
-          variant: 'error',
-        });
-      }, { timeout: 3000 });
+      await waitFor(
+        () => {
+          expect(mockEnqueueSnackbar).toHaveBeenCalledWith('Failed to fetch application details.', {
+            variant: 'error',
+          });
+        },
+        { timeout: 3000 },
+      );
     });
 
     it('opens URL in new tab when clicking Open URL', async () => {
@@ -305,9 +326,12 @@ describe('TestResultsPerApp index', () => {
       fireEvent.contextMenu(card);
 
       // Wait for menu to finish loading
-      await waitFor(() => {
-        expect(screen.getByText('Open URL')).toBeInTheDocument();
-      }, { timeout: 3000 });
+      await waitFor(
+        () => {
+          expect(screen.getByText('Open URL')).toBeInTheDocument();
+        },
+        { timeout: 3000 },
+      );
 
       const openUrlButton = screen.getByText('Open URL');
       await userEvent.click(openUrlButton);
@@ -315,9 +339,12 @@ describe('TestResultsPerApp index', () => {
       expect(mockWindowOpen).toHaveBeenCalledWith('https://example.com/pipeline', '_blank');
 
       // Context menu should be closed
-      await waitFor(() => {
-        expect(screen.queryByTestId('context-menu')).not.toBeInTheDocument();
-      }, { timeout: 3000 });
+      await waitFor(
+        () => {
+          expect(screen.queryByTestId('context-menu')).not.toBeInTheDocument();
+        },
+        { timeout: 3000 },
+      );
     });
 
     it('copies project name to clipboard', async () => {
@@ -327,9 +354,12 @@ describe('TestResultsPerApp index', () => {
       const card = screen.getByTestId('project-card-1');
       fireEvent.contextMenu(card);
 
-      await waitFor(() => {
-        expect(screen.getByText('Copy Name')).toBeInTheDocument();
-      }, { timeout: 3000 });
+      await waitFor(
+        () => {
+          expect(screen.getByText('Copy Name')).toBeInTheDocument();
+        },
+        { timeout: 3000 },
+      );
 
       const copyNameButton = screen.getByText('Copy Name');
       await userEvent.click(copyNameButton);
@@ -337,9 +367,12 @@ describe('TestResultsPerApp index', () => {
       expect(navigator.clipboard.writeText).toHaveBeenCalledWith('Test App');
 
       // Context menu should be closed
-      await waitFor(() => {
-        expect(screen.queryByTestId('context-menu')).not.toBeInTheDocument();
-      }, { timeout: 3000 });
+      await waitFor(
+        () => {
+          expect(screen.queryByTestId('context-menu')).not.toBeInTheDocument();
+        },
+        { timeout: 3000 },
+      );
     });
 
     it('copies project code to clipboard', async () => {
@@ -349,9 +382,12 @@ describe('TestResultsPerApp index', () => {
       const card = screen.getByTestId('project-card-1');
       fireEvent.contextMenu(card);
 
-      await waitFor(() => {
-        expect(screen.getByText('Copy Code')).toBeInTheDocument();
-      }, { timeout: 3000 });
+      await waitFor(
+        () => {
+          expect(screen.getByText('Copy Code')).toBeInTheDocument();
+        },
+        { timeout: 3000 },
+      );
 
       const copyCodeButton = screen.getByText('Copy Code');
       await userEvent.click(copyCodeButton);
@@ -359,9 +395,12 @@ describe('TestResultsPerApp index', () => {
       expect(navigator.clipboard.writeText).toHaveBeenCalledWith('test-app-123');
 
       // Context menu should be closed
-      await waitFor(() => {
-        expect(screen.queryByTestId('context-menu')).not.toBeInTheDocument();
-      }, { timeout: 3000 });
+      await waitFor(
+        () => {
+          expect(screen.queryByTestId('context-menu')).not.toBeInTheDocument();
+        },
+        { timeout: 3000 },
+      );
     });
 
     it('triggers E2E runs successfully', async () => {
@@ -371,21 +410,27 @@ describe('TestResultsPerApp index', () => {
       const card = screen.getByTestId('project-card-1');
       fireEvent.contextMenu(card);
 
-      await waitFor(() => {
-        expect(screen.getByText('Trigger E2E')).toBeInTheDocument();
-      }, { timeout: 3000 });
+      await waitFor(
+        () => {
+          expect(screen.getByText('Trigger E2E')).toBeInTheDocument();
+        },
+        { timeout: 3000 },
+      );
 
       const triggerButton = screen.getByText('Trigger E2E');
       await userEvent.click(triggerButton);
 
-      await waitFor(() => {
-        expect(mockTriggerManualRun).toHaveBeenCalledWith(1);
-        expect(mockRefetchData).toHaveBeenCalled();
-        expect(mockEnqueueSnackbar).toHaveBeenCalledWith(
-          'E2E run for Test App were triggered successfully!',
-          { variant: 'success', autoHideDuration: 10000 },
-        );
-      }, { timeout: 3000 });
+      await waitFor(
+        () => {
+          expect(mockTriggerManualRun).toHaveBeenCalledWith(1);
+          expect(mockRefetchData).toHaveBeenCalled();
+          expect(mockEnqueueSnackbar).toHaveBeenCalledWith(
+            'E2E run for Test App were triggered successfully!',
+            { variant: 'success', autoHideDuration: 10000 },
+          );
+        },
+        { timeout: 3000 },
+      );
     });
 
     it('shows error when triggering E2E runs fails', async () => {
@@ -396,19 +441,25 @@ describe('TestResultsPerApp index', () => {
       const card = screen.getByTestId('project-card-1');
       fireEvent.contextMenu(card);
 
-      await waitFor(() => {
-        expect(screen.getByText('Trigger E2E')).toBeInTheDocument();
-      }, { timeout: 3000 });
+      await waitFor(
+        () => {
+          expect(screen.getByText('Trigger E2E')).toBeInTheDocument();
+        },
+        { timeout: 3000 },
+      );
 
       const triggerButton = screen.getByText('Trigger E2E');
       await userEvent.click(triggerButton);
 
-      await waitFor(() => {
-        expect(mockEnqueueSnackbar).toHaveBeenCalledWith(
-          'Failed to trigger E2E runs: Network error',
-          { variant: 'error' },
-        );
-      }, { timeout: 3000 });
+      await waitFor(
+        () => {
+          expect(mockEnqueueSnackbar).toHaveBeenCalledWith(
+            'Failed to trigger E2E runs: Network error',
+            { variant: 'error' },
+          );
+        },
+        { timeout: 3000 },
+      );
     });
 
     it('shows error when triggering E2E runs with unknown error', async () => {
@@ -419,19 +470,25 @@ describe('TestResultsPerApp index', () => {
       const card = screen.getByTestId('project-card-1');
       fireEvent.contextMenu(card);
 
-      await waitFor(() => {
-        expect(screen.getByText('Trigger E2E')).toBeInTheDocument();
-      }, { timeout: 3000 });
+      await waitFor(
+        () => {
+          expect(screen.getByText('Trigger E2E')).toBeInTheDocument();
+        },
+        { timeout: 3000 },
+      );
 
       const triggerButton = screen.getByText('Trigger E2E');
       await userEvent.click(triggerButton);
 
-      await waitFor(() => {
-        expect(mockEnqueueSnackbar).toHaveBeenCalledWith(
-          'Failed to trigger E2E runs: Unknown error',
-          { variant: 'error' },
-        );
-      }, { timeout: 3000 });
+      await waitFor(
+        () => {
+          expect(mockEnqueueSnackbar).toHaveBeenCalledWith(
+            'Failed to trigger E2E runs: Unknown error',
+            { variant: 'error' },
+          );
+        },
+        { timeout: 3000 },
+      );
     });
 
     it('closes context menu when clicking outside', async () => {
@@ -441,16 +498,22 @@ describe('TestResultsPerApp index', () => {
       const card = screen.getByTestId('project-card-1');
       fireEvent.contextMenu(card);
 
-      await waitFor(() => {
-        expect(screen.getByTestId('context-menu')).toBeInTheDocument();
-      }, { timeout: 3000 });
+      await waitFor(
+        () => {
+          expect(screen.getByTestId('context-menu')).toBeInTheDocument();
+        },
+        { timeout: 3000 },
+      );
 
       // Click outside the context menu
       fireEvent.mouseDown(document.body);
 
-      await waitFor(() => {
-        expect(screen.queryByTestId('context-menu')).not.toBeInTheDocument();
-      }, { timeout: 3000 });
+      await waitFor(
+        () => {
+          expect(screen.queryByTestId('context-menu')).not.toBeInTheDocument();
+        },
+        { timeout: 3000 },
+      );
     });
 
     it('closes context menu when right-clicking on a different card', async () => {
@@ -470,18 +533,24 @@ describe('TestResultsPerApp index', () => {
       fireEvent.contextMenu(card1);
 
       // Wait for first context menu to appear
-      await waitFor(() => {
-        expect(screen.getByTestId('context-menu')).toBeInTheDocument();
-      }, { timeout: 3000 });
+      await waitFor(
+        () => {
+          expect(screen.getByTestId('context-menu')).toBeInTheDocument();
+        },
+        { timeout: 3000 },
+      );
 
       // Right-click on a different card - the component's event listener closes the menu
       const card2 = screen.getByTestId('project-card-2');
       fireEvent.contextMenu(card2);
 
       // The context menu should be closed
-      await waitFor(() => {
-        expect(screen.queryByTestId('context-menu')).not.toBeInTheDocument();
-      }, { timeout: 3000 });
+      await waitFor(
+        () => {
+          expect(screen.queryByTestId('context-menu')).not.toBeInTheDocument();
+        },
+        { timeout: 3000 },
+      );
     });
 
     it('does not close context menu when right-clicking on the same card', async () => {
@@ -491,17 +560,23 @@ describe('TestResultsPerApp index', () => {
       const card = screen.getByTestId('project-card-1');
       fireEvent.contextMenu(card);
 
-      await waitFor(() => {
-        expect(screen.getByTestId('context-menu')).toBeInTheDocument();
-      }, { timeout: 3000 });
+      await waitFor(
+        () => {
+          expect(screen.getByTestId('context-menu')).toBeInTheDocument();
+        },
+        { timeout: 3000 },
+      );
 
       // Right-click on the same card again
       fireEvent.contextMenu(card);
 
       // Context menu should still be visible
-      await waitFor(() => {
-        expect(screen.getByTestId('context-menu')).toBeInTheDocument();
-      }, { timeout: 1000 });
+      await waitFor(
+        () => {
+          expect(screen.getByTestId('context-menu')).toBeInTheDocument();
+        },
+        { timeout: 1000 },
+      );
     });
 
     it('does not close context menu when clicking inside it', async () => {
@@ -511,17 +586,23 @@ describe('TestResultsPerApp index', () => {
       const card = screen.getByTestId('project-card-1');
       fireEvent.contextMenu(card);
 
-      await waitFor(() => {
-        expect(screen.getByTestId('context-menu')).toBeInTheDocument();
-      }, { timeout: 3000 });
+      await waitFor(
+        () => {
+          expect(screen.getByTestId('context-menu')).toBeInTheDocument();
+        },
+        { timeout: 3000 },
+      );
 
       const contextMenu = screen.getByTestId('context-menu');
       fireEvent.mouseDown(contextMenu);
 
       // Context menu should still be visible after a short wait
-      await waitFor(() => {
-        expect(screen.getByTestId('context-menu')).toBeInTheDocument();
-      }, { timeout: 1000 });
+      await waitFor(
+        () => {
+          expect(screen.getByTestId('context-menu')).toBeInTheDocument();
+        },
+        { timeout: 1000 },
+      );
     });
   });
 });
