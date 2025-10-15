@@ -37,6 +37,7 @@ module.exports = [
       // General rules
       'no-console': 'off', // Allow console.log in cron jobs
       'no-unused-vars': 'off', // Use TypeScript version instead
+      'no-undef': 'off', // TypeScript handles this
       'prefer-const': 'error',
       'no-var': 'error',
       'eqeqeq': ['error', 'always'],
@@ -83,6 +84,7 @@ module.exports = [
       // General rules
       'no-console': 'off',
       'no-unused-vars': 'off', // Use TypeScript version instead
+      'no-undef': 'off', // TypeScript handles this
       'prefer-const': 'error',
       'no-var': 'error',
       'eqeqeq': ['error', 'always'],

@@ -13,5 +13,8 @@ module.exports = {
     manual_tickets_reminder: {
       schedule: process.env.MANUAL_TICKETS_REMINDER_SCHEDULE || '0 9 * * 1-5', // Daily at 9AM on weekdays
     },
+    delete_completed_todos: {
+      schedule: process.env.DELETE_COMPLETED_TODOS_SCHEDULE || '0 2 * * 0', // Weekly at 2AM on Sundays
+    },
   },
 };

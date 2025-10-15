@@ -4,6 +4,7 @@ import config from 'config';
 import runReportE2EJob from '@/jobs/report-e2e.job';
 import pullRequestsManagementJob from '@/jobs/pull-requests-management.job';
 import manualTicketsReminderJob from '@/jobs/manualTicketsReminder.job';
+import deleteCompletedTodosJob from '@/jobs/delete-completed-todos.job';
 import { testRedisConnection } from '@/utils/redis';
 import { getSDK } from '@/utils/sdk';
 
@@ -18,6 +19,7 @@ function getSchedules() {
     reportE2E: config.get<string>('jobs.report_e2e.schedule'),
     pullRequestsManagement: config.get<string>('jobs.pull_requests_management.schedule'),
     manualTicketsReminder: config.get<string>('jobs.manual_tickets_reminder.schedule'),
+    deleteCompletedTodos: config.get<string>('jobs.delete_completed_todos.schedule'),
   };
 }
 
@@ -46,6 +48,13 @@ function initializeCronJobs() {
   cron.schedule(schedules.manualTicketsReminder, async () => {
     console.log(`Checking if there are Manual Testing to do today: ${new Date().toISOString()}`);
     await manualTicketsReminderJob();
+  });
+
+  console.log(`Starting Delete Completed Todos cron job with schedule: ${schedules.deleteCompletedTodos}`);
+  // Schedule the delete completed todos job
+  cron.schedule(schedules.deleteCompletedTodos, async () => {
+    console.log(`Running Delete Completed Todos job at ${new Date().toISOString()}`);
+    await deleteCompletedTodosJob();
   });
 }
 
