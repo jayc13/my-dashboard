@@ -216,4 +216,3 @@ describe('TooltipIconButton', () => {
     expect(mockOnClick).toHaveBeenCalledTimes(1);
   });
 });
-

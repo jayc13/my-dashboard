@@ -49,13 +49,19 @@ vi.mock('react-router-dom', () => ({
 vi.mock('../AppsPage', () => ({
   default: (props: any) => (
     <div data-testid="apps-page-mock">
-      <button data-testid="toggle-watching-button" onClick={() => props.handleToggleWatching(props.apps?.[0])}>
+      <button
+        data-testid="toggle-watching-button"
+        onClick={() => props.handleToggleWatching(props.apps?.[0])}
+      >
         Toggle Watching
       </button>
       <button data-testid="open-dialog-button" onClick={() => props.handleOpenDialog()}>
         Open Dialog
       </button>
-      <button data-testid="open-edit-dialog-button" onClick={() => props.handleOpenDialog(props.apps?.[0])}>
+      <button
+        data-testid="open-edit-dialog-button"
+        onClick={() => props.handleOpenDialog(props.apps?.[0])}
+      >
         Open Edit Dialog
       </button>
       <button data-testid="close-dialog-button" onClick={props.handleCloseDialog}>
@@ -73,7 +79,10 @@ vi.mock('../AppsPage', () => ({
       <button data-testid="cancel-delete-button" onClick={props.handleCancelDelete}>
         Cancel Delete
       </button>
-      <button data-testid="set-form-data-button" onClick={() => props.setFormData({ name: 'Updated' })}>
+      <button
+        data-testid="set-form-data-button"
+        onClick={() => props.setFormData({ name: 'Updated' })}
+      >
         Set Form Data
       </button>
     </div>

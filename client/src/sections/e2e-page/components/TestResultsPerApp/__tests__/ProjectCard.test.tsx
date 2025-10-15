@@ -6,8 +6,12 @@ import type { DetailedE2EReportDetail } from '@my-dashboard/types';
 // Mock the utility functions
 vi.mock('../utils', () => ({
   getColorByPassingRate: vi.fn((rate: number) => {
-    if (rate >= 0.8) return 'green';
-    if (rate >= 0.5) return 'orange';
+    if (rate >= 0.8) {
+      return 'green';
+    }
+    if (rate >= 0.5) {
+      return 'orange';
+    }
     return 'red';
   }),
   getTooltipByPassingRate: vi.fn(() => <span data-testid="tooltip-icon">Info</span>),
@@ -24,7 +28,9 @@ describe('ProjectCard', () => {
   const mockOnUpdate = vi.fn();
   const mockOnContextMenu = vi.fn();
 
-  const createMockResult = (overrides?: Partial<DetailedE2EReportDetail>): DetailedE2EReportDetail => ({
+  const createMockResult = (
+    overrides?: Partial<DetailedE2EReportDetail>,
+  ): DetailedE2EReportDetail => ({
     id: 1,
     reportSummaryId: 1,
     appId: 1,
@@ -159,20 +165,17 @@ describe('ProjectCard', () => {
     );
     const card = screen.getByTestId('last-run-status-icon').closest('[data-project-card]');
     expect(card).toBeInTheDocument();
-    
+
     fireEvent.contextMenu(card!);
-    
+
     expect(mockOnContextMenu).toHaveBeenCalledTimes(1);
-    expect(mockOnContextMenu).toHaveBeenCalledWith(
-      expect.any(Object),
-      result.app,
-    );
+    expect(mockOnContextMenu).toHaveBeenCalledWith(expect.any(Object), result.app);
   });
 
   it('calls onUpdate when refresh button is clicked', async () => {
     const result = createMockResult();
     mockOnUpdate.mockResolvedValue(undefined);
-    
+
     render(
       <ProjectCard
         result={result}
@@ -181,10 +184,10 @@ describe('ProjectCard', () => {
         onContextMenu={mockOnContextMenu}
       />,
     );
-    
+
     const refreshButton = screen.getByTitle('Refresh last run status');
     fireEvent.click(refreshButton);
-    
+
     await waitFor(() => {
       expect(mockOnUpdate).toHaveBeenCalledTimes(1);
       expect(mockOnUpdate).toHaveBeenCalledWith('Test App');
@@ -194,11 +197,11 @@ describe('ProjectCard', () => {
   it('shows "Updating..." text while update is in progress', async () => {
     const result = createMockResult();
     let resolveUpdate: () => void;
-    const updatePromise = new Promise<void>((resolve) => {
+    const updatePromise = new Promise<void>(resolve => {
       resolveUpdate = resolve;
     });
     mockOnUpdate.mockReturnValue(updatePromise);
-    
+
     render(
       <ProjectCard
         result={result}
@@ -207,18 +210,18 @@ describe('ProjectCard', () => {
         onContextMenu={mockOnContextMenu}
       />,
     );
-    
+
     const refreshButton = screen.getByTitle('Refresh last run status');
     fireEvent.click(refreshButton);
-    
+
     // Should show "Updating..." while the promise is pending
     await waitFor(() => {
       expect(screen.getByText('Updating...')).toBeInTheDocument();
     });
-    
+
     // Resolve the promise
     resolveUpdate!();
-    
+
     // Should go back to showing last run time
     await waitFor(() => {
       expect(screen.queryByText('Updating...')).not.toBeInTheDocument();
@@ -229,11 +232,11 @@ describe('ProjectCard', () => {
   it('disables refresh button while updating', async () => {
     const result = createMockResult();
     let resolveUpdate: () => void;
-    const updatePromise = new Promise<void>((resolve) => {
+    const updatePromise = new Promise<void>(resolve => {
       resolveUpdate = resolve;
     });
     mockOnUpdate.mockReturnValue(updatePromise);
-    
+
     render(
       <ProjectCard
         result={result}
@@ -242,18 +245,18 @@ describe('ProjectCard', () => {
         onContextMenu={mockOnContextMenu}
       />,
     );
-    
+
     const refreshButton = screen.getByTitle('Refresh last run status');
     expect(refreshButton).not.toBeDisabled();
-    
+
     fireEvent.click(refreshButton);
-    
+
     await waitFor(() => {
       expect(refreshButton).toBeDisabled();
     });
-    
+
     resolveUpdate!();
-    
+
     await waitFor(() => {
       expect(refreshButton).not.toBeDisabled();
     });
@@ -334,4 +337,3 @@ describe('ProjectCard', () => {
     expect(utils.getTooltipByPassingRate).toHaveBeenCalledWith(80, 100, 0.8);
   });
 });
-
