@@ -6,23 +6,53 @@ import {
   FaHourglassHalf,
   FaQuestionCircle,
 } from 'react-icons/fa';
+import { Box } from '@mui/material';
 import type { DetailedE2EReportDetail } from '@my-dashboard/types';
-import './LastRunStatusIcon.css';
 
 const LastRunStatusIcon: React.FC<{ result: DetailedE2EReportDetail }> = ({ result }) => {
   const status = result.app?.lastRun?.status || result.lastRunStatus;
   switch (status) {
     case 'running':
-      return <FaCog className="spin" color="#757575" size={28} title="Running" />;
+      return (
+        <Box
+          component="span"
+          sx={{
+            display: 'inline-block',
+            animation: 'spin 1s linear infinite',
+            '@keyframes spin': {
+              to: { transform: 'rotate(360deg)' },
+            },
+          }}
+          title="Running"
+        >
+          <FaCog color="#757575" size={28} />
+        </Box>
+      );
     case 'passed':
     case 'success':
-      return <FaCheckCircle color="#4caf50" size={28} title="Passed" />;
+      return (
+        <Box component="span" display="inline-block" title="Passed">
+          <FaCheckCircle color="#4caf50" size={28} />
+        </Box>
+      );
     case 'failed':
-      return <FaTimesCircle color="#e53935" size={28} title="Failed" />;
+      return (
+        <Box component="span" display="inline-block" title="Failed">
+          <FaTimesCircle color="#e53935" size={28} />
+        </Box>
+      );
     case 'pending':
-      return <FaHourglassHalf color="#1976d2" size={28} title="Pending" />;
+      return (
+        <Box component="span" display="inline-block" title="Pending">
+          <FaHourglassHalf color="#1976d2" size={28} />
+        </Box>
+      );
     default:
-      return <FaQuestionCircle color="#757575" size={28} title="Unknown" />;
+      return (
+        <Box component="span" display="inline-block" title="Unknown">
+          <FaQuestionCircle color="#757575" size={28} />
+        </Box>
+      );
   }
 };
 

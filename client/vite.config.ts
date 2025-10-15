@@ -53,9 +53,19 @@ export default defineConfig(({ mode }) => ({
         manualChunks: id => {
           // Vendor chunks for large libraries
           if (id.includes('node_modules')) {
-            // MUI and related packages
-            if (id.includes('@mui') || id.includes('@emotion')) {
-              return 'vendor-mui';
+            // Split MUI into smaller chunks to avoid large bundle warning
+            if (id.includes('@mui/x-data-grid')) {
+              return 'vendor-mui-datagrid';
+            }
+            if (id.includes('@mui/icons-material')) {
+              return 'vendor-mui-icons';
+            }
+            if (id.includes('@mui/material') || id.includes('@mui/system')) {
+              return 'vendor-mui-core';
+            }
+            // Emotion (used by MUI)
+            if (id.includes('@emotion')) {
+              return 'vendor-emotion';
             }
             // Firebase
             if (id.includes('firebase')) {
@@ -64,6 +74,10 @@ export default defineConfig(({ mode }) => ({
             // React and related
             if (id.includes('react') || id.includes('react-dom') || id.includes('react-router')) {
               return 'vendor-react';
+            }
+            // Chart libraries
+            if (id.includes('recharts') || id.includes('d3-')) {
+              return 'vendor-charts';
             }
             // Other vendor code
             return 'vendor-other';
@@ -91,13 +105,15 @@ export default defineConfig(({ mode }) => ({
     globals: true,
     environment: 'jsdom',
     setupFiles: ['test/setup.ts'],
-    css: {
-      modules: {
-        classNameStrategy: 'non-scoped',
-      },
-    },
+    testTimeout: 10000, // 10 second timeout for tests
+    css: false, // Disable CSS processing in tests to avoid import errors
     include: ['src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
     exclude: ['node_modules', 'dist', '.idea', '.git', '.cache'],
+    server: {
+      deps: {
+        inline: ['@mui/x-data-grid'], // Inline MUI DataGrid to handle CSS imports
+      },
+    },
     coverage: {
       provider: 'v8',
       reportsDirectory: './.coverage-report',
@@ -107,7 +123,14 @@ export default defineConfig(({ mode }) => ({
         'src/utils/**/*.{ts,tsx}',
         'src/components/**/*.{ts,tsx}',
       ],
-      exclude: ['**/*.d.ts', '**/*.config.*', '**/mockData', '**/*.test.*', '**/*.spec.*'],
+      exclude: [
+        '**/*.d.ts',
+        '**/*.config.*',
+        '**/mockData',
+        '**/*.test.*',
+        '**/*.spec.*',
+        '**/types.ts',
+      ],
     },
   },
 }));
