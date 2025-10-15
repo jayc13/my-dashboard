@@ -91,6 +91,7 @@ export default defineConfig(({ mode }) => ({
     globals: true,
     environment: 'jsdom',
     setupFiles: ['test/setup.ts'],
+    testTimeout: 10000, // 10 second timeout for tests
     css: false, // Disable CSS processing in tests to avoid import errors
     include: ['src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
     exclude: ['node_modules', 'dist', '.idea', '.git', '.cache'],

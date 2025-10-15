@@ -139,9 +139,21 @@ describe('TestResultsPerApp index', () => {
 
   it('sorts data by success rate ascending', () => {
     const data = [
-      createMockData({ appId: 1, successRate: 0.9, app: { id: 1, name: 'App 1', code: 'app-1' } }),
-      createMockData({ appId: 2, successRate: 0.5, app: { id: 2, name: 'App 2', code: 'app-2' } }),
-      createMockData({ appId: 3, successRate: 0.7, app: { id: 3, name: 'App 3', code: 'app-3' } }),
+      createMockData({
+        appId: 1,
+        successRate: 0.9,
+        app: { id: 1, name: 'App 1', code: 'app-1', e2eRunsQuantity: 10, watching: true },
+      }),
+      createMockData({
+        appId: 2,
+        successRate: 0.5,
+        app: { id: 2, name: 'App 2', code: 'app-2', e2eRunsQuantity: 20, watching: false },
+      }),
+      createMockData({
+        appId: 3,
+        successRate: 0.7,
+        app: { id: 3, name: 'App 3', code: 'app-3', e2eRunsQuantity: 30, watching: true },
+      }),
     ];
     render(<TestResultsPerApp data={data} isLoading={false} refetchData={mockRefetchData} />);
 
@@ -177,7 +189,13 @@ describe('TestResultsPerApp index', () => {
         createMockData({
           appId: i + 1,
           id: i + 1,
-          app: { id: i + 1, name: `App ${i + 1}`, code: `app-${i + 1}` },
+          app: {
+            id: i + 1,
+            name: `App ${i + 1}`,
+            code: `app-${i + 1}`,
+            e2eRunsQuantity: 100 + i,
+            watching: i % 2 === 0,
+          },
         }),
       );
       render(<TestResultsPerApp data={data} isLoading={false} refetchData={mockRefetchData} />);
@@ -191,14 +209,20 @@ describe('TestResultsPerApp index', () => {
           appId: i + 1,
           id: i + 1,
           successRate: 0.5 + i * 0.01,
-          app: { id: i + 1, name: `App ${i + 1}`, code: `app-${i + 1}` },
+          app: {
+            id: i + 1,
+            name: `App ${i + 1}`,
+            code: `app-${i + 1}`,
+            e2eRunsQuantity: 100 + i,
+            watching: i % 2 === 0,
+          },
         }),
       );
       render(<TestResultsPerApp data={data} isLoading={false} refetchData={mockRefetchData} />);
 
       const page2Button = screen.getByRole('button', { name: 'Go to page 2' });
       await userEvent.click(page2Button);
-
+      fireEvent.click(page2Button);
       // Should show the 13th item on page 2
       await waitFor(() => {
         expect(screen.getByTestId('project-card-13')).toBeInTheDocument();
@@ -411,8 +435,14 @@ describe('TestResultsPerApp index', () => {
 
     it('closes context menu when right-clicking on a different card', async () => {
       const data = [
-        createMockData({ appId: 1, app: { id: 1, name: 'App 1', code: 'app-1' } }),
-        createMockData({ appId: 2, app: { id: 2, name: 'App 2', code: 'app-2' } }),
+        createMockData({
+          appId: 1,
+          app: { id: 1, name: 'App 1', code: 'app-1', e2eRunsQuantity: 10, watching: true },
+        }),
+        createMockData({
+          appId: 2,
+          app: { id: 2, name: 'App 2', code: 'app-2', e2eRunsQuantity: 20, watching: false },
+        }),
       ];
       render(<TestResultsPerApp data={data} isLoading={false} refetchData={mockRefetchData} />);
 
@@ -458,9 +488,7 @@ describe('TestResultsPerApp index', () => {
 
     it('does not close context menu when clicking inside it', async () => {
       const data = [createMockData()];
-      render(
-        <TestResultsPerApp data={data} isLoading={false} refetchData={mockRefetchData} />,
-      );
+      render(<TestResultsPerApp data={data} isLoading={false} refetchData={mockRefetchData} />);
 
       const card = screen.getByTestId('project-card-1');
       fireEvent.contextMenu(card);

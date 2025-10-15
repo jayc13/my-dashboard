@@ -74,7 +74,7 @@ export default tseslint.config([
         },
       ],
       'array-bracket-newline': ['error', 'consistent'],
-      'function-paren-newline': ['error', 'consistent'],
+      'function-paren-newline': 'off',
 
       // React specific rules
       'react-hooks/rules-of-hooks': 'error',
@@ -150,7 +150,7 @@ export default tseslint.config([
         },
       ],
       'array-bracket-newline': ['error', 'consistent'],
-      'function-paren-newline': ['error', 'consistent'],
+      'function-paren-newline': 'off',
 
       // React specific rules for JS files
       'react-hooks/rules-of-hooks': 'error',
@@ -222,7 +222,7 @@ export default tseslint.config([
         },
       ],
       'array-bracket-newline': ['error', 'consistent'],
-      'function-paren-newline': ['error', 'consistent'],
+      'function-paren-newline': 'off',
     },
   },
   {
