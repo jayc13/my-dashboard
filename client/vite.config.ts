@@ -91,13 +91,14 @@ export default defineConfig(({ mode }) => ({
     globals: true,
     environment: 'jsdom',
     setupFiles: ['test/setup.ts'],
-    css: {
-      modules: {
-        classNameStrategy: 'non-scoped',
-      },
-    },
+    css: false, // Disable CSS processing in tests to avoid import errors
     include: ['src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
     exclude: ['node_modules', 'dist', '.idea', '.git', '.cache'],
+    server: {
+      deps: {
+        inline: ['@mui/x-data-grid'], // Inline MUI DataGrid to handle CSS imports
+      },
+    },
     coverage: {
       provider: 'v8',
       reportsDirectory: './.coverage-report',
