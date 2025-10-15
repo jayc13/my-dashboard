@@ -27,6 +27,10 @@ describe('LastRunStatusIcon', () => {
       e2eRunsQuantity: 10,
       lastRun: {
         status: status as any,
+        id: 0,
+        url: '',
+        pipelineId: '',
+        createdAt: '',
       },
     },
   });
@@ -36,7 +40,9 @@ describe('LastRunStatusIcon', () => {
     const { container } = render(<LastRunStatusIcon result={result} />);
     const icon = container.querySelector('svg');
     expect(icon).toBeInTheDocument();
-    expect(icon?.getAttribute('title')).toBe('Passed');
+    // Check for the title prop passed to the wrapper element
+    const wrapper = container.querySelector('[title="Passed"]');
+    expect(wrapper).toBeInTheDocument();
   });
 
   it('renders failed icon', () => {
@@ -44,7 +50,8 @@ describe('LastRunStatusIcon', () => {
     const { container } = render(<LastRunStatusIcon result={result} />);
     const icon = container.querySelector('svg');
     expect(icon).toBeInTheDocument();
-    expect(icon?.getAttribute('title')).toBe('Failed');
+    const wrapper = container.querySelector('[title="Failed"]');
+    expect(wrapper).toBeInTheDocument();
   });
 
   it('renders running icon with animation', () => {
@@ -52,7 +59,8 @@ describe('LastRunStatusIcon', () => {
     const { container } = render(<LastRunStatusIcon result={result} />);
     const icon = container.querySelector('svg');
     expect(icon).toBeInTheDocument();
-    expect(icon?.getAttribute('title')).toBe('Running');
+    const wrapper = container.querySelector('[title="Running"]');
+    expect(wrapper).toBeInTheDocument();
     // Check for the animated wrapper
     const animatedBox = container.querySelector('span');
     expect(animatedBox).toBeInTheDocument();
@@ -63,7 +71,8 @@ describe('LastRunStatusIcon', () => {
     const { container } = render(<LastRunStatusIcon result={result} />);
     const icon = container.querySelector('svg');
     expect(icon).toBeInTheDocument();
-    expect(icon?.getAttribute('title')).toBe('Pending');
+    const wrapper = container.querySelector('[title="Pending"]');
+    expect(wrapper).toBeInTheDocument();
   });
 
   it('renders success icon (alias for passed)', () => {
@@ -71,7 +80,8 @@ describe('LastRunStatusIcon', () => {
     const { container } = render(<LastRunStatusIcon result={result} />);
     const icon = container.querySelector('svg');
     expect(icon).toBeInTheDocument();
-    expect(icon?.getAttribute('title')).toBe('Passed');
+    const wrapper = container.querySelector('[title="Passed"]');
+    expect(wrapper).toBeInTheDocument();
   });
 
   it('renders unknown icon for unrecognized status', () => {
@@ -79,7 +89,8 @@ describe('LastRunStatusIcon', () => {
     const { container } = render(<LastRunStatusIcon result={result} />);
     const icon = container.querySelector('svg');
     expect(icon).toBeInTheDocument();
-    expect(icon?.getAttribute('title')).toBe('Unknown');
+    const wrapper = container.querySelector('[title="Unknown"]');
+    expect(wrapper).toBeInTheDocument();
   });
 
   it('uses app.lastRun.status when available', () => {
@@ -103,7 +114,11 @@ describe('LastRunStatusIcon', () => {
         watching: false,
         e2eRunsQuantity: 10,
         lastRun: {
-          status: 'passed', // This should take precedence
+          status: 'passed',
+          id: 0,
+          url: '',
+          pipelineId: '',
+          createdAt: '',
         },
       },
     };
@@ -111,7 +126,8 @@ describe('LastRunStatusIcon', () => {
     const { container } = render(<LastRunStatusIcon result={result} />);
     const icon = container.querySelector('svg');
     expect(icon).toBeInTheDocument();
-    expect(icon?.getAttribute('title')).toBe('Passed');
+    const wrapper = container.querySelector('[title="Passed"]');
+    expect(wrapper).toBeInTheDocument();
   });
 
   it('falls back to lastRunStatus when app.lastRun.status is not available', () => {
@@ -140,6 +156,7 @@ describe('LastRunStatusIcon', () => {
     const { container } = render(<LastRunStatusIcon result={result} />);
     const icon = container.querySelector('svg');
     expect(icon).toBeInTheDocument();
-    expect(icon?.getAttribute('title')).toBe('Failed');
+    const wrapper = container.querySelector('[title="Failed"]');
+    expect(wrapper).toBeInTheDocument();
   });
 });

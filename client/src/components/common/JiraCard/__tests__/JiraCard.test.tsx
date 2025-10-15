@@ -164,7 +164,10 @@ describe('JiraCard Components', () => {
 
     it('respects custom maxVisible prop', () => {
       render(
-        <JiraCardLabels labels={['label1', 'label2', 'label3', 'label4', 'label5']} maxVisible={2} />,
+        <JiraCardLabels
+          labels={['label1', 'label2', 'label3', 'label4', 'label5']}
+          maxVisible={2}
+        />,
       );
       expect(screen.getByText('label1')).toBeInTheDocument();
       expect(screen.getByText('label2')).toBeInTheDocument();

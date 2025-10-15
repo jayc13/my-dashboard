@@ -30,13 +30,29 @@ const LastRunStatusIcon: React.FC<{ result: DetailedE2EReportDetail }> = ({ resu
       );
     case 'passed':
     case 'success':
-      return <FaCheckCircle color="#4caf50" size={28} title="Passed" />;
+      return (
+        <Box component="span" display="inline-block" title="Passed">
+          <FaCheckCircle color="#4caf50" size={28} />
+        </Box>
+      );
     case 'failed':
-      return <FaTimesCircle color="#e53935" size={28} title="Failed" />;
+      return (
+        <Box component="span" display="inline-block" title="Failed">
+          <FaTimesCircle color="#e53935" size={28} />
+        </Box>
+      );
     case 'pending':
-      return <FaHourglassHalf color="#1976d2" size={28} title="Pending" />;
+      return (
+        <Box component="span" display="inline-block" title="Pending">
+          <FaHourglassHalf color="#1976d2" size={28} />
+        </Box>
+      );
     default:
-      return <FaQuestionCircle color="#757575" size={28} title="Unknown" />;
+      return (
+        <Box component="span" display="inline-block" title="Unknown">
+          <FaQuestionCircle color="#757575" size={28} />
+        </Box>
+      );
   }
 };
 
