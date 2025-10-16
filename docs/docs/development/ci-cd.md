@@ -1,291 +1,490 @@
-# CI/CD Pipeline
+# CI/CD
 
-My Dashboard uses GitHub Actions for automated testing, validation, and deployment. The CI/CD system features a modular architecture with reusable workflows and comprehensive validation for all components.
+This document describes the Continuous Integration and Continuous Deployment (CI/CD) pipeline used in the My Dashboard project.
 
-## 🏗️ Architecture Overview
+## Overview
 
-The CI/CD system now uses a modular approach with:
-- **Reusable Workflows**: Separate workflow files for each validation type
-- **Composite Actions**: Reusable action components for common tasks
-- **External Scripts**: Complex logic moved to testable shell scripts
+The project uses **GitHub Actions** for CI/CD automation. The pipeline ensures code quality, runs tests, and deploys to production automatically.
 
-## 🚀 Workflows Overview
+## Pipeline Architecture
 
-### 1. Pull Request Validation (`pr-validation.yml`)
-**Triggers:** Pull requests to `main` or `develop` branches (when ready for review)
-
-**Purpose:** Main orchestrator workflow that coordinates all validation jobs
-
-**Architecture:** Now uses reusable workflows and composite actions:
-- **Basic Validation** (`basic-validation.yml`): Validates commits, PR title, detects changes
-- **Client Validation** (`validate-client.yml`): React frontend validation with bundle analysis
-- **Server Validation** (`validate-server.yml`): Node.js backend validation with database tests
-- **Cron Validation** (`validate-cron.yml`): Cron job service validation
-- **Scripts Validation** (`validate-scripts.yml`): Utility scripts validation
-- **Integration Testing** (`validate-integration.yml`): API integration tests with test database
-- **E2E Testing**: End-to-end browser tests with full application stack
-- **Validation Summary**: Aggregates all results and provides final status
-
-**Key Improvements:**
-- Reduced from 502 lines to 90 lines
-- Modular, reusable components
-- External scripts for complex logic
-- Better error handling and reporting
-
-### 2. Reusable Workflows
-Each validation type is now a separate, reusable workflow:
-
-#### `basic-validation.yml`
-- Commit message validation using commitlint
-- PR title format validation
-- Change detection for conditional job execution
-- TODO/FIXME comment analysis
-- PR complexity analysis
-
-#### `validate-client.yml`
-- ESLint linting and TypeScript type checking
-- Build verification and unit tests
-- Comprehensive bundle size analysis
-- Bundle size comparison with main branch
-- Bundle size validation against thresholds
-
-#### `validate-server.yml`
-- TypeScript type checking and ESLint linting
-- Build verification with MySQL service
-- Database migration testing
-- Unit tests with test database
-
-#### `validate-cron.yml` & `validate-scripts.yml`
-- Component-specific validation
-- Build and test verification
-- Configuration validation
-
-#### `validate-integration.yml`
-- MySQL test database setup
-- Server startup in test mode
-- Comprehensive API integration testing
-- Authentication and authorization testing
-- CRUD operations validation
-- Error handling verification
-- Test coverage reporting
-
-### 3. Composite Actions
-Reusable action components in `.github/actions/`:
-
-#### `setup-node/`
-- Standardized Node.js setup with caching
-- Configurable version and registry
-- Optional dependency installation
-
-#### `setup-validation/`
-- Basic validation environment setup
-- Commitlint installation
-- Git configuration
-
-#### `bundle-analysis/`
-- Bundle size analysis orchestration
-- Calls external analysis scripts
-- Configurable thresholds
-
-### 4. External Scripts
-Complex validation logic moved to `scripts/ci/` for better testability:
-
-#### Bundle Analysis Scripts
-- `bundle-analysis.sh`: Analyzes current bundle size and composition
-- `bundle-comparison.sh`: Compares bundle size with main branch
-- `bundle-validation.sh`: Validates size changes against thresholds
-
-#### PR Validation Scripts
-- `pr-title-validation.sh`: Validates PR title format using commitlint
-- `pr-complexity-analysis.sh`: Analyzes PR complexity (files, lines changed)
-- `commit-validation.sh`: Validates all commit messages in PR
-
-**Benefits:**
-- Scripts can be tested independently
-- Logic is version controlled and reviewable
-- Easier debugging and maintenance
-- Consistent error handling and output formatting
-
-## 🔄 Migration Benefits
-
-The refactoring provides several key improvements:
-
-1. **Maintainability**: Logic separated into focused, single-purpose files
-2. **Reusability**: Workflows and actions can be reused across projects
-3. **Testability**: External scripts can be unit tested
-4. **Readability**: Main workflow reduced from 502 to 90 lines
-5. **Modularity**: Easy to add/remove/modify validation steps
-6. **Performance**: Conditional execution based on file changes
-7. **Debugging**: Easier to identify and fix issues in specific components
-
-## 🔧 Configuration
-
-### Required Secrets
-The following secrets should be configured in your GitHub repository:
-
-```
-# Database (for testing)
-DB_HOST
-DB_USER
-DB_PASSWORD
-DB_NAME
-
-# API Keys (if needed for testing)
-CYPRESS_RECORD_KEY
-FIREBASE_CONFIG
-
-# Security scanning
-SNYK_TOKEN (optional)
-SONAR_TOKEN (optional)
+```mermaid
+graph TD
+    A[Push/PR] --> B[Basic Validation]
+    B --> C{Changes Detected}
+    C -->|Client| D[Validate Client]
+    C -->|Server| E[Validate Server]
+    C -->|Cron| F[Validate Cron]
+    C -->|Packages| G[Validate Packages]
+    C -->|Tests| H[Run Tests]
+    D --> I[Validation Summary]
+    E --> I
+    F --> I
+    G --> I
+    H --> I
+    I --> J{All Pass?}
+    J -->|Yes| K[Ready to Merge]
+    J -->|No| L[Fix Issues]
+    K --> M{Merged to Main?}
+    M -->|Yes| N[Deploy to Railway]
+    M -->|Yes| O[Deploy Docs]
 ```
 
-### Environment Variables
-Each workflow uses appropriate environment variables for testing:
-- `NODE_ENV=test` for test environments
-- Database connection strings for integration tests
-- API endpoints for E2E testing
+## Workflows
 
-## 📋 Validation Checklist
+### 1. PR Validation (`pr-validation.yml`)
 
-### Before Creating a PR
-- [ ] Code compiles without errors
-- [ ] All existing tests pass
-- [ ] New functionality has tests
-- [ ] Code follows project conventions
-- [ ] Documentation is updated
-- [ ] No hardcoded secrets or credentials
+**Trigger:** Pull requests to `main` or `develop`
 
-### PR Requirements
-- [ ] Descriptive title following conventional commits
-- [ ] Clear description of changes
-- [ ] Breaking changes are documented
-- [ ] Tests cover new functionality
-- [ ] No security vulnerabilities introduced
+**Jobs:**
+1. **Basic Validation** - Validates commits, PR title, detects changes
+2. **Client Validation** - Runs when client files change
+3. **Server Validation** - Runs when server files change
+4. **Cron Validation** - Runs when cron files change
+5. **Packages Validation** - Runs when package files change
+6. **Tests Validation** - Runs integration and E2E tests
+7. **Validation Summary** - Aggregates results
 
-## 🛠️ Local Development
+**Example:**
+```yaml
+name: PR Validation
 
-### Running Checks Locally
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+    branches:
+      - main
+      - develop
 
-**Client:**
+jobs:
+  basic-validation:
+    if: github.event.pull_request.draft == false
+    uses: ./.github/workflows/basic-validation.yml
+    with:
+      pr-title: ${{ github.event.pull_request.title }}
+      base-sha: ${{ github.event.pull_request.base.sha }}
+      head-sha: ${{ github.event.pull_request.head.sha }}
+      pr-number: ${{ github.event.pull_request.number }}
+```
+
+### 2. Basic Validation (`basic-validation.yml`)
+
+**Purpose:** Validate commits, PR title, and detect file changes
+
+**Steps:**
+1. **Validate Commits** - Check conventional commit format
+2. **Validate PR Title** - Check conventional commit format
+3. **Detect Changes** - Determine which files changed
+4. **Check TODOs** - Find TODO/FIXME comments
+
+**Change Detection:**
+```yaml
+- name: Detect changes
+  uses: dorny/paths-filter@v3
+  with:
+    filters: |
+      client:
+        - 'client/**'
+      server:
+        - 'server/**'
+      cron:
+        - 'cron/**'
+      packages-sdk:
+        - 'packages/sdk/**'
+      packages-types:
+        - 'packages/types/**'
+```
+
+### 3. Client Validation (`validate-client.yml`)
+
+**Trigger:** When client files change
+
+**Steps:**
+1. **Setup** - Checkout code, setup Node.js
+2. **Build Dependencies** - Build types and SDK packages
+3. **Lint** - Run ESLint
+4. **Type Check** - Run TypeScript compiler
+5. **Build** - Build client for production
+6. **Test** - Run unit tests
+
+**Example:**
+```yaml
+- name: Run ESLint
+  run: pnpm --filter=client run lint
+
+- name: Type check
+  run: pnpm --filter=client run typecheck
+
+- name: Build client
+  run: pnpm --filter=client run build
+
+- name: Run unit tests
+  run: pnpm --filter=client run test
+```
+
+### 4. Server Validation (`validate-server.yml`)
+
+**Trigger:** When server files change
+
+**Services:**
+- MySQL 8.0 (for testing)
+
+**Steps:**
+1. **Setup** - Checkout code, setup Node.js, start MySQL
+2. **Build Dependencies** - Build types package
+3. **Lint** - Run ESLint
+4. **Type Check** - Run TypeScript compiler
+5. **Build** - Build server
+6. **Migrate** - Test database migrations
+7. **Test** - Run unit tests
+
+**Example:**
+```yaml
+services:
+  mysql:
+    image: mysql:8.0
+    env:
+      MYSQL_ROOT_PASSWORD: test_password
+      MYSQL_DATABASE: test_db
+    ports:
+      - 3306:3306
+
+steps:
+  - name: Test database migrations
+    env:
+      MYSQL_HOST: localhost
+      MYSQL_PORT: 3306
+      MYSQL_USER: root
+      MYSQL_PASSWORD: test_password
+      MYSQL_DATABASE: test_db
+    run: pnpm --filter=server run migrate
+
+  - name: Run unit tests
+    run: pnpm --filter=server run test
+```
+
+### 5. Cron Validation (`validate-cron.yml`)
+
+**Trigger:** When cron files change
+
+**Steps:**
+1. **Setup** - Checkout code, setup Node.js
+2. **Build Dependencies** - Build types and SDK packages
+3. **Type Check** - Run TypeScript compiler
+4. **Lint** - Run ESLint
+5. **Build** - Build cron jobs
+6. **Test** - Run unit tests
+
+### 6. Integration Tests (`run-integration-tests.yml`)
+
+**Trigger:** When integration test files change or manually
+
+**Services:**
+- MySQL 8.0
+- Redis
+
+**Steps:**
+1. **Setup** - Checkout code, setup Node.js
+2. **Start Services** - MySQL, Redis
+3. **Build Dependencies** - Build all required packages
+4. **Start Server** - Run server in background
+5. **Run Tests** - Execute integration tests
+6. **Upload Results** - Save test results on failure
+
+**Example:**
+```yaml
+- name: Run integration tests
+  run: |
+    cat > .env << EOF
+    NODE_ENV=test
+    SERVER_URL=http://localhost:3000
+    API_SECURITY_KEY=${{ secrets.API_SECURITY_KEY }}
+    MYSQL_HOST=localhost
+    MYSQL_PORT=3306
+    EOF
+    
+    npm test -- --bail
+```
+
+### 7. E2E Tests (`validate-tests-e2e.yml`)
+
+**Trigger:** When E2E test files change or manually
+
+**Steps:**
+1. **Setup** - Checkout code, setup Node.js
+2. **Install Dependencies** - Install E2E test dependencies
+3. **Lint** - Run ESLint
+4. **Type Check** - Run TypeScript compiler
+
+**Note:** Full E2E tests run separately with browser automation
+
+### 8. Documentation Deployment (`deploy-project-documentation.yml`)
+
+**Trigger:** Push to `main` branch
+
+**Steps:**
+1. **Setup** - Checkout code, setup Node.js
+2. **Install** - Install documentation dependencies
+3. **Build** - Build Docusaurus site
+4. **Upload** - Upload build artifact
+5. **Deploy** - Deploy to GitHub Pages
+
+**Example:**
+```yaml
+- name: Build documentation
+  run: npm run build
+  working-directory: ./docs
+
+- name: Deploy to GitHub Pages
+  uses: actions/deploy-pages@v4
+```
+
+## Environment Variables
+
+### Client
+
+```env
+VITE_API_BASE_URL=https://api.mydashboard.com
+VITE_FIREBASE_API_KEY=...
+VITE_FIREBASE_PROJECT_ID=...
+VITE_FIREBASE_MESSAGING_SENDER_ID=...
+VITE_FIREBASE_APP_ID=...
+```
+
+### Server
+
+```env
+NODE_ENV=production
+PORT=3000
+API_SECURITY_KEY=...
+MYSQL_HOST=...
+MYSQL_PORT=3306
+MYSQL_USER=...
+MYSQL_PASSWORD=...
+MYSQL_DATABASE=...
+REDIS_URL=...
+GITHUB_TOKEN=...
+JIRA_API_TOKEN=...
+FIREBASE_PROJECT_ID=...
+```
+
+### Cron
+
+```env
+NODE_ENV=production
+API_URL=https://api.mydashboard.com
+API_SECURITY_KEY=...
+REDIS_URL=...
+E2E_REPORT_CRON_SCHEDULE=0 9 * * *
+CLEAN_UP_OLD_REPORTS_CRON_SCHEDULE=0 3 * * 0
+```
+
+## Secrets Management
+
+Secrets are stored in GitHub Secrets and Railway environment variables.
+
+**GitHub Secrets:**
+- `API_SECURITY_KEY` - API authentication key
+- `RAILWAY_TOKEN` - Railway deployment token (if needed)
+
+**Railway Environment Variables:**
+- All production environment variables
+- Managed through Railway dashboard
+- Separate variables per service
+
+## Deployment Process
+
+### Automatic Deployment
+
+**Trigger:** Merge to `main` branch
+
+**Flow:**
+1. **GitHub Actions** - Run all validation workflows
+2. **Railway Webhook** - Triggered on push to main
+3. **Railway Build** - Build each service
+4. **Railway Deploy** - Deploy services
+5. **Health Checks** - Verify deployment
+
+### Manual Deployment
+
+**Railway Dashboard:**
+1. Navigate to service
+2. Click "Deploy"
+3. Select commit or branch
+4. Confirm deployment
+
+**Railway CLI:**
 ```bash
-cd client
-npm ci
-npm run lint
-npm run build
-# TODO: npm test (when tests are implemented)
+# Install Railway CLI
+npm install -g @railway/cli
+
+# Login
+railway login
+
+# Link project
+railway link
+
+# Deploy
+railway up
 ```
 
-**Server:**
+## Health Checks
+
+### Server Health Check
+
+```typescript
+app.get('/health', (req, res) => {
+  res.status(200).json({
+    status: 'healthy',
+    timestamp: new Date().toISOString(),
+  });
+});
+```
+
+**Railway Configuration:**
+```json
+{
+  "healthcheck": {
+    "path": "/health",
+    "interval": 30,
+    "timeout": 10
+  }
+}
+```
+
+### Client Health Check
+
+Static files are served by Railway's CDN. Health is determined by successful HTTP responses.
+
+## Rollback Procedures
+
+### Railway Rollback
+
+**Dashboard:**
+1. Go to service deployments
+2. Find previous successful deployment
+3. Click "Redeploy"
+
+**CLI:**
 ```bash
-cd server
-npm ci
-npm test
-npm run build
+# List deployments
+railway deployments
+
+# Rollback to specific deployment
+railway rollback <deployment-id>
 ```
 
-**Cron:**
-```bash
-cd cron
-npm ci
-npm run build
-# TODO: npm test (when tests are implemented)
-```
-
-### Pre-commit Hooks
-Consider setting up pre-commit hooks to run basic checks:
+### Git Rollback
 
 ```bash
-# TODO: Implement pre-commit hooks
-# - ESLint for code quality
-# - Prettier for formatting
-# - TypeScript compilation
-# - Basic tests
+# Revert last commit
+git revert HEAD
+
+# Push to main
+git push origin main
+
+# Railway will automatically deploy the reverted state
 ```
 
-## 🚨 Troubleshooting
+## Monitoring and Logs
 
-### Common Issues
+### Railway Logs
 
-**Build Failures:**
-- Check Node.js version compatibility
-- Ensure all dependencies are installed
-- Verify TypeScript configuration
+**Dashboard:**
+1. Navigate to service
+2. Click "Logs" tab
+3. Filter by service, time, level
 
-**Test Failures:**
-- Check database connection for server tests
-- Verify test environment setup
-- Review test data and mocks
+**CLI:**
+```bash
+# View logs
+railway logs
 
-**Security Scan Issues:**
-- Update vulnerable dependencies
-- Remove hardcoded secrets
-- Review security best practices
+# Follow logs
+railway logs --follow
 
-### Getting Help
-1. Check the workflow logs in GitHub Actions tab
-2. Review the specific job that failed
-3. Look for error messages and stack traces
-4. Consult the project documentation
-5. Ask for help in team channels
+# Filter by service
+railway logs --service server
+```
 
-## 📈 Metrics and Reporting
+### GitHub Actions Logs
 
-### Coverage Reports
-- **Server**: Jest generates coverage reports in `server/coverage/`
-- **Client**: TODO - Implement coverage reporting
-- **Overall**: TODO - Implement combined coverage reporting
+1. Go to repository
+2. Click "Actions" tab
+3. Select workflow run
+4. View job logs
 
-### Performance Metrics
-- **Bundle Size**: Tracked for client builds
-- **API Response Times**: Measured during testing
-- **Database Query Performance**: Monitored in integration tests
+## Best Practices
 
-### Security Reports
-- **Dependency Vulnerabilities**: Reported by npm audit
-- **Secret Scanning**: TODO - Implement comprehensive scanning
-- **Code Quality**: TODO - Implement SonarQube integration
+### CI/CD
 
-## 🔄 Continuous Improvement
+- **Fast Feedback** - Keep workflows fast (< 10 minutes)
+- **Fail Fast** - Stop on first failure
+- **Parallel Jobs** - Run independent jobs in parallel
+- **Cache Dependencies** - Cache node_modules
+- **Minimal Secrets** - Only store necessary secrets
 
-### TODO Items for Implementation
-The workflows contain many TODO items for future implementation:
+### Testing in CI
 
-**High Priority:**
-- [ ] Implement comprehensive test suites
-- [ ] Add E2E testing with Cypress
-- [ ] Set up code coverage reporting
-- [ ] Implement security scanning tools
-- [ ] Add performance benchmarking
+- **Isolated Tests** - Tests should not depend on each other
+- **Clean State** - Reset database/state between tests
+- **Timeouts** - Set reasonable timeouts
+- **Retry Logic** - Retry flaky tests (sparingly)
 
-**Medium Priority:**
-- [ ] Set up SonarQube for code quality
-- [ ] Implement API documentation generation
-- [ ] Add bundle size analysis
-- [ ] Set up Lighthouse CI for performance
+### Deployment
 
-**Low Priority:**
-- [ ] Add accessibility testing automation
-- [ ] Implement license compliance checking
-- [ ] Set up automated dependency updates
-- [ ] Add deployment automation
+- **Zero Downtime** - Use health checks and rolling deployments
+- **Database Migrations** - Run migrations before deployment
+- **Environment Parity** - Keep dev/staging/prod similar
+- **Rollback Plan** - Always have a rollback strategy
 
-### Contributing to CI/CD
-When adding new workflows or modifying existing ones:
+## Troubleshooting
 
-1. Test changes in a fork first
-2. Use meaningful job and step names
-3. Add appropriate error handling
-4. Include helpful log messages
-5. Update this documentation
-6. Consider the impact on build times
+### Workflow Failures
 
-## 📚 Resources
+**Check Logs:**
+```bash
+# View workflow logs in GitHub Actions
+# Look for error messages and stack traces
+```
 
-- [GitHub Actions Documentation](https://docs.github.com/en/actions)
-- [Workflow Syntax](https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions)
-- [Security Best Practices](https://docs.github.com/en/actions/security-guides)
-- [Marketplace Actions](https://github.com/marketplace?type=actions)
+**Common Issues:**
+- Dependency installation failures → Clear cache
+- Test failures → Run tests locally
+- Build failures → Check TypeScript errors
+- Deployment failures → Check Railway logs
 
----
+### Deployment Issues
 
-*This documentation is maintained by the development team. Please keep it updated as workflows evolve.*
+**Railway Service Not Starting:**
+1. Check environment variables
+2. Check health check endpoint
+3. Review build logs
+4. Check resource limits
+
+**Database Migration Failures:**
+1. Check database connection
+2. Review migration files
+3. Check for conflicts
+4. Rollback and retry
+
+### Performance Issues
+
+**Slow Workflows:**
+- Enable caching
+- Parallelize jobs
+- Reduce test scope
+- Optimize build process
+
+**Slow Deployments:**
+- Optimize Docker images
+- Reduce build artifacts
+- Use build caching
+- Optimize dependencies
+
+## Next Steps
+
+- [Testing](./testing.md) - Testing guidelines
+- [Deployment](../architecture/deployment.md) - Deployment architecture
+- [Troubleshooting](./troubleshooting.md) - Common issues
+
