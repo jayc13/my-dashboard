@@ -27,7 +27,7 @@ const sidebars: SidebarsConfig = {
         {
             type: 'category',
             label: '🏗️ Architecture',
-            collapsed: false,
+            collapsed: true,
             items: [
                 'architecture/overview',
                 'architecture/monorepo-structure',
@@ -42,7 +42,7 @@ const sidebars: SidebarsConfig = {
         {
             type: 'category',
             label: '💻 Development',
-            collapsed: false,
+            collapsed: true,
             items: [
                 'development/setup',
                 'development/coding-standards',
@@ -56,7 +56,7 @@ const sidebars: SidebarsConfig = {
         {
             type: 'category',
             label: '📦 TypeScript SDK',
-            collapsed: false,
+            collapsed: true,
             items: [
                 'sdk/overview',
                 'sdk/installation',
@@ -67,7 +67,7 @@ const sidebars: SidebarsConfig = {
         {
             type: 'category',
             label: '🔌 API Reference',
-            collapsed: false,
+            collapsed: true,
             items: [
                 'api/overview',
                 'api/authentication',
@@ -75,7 +75,7 @@ const sidebars: SidebarsConfig = {
                 {
                     type: 'category',
                     label: 'Endpoints',
-                    collapsed: false,
+                    collapsed: true,
                     items: [
                         'api/endpoints/applications',
                         'api/endpoints/e2e-reports',
@@ -90,7 +90,7 @@ const sidebars: SidebarsConfig = {
         {
             type: 'category',
             label: '📚 Resources',
-            collapsed: false,
+            collapsed: true,
             items: [
                 'others/agents',
                 'others/faq',
