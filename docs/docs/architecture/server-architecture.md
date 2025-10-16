@@ -100,7 +100,8 @@ app.use(express.json({ limit: '10mb' }));
 
 // Routes
 app.use('/api/auth', createAuthRouter());
-app.use('/api', apiKeyValidator); // Protect all other routes
+// Protect all /api routes except /api/auth (which is mounted first and thus exempt)
+app.use('/api', apiKeyValidator);
 app.use('/api/e2e_run_report', createE2ERunReportRouter());
 // ... other routes
 
