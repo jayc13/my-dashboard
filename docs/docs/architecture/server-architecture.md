@@ -211,7 +211,7 @@ export function getMySQLPool(): mysql.Pool {
       port: parseInt(process.env.MYSQL_PORT || '3306'),
       user: process.env.MYSQL_USER || 'root',
       password: process.env.MYSQL_PASSWORD || '',
-      database: process.env.MYSQL_DATABASE || 'cypress_dashboard',
+      database: process.env.MYSQL_DATABASE || 'my_dashboard',
       charset: 'utf8mb4',
       timezone: '+00:00',
       connectionLimit: parseInt(process.env.MYSQL_CONNECTION_LIMIT || '10'),
