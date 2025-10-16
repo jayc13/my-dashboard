@@ -147,12 +147,12 @@ curl -X POST "http://localhost:3000/api/to_do_list" \
 
 #### Response Codes
 
-| Code | Description |
-|------|-------------|
-| 201 | To-do item created successfully |
-| 400 | Invalid request data or validation error |
-| 401 | Unauthorized - Invalid or missing API key |
-| 500 | Internal server error |
+| Code | Description                               |
+|------|-------------------------------------------|
+| 201  | To-do item created successfully           |
+| 400  | Invalid request data or validation error  |
+| 401  | Unauthorized - Invalid or missing API key |
+| 500  | Internal server error                     |
 
 ---
 
@@ -166,21 +166,21 @@ Update an existing to-do item. All fields are optional - only provided fields wi
 
 #### Path Parameters
 
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `id` | number | Yes | To-do item ID |
+| Parameter | Type   | Required | Description   |
+|-----------|--------|----------|---------------|
+| `id`      | number | Yes      | To-do item ID |
 
 #### Request Body
 
 All fields are optional. Only provided fields will be updated.
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `title` | string | Task title (max 255 chars) |
-| `description` | string | Task description |
-| `link` | string | Related URL (max 500 chars) |
-| `dueDate` | string | Due date in ISO 8601 format |
-| `isCompleted` | boolean | Completion status |
+| Field         | Type    | Description                 |
+|---------------|---------|-----------------------------|
+| `title`       | string  | Task title (max 255 chars)  |
+| `description` | string  | Task description            |
+| `link`        | string  | Related URL (max 500 chars) |
+| `dueDate`     | string  | Due date in ISO 8601 format |
+| `isCompleted` | boolean | Completion status           |
 
 #### Request Example
 
@@ -211,13 +211,13 @@ curl -X PUT "http://localhost:3000/api/to_do_list/1" \
 
 #### Response Codes
 
-| Code | Description |
-|------|-------------|
-| 200 | To-do item updated successfully |
-| 400 | Invalid request data or validation error |
-| 401 | Unauthorized - Invalid or missing API key |
-| 404 | To-do item not found |
-| 500 | Internal server error |
+| Code | Description                               |
+|------|-------------------------------------------|
+| 200  | To-do item updated successfully           |
+| 400  | Invalid request data or validation error  |
+| 401  | Unauthorized - Invalid or missing API key |
+| 404  | To-do item not found                      |
+| 500  | Internal server error                     |
 
 ---
 
@@ -231,9 +231,9 @@ Delete a to-do item.
 
 #### Path Parameters
 
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `id` | number | Yes | To-do item ID |
+| Parameter | Type   | Required | Description   |
+|-----------|--------|----------|---------------|
+| `id`      | number | Yes      | To-do item ID |
 
 #### Request Example
 
@@ -253,13 +253,13 @@ curl -X DELETE "http://localhost:3000/api/to_do_list/1" \
 
 #### Response Codes
 
-| Code | Description |
-|------|-------------|
-| 200 | To-do item deleted successfully |
-| 400 | Invalid to-do item ID |
-| 401 | Unauthorized - Invalid or missing API key |
-| 404 | To-do item not found |
-| 500 | Internal server error |
+| Code | Description                               |
+|------|-------------------------------------------|
+| 200  | To-do item deleted successfully           |
+| 400  | Invalid to-do item ID                     |
+| 401  | Unauthorized - Invalid or missing API key |
+| 404  | To-do item not found                      |
+| 500  | Internal server error                     |
 
 ---
 

@@ -97,7 +97,7 @@ Common terms and acronyms used in My Dashboard documentation and codebase.
 : A script that modifies the database schema in a controlled, versioned manner.
 
 **Monorepo**
-: A software development strategy where code for many projects is stored in the same repository.
+: A software development strategy where code for many projects is stored in the same repository. See [Monorepo Structure](../architecture/monorepo-structure.md) for details on this project's workspace organization.
 
 **MySQL**
 : An open-source relational database management system.
