@@ -140,8 +140,8 @@ async function rotateApiKey(
     // Update SDK to use new key
     api.setApiKey(newKey);
     
-    // Update stored key
-    process.env.MY_DASHBOARD_API_KEY = newKey;
+    // Update stored key:
+    // ⚠️ To persist the new API key, securely update your `.env` file (or secrets manager) and restart the process.
     
     console.log('✅ API key rotated successfully');
     return true;
