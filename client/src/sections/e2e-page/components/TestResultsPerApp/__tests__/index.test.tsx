@@ -1,4 +1,4 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor, within } from '@testing-library/react';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import TestResultsPerApp from '../index';
@@ -763,6 +763,134 @@ describe('TestResultsPerApp index', () => {
 
       // Should not show pagination since only 5 items with failures
       expect(screen.queryByRole('navigation')).not.toBeInTheDocument();
+    });
+
+    it('resets page to 1 when toggling showAllApps reduces available pages', async () => {
+      // Create 13 items: 7 with failures, 6 without
+      const data = Array.from({ length: 13 }, (_, i) =>
+        createMockData({
+          appId: i + 1,
+          id: i + 1,
+          failedRuns: i < 7 ? 5 : 0, // First 7 have failures
+          successRate: 0.5 + i * 0.01,
+          app: {
+            id: i + 1,
+            name: `App ${i + 1}`,
+            code: `app-${i + 1}`,
+            e2eRunsQuantity: 100 + i,
+            watching: i % 2 === 0,
+          },
+        }),
+      );
+
+      const { rerender } = render(
+        <TestResultsPerApp
+          data={data}
+          isLoading={false}
+          refetchData={mockRefetchData}
+          showAllApps={true}
+        />,
+      );
+
+      // With showAllApps=true, we have 13 items (2 pages)
+      expect(screen.getByRole('navigation')).toBeInTheDocument();
+
+      // Navigate to page 2
+      const pagination = screen.getByRole('navigation');
+      const page2Button = within(pagination).getByRole('button', { name: 'Go to page 2' });
+      fireEvent.click(page2Button);
+
+      await waitFor(() => {
+        // Should show items from page 2
+        expect(screen.getByTestId('project-card-13')).toBeInTheDocument();
+      });
+
+      // Toggle showAllApps to false - now only 7 items with failures (1 page)
+      rerender(
+        <TestResultsPerApp
+          data={data}
+          isLoading={false}
+          refetchData={mockRefetchData}
+          showAllApps={false}
+        />,
+      );
+
+      await waitFor(() => {
+        // Should show items from page 1 (not empty)
+        expect(screen.getByTestId('project-card-1')).toBeInTheDocument();
+        // Should not show pagination since only 1 page
+        expect(screen.queryByRole('navigation')).not.toBeInTheDocument();
+      });
+    });
+
+    it('clamps page when data changes and reduces available pages', async () => {
+      // Start with 13 items with failures (2 pages)
+      const initialData = Array.from({ length: 13 }, (_, i) =>
+        createMockData({
+          appId: i + 1,
+          id: i + 1,
+          failedRuns: 5,
+          successRate: 0.5 + i * 0.01,
+          app: {
+            id: i + 1,
+            name: `App ${i + 1}`,
+            code: `app-${i + 1}`,
+            e2eRunsQuantity: 100 + i,
+            watching: true,
+          },
+        }),
+      );
+
+      const { rerender } = render(
+        <TestResultsPerApp
+          data={initialData}
+          isLoading={false}
+          refetchData={mockRefetchData}
+          showAllApps={false}
+        />,
+      );
+
+      // Navigate to page 2
+      const pagination = screen.getByRole('navigation');
+      const page2Button = within(pagination).getByRole('button', { name: 'Go to page 2' });
+      fireEvent.click(page2Button);
+
+      await waitFor(() => {
+        expect(screen.getByTestId('project-card-13')).toBeInTheDocument();
+      });
+
+      // Update data to only 5 items (1 page)
+      const updatedData = Array.from({ length: 5 }, (_, i) =>
+        createMockData({
+          appId: i + 1,
+          id: i + 1,
+          failedRuns: 5,
+          successRate: 0.5 + i * 0.01,
+          app: {
+            id: i + 1,
+            name: `App ${i + 1}`,
+            code: `app-${i + 1}`,
+            e2eRunsQuantity: 100 + i,
+            watching: true,
+          },
+        }),
+      );
+
+      rerender(
+        <TestResultsPerApp
+          data={updatedData}
+          isLoading={false}
+          refetchData={mockRefetchData}
+          showAllApps={false}
+        />,
+      );
+
+      await waitFor(() => {
+        // Should show items from page 1 (not empty)
+        expect(screen.getByTestId('project-card-1')).toBeInTheDocument();
+        // Should not show pagination since only 1 page
+        expect(screen.queryByRole('navigation')).not.toBeInTheDocument();
+      });
     });
   });
 });

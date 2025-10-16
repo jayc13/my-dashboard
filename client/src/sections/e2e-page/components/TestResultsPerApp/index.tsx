@@ -39,6 +39,20 @@ const TestResultsPerApp = (props: TestResultsPerAppProps) => {
   } | null>(null);
   const contextMenuRef = useRef<HTMLDivElement | null>(null);
 
+  // Filter apps based on showAllApps toggle
+  const filteredApps = showAllApps ? data : data.filter(app => app.failedRuns > 0);
+  const pageCount = Math.ceil(filteredApps.length / PAGE_SIZE);
+
+  // Reset page to valid range when filteredApps or showAllApps changes
+  useEffect(() => {
+    setPage(prevPage => {
+      if (pageCount === 0) {
+        return 1;
+      }
+      return Math.min(prevPage, pageCount);
+    });
+  }, [filteredApps.length, showAllApps, pageCount]);
+
   const fetchAppDetails = async (appId: number): Promise<AppDetailedE2EReportDetail | null> => {
     if (!api) {
       enqueueSnackbar('API is not available.', { variant: 'error' });
@@ -168,9 +182,6 @@ const TestResultsPerApp = (props: TestResultsPerAppProps) => {
     return <NoTestResults />;
   }
 
-  // Filter apps based on showAllApps toggle
-  const filteredApps = showAllApps ? data : data.filter(app => app.failedRuns > 0);
-
   if (filteredApps.length === 0 && !isPending) {
     return <AllTestsPassing />;
   }
@@ -179,9 +190,6 @@ const TestResultsPerApp = (props: TestResultsPerAppProps) => {
     await getAppLastStatus({ summaryId, appId });
     await refetchData();
   };
-
-  // Pagination logic
-  const pageCount = Math.ceil(filteredApps.length / PAGE_SIZE);
   // Sort data by successRate ascending before paginating
   const sortedData = [...filteredApps].sort((a, b) => a.successRate - b.successRate);
   const paginatedData = sortedData.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
