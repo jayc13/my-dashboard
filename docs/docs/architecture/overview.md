@@ -245,10 +245,10 @@ Redis is used for:
 
 ### Channels
 
-| Channel | Publisher | Subscriber | Purpose |
-|---------|-----------|------------|---------|
-| `e2e:report:generate` | Cron | Server | Trigger E2E report generation |
-| `notification:create` | Cron | Server | Create notifications from background jobs |
+| Channel               | Publisher | Subscriber | Purpose                                   |
+|-----------------------|-----------|------------|-------------------------------------------|
+| `e2e:report:generate` | Cron      | Server     | Trigger E2E report generation             |
+| `notification:create` | Cron      | Server     | Create notifications from background jobs |
 
 ### Configuration
 - **Client**: ioredis library

@@ -14,10 +14,10 @@ Retrieve all notifications with optional filtering.
 
 #### Query Parameters
 
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `isRead` | boolean | No | Filter by read status (`true` or `false`) |
-| `type` | string | No | Filter by notification type |
+| Parameter | Type    | Required | Description                               |
+|-----------|---------|----------|-------------------------------------------|
+| `isRead`  | boolean | No       | Filter by read status (`true` or `false`) |
+| `type`    | string  | No       | Filter by notification type               |
 
 #### Request Example
 
@@ -70,9 +70,9 @@ Mark a specific notification as read.
 
 #### Path Parameters
 
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `id` | number | Yes | Notification ID |
+| Parameter | Type   | Required | Description     |
+|-----------|--------|----------|-----------------|
+| `id`      | number | Yes      | Notification ID |
 
 #### Request Example
 
@@ -87,13 +87,13 @@ No response body. Status code 204 indicates success.
 
 #### Response Codes
 
-| Code | Description |
-|------|-------------|
-| 204 | Notification marked as read successfully |
-| 400 | Invalid notification ID |
-| 401 | Unauthorized - Invalid or missing API key |
-| 404 | Notification not found |
-| 500 | Internal server error |
+| Code | Description                               |
+|------|-------------------------------------------|
+| 204  | Notification marked as read successfully  |
+| 400  | Invalid notification ID                   |
+| 401  | Unauthorized - Invalid or missing API key |
+| 404  | Notification not found                    |
+| 500  | Internal server error                     |
 
 ---
 
@@ -107,9 +107,9 @@ Delete a specific notification.
 
 #### Path Parameters
 
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `id` | number | Yes | Notification ID |
+| Parameter | Type   | Required | Description     |
+|-----------|--------|----------|-----------------|
+| `id`      | number | Yes      | Notification ID |
 
 #### Request Example
 
@@ -124,13 +124,13 @@ No response body. Status code 204 indicates success.
 
 #### Response Codes
 
-| Code | Description |
-|------|-------------|
-| 204 | Notification deleted successfully |
-| 400 | Invalid notification ID |
-| 401 | Unauthorized - Invalid or missing API key |
-| 404 | Notification not found |
-| 500 | Internal server error |
+| Code | Description                               |
+|------|-------------------------------------------|
+| 204  | Notification deleted successfully         |
+| 400  | Invalid notification ID                   |
+| 401  | Unauthorized - Invalid or missing API key |
+| 404  | Notification not found                    |
+| 500  | Internal server error                     |
 
 ---
 

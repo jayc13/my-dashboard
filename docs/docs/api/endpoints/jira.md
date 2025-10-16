@@ -68,12 +68,12 @@ curl -X GET "http://localhost:3000/api/jira/manual_qa" \
 
 #### Response Codes
 
-| Code | Description |
-|------|-------------|
-| 200 | Tickets retrieved successfully |
-| 401 | Unauthorized - Invalid or missing API key |
-| 500 | Internal server error |
-| 502 | JIRA API error - Check server configuration |
+| Code | Description                                 |
+|------|---------------------------------------------|
+| 200  | Tickets retrieved successfully              |
+| 401  | Unauthorized - Invalid or missing API key   |
+| 500  | Internal server error                       |
+| 502  | JIRA API error - Check server configuration |
 
 ---
 
@@ -143,12 +143,12 @@ curl -X GET "http://localhost:3000/api/jira/my_tickets" \
 
 #### Response Codes
 
-| Code | Description |
-|------|-------------|
-| 200 | Tickets retrieved successfully |
-| 401 | Unauthorized - Invalid or missing API key |
-| 500 | Internal server error |
-| 502 | JIRA API error - Check server configuration |
+| Code | Description                                 |
+|------|---------------------------------------------|
+| 200  | Tickets retrieved successfully              |
+| 401  | Unauthorized - Invalid or missing API key   |
+| 500  | Internal server error                       |
+| 502  | JIRA API error - Check server configuration |
 
 ---
 

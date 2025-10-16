@@ -49,9 +49,9 @@ Retrieve detailed information about a specific pull request, including GitHub AP
 
 #### Path Parameters
 
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `id` | number | Yes | Pull request ID |
+| Parameter | Type   | Required | Description     |
+|-----------|--------|----------|-----------------|
+| `id`      | number | Yes      | Pull request ID |
 
 #### Request Example
 
@@ -108,14 +108,14 @@ curl -X GET "http://localhost:3000/api/pull_requests/1" \
 
 #### Response Codes
 
-| Code | Description |
-|------|-------------|
-| 200 | Pull request retrieved successfully |
-| 400 | Invalid pull request ID |
-| 401 | Unauthorized - Invalid or missing API key |
-| 404 | Pull request not found |
-| 500 | Internal server error |
-| 502 | GitHub API error |
+| Code | Description                               |
+|------|-------------------------------------------|
+| 200  | Pull request retrieved successfully       |
+| 400  | Invalid pull request ID                   |
+| 401  | Unauthorized - Invalid or missing API key |
+| 404  | Pull request not found                    |
+| 500  | Internal server error                     |
+| 502  | GitHub API error                          |
 
 ---
 
@@ -129,10 +129,10 @@ Add a new pull request to track.
 
 #### Request Body
 
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `url` | string | Yes | GitHub pull request URL |
-| `title` | string | No | PR title (fetched from GitHub if not provided) |
+| Field   | Type   | Required | Description                                    |
+|---------|--------|----------|------------------------------------------------|
+| `url`   | string | Yes      | GitHub pull request URL                        |
+| `title` | string | No       | PR title (fetched from GitHub if not provided) |
 
 #### Request Example
 

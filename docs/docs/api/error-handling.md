@@ -23,47 +23,47 @@ All API errors follow a consistent JSON structure:
 
 ### Response Fields
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `success` | boolean | Always `false` for error responses |
-| `error.message` | string | Human-readable error description |
-| `error.code` | string | Machine-readable error code |
-| `error.statusCode` | number | HTTP status code |
-| `error.details` | object | Additional error context (optional) |
-| `error.timestamp` | string | ISO 8601 timestamp (optional) |
-| `error.path` | string | Request path where error occurred (optional) |
-| `error.method` | string | HTTP method (optional) |
+| Field              | Type    | Description                                  |
+|--------------------|---------|----------------------------------------------|
+| `success`          | boolean | Always `false` for error responses           |
+| `error.message`    | string  | Human-readable error description             |
+| `error.code`       | string  | Machine-readable error code                  |
+| `error.statusCode` | number  | HTTP status code                             |
+| `error.details`    | object  | Additional error context (optional)          |
+| `error.timestamp`  | string  | ISO 8601 timestamp (optional)                |
+| `error.path`       | string  | Request path where error occurred (optional) |
+| `error.method`     | string  | HTTP method (optional)                       |
 
 ## HTTP Status Codes
 
 ### 2xx Success
 
-| Code | Status | Description |
-|------|--------|-------------|
-| 200 | OK | Request succeeded |
-| 201 | Created | Resource created successfully |
-| 202 | Accepted | Request accepted for processing |
-| 204 | No Content | Request succeeded with no response body |
+| Code | Status     | Description                             |
+|------|------------|-----------------------------------------|
+| 200  | OK         | Request succeeded                       |
+| 201  | Created    | Resource created successfully           |
+| 202  | Accepted   | Request accepted for processing         |
+| 204  | No Content | Request succeeded with no response body |
 
 ### 4xx Client Errors
 
-| Code | Status | Description |
-|------|--------|-------------|
-| 400 | Bad Request | Invalid request data or parameters |
-| 401 | Unauthorized | Missing or invalid API key |
-| 403 | Forbidden | Valid API key but insufficient permissions |
-| 404 | Not Found | Resource not found |
-| 409 | Conflict | Resource conflict (e.g., duplicate) |
-| 422 | Unprocessable Entity | Semantic validation error |
-| 429 | Too Many Requests | Rate limit exceeded |
+| Code | Status               | Description                                |
+|------|----------------------|--------------------------------------------|
+| 400  | Bad Request          | Invalid request data or parameters         |
+| 401  | Unauthorized         | Missing or invalid API key                 |
+| 403  | Forbidden            | Valid API key but insufficient permissions |
+| 404  | Not Found            | Resource not found                         |
+| 409  | Conflict             | Resource conflict (e.g., duplicate)        |
+| 422  | Unprocessable Entity | Semantic validation error                  |
+| 429  | Too Many Requests    | Rate limit exceeded                        |
 
 ### 5xx Server Errors
 
-| Code | Status | Description |
-|------|--------|-------------|
-| 500 | Internal Server Error | Unexpected server error |
-| 502 | Bad Gateway | External service error |
-| 503 | Service Unavailable | Service temporarily unavailable |
+| Code | Status                | Description                     |
+|------|-----------------------|---------------------------------|
+| 500  | Internal Server Error | Unexpected server error         |
+| 502  | Bad Gateway           | External service error          |
+| 503  | Service Unavailable   | Service temporarily unavailable |
 
 ## Error Codes
 

@@ -14,11 +14,11 @@ Retrieve Cypress end-to-end test execution reports for all monitored projects.
 
 #### Query Parameters
 
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `date` | string | No | Report date in YYYY-MM-DD format (defaults to current date) |
-| `force` | string | No | Force regeneration of report (`'true'`, `'false'`, `'1'`, `'0'`) |
-| `enrichments` | string | No | JSON string containing enrichment options |
+| Parameter     | Type   | Required | Description                                                      |
+|---------------|--------|----------|------------------------------------------------------------------|
+| `date`        | string | No       | Report date in YYYY-MM-DD format (defaults to current date)      |
+| `force`       | string | No       | Force regeneration of report (`'true'`, `'false'`, `'1'`, `'0'`) |
+| `enrichments` | string | No       | JSON string containing enrichment options                        |
 
 #### Enrichment Options
 
@@ -124,13 +124,13 @@ When the report is being generated:
 
 #### Response Codes
 
-| Code | Description |
-|------|-------------|
-| 200 | Report retrieved successfully |
-| 202 | Report generation in progress |
-| 400 | Invalid request parameters |
-| 401 | Unauthorized - Invalid or missing API key |
-| 500 | Internal server error |
+| Code | Description                               |
+|------|-------------------------------------------|
+| 200  | Report retrieved successfully             |
+| 202  | Report generation in progress             |
+| 400  | Invalid request parameters                |
+| 401  | Unauthorized - Invalid or missing API key |
+| 500  | Internal server error                     |
 
 ---
 
@@ -144,10 +144,10 @@ Get detailed report for a specific application within a summary.
 
 #### Path Parameters
 
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `summaryId` | number | Yes | Report summary ID |
-| `appId` | number | Yes | Application ID |
+| Parameter   | Type   | Required | Description       |
+|-------------|--------|----------|-------------------|
+| `summaryId` | number | Yes      | Report summary ID |
+| `appId`     | number | Yes      | Application ID    |
 
 #### Request Example
 

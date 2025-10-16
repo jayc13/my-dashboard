@@ -162,31 +162,31 @@ Request bodies should be valid JSON:
 
 ## HTTP Status Codes
 
-| Code | Meaning | Description |
-|------|---------|-------------|
-| 200 | OK | Request successful |
-| 201 | Created | Resource created successfully |
-| 400 | Bad Request | Invalid request data |
-| 401 | Unauthorized | Invalid or missing API key |
-| 403 | Forbidden | Insufficient permissions |
-| 404 | Not Found | Resource not found |
-| 409 | Conflict | Resource already exists |
-| 429 | Too Many Requests | Rate limit exceeded |
-| 500 | Internal Server Error | Server error |
-| 503 | Service Unavailable | External service error |
+| Code | Meaning               | Description                   |
+|------|-----------------------|-------------------------------|
+| 200  | OK                    | Request successful            |
+| 201  | Created               | Resource created successfully |
+| 400  | Bad Request           | Invalid request data          |
+| 401  | Unauthorized          | Invalid or missing API key    |
+| 403  | Forbidden             | Insufficient permissions      |
+| 404  | Not Found             | Resource not found            |
+| 409  | Conflict              | Resource already exists       |
+| 429  | Too Many Requests     | Rate limit exceeded           |
+| 500  | Internal Server Error | Server error                  |
+| 503  | Service Unavailable   | External service error        |
 
 ## Error Codes
 
-| Code | Description |
-|------|-------------|
-| `VALIDATION_ERROR` | Request validation failed |
-| `UNAUTHORIZED` | Invalid or missing API key |
-| `FORBIDDEN` | Insufficient permissions |
-| `NOT_FOUND` | Resource not found |
-| `CONFLICT` | Resource already exists |
-| `DATABASE_ERROR` | Database operation failed |
-| `EXTERNAL_SERVICE_ERROR` | External service error |
-| `INTERNAL_ERROR` | Internal server error |
+| Code                     | Description                |
+|--------------------------|----------------------------|
+| `VALIDATION_ERROR`       | Request validation failed  |
+| `UNAUTHORIZED`           | Invalid or missing API key |
+| `FORBIDDEN`              | Insufficient permissions   |
+| `NOT_FOUND`              | Resource not found         |
+| `CONFLICT`               | Resource already exists    |
+| `DATABASE_ERROR`         | Database operation failed  |
+| `EXTERNAL_SERVICE_ERROR` | External service error     |
+| `INTERNAL_ERROR`         | Internal server error      |
 
 See [Error Handling](./error-handling.md) for detailed error documentation.
 

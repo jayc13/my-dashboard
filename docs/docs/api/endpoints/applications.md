@@ -60,9 +60,9 @@ Retrieve detailed information about a specific application.
 
 #### Path Parameters
 
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `id` | number | Yes | Application ID |
+| Parameter | Type   | Required | Description    |
+|-----------|--------|----------|----------------|
+| `id`      | number | Yes      | Application ID |
 
 #### Request Example
 
@@ -100,13 +100,13 @@ curl -X GET "http://localhost:3000/api/apps/1" \
 
 #### Response Codes
 
-| Code | Description |
-|------|-------------|
-| 200 | Application retrieved successfully |
-| 400 | Invalid application ID |
-| 401 | Unauthorized - Invalid or missing API key |
-| 404 | Application not found |
-| 500 | Internal server error |
+| Code | Description                               |
+|------|-------------------------------------------|
+| 200  | Application retrieved successfully        |
+| 400  | Invalid application ID                    |
+| 401  | Unauthorized - Invalid or missing API key |
+| 404  | Application not found                     |
+| 500  | Internal server error                     |
 
 ---
 
@@ -120,13 +120,13 @@ Create a new monitored application.
 
 #### Request Body
 
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `name` | string | Yes | Application name (max 255 chars) |
-| `code` | string | Yes | Unique application code (max 100 chars) |
-| `pipelineUrl` | string | Yes | CircleCI pipeline URL (max 500 chars) |
-| `watching` | boolean | No | Whether to monitor this app (default: true) |
-| `e2eTriggerConfiguration` | object | No | E2E trigger configuration |
+| Field                     | Type    | Required | Description                                 |
+|---------------------------|---------|----------|---------------------------------------------|
+| `name`                    | string  | Yes      | Application name (max 255 chars)            |
+| `code`                    | string  | Yes      | Unique application code (max 100 chars)     |
+| `pipelineUrl`             | string  | Yes      | CircleCI pipeline URL (max 500 chars)       |
+| `watching`                | boolean | No       | Whether to monitor this app (default: true) |
+| `e2eTriggerConfiguration` | object  | No       | E2E trigger configuration                   |
 
 #### Request Example
 
@@ -169,13 +169,13 @@ curl -X POST "http://localhost:3000/api/apps" \
 
 #### Response Codes
 
-| Code | Description |
-|------|-------------|
-| 201 | Application created successfully |
-| 400 | Invalid request data or validation error |
-| 401 | Unauthorized - Invalid or missing API key |
-| 409 | Application code already exists |
-| 500 | Internal server error |
+| Code | Description                               |
+|------|-------------------------------------------|
+| 201  | Application created successfully          |
+| 400  | Invalid request data or validation error  |
+| 401  | Unauthorized - Invalid or missing API key |
+| 409  | Application code already exists           |
+| 500  | Internal server error                     |
 
 ---
 
@@ -189,21 +189,21 @@ Update an existing application.
 
 #### Path Parameters
 
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `id` | number | Yes | Application ID |
+| Parameter | Type   | Required | Description    |
+|-----------|--------|----------|----------------|
+| `id`      | number | Yes      | Application ID |
 
 #### Request Body
 
 All fields are optional. Only provided fields will be updated.
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `name` | string | Application name (max 255 chars) |
-| `code` | string | Unique application code (max 100 chars) |
-| `pipelineUrl` | string | CircleCI pipeline URL (max 500 chars) |
-| `watching` | boolean | Whether to monitor this app |
-| `e2eTriggerConfiguration` | object | E2E trigger configuration |
+| Field                     | Type    | Description                             |
+|---------------------------|---------|-----------------------------------------|
+| `name`                    | string  | Application name (max 255 chars)        |
+| `code`                    | string  | Unique application code (max 100 chars) |
+| `pipelineUrl`             | string  | CircleCI pipeline URL (max 500 chars)   |
+| `watching`                | boolean | Whether to monitor this app             |
+| `e2eTriggerConfiguration` | object  | E2E trigger configuration               |
 
 #### Request Example
 

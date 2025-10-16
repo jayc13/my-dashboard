@@ -158,10 +158,10 @@ subscriber.on('message', (channel, message) => {
 ```
 
 ### Active Channels
-| Channel | Publisher | Subscriber | Purpose |
-|---------|-----------|------------|---------|
-| `e2e:report:generate` | Cron | Server | Trigger E2E report generation |
-| `notification:create` | Cron | Server | Create notifications from background jobs |
+| Channel               | Publisher | Subscriber | Purpose                                   |
+|-----------------------|-----------|------------|-------------------------------------------|
+| `e2e:report:generate` | Cron      | Server     | Trigger E2E report generation             |
+| `notification:create` | Cron      | Server     | Create notifications from background jobs |
 
 ## Cron Jobs
 

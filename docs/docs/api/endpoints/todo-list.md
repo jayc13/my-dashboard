@@ -57,9 +57,9 @@ Retrieve a specific to-do item.
 
 #### Path Parameters
 
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `id` | number | Yes | To-do item ID |
+| Parameter | Type   | Required | Description   |
+|-----------|--------|----------|---------------|
+| `id`      | number | Yes      | To-do item ID |
 
 #### Request Example
 
@@ -86,13 +86,13 @@ curl -X GET "http://localhost:3000/api/to_do_list/1" \
 
 #### Response Codes
 
-| Code | Description |
-|------|-------------|
-| 200 | To-do item retrieved successfully |
-| 400 | Invalid to-do item ID |
-| 401 | Unauthorized - Invalid or missing API key |
-| 404 | To-do item not found |
-| 500 | Internal server error |
+| Code | Description                               |
+|------|-------------------------------------------|
+| 200  | To-do item retrieved successfully         |
+| 400  | Invalid to-do item ID                     |
+| 401  | Unauthorized - Invalid or missing API key |
+| 404  | To-do item not found                      |
+| 500  | Internal server error                     |
 
 ---
 
@@ -106,13 +106,13 @@ Create a new to-do item.
 
 #### Request Body
 
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `title` | string | Yes | Task title (max 255 chars) |
-| `description` | string | No | Task description |
-| `link` | string | No | Related URL (max 500 chars) |
-| `dueDate` | string | No | Due date in ISO 8601 format |
-| `isCompleted` | boolean | No | Completion status (default: false) |
+| Field         | Type    | Required | Description                        |
+|---------------|---------|----------|------------------------------------|
+| `title`       | string  | Yes      | Task title (max 255 chars)         |
+| `description` | string  | No       | Task description                   |
+| `link`        | string  | No       | Related URL (max 500 chars)        |
+| `dueDate`     | string  | No       | Due date in ISO 8601 format        |
+| `isCompleted` | boolean | No       | Completion status (default: false) |
 
 #### Request Example
 
