@@ -247,14 +247,14 @@ curl -X PUT "http://localhost:3000/api/apps/1" \
 
 #### Response Codes
 
-| Code | Description |
-|------|-------------|
-| 200 | Application updated successfully |
-| 400 | Invalid request data or validation error |
-| 401 | Unauthorized - Invalid or missing API key |
-| 404 | Application not found |
-| 409 | Application code already exists (if code was changed) |
-| 500 | Internal server error |
+| Code | Description                                           |
+|------|-------------------------------------------------------|
+| 200  | Application updated successfully                      |
+| 400  | Invalid request data or validation error              |
+| 401  | Unauthorized - Invalid or missing API key             |
+| 404  | Application not found                                 |
+| 409  | Application code already exists (if code was changed) |
+| 500  | Internal server error                                 |
 
 ---
 
@@ -268,9 +268,9 @@ Delete an application.
 
 #### Path Parameters
 
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `id` | number | Yes | Application ID |
+| Parameter | Type   | Required | Description    |
+|-----------|--------|----------|----------------|
+| `id`      | number | Yes      | Application ID |
 
 #### Request Example
 
@@ -290,13 +290,13 @@ curl -X DELETE "http://localhost:3000/api/apps/1" \
 
 #### Response Codes
 
-| Code | Description |
-|------|-------------|
-| 200 | Application deleted successfully |
-| 400 | Invalid application ID |
-| 401 | Unauthorized - Invalid or missing API key |
-| 404 | Application not found |
-| 500 | Internal server error |
+| Code | Description                               |
+|------|-------------------------------------------|
+| 200  | Application deleted successfully          |
+| 400  | Invalid application ID                    |
+| 401  | Unauthorized - Invalid or missing API key |
+| 404  | Application not found                     |
+| 500  | Internal server error                     |
 
 ---
 
