@@ -163,7 +163,7 @@ Run database migrations:
 
 ```bash
 cd server
-npm run migrate
+pnpm run migrate
 ```
 
 ## Running the Application
