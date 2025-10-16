@@ -65,10 +65,24 @@ describe('E2EPageContainer', () => {
     expect(screen.getByTestId('loading')).toHaveTextContent('Not Loading');
   });
 
-  it('renders loading state', async () => {
+  it('renders loading state when loading and no data', async () => {
     const { useE2ERunReport } = await import('@/hooks');
     vi.mocked(useE2ERunReport).mockReturnValue({
       data: undefined,
+      loading: true,
+      error: null,
+      refetch: mockRefetchData,
+    });
+
+    render(<E2EPageContainer />);
+
+    expect(screen.getByTestId('loading')).toHaveTextContent('Loading');
+  });
+
+  it('passes loading=true when loading with data', async () => {
+    const { useE2ERunReport } = await import('@/hooks');
+    vi.mocked(useE2ERunReport).mockReturnValue({
+      data: mockData,
       loading: true,
       error: null,
       refetch: mockRefetchData,

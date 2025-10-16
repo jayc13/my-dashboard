@@ -18,21 +18,22 @@ describe('LoadingBackdrop', () => {
     details: [],
   };
 
-  it('renders backdrop open when loading and data status is pending', () => {
-    const { container } = render(<LoadingBackdrop data={mockData} loading={true} />);
+  it('renders backdrop open when data status is pending', () => {
+    const { container } = render(<LoadingBackdrop data={mockData} />);
     expect(screen.getByText('Running tests...')).toBeInTheDocument();
     const backdrop = container.querySelector('.MuiBackdrop-root');
     expect(backdrop).not.toHaveStyle({ visibility: 'hidden' });
   });
 
-  it('renders backdrop closed when not loading', () => {
-    const { container } = render(<LoadingBackdrop data={mockData} loading={false} />);
+  it('renders backdrop open when data status is pending regardless of loading prop', () => {
+    const { container } = render(<LoadingBackdrop data={mockData} />);
+    expect(screen.getByText('Running tests...')).toBeInTheDocument();
     const backdrop = container.querySelector('.MuiBackdrop-root');
-    expect(backdrop).toHaveStyle({ visibility: 'hidden' });
+    expect(backdrop).not.toHaveStyle({ visibility: 'hidden' });
   });
 
   it('renders backdrop closed when data is null', () => {
-    const { container } = render(<LoadingBackdrop data={null} loading={true} />);
+    const { container } = render(<LoadingBackdrop data={null} />);
     const backdrop = container.querySelector('.MuiBackdrop-root');
     expect(backdrop).toHaveStyle({ visibility: 'hidden' });
   });
@@ -42,7 +43,7 @@ describe('LoadingBackdrop', () => {
       ...mockData,
       message: undefined,
     };
-    render(<LoadingBackdrop data={dataWithoutMessage} loading={true} />);
+    render(<LoadingBackdrop data={dataWithoutMessage} />);
     expect(screen.getByText('Loading...')).toBeInTheDocument();
   });
 
@@ -54,7 +55,7 @@ describe('LoadingBackdrop', () => {
         status: 'ready',
       },
     };
-    const { container } = render(<LoadingBackdrop data={completedData} loading={true} />);
+    const { container } = render(<LoadingBackdrop data={completedData} />);
     const backdrop = container.querySelector('.MuiBackdrop-root');
     expect(backdrop).toHaveStyle({ visibility: 'hidden' });
   });
