@@ -6,14 +6,14 @@ This guide provides detailed instructions for setting up your development enviro
 
 ### Required Software
 
-1. **Node.js** (v22.19.0 recommended)
+1. **Node.js** (v22.20.0 recommended)
    ```bash
    # Check version
    node --version
    
    # Install via nvm (recommended)
-   nvm install 22.19.0
-   nvm use 22.19.0
+   nvm install 22.20.0
+   nvm use 22.20.0
    ```
 
 2. **pnpm** (package manager)

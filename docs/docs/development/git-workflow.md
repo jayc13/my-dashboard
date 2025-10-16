@@ -18,7 +18,7 @@ Create feature branches from `main` for all new work:
 ```bash
 git checkout main
 git pull origin main
-git checkout -b <type>/<description>
+git checkout -b <type>/<description> #  (e.g., 'feat/add-login-endpoint')
 ```
 
 ### Branch Naming Convention

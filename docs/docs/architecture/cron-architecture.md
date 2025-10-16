@@ -5,7 +5,7 @@ The cron application is a Node.js service that runs scheduled background jobs fo
 ## Technology Stack
 
 ### Core Technologies
-- **Node.js v22.19.0** - JavaScript runtime environment
+- **Node.js v22.20.0** - JavaScript runtime environment
 - **TypeScript 5.1.6** - Type-safe JavaScript development
 - **node-cron 4.2.1** - Cron job scheduling
 - **ioredis 5.4.2** - Redis client for pub/sub messaging
