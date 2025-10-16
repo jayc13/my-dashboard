@@ -1,46 +1,77 @@
-# Authentication
+# API Authentication
 
-My Dashboard API uses API key authentication to secure access to endpoints and protect against unauthorized usage.
+My Dashboard API uses **API Key authentication** for securing endpoints. This guide explains how authentication works and how to use it.
 
-## API Key Authentication
+## Authentication Method
 
-### How It Works
+### API Key Only (No JWT)
 
-API keys are passed via the `x-api-key` HTTP header:
+The API uses a simple but secure API key authentication mechanism:
 
-```bash
-curl -H "x-api-key: YOUR_API_KEY" \
-     -H "Content-Type: application/json" \
-     "http://localhost:3000/api/apps"
+- **Single API Key**: One shared secret key for all authenticated requests
+- **Header-based**: API key passed via `x-api-key` header
+- **Constant-time Comparison**: Prevents timing attacks
+- **Brute Force Protection**: Rate limiting and IP blocking
+
+:::warning Important
+This API does **NOT** use JWT tokens. Authentication is purely API key-based.
+:::
+
+## How It Works
+
+### Authentication Flow
+
+```mermaid
+sequenceDiagram
+    participant C as Client
+    participant A as API Server
+    participant E as Environment
+
+    C->>A: POST /api/auth/validate<br/>{apiKey: "..."}
+    A->>A: Check brute force limits
+    A->>E: Get API_SECURITY_KEY
+    A->>A: crypto.timingSafeEqual()<br/>(constant-time comparison)
+    alt Valid API Key
+        A->>A: Clear failed attempts
+        A->>C: {valid: true}
+    else Invalid API Key
+        A->>A: Record failed attempt
+        A->>A: Check if IP should be blocked
+        A->>C: {valid: false}
+    end
 ```
 
 ### Security Features
 
-- **Constant-time comparison**: Prevents timing attacks
-- **Rate limiting**: Protects against brute force attempts
-- **IP-based blocking**: Automatic blocking of abusive IPs
-- **Request logging**: Failed attempts are logged for monitoring
+1. **Constant-time Comparison**
+   - Uses `crypto.timingSafeEqual()` to prevent timing attacks
+   - Ensures comparison time is independent of input
 
-## Obtaining an API Key
+2. **Brute Force Protection**
+   - Maximum 3 failed attempts per IP within 15 minutes
+   - 30-minute IP block after exceeding limit
+   - Progressive slowdown in production
 
-API keys are configured server-side via the `API_SECURITY_KEY` environment variable. Contact your system administrator to:
+3. **Rate Limiting**
+   - Configurable request limits per IP
+   - Automatic cleanup of old attempt records
 
-1. **Request Access**: Provide your use case and required permissions
-2. **Receive Key**: Get your unique API key securely
-3. **Test Access**: Validate your key using the validation endpoint
+## Using Authentication
 
-## Validating Your API Key
+### 1. Validate API Key
 
-Use the validation endpoint to test your API key:
+Before using the API, validate your API key:
 
+**Endpoint**: `POST /api/auth/validate`
+
+**Request**:
 ```bash
-curl -X POST \
-     -H "Content-Type: application/json" \
-     -d '{"apiKey": "YOUR_API_KEY"}' \
-     "http://localhost:3000/api/auth/validate"
+curl -X POST http://localhost:3000/api/auth/validate \
+  -H "Content-Type: application/json" \
+  -d '{"apiKey": "your-api-key-here"}'
 ```
 
-**Success Response:**
+**Response (Success)**:
 ```json
 {
   "valid": true,
@@ -48,7 +79,7 @@ curl -X POST \
 }
 ```
 
-**Error Response:**
+**Response (Invalid)**:
 ```json
 {
   "valid": false,
@@ -56,206 +87,259 @@ curl -X POST \
 }
 ```
 
-## Rate Limiting & Protection
-
-### Authentication Endpoints
-
-Authentication endpoints have special protection:
-
-- **Rate Limit**: 3 attempts per 15-minute window per IP
-- **Progressive Delays**: Increasing delays after failed attempts
-- **IP Blocking**: Temporary blocks for persistent abuse
-- **Security Headers**: Additional security headers applied
-
-### Failed Attempt Handling
-
-When authentication fails:
-
-1. **Attempt Recorded**: Failed attempt is logged with IP and timestamp
-2. **Counter Incremented**: Failure count increases for the IP
-3. **Delay Applied**: Progressive delay before next attempt allowed
-4. **Blocking Triggered**: After threshold, IP is temporarily blocked
-
-### Rate Limit Response
-
-When rate limited, you'll receive:
-
+**Response (Rate Limited)**:
 ```json
 {
-  "error": "Too many failed attempts. Try again in 10 minutes.",
-  "retryAfter": 600
+  "error": "Too many failed attempts. Try again in 25 minutes.",
+  "retryAfter": 1500
 }
+```
+
+### 2. Make Authenticated Requests
+
+Include the API key in the `x-api-key` header for all subsequent requests:
+
+**Example**:
+```bash
+curl http://localhost:3000/api/apps \
+  -H "x-api-key: your-api-key-here"
+```
+
+**JavaScript/TypeScript**:
+```typescript
+const response = await fetch('http://localhost:3000/api/apps', {
+  headers: {
+    'x-api-key': 'your-api-key-here'
+  }
+});
+```
+
+**Using the SDK**:
+```typescript
+import { MyDashboardAPI } from '@my-dashboard/sdk';
+
+const api = new MyDashboardAPI({
+  baseUrl: 'http://localhost:3000',
+  apiKey: 'your-api-key-here'
+});
+
+// SDK automatically includes the API key in all requests
+const apps = await api.getApplications();
 ```
 
 ## Public Endpoints
 
-These endpoints do not require authentication:
+The following endpoints do **NOT** require authentication:
 
-### Health Check
-```bash
-GET /health
+- `GET /health` - Health check endpoint
+- `POST /api/auth/validate` - API key validation
+
+All other `/api/*` endpoints require a valid API key.
+
+## Error Responses
+
+### 401 Unauthorized
+
+Missing or invalid API key:
+
+```json
+{
+  "error": "Invalid or missing API key",
+  "code": "UNAUTHORIZED"
+}
 ```
 
-No authentication required. Returns server status.
+### 429 Too Many Requests
 
-### API Key Validation
-```bash
-POST /api/auth/validate
+Rate limit exceeded or IP blocked:
+
+```json
+{
+  "error": "Too many failed attempts. Try again in 25 minutes.",
+  "retryAfter": 1500
+}
 ```
 
-Used to validate API keys. The key is provided in the request body, not headers.
+## Configuration
 
-## Protected Endpoints
+### Server Configuration
 
-All other endpoints require the `x-api-key` header:
+Set the API key in your server environment:
 
-- `/api/apps/*` - Application management
-- `/api/e2e_reports/*` - E2E test reports
-- `/api/pull_requests/*` - Pull request tracking
-- `/api/notifications/*` - Notification management
-- `/api/internal/*` - Internal administration
+```bash
+# server/.env
+API_SECURITY_KEY=your-secret-api-key-here
+```
+
+:::tip Security Best Practice
+- Use a strong, randomly generated key (at least 32 characters)
+- Never commit the API key to version control
+- Rotate the key periodically
+- Use different keys for different environments
+:::
+
+### Brute Force Protection Settings
+
+Configure brute force protection via environment variables:
+
+```bash
+# Maximum failed attempts before blocking (default: 3)
+BRUTE_FORCE_MAX_ATTEMPTS=3
+
+# Time window for counting attempts in milliseconds (default: 15 minutes)
+BRUTE_FORCE_WINDOW_MS=900000
+```
+
+### Client Configuration
+
+Store the API key in your client environment:
+
+```bash
+# client/.env
+VITE_API_KEY=your-secret-api-key-here
+```
+
+**React Context Usage**:
+```typescript
+import { useAuth } from '@/contexts/useAuth';
+
+function MyComponent() {
+  const { login, isAuthenticated, apiKey } = useAuth();
+  
+  const handleLogin = async (key: string) => {
+    const result = await login(key);
+    if (result.success) {
+      console.log('Logged in successfully');
+    } else {
+      console.error(result.error);
+    }
+  };
+  
+  return (
+    // Your component JSX
+  );
+}
+```
 
 ## Best Practices
 
-### Secure Storage
+### 1. Secure Storage
 
-- **Environment Variables**: Store API keys in environment variables
-- **Secret Management**: Use proper secret management systems in production
-- **Never Commit**: Never commit API keys to version control
+**Client-side**:
+- Store API key in `localStorage` (current implementation)
+- Consider using `sessionStorage` for more security
+- Clear on logout
+
+**Server-side**:
+- Store in environment variables
+- Never hardcode in source code
+- Use secrets management in production
+
+### 2. Key Rotation
+
+Periodically rotate your API key:
+
+1. Generate a new key
+2. Update `API_SECURITY_KEY` in server environment
+3. Update client applications
+4. Monitor for failed authentication attempts
+
+### 3. Monitoring
+
+Monitor authentication attempts:
+
+```typescript
+// Server logs failed attempts
+Logger.warn(`Failed API key validation attempt from IP: ${clientIP}`);
+```
+
+Check logs for:
+- Unusual number of failed attempts
+- Attempts from unexpected IPs
+- Patterns indicating brute force attacks
+
+### 4. Environment-specific Keys
+
+Use different API keys for different environments:
 
 ```bash
-# Good: Environment variable
-export MY_DASHBOARD_API_KEY="your-key-here"
+# Development
+API_SECURITY_KEY=dev-key-12345
 
-# Good: .env file (not committed)
-MY_DASHBOARD_API_KEY=your-key-here
+# Staging
+API_SECURITY_KEY=staging-key-67890
 
-# Bad: Hardcoded in source
-const apiKey = "abc123-secret-key"; // DON'T DO THIS
-```
-
-### Error Handling
-
-Always handle authentication errors gracefully:
-
-```javascript
-async function apiRequest(endpoint, options = {}) {
-  try {
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-      ...options,
-      headers: {
-        'x-api-key': process.env.MY_DASHBOARD_API_KEY,
-        'Content-Type': 'application/json',
-        ...options.headers,
-      },
-    });
-    
-    if (response.status === 401) {
-      throw new Error('Invalid API key - check your credentials');
-    }
-    
-    if (response.status === 429) {
-      const data = await response.json();
-      throw new Error(`Rate limited - retry after ${data.retryAfter} seconds`);
-    }
-    
-    if (!response.ok) {
-      throw new Error(`API Error: ${response.status}`);
-    }
-    
-    return response.json();
-  } catch (error) {
-    console.error('API request failed:', error.message);
-    throw error;
-  }
-}
-```
-
-### Retry Logic
-
-Implement proper retry logic for rate-limited requests:
-
-```javascript
-async function apiRequestWithRetry(endpoint, options = {}, maxRetries = 3) {
-  for (let attempt = 1; attempt <= maxRetries; attempt++) {
-    try {
-      return await apiRequest(endpoint, options);
-    } catch (error) {
-      if (error.message.includes('Rate limited') && attempt < maxRetries) {
-        const delay = Math.pow(2, attempt) * 1000; // Exponential backoff
-        await new Promise(resolve => setTimeout(resolve, delay));
-        continue;
-      }
-      throw error;
-    }
-  }
-}
-```
-
-### Request Logging
-
-Log API requests for debugging and monitoring:
-
-```javascript
-function logApiRequest(endpoint, method = 'GET', success = true) {
-  console.log(`[API] ${method} ${endpoint} - ${success ? 'SUCCESS' : 'FAILED'}`);
-}
+# Production
+API_SECURITY_KEY=prod-key-abcdef
 ```
 
 ## Troubleshooting
 
-### Common Issues
+### "Invalid or missing API key"
 
-**401 Unauthorized**
-- Check that your API key is correct
-- Verify the `x-api-key` header is being sent
-- Ensure the key hasn't been revoked
+**Causes**:
+- API key not included in request
+- Wrong header name (should be `x-api-key`)
+- Incorrect API key value
+- API key not set in server environment
 
-**429 Too Many Requests**
-- Wait for the retry period to expire
-- Implement exponential backoff in your client
-- Check if your IP has been temporarily blocked
+**Solutions**:
+1. Verify header name is exactly `x-api-key`
+2. Check API key matches server configuration
+3. Ensure `API_SECURITY_KEY` is set in server `.env`
 
-**403 Forbidden**
-- Your API key may not have permission for this endpoint
-- Contact your administrator to verify permissions
+### "Too many failed attempts"
 
-### Testing Authentication
+**Causes**:
+- Exceeded 3 failed attempts within 15 minutes
+- IP address is blocked
 
-Use these commands to test your authentication setup:
+**Solutions**:
+1. Wait 30 minutes for block to expire
+2. Verify you're using the correct API key
+3. Check server logs for details
 
-```bash
-# Test health endpoint (no auth required)
-curl "http://localhost:3000/health"
+### API key works locally but not in production
 
-# Test API key validation
-curl -X POST \
-     -H "Content-Type: application/json" \
-     -d '{"apiKey": "YOUR_API_KEY"}' \
-     "http://localhost:3000/api/auth/validate"
+**Causes**:
+- Different API key in production environment
+- Environment variable not set correctly
 
-# Test protected endpoint
-curl -H "x-api-key: YOUR_API_KEY" \
-     "http://localhost:3000/api/apps"
-```
-
-### Debug Headers
-
-Include debug information in your requests:
-
-```bash
-curl -v \
-     -H "x-api-key: YOUR_API_KEY" \
-     -H "Content-Type: application/json" \
-     "http://localhost:3000/api/apps"
-```
-
-The `-v` flag shows request/response headers for debugging.
+**Solutions**:
+1. Verify `API_SECURITY_KEY` in production environment
+2. Check Railway/hosting platform environment variables
+3. Restart server after updating environment variables
 
 ## Security Considerations
 
-- **HTTPS Only**: Always use HTTPS in production
-- **Key Rotation**: Regularly rotate API keys
-- **Monitoring**: Monitor for unusual API usage patterns
-- **Logging**: Keep audit logs of API access
-- **Principle of Least Privilege**: Only grant necessary permissions
+### Timing Attack Prevention
+
+The API uses constant-time comparison to prevent timing attacks:
+
+```typescript
+const providedKeyBuffer = Buffer.from(apiKey, 'utf8');
+const validKeyBuffer = Buffer.from(validApiKey, 'utf8');
+
+const isLengthValid = providedKeyBuffer.length === validKeyBuffer.length;
+const isContentValid = isLengthValid && 
+  crypto.timingSafeEqual(providedKeyBuffer, validKeyBuffer);
+```
+
+This ensures that comparison time doesn't leak information about the correct key.
+
+### HTTPS in Production
+
+Always use HTTPS in production to prevent API key interception:
+
+```
+https://your-domain.com/api/apps
+```
+
+Never send API keys over unencrypted HTTP in production.
+
+## Next Steps
+
+- [API Overview](./overview.md) - API introduction and capabilities
+- [Error Handling](./error-handling.md) - Error codes and responses
+- [SDK Authentication](../sdk/authentication.md) - Using the SDK for authentication
+

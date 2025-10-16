@@ -50,10 +50,8 @@ const config: Config = {
         docs: {
           routeBasePath: '/',
           sidebarPath: './sidebars.ts',
-          // Please change this to your repo.
-          // Remove this to remove the "edit this page" links.
           editUrl:
-            'https://github.com/facebook/docusaurus/tree/main/packages/create-docusaurus/templates/shared/',
+            'https://github.com/jayc13/my-dashboard',
         },
         blog: false,
       } satisfies Preset.Options,
@@ -70,7 +68,7 @@ const config: Config = {
       },
       items: [
         {
-          href: 'https://github.com/facebook/docusaurus',
+          href: 'https://github.com/jayc13/my-dashboard',
           label: 'GitHub',
           position: 'right',
         },
