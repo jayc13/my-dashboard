@@ -5,11 +5,12 @@ import type { DetailedE2EReport } from '@my-dashboard/types';
 
 // Mock the child components
 vi.mock('../components/TestResultsPerApp', () => ({
-  default: ({ showAllApps, isPending }: any) => (
+  default: ({ showAllApps, isPending, isLoading }: any) => (
     <div
       data-testid="test-results-per-app"
       data-show-all-apps={showAllApps}
       data-is-pending={isPending}
+      data-is-loading={isLoading}
     >
       Test Results
     </div>
@@ -720,6 +721,89 @@ describe('E2EPage', () => {
 
       const testResults = screen.getByTestId('test-results-per-app');
       expect(testResults).toHaveAttribute('data-is-pending', 'false');
+    });
+  });
+
+  describe('Initial Loading vs Refetch', () => {
+    it('passes isLoading=true to TestResultsPerApp during initial load (loading=true, no data)', () => {
+      render(
+        <E2EPage data={null} prevData={null} loading={true} error={null} refetch={mockRefetch} />,
+      );
+
+      // Should show default loading state, not the main page
+      expect(screen.getByText('Loading...')).toBeInTheDocument();
+      expect(screen.queryByTestId('test-results-per-app')).not.toBeInTheDocument();
+    });
+
+    it('passes isLoading=false to TestResultsPerApp during refetch (loading=true, data exists)', () => {
+      render(
+        <E2EPage
+          data={mockData}
+          prevData={null}
+          loading={true}
+          error={null}
+          refetch={mockRefetch}
+        />,
+      );
+
+      const testResults = screen.getByTestId('test-results-per-app');
+      expect(testResults).toHaveAttribute('data-is-loading', 'false');
+    });
+
+    it('passes isLoading=false to TestResultsPerApp when not loading', () => {
+      render(
+        <E2EPage
+          data={mockData}
+          prevData={null}
+          loading={false}
+          error={null}
+          refetch={mockRefetch}
+        />,
+      );
+
+      const testResults = screen.getByTestId('test-results-per-app');
+      expect(testResults).toHaveAttribute('data-is-loading', 'false');
+    });
+
+    it('passes isLoading=false when loading=true but data exists (refetch scenario)', () => {
+      render(
+        <E2EPage
+          data={mockData}
+          prevData={null}
+          loading={true}
+          error={null}
+          refetch={mockRefetch}
+        />,
+      );
+
+      // Should render the main page with data, not loading state
+      expect(screen.getByTestId('e2e-page')).toBeInTheDocument();
+      const testResults = screen.getByTestId('test-results-per-app');
+      expect(testResults).toHaveAttribute('data-is-loading', 'false');
+    });
+
+    it('distinguishes between pending status and initial loading', () => {
+      const pendingData: DetailedE2EReport = {
+        ...mockData,
+        summary: {
+          ...mockData.summary,
+          status: 'pending',
+        },
+      };
+
+      render(
+        <E2EPage
+          data={pendingData}
+          prevData={null}
+          loading={false}
+          error={null}
+          refetch={mockRefetch}
+        />,
+      );
+
+      const testResults = screen.getByTestId('test-results-per-app');
+      expect(testResults).toHaveAttribute('data-is-loading', 'false');
+      expect(testResults).toHaveAttribute('data-is-pending', 'true');
     });
   });
 });

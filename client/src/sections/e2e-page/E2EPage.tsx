@@ -41,6 +41,9 @@ const E2EPage = (props: E2EPageProps) => {
   const [showAllApps, setShowAllApps] = useState(false);
   const menuOpen = Boolean(anchorEl);
 
+  const isPending = data?.summary.status === 'pending';
+  const isInitialLoading = loading && !data;
+
   const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
   };
@@ -181,14 +184,14 @@ const E2EPage = (props: E2EPageProps) => {
             <E2EGeneralMetrics
               data={data?.summary}
               prevData={prevData?.summary}
-              isLoading={loading || data?.summary.status === 'pending'}
+              isLoading={loading || isPending}
             />
             <TestResultsPerApp
               data={data?.details || []}
-              isLoading={loading}
+              isLoading={isInitialLoading}
               refetchData={() => refetch()}
               showAllApps={showAllApps}
-              isPending={data?.summary.status === 'pending'}
+              isPending={isPending}
             />
           </Stack>
         </Grid>
