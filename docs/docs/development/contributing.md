@@ -13,7 +13,7 @@ Thank you for your interest in contributing to My Dashboard! This document provi
 
 ### Prerequisites
 
-- **Node.js** v22.20.0 or higher
+- **Node.js** v22.19.0 or higher
 - **pnpm** 10.17.1 or higher
 - **Git** 2.0 or higher
 - **MySQL** 8.0 (for local development)
