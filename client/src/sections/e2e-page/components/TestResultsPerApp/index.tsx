@@ -14,10 +14,18 @@ export interface TestResultsPerAppProps {
   data: DetailedE2EReportDetail[];
   isLoading?: boolean;
   refetchData: () => Promise<void>;
+  showAllApps?: boolean;
+  isPending?: boolean;
 }
 
 const TestResultsPerApp = (props: TestResultsPerAppProps) => {
-  const { data = [], isLoading = false, refetchData } = props;
+  const {
+    data = [],
+    isLoading = false,
+    refetchData,
+    showAllApps = false,
+    isPending = false,
+  } = props;
 
   const { api } = useSDK();
   const { mutate: triggerManualRun } = useTriggerManualRun();
@@ -30,6 +38,20 @@ const TestResultsPerApp = (props: TestResultsPerAppProps) => {
     loadingAppDetails: boolean;
   } | null>(null);
   const contextMenuRef = useRef<HTMLDivElement | null>(null);
+
+  // Filter apps based on showAllApps toggle
+  const filteredApps = showAllApps ? data : data.filter(app => app.failedRuns > 0);
+  const pageCount = Math.ceil(filteredApps.length / PAGE_SIZE);
+
+  // Reset page to valid range when filteredApps or showAllApps changes
+  useEffect(() => {
+    setPage(prevPage => {
+      if (pageCount === 0) {
+        return 1;
+      }
+      return Math.min(prevPage, pageCount);
+    });
+  }, [filteredApps.length, showAllApps, pageCount]);
 
   const fetchAppDetails = async (appId: number): Promise<AppDetailedE2EReportDetail | null> => {
     if (!api) {
@@ -152,18 +174,15 @@ const TestResultsPerApp = (props: TestResultsPerAppProps) => {
     };
   }, [contextMenu]);
 
-  if (isLoading) {
+  if (isLoading || isPending) {
     return <LoadingState />;
   }
 
-  // Filter out apps that don't have failures
-  const appsWithFailures = data.filter(app => app.failedRuns > 0);
-
-  if (data.length === 0) {
+  if (data.length === 0 && !isPending) {
     return <NoTestResults />;
   }
 
-  if (appsWithFailures.length === 0) {
+  if (filteredApps.length === 0 && !isPending) {
     return <AllTestsPassing />;
   }
 
@@ -171,11 +190,8 @@ const TestResultsPerApp = (props: TestResultsPerAppProps) => {
     await getAppLastStatus({ summaryId, appId });
     await refetchData();
   };
-
-  // Pagination logic
-  const pageCount = Math.ceil(appsWithFailures.length / PAGE_SIZE);
   // Sort data by successRate ascending before paginating
-  const sortedData = [...appsWithFailures].sort((a, b) => a.successRate - b.successRate);
+  const sortedData = [...filteredApps].sort((a, b) => a.successRate - b.successRate);
   const paginatedData = sortedData.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
   return (

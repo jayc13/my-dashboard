@@ -5,7 +5,16 @@ import type { DetailedE2EReport } from '@my-dashboard/types';
 
 // Mock the child components
 vi.mock('../components/TestResultsPerApp', () => ({
-  default: () => <div data-testid="test-results-per-app">Test Results</div>,
+  default: ({ showAllApps, isPending, isLoading }: any) => (
+    <div
+      data-testid="test-results-per-app"
+      data-show-all-apps={showAllApps}
+      data-is-pending={isPending}
+      data-is-loading={isLoading}
+    >
+      Test Results
+    </div>
+  ),
 }));
 
 vi.mock('../components/E2EGeneralMetrics', () => ({
@@ -78,7 +87,16 @@ describe('E2EPage', () => {
     expect(screen.getByTestId('loading-backdrop')).toBeInTheDocument();
   });
 
-  it('renders with null data', () => {
+  it('renders default loading state when loading and no data', () => {
+    render(
+      <E2EPage data={null} prevData={null} loading={true} error={null} refetch={mockRefetch} />,
+    );
+
+    expect(screen.getByText('Loading...')).toBeInTheDocument();
+    expect(screen.queryByTestId('e2e-page')).not.toBeInTheDocument();
+  });
+
+  it('renders with null data when not loading', () => {
     render(
       <E2EPage data={null} prevData={null} loading={false} error={null} refetch={mockRefetch} />,
     );
@@ -552,6 +570,240 @@ describe('E2EPage', () => {
     // Modal should close after refetch completes
     await waitFor(() => {
       expect(screen.queryByTestId('force-refresh-confirmation-modal')).not.toBeInTheDocument();
+    });
+  });
+
+  describe('Show All Apps Toggle', () => {
+    it('renders the show all apps toggle', () => {
+      render(
+        <E2EPage
+          data={mockData}
+          prevData={null}
+          loading={false}
+          error={null}
+          refetch={mockRefetch}
+        />,
+      );
+
+      const toggle = screen.getByTestId('show-all-apps-toggle');
+      expect(toggle).toBeInTheDocument();
+      expect(screen.getByText('Show all apps')).toBeInTheDocument();
+    });
+
+    it('toggle is unchecked by default', () => {
+      render(
+        <E2EPage
+          data={mockData}
+          prevData={null}
+          loading={false}
+          error={null}
+          refetch={mockRefetch}
+        />,
+      );
+
+      const toggle = screen.getByRole('switch') as HTMLInputElement;
+      expect(toggle.checked).toBe(false);
+    });
+
+    it('passes showAllApps=false to TestResultsPerApp by default', () => {
+      render(
+        <E2EPage
+          data={mockData}
+          prevData={null}
+          loading={false}
+          error={null}
+          refetch={mockRefetch}
+        />,
+      );
+
+      const testResults = screen.getByTestId('test-results-per-app');
+      expect(testResults).toHaveAttribute('data-show-all-apps', 'false');
+    });
+
+    it('toggles showAllApps when switch is clicked', async () => {
+      render(
+        <E2EPage
+          data={mockData}
+          prevData={null}
+          loading={false}
+          error={null}
+          refetch={mockRefetch}
+        />,
+      );
+
+      const toggle = screen.getByRole('switch') as HTMLInputElement;
+      expect(toggle.checked).toBe(false);
+
+      // Click the toggle
+      fireEvent.click(toggle);
+
+      await waitFor(() => {
+        expect(toggle.checked).toBe(true);
+      });
+
+      const testResults = screen.getByTestId('test-results-per-app');
+      expect(testResults).toHaveAttribute('data-show-all-apps', 'true');
+    });
+
+    it('can toggle back to false', async () => {
+      render(
+        <E2EPage
+          data={mockData}
+          prevData={null}
+          loading={false}
+          error={null}
+          refetch={mockRefetch}
+        />,
+      );
+
+      const toggle = screen.getByRole('switch') as HTMLInputElement;
+
+      // Toggle on
+      fireEvent.click(toggle);
+      await waitFor(() => {
+        expect(toggle.checked).toBe(true);
+      });
+
+      // Toggle off
+      fireEvent.click(toggle);
+      await waitFor(() => {
+        expect(toggle.checked).toBe(false);
+      });
+
+      const testResults = screen.getByTestId('test-results-per-app');
+      expect(testResults).toHaveAttribute('data-show-all-apps', 'false');
+    });
+  });
+
+  describe('Pending Status', () => {
+    it('passes isPending=true to TestResultsPerApp when status is pending', () => {
+      const pendingData: DetailedE2EReport = {
+        ...mockData,
+        summary: {
+          ...mockData.summary,
+          status: 'pending',
+        },
+      };
+
+      render(
+        <E2EPage
+          data={pendingData}
+          prevData={null}
+          loading={false}
+          error={null}
+          refetch={mockRefetch}
+        />,
+      );
+
+      const testResults = screen.getByTestId('test-results-per-app');
+      expect(testResults).toHaveAttribute('data-is-pending', 'true');
+    });
+
+    it('passes isPending=false to TestResultsPerApp when status is ready', () => {
+      render(
+        <E2EPage
+          data={mockData}
+          prevData={null}
+          loading={false}
+          error={null}
+          refetch={mockRefetch}
+        />,
+      );
+
+      const testResults = screen.getByTestId('test-results-per-app');
+      expect(testResults).toHaveAttribute('data-is-pending', 'false');
+    });
+
+    it('passes isPending=false to TestResultsPerApp when data is null', () => {
+      render(
+        <E2EPage data={null} prevData={null} loading={false} error={null} refetch={mockRefetch} />,
+      );
+
+      const testResults = screen.getByTestId('test-results-per-app');
+      expect(testResults).toHaveAttribute('data-is-pending', 'false');
+    });
+  });
+
+  describe('Initial Loading vs Refetch', () => {
+    it('passes isLoading=true to TestResultsPerApp during initial load (loading=true, no data)', () => {
+      render(
+        <E2EPage data={null} prevData={null} loading={true} error={null} refetch={mockRefetch} />,
+      );
+
+      // Should show default loading state, not the main page
+      expect(screen.getByText('Loading...')).toBeInTheDocument();
+      expect(screen.queryByTestId('test-results-per-app')).not.toBeInTheDocument();
+    });
+
+    it('passes isLoading=false to TestResultsPerApp during refetch (loading=true, data exists)', () => {
+      render(
+        <E2EPage
+          data={mockData}
+          prevData={null}
+          loading={true}
+          error={null}
+          refetch={mockRefetch}
+        />,
+      );
+
+      const testResults = screen.getByTestId('test-results-per-app');
+      expect(testResults).toHaveAttribute('data-is-loading', 'false');
+    });
+
+    it('passes isLoading=false to TestResultsPerApp when not loading', () => {
+      render(
+        <E2EPage
+          data={mockData}
+          prevData={null}
+          loading={false}
+          error={null}
+          refetch={mockRefetch}
+        />,
+      );
+
+      const testResults = screen.getByTestId('test-results-per-app');
+      expect(testResults).toHaveAttribute('data-is-loading', 'false');
+    });
+
+    it('passes isLoading=false when loading=true but data exists (refetch scenario)', () => {
+      render(
+        <E2EPage
+          data={mockData}
+          prevData={null}
+          loading={true}
+          error={null}
+          refetch={mockRefetch}
+        />,
+      );
+
+      // Should render the main page with data, not loading state
+      expect(screen.getByTestId('e2e-page')).toBeInTheDocument();
+      const testResults = screen.getByTestId('test-results-per-app');
+      expect(testResults).toHaveAttribute('data-is-loading', 'false');
+    });
+
+    it('distinguishes between pending status and initial loading', () => {
+      const pendingData: DetailedE2EReport = {
+        ...mockData,
+        summary: {
+          ...mockData.summary,
+          status: 'pending',
+        },
+      };
+
+      render(
+        <E2EPage
+          data={pendingData}
+          prevData={null}
+          loading={false}
+          error={null}
+          refetch={mockRefetch}
+        />,
+      );
+
+      const testResults = screen.getByTestId('test-results-per-app');
+      expect(testResults).toHaveAttribute('data-is-loading', 'false');
+      expect(testResults).toHaveAttribute('data-is-pending', 'true');
     });
   });
 });

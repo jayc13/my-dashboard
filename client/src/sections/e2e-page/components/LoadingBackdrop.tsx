@@ -3,13 +3,12 @@ import type { DetailedE2EReport } from '@my-dashboard/types';
 
 interface LoadingBackdropProps {
   data: DetailedE2EReport | null | undefined;
-  loading: boolean;
 }
 
 const LoadingBackdrop = (props: LoadingBackdropProps) => {
-  const { data, loading } = props;
+  const { data } = props;
 
-  const open = loading && !!data && data?.summary.status === 'pending';
+  const open = !!data && data.summary.status === 'pending';
 
   const message = data?.message || 'Loading...';
 

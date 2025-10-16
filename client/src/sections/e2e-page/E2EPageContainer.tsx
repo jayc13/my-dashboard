@@ -37,13 +37,7 @@ const E2EPageContainer = () => {
   };
 
   return (
-    <E2EPage
-      data={data}
-      prevData={prevData}
-      loading={loading && !data}
-      error={error}
-      refetch={refetch}
-    />
+    <E2EPage data={data} prevData={prevData} loading={loading} error={error} refetch={refetch} />
   );
 };
 
