@@ -171,22 +171,22 @@ Common terms and acronyms used in My Dashboard documentation and codebase.
 
 ## Common Acronyms
 
-| Acronym | Full Form |
-|---------|-----------|
-| API | Application Programming Interface |
-| CI/CD | Continuous Integration/Continuous Deployment |
-| CORS | Cross-Origin Resource Sharing |
-| CSP | Content Security Policy |
-| E2E | End-to-End |
-| FCM | Firebase Cloud Messaging |
-| HSTS | HTTP Strict Transport Security |
-| JWT | JSON Web Token |
-| MUI | Material-UI |
-| ORM | Object-Relational Mapping |
-| PR | Pull Request |
-| REST | Representational State Transfer |
-| SDK | Software Development Kit |
-| SQL | Structured Query Language |
+| Acronym | Full Form                                    |
+|---------|----------------------------------------------|
+| API     | Application Programming Interface            |
+| CI/CD   | Continuous Integration/Continuous Deployment |
+| CORS    | Cross-Origin Resource Sharing                |
+| CSP     | Content Security Policy                      |
+| E2E     | End-to-End                                   |
+| FCM     | Firebase Cloud Messaging                     |
+| HSTS    | HTTP Strict Transport Security               |
+| JWT     | JSON Web Token                               |
+| MUI     | Material-UI                                  |
+| ORM     | Object-Relational Mapping                    |
+| PR      | Pull Request                                 |
+| REST    | Representational State Transfer              |
+| SDK     | Software Development Kit                     |
+| SQL     | Structured Query Language                    |
 
 ## Project-Specific Terms
 
@@ -210,16 +210,16 @@ Common terms and acronyms used in My Dashboard documentation and codebase.
 
 ## File Extensions
 
-| Extension | Description |
-|-----------|-------------|
-| `.ts` | TypeScript source file |
-| `.tsx` | TypeScript file with JSX (React components) |
-| `.js` | JavaScript source file |
-| `.jsx` | JavaScript file with JSX |
-| `.json` | JSON data file |
-| `.yaml` / `.yml` | YAML configuration file |
-| `.md` | Markdown documentation file |
-| `.sql` | SQL script file |
+| Extension        | Description                                 |
+|------------------|---------------------------------------------|
+| `.ts`            | TypeScript source file                      |
+| `.tsx`           | TypeScript file with JSX (React components) |
+| `.js`            | JavaScript source file                      |
+| `.jsx`           | JavaScript file with JSX                    |
+| `.json`          | JSON data file                              |
+| `.yaml` / `.yml` | YAML configuration file                     |
+| `.md`            | Markdown documentation file                 |
+| `.sql`           | SQL script file                             |
 
 ## Environment Variables
 
@@ -237,28 +237,28 @@ Common terms and acronyms used in My Dashboard documentation and codebase.
 
 ## HTTP Methods
 
-| Method | Description |
-|--------|-------------|
-| GET | Retrieve data from the server |
-| POST | Send data to create a new resource |
-| PUT | Update an existing resource |
-| PATCH | Partially update a resource |
-| DELETE | Remove a resource |
+| Method | Description                        |
+|--------|------------------------------------|
+| GET    | Retrieve data from the server      |
+| POST   | Send data to create a new resource |
+| PUT    | Update an existing resource        |
+| PATCH  | Partially update a resource        |
+| DELETE | Remove a resource                  |
 
 ## HTTP Status Codes
 
-| Code | Meaning |
-|------|---------|
-| 200 | OK - Request successful |
-| 201 | Created - Resource created successfully |
-| 400 | Bad Request - Invalid request data |
-| 401 | Unauthorized - Authentication required |
-| 403 | Forbidden - Insufficient permissions |
-| 404 | Not Found - Resource doesn't exist |
-| 409 | Conflict - Resource already exists |
-| 429 | Too Many Requests - Rate limit exceeded |
-| 500 | Internal Server Error - Server error |
-| 503 | Service Unavailable - External service error |
+| Code | Meaning                                      |
+|------|----------------------------------------------|
+| 200  | OK - Request successful                      |
+| 201  | Created - Resource created successfully      |
+| 400  | Bad Request - Invalid request data           |
+| 401  | Unauthorized - Authentication required       |
+| 403  | Forbidden - Insufficient permissions         |
+| 404  | Not Found - Resource doesn't exist           |
+| 409  | Conflict - Resource already exists           |
+| 429  | Too Many Requests - Rate limit exceeded      |
+| 500  | Internal Server Error - Server error         |
+| 503  | Service Unavailable - External service error |
 
 ## Database Terms
 

@@ -23,7 +23,7 @@ Check the LICENSE file in the repository for licensing information.
 
 ### What are the system requirements?
 
-- Node.js >= 18.0.0 (recommended: v22.19.0)
+- Node.js >= 18.0.0 (recommended: v22.20.0)
 - pnpm package manager
 - MySQL 8.0 or higher
 - Redis (for pub/sub messaging)

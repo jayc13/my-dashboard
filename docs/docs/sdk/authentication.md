@@ -181,11 +181,11 @@ try {
 
 ### Common Error Codes
 
-| Status | Error | Description |
-|--------|-------|-------------|
-| 401 | Unauthorized | Missing or invalid API key |
-| 403 | Forbidden | Valid key but insufficient permissions |
-| 429 | Too Many Requests | Rate limit exceeded |
+| Status | Error             | Description                            |
+|--------|-------------------|----------------------------------------|
+| 401    | Unauthorized      | Missing or invalid API key             |
+| 403    | Forbidden         | Valid key but insufficient permissions |
+| 429    | Too Many Requests | Rate limit exceeded                    |
 
 ## Security Best Practices
 
@@ -453,10 +453,13 @@ vi.mock('@my-dashboard/sdk', () => ({
 
 **Solution:**
 ```typescript
-// Ensure API key is provided
+// Ensure API key is provided via environment variable
+if (!process.env.MY_DASHBOARD_API_KEY) {
+  throw new Error('ConfigurationError: MY_DASHBOARD_API_KEY environment variable is required');
+}
 const api = new MyDashboardAPI({
   baseUrl: 'http://localhost:3000',
-  apiKey: process.env.MY_DASHBOARD_API_KEY || 'fallback-key',
+  apiKey: process.env.MY_DASHBOARD_API_KEY,
 });
 ```
 
