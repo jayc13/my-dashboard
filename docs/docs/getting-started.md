@@ -6,7 +6,7 @@ This guide will help you set up and run My Dashboard locally for development.
 
 Before you begin, ensure you have the following installed:
 
-- **Node.js** >= 18.0.0 (recommended: v22.19.0)
+- **Node.js** >= 18.0.0 (recommended: v22.20.0)
 - **pnpm** - Fast, disk space efficient package manager
 - **MySQL** 8.0 or higher
 - **Redis** - For pub/sub messaging
