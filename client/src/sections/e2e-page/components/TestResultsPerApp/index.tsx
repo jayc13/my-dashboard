@@ -14,10 +14,18 @@ export interface TestResultsPerAppProps {
   data: DetailedE2EReportDetail[];
   isLoading?: boolean;
   refetchData: () => Promise<void>;
+  showAllApps?: boolean;
+  isPending?: boolean;
 }
 
 const TestResultsPerApp = (props: TestResultsPerAppProps) => {
-  const { data = [], isLoading = false, refetchData } = props;
+  const {
+    data = [],
+    isLoading = false,
+    refetchData,
+    showAllApps = false,
+    isPending = false,
+  } = props;
 
   const { api } = useSDK();
   const { mutate: triggerManualRun } = useTriggerManualRun();
@@ -152,18 +160,18 @@ const TestResultsPerApp = (props: TestResultsPerAppProps) => {
     };
   }, [contextMenu]);
 
-  if (isLoading) {
+  if (isLoading || isPending) {
     return <LoadingState />;
   }
 
-  // Filter out apps that don't have failures
-  const appsWithFailures = data.filter(app => app.failedRuns > 0);
-
-  if (data.length === 0) {
+  if (data.length === 0 && !isPending) {
     return <NoTestResults />;
   }
 
-  if (appsWithFailures.length === 0) {
+  // Filter apps based on showAllApps toggle
+  const filteredApps = showAllApps ? data : data.filter(app => app.failedRuns > 0);
+
+  if (filteredApps.length === 0 && !isPending) {
     return <AllTestsPassing />;
   }
 
@@ -173,9 +181,9 @@ const TestResultsPerApp = (props: TestResultsPerAppProps) => {
   };
 
   // Pagination logic
-  const pageCount = Math.ceil(appsWithFailures.length / PAGE_SIZE);
+  const pageCount = Math.ceil(filteredApps.length / PAGE_SIZE);
   // Sort data by successRate ascending before paginating
-  const sortedData = [...appsWithFailures].sort((a, b) => a.successRate - b.successRate);
+  const sortedData = [...filteredApps].sort((a, b) => a.successRate - b.successRate);
   const paginatedData = sortedData.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
   return (
