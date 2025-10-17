@@ -139,6 +139,48 @@ Object.defineProperty(window, 'matchMedia', {
   })),
 });
 
+// Mock window.location to prevent "Not implemented: navigation" errors in jsdom
+// Create a writable location object that can be modified in tests
+const mockLocation = {
+  href: 'http://localhost:3000/',
+  origin: 'http://localhost:3000',
+  protocol: 'http:',
+  host: 'localhost:3000',
+  hostname: 'localhost',
+  port: '3000',
+  pathname: '/',
+  search: '',
+  hash: '',
+  assign: vi.fn(),
+  replace: vi.fn(),
+  reload: vi.fn(),
+  toString: vi.fn(() => 'http://localhost:3000/'),
+};
+
+delete (window as any).location;
+Object.defineProperty(window, 'location', {
+  value: mockLocation,
+  writable: true,
+  configurable: true,
+});
+
+// Mock window.open to prevent actual window opening in tests
+window.open = vi.fn();
+
+// Prevent navigation on anchor clicks in tests
+// This prevents "Not implemented: navigation to another Document" errors
+if (typeof document !== 'undefined') {
+  document.addEventListener('click', (e) => {
+    const target = e.target as HTMLElement;
+    const anchor = target.closest('a');
+    if (anchor && anchor.href) {
+      // Only prevent default if the onClick handler doesn't already do it
+      // This allows tests to verify onClick behavior while preventing actual navigation
+      e.preventDefault();
+    }
+  }, true); // Use capture phase to catch before other handlers
+}
+
 // Suppress expected unhandled rejections from error scenario tests
 const originalUnhandledRejection = process.listeners('unhandledRejection');
 process.removeAllListeners('unhandledRejection');

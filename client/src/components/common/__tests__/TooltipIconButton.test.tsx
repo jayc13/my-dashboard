@@ -1,17 +1,24 @@
-import { render, screen, fireEvent } from '@testing-library/react';
-import { vi, describe, it, expect } from 'vitest';
+import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { vi, describe, it, expect, beforeEach } from 'vitest';
 import TooltipIconButton from '../TooltipIconButton';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 
 describe('TooltipIconButton', () => {
-  it('renders icon button with children', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it('renders icon button with children', async () => {
     render(
       <TooltipIconButton aria-label="Delete">
         <DeleteIcon />
       </TooltipIconButton>,
     );
-    expect(screen.getByRole('button', { name: 'Delete' })).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: 'Delete' })).toBeInTheDocument();
+    });
   });
 
   it('renders button without tooltip when tooltip prop is not provided', () => {
@@ -34,7 +41,8 @@ describe('TooltipIconButton', () => {
     expect(button).toBeInTheDocument();
   });
 
-  it('calls onClick when button is clicked', () => {
+  it('calls onClick when button is clicked', async () => {
+    const user = userEvent.setup();
     const mockOnClick = vi.fn();
     render(
       <TooltipIconButton onClick={mockOnClick} aria-label="Clickable">
@@ -43,7 +51,7 @@ describe('TooltipIconButton', () => {
     );
 
     const button = screen.getByRole('button', { name: 'Clickable' });
-    fireEvent.click(button);
+    await user.click(button);
 
     expect(mockOnClick).toHaveBeenCalledTimes(1);
   });
@@ -198,7 +206,8 @@ describe('TooltipIconButton', () => {
     expect(link).toHaveAttribute('href', 'https://example.com');
   });
 
-  it('handles onClick with link functionality', () => {
+  it('handles onClick with link functionality', async () => {
+    const user = userEvent.setup();
     const mockOnClick = vi.fn();
     render(
       <TooltipIconButton
@@ -211,8 +220,9 @@ describe('TooltipIconButton', () => {
     );
 
     const link = screen.getByRole('link', { name: 'Clickable Link' });
-    fireEvent.click(link);
+    await user.click(link);
 
     expect(mockOnClick).toHaveBeenCalledTimes(1);
+    // Navigation is prevented by test setup to avoid jsdom errors
   });
 });
