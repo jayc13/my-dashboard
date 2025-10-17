@@ -10,7 +10,7 @@ const E2EGeneralMetrics = (props: E2EGeneralMetricsProps) => {
 
   const stats = getStats(data, prevData);
 
-  if (isLoading) {
+  if (isLoading || !data) {
     return (
       <MetricsGrid>
         {[1, 2, 3, 4].map(index => (
