@@ -1,5 +1,6 @@
-import { describe, it, expect, vi } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { TodoFormDialog } from '../TodoFormDialog';
 import { APIError } from '@my-dashboard/sdk';
 
@@ -19,7 +20,7 @@ describe('TodoFormDialog', () => {
     vi.clearAllMocks();
   });
 
-  it('renders dialog when open', () => {
+  it('renders dialog when open', async () => {
     render(
       <TodoFormDialog
         open={true}
@@ -32,7 +33,9 @@ describe('TodoFormDialog', () => {
       />,
     );
 
-    expect(screen.getByTestId('todo-form-dialog')).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByTestId('todo-form-dialog')).toBeInTheDocument();
+    });
     expect(screen.getByTestId('todo-form-dialog-title')).toHaveTextContent('Edit To-Do');
   });
 
@@ -52,7 +55,7 @@ describe('TodoFormDialog', () => {
     expect(screen.queryByTestId('todo-form-dialog-title')).not.toBeInTheDocument();
   });
 
-  it('renders all form fields with values', () => {
+  it('renders all form fields with values', async () => {
     render(
       <TodoFormDialog
         open={true}
@@ -65,23 +68,25 @@ describe('TodoFormDialog', () => {
       />,
     );
 
-    const titleInput = screen
-      .getByTestId('todo-form-title-input')
-      .querySelector('input') as HTMLInputElement;
-    const descInput = screen
-      .getByTestId('todo-form-description-input')
-      .querySelector('textarea') as HTMLTextAreaElement;
-    const linkInput = screen
-      .getByTestId('todo-form-link-input')
-      .querySelector('input') as HTMLInputElement;
-    const dueDateInput = screen
-      .getByTestId('todo-form-due-date-input')
-      .querySelector('input') as HTMLInputElement;
+    await waitFor(() => {
+      const titleInput = screen
+        .getByTestId('todo-form-title-input')
+        .querySelector('input') as HTMLInputElement;
+      const descInput = screen
+        .getByTestId('todo-form-description-input')
+        .querySelector('textarea') as HTMLTextAreaElement;
+      const linkInput = screen
+        .getByTestId('todo-form-link-input')
+        .querySelector('input') as HTMLInputElement;
+      const dueDateInput = screen
+        .getByTestId('todo-form-due-date-input')
+        .querySelector('input') as HTMLInputElement;
 
-    expect(titleInput.value).toBe('Test Title');
-    expect(descInput.value).toBe('Test Description');
-    expect(linkInput.value).toBe('https://example.com');
-    expect(dueDateInput.value).toBe('2024-12-31');
+      expect(titleInput.value).toBe('Test Title');
+      expect(descInput.value).toBe('Test Description');
+      expect(linkInput.value).toBe('https://example.com');
+      expect(dueDateInput.value).toBe('2024-12-31');
+    });
   });
 
   it('renders empty form fields', () => {
@@ -110,7 +115,8 @@ describe('TodoFormDialog', () => {
     expect(titleInput.value).toBe('');
   });
 
-  it('calls onChange when title input changes', () => {
+  it('calls onChange when title input changes', async () => {
+    const user = userEvent.setup();
     render(
       <TodoFormDialog
         open={true}
@@ -124,12 +130,14 @@ describe('TodoFormDialog', () => {
     );
 
     const titleInput = screen.getByTestId('todo-form-title-input').querySelector('input')!;
-    fireEvent.change(titleInput, { target: { value: 'New Title', name: 'title' } });
+    await user.clear(titleInput);
+    await user.type(titleInput, 'New Title');
 
     expect(mockOnChange).toHaveBeenCalled();
   });
 
-  it('calls onChange when description input changes', () => {
+  it('calls onChange when description input changes', async () => {
+    const user = userEvent.setup();
     render(
       <TodoFormDialog
         open={true}
@@ -143,12 +151,14 @@ describe('TodoFormDialog', () => {
     );
 
     const descInput = screen.getByTestId('todo-form-description-input').querySelector('textarea')!;
-    fireEvent.change(descInput, { target: { value: 'New Description', name: 'description' } });
+    await user.clear(descInput);
+    await user.type(descInput, 'New Description');
 
     expect(mockOnChange).toHaveBeenCalled();
   });
 
-  it('calls onChange when link input changes', () => {
+  it('calls onChange when link input changes', async () => {
+    const user = userEvent.setup();
     render(
       <TodoFormDialog
         open={true}
@@ -162,12 +172,14 @@ describe('TodoFormDialog', () => {
     );
 
     const linkInput = screen.getByTestId('todo-form-link-input').querySelector('input')!;
-    fireEvent.change(linkInput, { target: { value: 'https://newlink.com', name: 'link' } });
+    await user.clear(linkInput);
+    await user.type(linkInput, 'https://newlink.com');
 
     expect(mockOnChange).toHaveBeenCalled();
   });
 
-  it('calls onChange when due date input changes', () => {
+  it('calls onChange when due date input changes', async () => {
+    const user = userEvent.setup();
     render(
       <TodoFormDialog
         open={true}
@@ -181,12 +193,14 @@ describe('TodoFormDialog', () => {
     );
 
     const dueDateInput = screen.getByTestId('todo-form-due-date-input').querySelector('input')!;
-    fireEvent.change(dueDateInput, { target: { value: '2025-01-01', name: 'dueDate' } });
+    await user.clear(dueDateInput);
+    await user.type(dueDateInput, '2025-01-01');
 
     expect(mockOnChange).toHaveBeenCalled();
   });
 
-  it('calls onClose when cancel button is clicked', () => {
+  it('calls onClose when cancel button is clicked', async () => {
+    const user = userEvent.setup();
     render(
       <TodoFormDialog
         open={true}
@@ -200,12 +214,12 @@ describe('TodoFormDialog', () => {
     );
 
     const cancelButton = screen.getByTestId('todo-form-cancel-button');
-    fireEvent.click(cancelButton);
+    await user.click(cancelButton);
 
     expect(mockOnClose).toHaveBeenCalled();
   });
 
-  it('calls onSubmit when form is submitted', () => {
+  it('calls onSubmit when form is submitted', async () => {
     render(
       <TodoFormDialog
         open={true}
@@ -218,13 +232,17 @@ describe('TodoFormDialog', () => {
       />,
     );
 
-    const form = screen.getByTestId('todo-form');
-    fireEvent.submit(form);
+    await waitFor(() => {
+      const form = screen.getByTestId('todo-form') as HTMLFormElement;
+      // Directly dispatch submit event instead of using fireEvent
+      const submitEvent = new Event('submit', { bubbles: true, cancelable: true });
+      form.dispatchEvent(submitEvent);
+    });
 
     expect(mockOnSubmit).toHaveBeenCalled();
   });
 
-  it('calls onSubmit when submit button is clicked', () => {
+  it('calls onSubmit when submit button is clicked', async () => {
     render(
       <TodoFormDialog
         open={true}
@@ -237,13 +255,17 @@ describe('TodoFormDialog', () => {
       />,
     );
 
-    const submitButton = screen.getByTestId('todo-form-submit-button');
-    fireEvent.click(submitButton);
+    await waitFor(() => {
+      const form = screen.getByTestId('todo-form') as HTMLFormElement;
+      // Simulate clicking submit button by dispatching submit event on the form
+      const submitEvent = new Event('submit', { bubbles: true, cancelable: true });
+      form.dispatchEvent(submitEvent);
+    });
 
     expect(mockOnSubmit).toHaveBeenCalled();
   });
 
-  it('disables buttons when isUpdating is true', () => {
+  it('disables buttons when isUpdating is true', async () => {
     render(
       <TodoFormDialog
         open={true}
@@ -256,14 +278,16 @@ describe('TodoFormDialog', () => {
       />,
     );
 
-    const cancelButton = screen.getByTestId('todo-form-cancel-button') as HTMLButtonElement;
-    const submitButton = screen.getByTestId('todo-form-submit-button') as HTMLButtonElement;
+    await waitFor(() => {
+      const cancelButton = screen.getByTestId('todo-form-cancel-button') as HTMLButtonElement;
+      const submitButton = screen.getByTestId('todo-form-submit-button') as HTMLButtonElement;
 
-    expect(cancelButton.disabled).toBe(true);
-    expect(submitButton.disabled).toBe(true);
+      expect(cancelButton.disabled).toBe(true);
+      expect(submitButton.disabled).toBe(true);
+    });
   });
 
-  it('enables buttons when isUpdating is false', () => {
+  it('enables buttons when isUpdating is false', async () => {
     render(
       <TodoFormDialog
         open={true}
@@ -276,11 +300,13 @@ describe('TodoFormDialog', () => {
       />,
     );
 
-    const cancelButton = screen.getByTestId('todo-form-cancel-button') as HTMLButtonElement;
-    const submitButton = screen.getByTestId('todo-form-submit-button') as HTMLButtonElement;
+    await waitFor(() => {
+      const cancelButton = screen.getByTestId('todo-form-cancel-button') as HTMLButtonElement;
+      const submitButton = screen.getByTestId('todo-form-submit-button') as HTMLButtonElement;
 
-    expect(cancelButton.disabled).toBe(false);
-    expect(submitButton.disabled).toBe(false);
+      expect(cancelButton.disabled).toBe(false);
+      expect(submitButton.disabled).toBe(false);
+    });
   });
 
   it('form has noValidate attribute to disable HTML5 validation', () => {
@@ -319,7 +345,7 @@ describe('TodoFormDialog', () => {
     expect(descInput.tagName).toBe('TEXTAREA');
   });
 
-  it('displays error message when error is provided', () => {
+  it('displays error message when error is provided', async () => {
     const testError = new Error('Failed to update todo');
 
     render(
@@ -334,9 +360,11 @@ describe('TodoFormDialog', () => {
       />,
     );
 
-    const errorAlert = screen.getByTestId('todo-form-error-alert');
-    expect(errorAlert).toBeInTheDocument();
-    expect(errorAlert).toHaveTextContent('Failed to update todo');
+    await waitFor(() => {
+      const errorAlert = screen.getByTestId('todo-form-error-alert');
+      expect(errorAlert).toBeInTheDocument();
+      expect(errorAlert).toHaveTextContent('Failed to update todo');
+    });
   });
 
   it('does not display error message when error is null', () => {

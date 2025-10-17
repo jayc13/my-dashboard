@@ -108,7 +108,7 @@ describe('E2EPage', () => {
     expect(screen.getByTestId('e2e-page')).toBeInTheDocument();
   });
 
-  it('calls refetch when refresh button is clicked', () => {
+  it('calls refetch when refresh button is clicked', async () => {
     render(
       <E2EPage
         data={mockData}
@@ -122,7 +122,9 @@ describe('E2EPage', () => {
     const refreshButton = screen.getByTestId('refresh-button');
     fireEvent.click(refreshButton);
 
-    expect(mockRefetch).toHaveBeenCalled();
+    await waitFor(() => {
+      expect(mockRefetch).toHaveBeenCalled();
+    });
   });
 
   it('disables refresh button while refetching', async () => {

@@ -2,6 +2,45 @@ import '@testing-library/jest-dom';
 import { vi } from 'vitest';
 import type { ReactNode } from 'react';
 
+// Polyfill for HTMLFormElement.requestSubmit() which is not implemented in jsdom
+if (typeof HTMLFormElement !== 'undefined' && !HTMLFormElement.prototype.requestSubmit) {
+  HTMLFormElement.prototype.requestSubmit = function (this: HTMLFormElement, submitter?: HTMLElement) {
+    if (submitter) {
+      const submitterElement = submitter as HTMLButtonElement | HTMLInputElement;
+      if (!submitterElement.type || submitterElement.type !== 'submit') {
+        throw new TypeError('The specified element is not a submit button');
+      }
+      if (submitterElement.form !== this) {
+        throw new DOMException('The specified element is not owned by this form element', 'NotFoundError');
+      }
+    }
+
+    // Trigger form validation if available
+    if (typeof this.reportValidity === 'function') {
+      if (!this.reportValidity()) {
+        return;
+      }
+    }
+
+    // Create and dispatch a submit event
+    // Use Event instead of SubmitEvent for better compatibility
+    const submitEvent = new Event('submit', {
+      bubbles: true,
+      cancelable: true,
+    });
+
+    // Add submitter property if provided
+    if (submitter) {
+      Object.defineProperty(submitEvent, 'submitter', {
+        value: submitter,
+        configurable: true,
+      });
+    }
+
+    this.dispatchEvent(submitEvent);
+  };
+}
+
 // Mock CSS imports
 vi.mock('*.css', () => ({}));
 
