@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import NotificationListItem from './NotificationListItem';
@@ -64,8 +64,7 @@ describe('NotificationListItem', () => {
     expect(onMarkAsRead).toHaveBeenCalledWith(1);
   });
 
-  it('calls onDelete when delete button is clicked', async () => {
-    const user = userEvent.setup();
+  it('calls onDelete when delete button is clicked', () => {
     const onDelete = vi.fn().mockResolvedValue(undefined);
     render(
       <NotificationListItem
@@ -74,7 +73,12 @@ describe('NotificationListItem', () => {
         onDelete={onDelete}
       />,
     );
-    await user.click(screen.getByTestId('delete-notification-1'));
+
+    // Use fireEvent instead of userEvent because the button has pointer-events: none until hover
+    // We're testing the onClick handler, not the hover behavior
+    const deleteButton = screen.getByTestId('delete-notification-1');
+    fireEvent.click(deleteButton);
+
     expect(onDelete).toHaveBeenCalledWith(1);
   });
 

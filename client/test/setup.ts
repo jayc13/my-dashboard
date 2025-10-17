@@ -4,14 +4,20 @@ import type { ReactNode } from 'react';
 
 // Polyfill for HTMLFormElement.requestSubmit() which is not implemented in jsdom
 if (typeof HTMLFormElement !== 'undefined' && !HTMLFormElement.prototype.requestSubmit) {
-  HTMLFormElement.prototype.requestSubmit = function (this: HTMLFormElement, submitter?: HTMLElement) {
+  HTMLFormElement.prototype.requestSubmit = function (
+    this: HTMLFormElement,
+    submitter?: HTMLElement,
+  ) {
     if (submitter) {
       const submitterElement = submitter as HTMLButtonElement | HTMLInputElement;
       if (!submitterElement.type || submitterElement.type !== 'submit') {
         throw new TypeError('The specified element is not a submit button');
       }
       if (submitterElement.form !== this) {
-        throw new DOMException('The specified element is not owned by this form element', 'NotFoundError');
+        throw new DOMException(
+          'The specified element is not owned by this form element',
+          'NotFoundError',
+        );
       }
     }
 
@@ -157,7 +163,6 @@ const mockLocation = {
   toString: vi.fn(() => 'http://localhost:3000/'),
 };
 
-delete (window as any).location;
 Object.defineProperty(window, 'location', {
   value: mockLocation,
   writable: true,
@@ -170,15 +175,19 @@ window.open = vi.fn();
 // Prevent navigation on anchor clicks in tests
 // This prevents "Not implemented: navigation to another Document" errors
 if (typeof document !== 'undefined') {
-  document.addEventListener('click', (e) => {
-    const target = e.target as HTMLElement;
-    const anchor = target.closest('a');
-    if (anchor && anchor.href) {
-      // Only prevent default if the onClick handler doesn't already do it
-      // This allows tests to verify onClick behavior while preventing actual navigation
-      e.preventDefault();
-    }
-  }, true); // Use capture phase to catch before other handlers
+  document.addEventListener(
+    'click',
+    e => {
+      const target = e.target as HTMLElement;
+      const anchor = target.closest('a');
+      if (anchor && anchor.href) {
+        // Only prevent default if the onClick handler doesn't already do it
+        // This allows tests to verify onClick behavior while preventing actual navigation
+        e.preventDefault();
+      }
+    },
+    true,
+  ); // Use capture phase to catch before other handlers
 }
 
 // Suppress expected unhandled rejections from error scenario tests
