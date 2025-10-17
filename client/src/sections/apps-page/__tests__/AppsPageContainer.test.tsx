@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, act } from '@testing-library/react';
 import AppsPageContainer from '../AppsPageContainer';
 import type { Application } from '@/types';
 
@@ -274,7 +274,10 @@ describe('AppsPageContainer', () => {
       render(<AppsPageContainer />);
 
       const openButton = await screen.findByTestId('open-dialog-button');
-      openButton.click();
+
+      await act(async () => {
+        openButton.click();
+      });
 
       // The dialog should be opened (tested via AppsPage props)
       expect(screen.getByTestId('apps-page-mock')).toBeInTheDocument();
@@ -284,7 +287,10 @@ describe('AppsPageContainer', () => {
       render(<AppsPageContainer />);
 
       const openEditButton = await screen.findByTestId('open-edit-dialog-button');
-      openEditButton.click();
+
+      await act(async () => {
+        openEditButton.click();
+      });
 
       // The dialog should be opened with app data (tested via AppsPage props)
       expect(screen.getByTestId('apps-page-mock')).toBeInTheDocument();
@@ -294,7 +300,10 @@ describe('AppsPageContainer', () => {
       render(<AppsPageContainer />);
 
       const closeButton = await screen.findByTestId('close-dialog-button');
-      closeButton.click();
+
+      await act(async () => {
+        closeButton.click();
+      });
 
       // The dialog should be closed (tested via AppsPage props)
       expect(screen.getByTestId('apps-page-mock')).toBeInTheDocument();
@@ -304,7 +313,10 @@ describe('AppsPageContainer', () => {
       render(<AppsPageContainer />);
 
       const setFormDataButton = await screen.findByTestId('set-form-data-button');
-      setFormDataButton.click();
+
+      await act(async () => {
+        setFormDataButton.click();
+      });
 
       // Form data should be updated (tested via AppsPage props)
       expect(screen.getByTestId('apps-page-mock')).toBeInTheDocument();
@@ -333,7 +345,10 @@ describe('AppsPageContainer', () => {
       render(<AppsPageContainer />);
 
       const deleteButton = await screen.findByTestId('delete-click-button');
-      deleteButton.click();
+
+      await act(async () => {
+        deleteButton.click();
+      });
 
       // Delete dialog should be opened (tested via AppsPage props)
       expect(screen.getByTestId('apps-page-mock')).toBeInTheDocument();
@@ -343,7 +358,10 @@ describe('AppsPageContainer', () => {
       render(<AppsPageContainer />);
 
       const cancelButton = await screen.findByTestId('cancel-delete-button');
-      cancelButton.click();
+
+      await act(async () => {
+        cancelButton.click();
+      });
 
       // Delete dialog should be closed (tested via AppsPage props)
       expect(screen.getByTestId('apps-page-mock')).toBeInTheDocument();
@@ -357,7 +375,9 @@ describe('AppsPageContainer', () => {
 
       // First open the delete dialog
       const deleteButton = await screen.findByTestId('delete-click-button');
-      deleteButton.click();
+      await act(async () => {
+        deleteButton.click();
+      });
 
       // Then confirm
       const confirmButton = await screen.findByTestId('confirm-delete-button');
@@ -380,7 +400,9 @@ describe('AppsPageContainer', () => {
 
       // First open the delete dialog
       const deleteButton = await screen.findByTestId('delete-click-button');
-      deleteButton.click();
+      await act(async () => {
+        deleteButton.click();
+      });
 
       // Then confirm
       const confirmButton = await screen.findByTestId('confirm-delete-button');
