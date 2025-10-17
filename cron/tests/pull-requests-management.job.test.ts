@@ -29,7 +29,15 @@ jest.mock('../src/services/notification.service', () => ({
   publishNotificationRequest: jest.fn(),
 }));
 
-jest.mock('../src/services/pull-request.service');
+jest.mock('../src/services/pull-request.service', () => ({
+  PullRequestService: {
+    fetchAllPRsWithDetails: jest.fn(),
+    filterByState: jest.fn(),
+    filterByMerged: jest.fn(),
+    filterByMergeableState: jest.fn(),
+    calculateAgeInDays: jest.fn(),
+  },
+}));
 
 const mockPublishNotificationRequest = publishNotificationRequest as jest.MockedFunction<typeof publishNotificationRequest>;
 
