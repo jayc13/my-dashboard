@@ -14,6 +14,7 @@ module.exports = {
   ],
   coverageDirectory: '.coverage-report',
   coverageReporters: ['text', 'lcov', 'html'],
+  coverageProvider: 'v8',
   setupFilesAfterEnv: ['<rootDir>/tests/setup.ts'],
   testTimeout: 10000,
   moduleNameMapper: {
