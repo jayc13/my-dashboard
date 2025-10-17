@@ -39,7 +39,7 @@ jest.mock('../src/services/pull-request.service', () => {
       static filterByMergeableState = jest.fn();
       static calculateAgeInDays = jest.fn();
     },
-    PRWithDetails: {} as any,
+    PRWithDetails: {} as Record<string, never>,
   };
 });
 
