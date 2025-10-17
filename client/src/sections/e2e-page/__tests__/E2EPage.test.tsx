@@ -60,7 +60,10 @@ describe('E2EPage', () => {
       <E2EPage data={null} prevData={null} loading={false} error={error} refetch={mockRefetch} />,
     );
 
-    expect(screen.getByText('Error fetching information')).toBeInTheDocument();
+    // Error is now shown inline with the page content
+    expect(screen.getByTestId('error-alert')).toBeInTheDocument();
+    expect(screen.getByText('Test error')).toBeInTheDocument();
+    expect(screen.getByTestId('e2e-page')).toBeInTheDocument();
   });
 
   it('renders main content when no error', () => {
@@ -92,8 +95,9 @@ describe('E2EPage', () => {
       <E2EPage data={null} prevData={null} loading={true} error={null} refetch={mockRefetch} />,
     );
 
-    expect(screen.getByText('Loading...')).toBeInTheDocument();
-    expect(screen.queryByTestId('e2e-page')).not.toBeInTheDocument();
+    // Loading backdrop is shown, but page content is also rendered
+    expect(screen.getByTestId('loading-backdrop')).toBeInTheDocument();
+    expect(screen.getByTestId('e2e-page')).toBeInTheDocument();
   });
 
   it('renders with null data when not loading', () => {
@@ -730,9 +734,12 @@ describe('E2EPage', () => {
         <E2EPage data={null} prevData={null} loading={true} error={null} refetch={mockRefetch} />,
       );
 
-      // Should show default loading state, not the main page
-      expect(screen.getByText('Loading...')).toBeInTheDocument();
-      expect(screen.queryByTestId('test-results-per-app')).not.toBeInTheDocument();
+      // Loading backdrop is shown, and page content is rendered
+      expect(screen.getByTestId('loading-backdrop')).toBeInTheDocument();
+      expect(screen.getByTestId('test-results-per-app')).toBeInTheDocument();
+
+      const testResults = screen.getByTestId('test-results-per-app');
+      expect(testResults).toHaveAttribute('data-is-loading', 'true');
     });
 
     it('passes isLoading=false to TestResultsPerApp during refetch (loading=true, data exists)', () => {
