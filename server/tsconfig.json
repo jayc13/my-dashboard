@@ -9,7 +9,8 @@
     "rootDir": "./src",
     "resolveJsonModule": true,
     "sourceMap": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "isolatedModules": true
   },
   "include": ["src/**/*"],
   "exclude": [

@@ -10,5 +10,14 @@
     "tests/integration-tests",
     "packages/sdk",
     "packages/types"
-  ]
+  ],
+  "pnpm": {
+    "overrides": {
+      "@faker-js/faker": "^9.3.0",
+      "glob": "^11.0.0",
+      "inflight": "npm:@zkochan/inflight@^1.0.0",
+      "json-schema-ref-parser": "npm:@apidevtools/json-schema-ref-parser@^11.7.3",
+      "rimraf": "^6.0.1"
+    }
+  }
 }

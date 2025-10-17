@@ -111,11 +111,13 @@ describe('PullRequestsPage', () => {
     expect(screen.getByTestId('add-pr-button')).toBeInTheDocument();
   });
 
-  it('calls refetch when refresh button is clicked', () => {
+  it('calls refetch when refresh button is clicked', async () => {
     render(<PullRequestsPage {...defaultProps} />);
     const refreshButton = screen.getByTestId('refresh-button');
     fireEvent.click(refreshButton);
-    expect(mockRefetch).toHaveBeenCalled();
+    await waitFor(() => {
+      expect(mockRefetch).toHaveBeenCalled();
+    });
   });
 
   it('opens add dialog when add button is clicked', () => {

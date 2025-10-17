@@ -29,9 +29,28 @@ jest.mock('../src/services/notification.service', () => ({
   publishNotificationRequest: jest.fn(),
 }));
 
-jest.mock('../src/services/pull-request.service');
+// Mock the PullRequestService class with static methods
+jest.mock('../src/services/pull-request.service', () => {
+  return {
+    PullRequestService: class MockPullRequestService {
+      static fetchAllPRsWithDetails = jest.fn();
+      static filterByState = jest.fn();
+      static filterByMerged = jest.fn();
+      static filterByMergeableState = jest.fn();
+      static calculateAgeInDays = jest.fn();
+    },
+    PRWithDetails: {} as Record<string, never>,
+  };
+});
 
 const mockPublishNotificationRequest = publishNotificationRequest as jest.MockedFunction<typeof publishNotificationRequest>;
+
+// Get references to the mock functions
+const mockFetchAllPRsWithDetails = PullRequestService.fetchAllPRsWithDetails as jest.Mock;
+const mockFilterByState = PullRequestService.filterByState as jest.Mock;
+const mockFilterByMerged = PullRequestService.filterByMerged as jest.Mock;
+const mockFilterByMergeableState = PullRequestService.filterByMergeableState as jest.Mock;
+const mockCalculateAgeInDays = PullRequestService.calculateAgeInDays as jest.Mock;
 
 describe('Pull Requests Management Job', () => {
   beforeEach(() => {
@@ -63,16 +82,16 @@ describe('Pull Requests Management Job', () => {
         },
       ];
 
-      (PullRequestService.fetchAllPRsWithDetails as jest.Mock).mockResolvedValue({
+      mockFetchAllPRsWithDetails.mockResolvedValue({
         allPRs: mockPRs,
         errors: [],
       });
 
-      (PullRequestService.filterByState as jest.Mock).mockReturnValue(mockPRs);
-      (PullRequestService.filterByMerged as jest.Mock).mockImplementation((prs, merged) => 
+      mockFilterByState.mockReturnValue(mockPRs);
+      mockFilterByMerged.mockImplementation((prs, merged) =>
         merged ? [] : mockPRs,
       );
-      (PullRequestService.filterByMergeableState as jest.Mock).mockImplementation((prs, states) => {
+      mockFilterByMergeableState.mockImplementation((prs, states) => {
         if (states.includes('clean') || states.includes('unstable')) {
           return mockPRs;
         }
@@ -102,14 +121,14 @@ describe('Pull Requests Management Job', () => {
         },
       ];
 
-      (PullRequestService.fetchAllPRsWithDetails as jest.Mock).mockResolvedValue({
+      mockFetchAllPRsWithDetails.mockResolvedValue({
         allPRs: mockPRs,
         errors: [],
       });
 
-      (PullRequestService.filterByState as jest.Mock).mockReturnValue(mockPRs);
-      (PullRequestService.filterByMerged as jest.Mock).mockReturnValue(mockPRs);
-      (PullRequestService.filterByMergeableState as jest.Mock).mockImplementation((prs, states) => {
+      mockFilterByState.mockReturnValue(mockPRs);
+      mockFilterByMerged.mockReturnValue(mockPRs);
+      mockFilterByMergeableState.mockImplementation((prs, states) => {
         if (states.includes('dirty')) {
           return mockPRs;
         }
@@ -142,15 +161,15 @@ describe('Pull Requests Management Job', () => {
         },
       ];
 
-      (PullRequestService.fetchAllPRsWithDetails as jest.Mock).mockResolvedValue({
+      mockFetchAllPRsWithDetails.mockResolvedValue({
         allPRs: mockPRs,
         errors: [],
       });
 
-      (PullRequestService.filterByState as jest.Mock).mockReturnValue(mockPRs);
-      (PullRequestService.filterByMerged as jest.Mock).mockReturnValue(mockPRs);
-      (PullRequestService.filterByMergeableState as jest.Mock).mockReturnValue([]);
-      (PullRequestService.calculateAgeInDays as jest.Mock).mockReturnValue(4);
+      mockFilterByState.mockReturnValue(mockPRs);
+      mockFilterByMerged.mockReturnValue(mockPRs);
+      mockFilterByMergeableState.mockReturnValue([]);
+      mockCalculateAgeInDays.mockReturnValue(4);
 
       await pullRequestsManagementJob();
 
@@ -178,15 +197,15 @@ describe('Pull Requests Management Job', () => {
         },
       ];
 
-      (PullRequestService.fetchAllPRsWithDetails as jest.Mock).mockResolvedValue({
+      mockFetchAllPRsWithDetails.mockResolvedValue({
         allPRs: mockPRs,
         errors: [],
       });
 
-      (PullRequestService.filterByState as jest.Mock).mockReturnValue(mockPRs);
-      (PullRequestService.filterByMerged as jest.Mock).mockReturnValue(mockPRs);
-      (PullRequestService.filterByMergeableState as jest.Mock).mockReturnValue([]);
-      (PullRequestService.calculateAgeInDays as jest.Mock).mockReturnValue(8);
+      mockFilterByState.mockReturnValue(mockPRs);
+      mockFilterByMerged.mockReturnValue(mockPRs);
+      mockFilterByMergeableState.mockReturnValue([]);
+      mockCalculateAgeInDays.mockReturnValue(8);
 
       await pullRequestsManagementJob();
 
@@ -222,13 +241,13 @@ describe('Pull Requests Management Job', () => {
         },
       ];
 
-      (PullRequestService.fetchAllPRsWithDetails as jest.Mock).mockResolvedValue({
+      mockFetchAllPRsWithDetails.mockResolvedValue({
         allPRs: mockPRs,
         errors: [],
       });
 
-      (PullRequestService.filterByState as jest.Mock).mockReturnValue([]);
-      (PullRequestService.filterByMerged as jest.Mock).mockImplementation((prs, merged) => 
+      mockFilterByState.mockReturnValue([]);
+      mockFilterByMerged.mockImplementation((prs, merged) =>
         merged ? mockPRs : [],
       );
 
@@ -248,7 +267,7 @@ describe('Pull Requests Management Job', () => {
 
   describe('Edge cases', () => {
     it('should handle empty PR list', async () => {
-      (PullRequestService.fetchAllPRsWithDetails as jest.Mock).mockResolvedValue({
+      mockFetchAllPRsWithDetails.mockResolvedValue({
         allPRs: [],
         errors: [],
       });
@@ -260,7 +279,7 @@ describe('Pull Requests Management Job', () => {
     });
 
     it('should handle errors when fetching PR details', async () => {
-      (PullRequestService.fetchAllPRsWithDetails as jest.Mock).mockResolvedValue({
+      mockFetchAllPRsWithDetails.mockResolvedValue({
         allPRs: [],
         errors: [
           { prId: '1', error: new Error('API error') },
@@ -288,13 +307,13 @@ describe('Pull Requests Management Job', () => {
         },
       ];
 
-      (PullRequestService.fetchAllPRsWithDetails as jest.Mock).mockResolvedValue({
+      mockFetchAllPRsWithDetails.mockResolvedValue({
         allPRs: mockPRs,
         errors: [],
       });
 
-      (PullRequestService.filterByState as jest.Mock).mockReturnValue([]);
-      (PullRequestService.filterByMerged as jest.Mock).mockImplementation((prs, merged) => 
+      mockFilterByState.mockReturnValue([]);
+      mockFilterByMerged.mockImplementation((prs, merged) =>
         merged ? mockPRs : [],
       );
 
@@ -307,7 +326,7 @@ describe('Pull Requests Management Job', () => {
     });
 
     it('should handle complete job failure gracefully', async () => {
-      (PullRequestService.fetchAllPRsWithDetails as jest.Mock).mockRejectedValue(
+      mockFetchAllPRsWithDetails.mockRejectedValue(
         new Error('Complete failure'),
       );
 
@@ -354,19 +373,19 @@ describe('Pull Requests Management Job', () => {
         },
       ];
 
-      (PullRequestService.fetchAllPRsWithDetails as jest.Mock).mockResolvedValue({
+      mockFetchAllPRsWithDetails.mockResolvedValue({
         allPRs: mockPRs,
         errors: [],
       });
 
-      (PullRequestService.filterByState as jest.Mock).mockReturnValue(mockPRs.slice(0, 2));
-      (PullRequestService.filterByMerged as jest.Mock).mockImplementation((prs: PRWithDetails[], merged: boolean) => {
+      mockFilterByState.mockReturnValue(mockPRs.slice(0, 2));
+      mockFilterByMerged.mockImplementation((prs: PRWithDetails[], merged: boolean) => {
         if (merged) {
           return [mockPRs[2]];
         }
         return prs.filter((pr: PRWithDetails) => !pr.merged);
       });
-      (PullRequestService.filterByMergeableState as jest.Mock).mockImplementation((prs, states) => {
+      mockFilterByMergeableState.mockImplementation((prs, states) => {
         if (states.includes('clean')) {
           return [mockPRs[0]];
         }
@@ -375,7 +394,7 @@ describe('Pull Requests Management Job', () => {
         }
         return [];
       });
-      (PullRequestService.calculateAgeInDays as jest.Mock).mockImplementation((date) => {
+      mockCalculateAgeInDays.mockImplementation((date) => {
         if (date === fourDaysAgo.toISOString()) {
           return 4;
         }

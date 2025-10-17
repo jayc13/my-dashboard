@@ -112,13 +112,15 @@ describe('AppsPage', () => {
     expect(screen.getByText(/Error fetching apps/)).toBeInTheDocument();
   });
 
-  it('calls refetch when refresh button is clicked', () => {
+  it('calls refetch when refresh button is clicked', async () => {
     render(<AppsPage {...defaultProps} />);
 
     const refreshButton = screen.getByTestId('refresh-button');
     fireEvent.click(refreshButton);
 
-    expect(mockRefetch).toHaveBeenCalled();
+    await waitFor(() => {
+      expect(mockRefetch).toHaveBeenCalled();
+    });
   });
 
   it('opens app dialog when add button is clicked', () => {

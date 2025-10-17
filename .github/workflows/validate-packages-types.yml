@@ -26,17 +26,12 @@ jobs:
       - name: Run linting
         run: |
           echo "🔍 Running linting on packages/types..."
-          pnpm --filter=@my-dashboard/types run lint || echo "⚠️ No linting configured for packages/types"
+          pnpm --filter=@my-dashboard/types run lint
 
       - name: Run type checking
         run: |
           echo "🔍 Running TypeScript compilation (type checking)..."
-          pnpm --filter=@my-dashboard/types run typecheck || echo "⚠️ Type checking completed with warnings"
-
-      - name: Run tests
-        run: |
-          echo "🧪 Running tests for packages/types..."
-          pnpm --filter=@my-dashboard/types run test || echo "⚠️ No tests configured for packages/types"
+          pnpm --filter=@my-dashboard/types run typecheck
 
       - name: Build package
         run: |
@@ -68,3 +63,8 @@ jobs:
             echo "❌ Package.json not found"
             exit 1
           fi
+
+      - name: Run tests
+        run: |
+          echo "🧪 Running tests for packages/types..."
+          pnpm --filter=@my-dashboard/types run test

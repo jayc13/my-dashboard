@@ -1,6 +1,6 @@
 /**
  * Report E2E Job Tests
- * 
+ *
  * Tests for the E2E report generation job including:
  * - Publishing E2E report requests
  * - Date formatting
@@ -10,6 +10,7 @@
  */
 
 import { DateTime } from 'luxon';
+import reportE2eJob, { publishE2EReportRequest } from '../src/jobs/report-e2e.job';
 
 // Mock dependencies
 const mockPublish = jest.fn().mockResolvedValue(1);
@@ -29,17 +30,8 @@ jest.mock('uuid', () => ({
 }));
 
 describe('Report E2E Job', () => {
-  let reportE2eJob: () => Promise<void>;
-  let publishE2EReportRequest: (date: string, requestId?: string) => Promise<void>;
-
   beforeEach(() => {
     jest.clearAllMocks();
-    // Don't reset modules here - it breaks DateTime mocking
-    // jest.resetModules();
-
-    const jobModule = require('../src/jobs/report-e2e.job');
-    reportE2eJob = jobModule.default;
-    publishE2EReportRequest = jobModule.publishE2EReportRequest;
   });
 
   afterEach(() => {

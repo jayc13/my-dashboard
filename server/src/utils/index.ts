@@ -15,8 +15,8 @@ export {
   sanitizeString,
   sanitizeStringPreserveNewlines,
   validateAndSanitizeString,
-  ValidationResult,
-  ValidationErrorDetail,
+  type ValidationResult,
+  type ValidationErrorDetail,
 } from './validation';
 
 export { Logger } from './logger';

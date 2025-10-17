@@ -1,4 +1,5 @@
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 import ForceRefreshConfirmationModal from '../ForceRefreshConfirmationModal';
 
@@ -10,7 +11,7 @@ describe('ForceRefreshConfirmationModal', () => {
     vi.clearAllMocks();
   });
 
-  it('renders modal when open is true', () => {
+  it('renders modal when open is true', async () => {
     render(
       <ForceRefreshConfirmationModal
         open={true}
@@ -20,7 +21,9 @@ describe('ForceRefreshConfirmationModal', () => {
       />,
     );
 
-    expect(screen.getByTestId('force-refresh-confirmation-modal')).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByTestId('force-refresh-confirmation-modal')).toBeInTheDocument();
+    });
     expect(screen.getByText('Force Regenerate Report?')).toBeInTheDocument();
     expect(
       screen.getByText(/This will delete the existing report and regenerate it from scratch/i),
@@ -40,7 +43,8 @@ describe('ForceRefreshConfirmationModal', () => {
     expect(screen.queryByTestId('force-refresh-confirmation-modal')).not.toBeInTheDocument();
   });
 
-  it('calls onClose when cancel button is clicked', () => {
+  it('calls onClose when cancel button is clicked', async () => {
+    const user = userEvent.setup();
     render(
       <ForceRefreshConfirmationModal
         open={true}
@@ -51,13 +55,14 @@ describe('ForceRefreshConfirmationModal', () => {
     );
 
     const cancelButton = screen.getByTestId('force-refresh-cancel-button');
-    fireEvent.click(cancelButton);
+    await user.click(cancelButton);
 
     expect(mockOnClose).toHaveBeenCalledTimes(1);
     expect(mockOnConfirm).not.toHaveBeenCalled();
   });
 
-  it('calls onConfirm when confirm button is clicked', () => {
+  it('calls onConfirm when confirm button is clicked', async () => {
+    const user = userEvent.setup();
     render(
       <ForceRefreshConfirmationModal
         open={true}
@@ -68,13 +73,13 @@ describe('ForceRefreshConfirmationModal', () => {
     );
 
     const confirmButton = screen.getByTestId('force-refresh-confirm-button');
-    fireEvent.click(confirmButton);
+    await user.click(confirmButton);
 
     expect(mockOnConfirm).toHaveBeenCalledTimes(1);
     expect(mockOnClose).not.toHaveBeenCalled();
   });
 
-  it('disables buttons when isRefetching is true', () => {
+  it('disables buttons when isRefetching is true', async () => {
     render(
       <ForceRefreshConfirmationModal
         open={true}
@@ -84,14 +89,16 @@ describe('ForceRefreshConfirmationModal', () => {
       />,
     );
 
-    const cancelButton = screen.getByTestId('force-refresh-cancel-button') as HTMLButtonElement;
-    const confirmButton = screen.getByTestId('force-refresh-confirm-button') as HTMLButtonElement;
+    await waitFor(() => {
+      const cancelButton = screen.getByTestId('force-refresh-cancel-button') as HTMLButtonElement;
+      const confirmButton = screen.getByTestId('force-refresh-confirm-button') as HTMLButtonElement;
 
-    expect(cancelButton.disabled).toBe(true);
-    expect(confirmButton.disabled).toBe(true);
+      expect(cancelButton.disabled).toBe(true);
+      expect(confirmButton.disabled).toBe(true);
+    });
   });
 
-  it('enables buttons when isRefetching is false', () => {
+  it('enables buttons when isRefetching is false', async () => {
     render(
       <ForceRefreshConfirmationModal
         open={true}
@@ -101,14 +108,17 @@ describe('ForceRefreshConfirmationModal', () => {
       />,
     );
 
-    const cancelButton = screen.getByTestId('force-refresh-cancel-button') as HTMLButtonElement;
-    const confirmButton = screen.getByTestId('force-refresh-confirm-button') as HTMLButtonElement;
+    await waitFor(() => {
+      const cancelButton = screen.getByTestId('force-refresh-cancel-button') as HTMLButtonElement;
+      const confirmButton = screen.getByTestId('force-refresh-confirm-button') as HTMLButtonElement;
 
-    expect(cancelButton.disabled).toBe(false);
-    expect(confirmButton.disabled).toBe(false);
+      expect(cancelButton.disabled).toBe(false);
+      expect(confirmButton.disabled).toBe(false);
+    });
   });
 
-  it('calls onClose when clicking outside the modal', () => {
+  it('calls onClose when clicking outside the modal', async () => {
+    const user = userEvent.setup();
     render(
       <ForceRefreshConfirmationModal
         open={true}
@@ -121,12 +131,12 @@ describe('ForceRefreshConfirmationModal', () => {
     // MUI Dialog calls onClose when backdrop is clicked
     const backdrop = document.querySelector('.MuiBackdrop-root');
     if (backdrop) {
-      fireEvent.click(backdrop);
+      await user.click(backdrop);
       expect(mockOnClose).toHaveBeenCalled();
     }
   });
 
-  it('has correct aria labels for accessibility', () => {
+  it('has correct aria labels for accessibility', async () => {
     render(
       <ForceRefreshConfirmationModal
         open={true}
@@ -136,12 +146,14 @@ describe('ForceRefreshConfirmationModal', () => {
       />,
     );
 
-    const dialog = screen.getByRole('dialog');
-    expect(dialog).toHaveAttribute('aria-labelledby', 'force-refresh-dialog-title');
-    expect(dialog).toHaveAttribute('aria-describedby', 'force-refresh-dialog-description');
+    await waitFor(() => {
+      const dialog = screen.getByRole('dialog');
+      expect(dialog).toHaveAttribute('aria-labelledby', 'force-refresh-dialog-title');
+      expect(dialog).toHaveAttribute('aria-describedby', 'force-refresh-dialog-description');
+    });
   });
 
-  it('confirm button has autoFocus property', () => {
+  it('confirm button has autoFocus property', async () => {
     render(
       <ForceRefreshConfirmationModal
         open={true}
@@ -151,9 +163,11 @@ describe('ForceRefreshConfirmationModal', () => {
       />,
     );
 
-    const confirmButton = screen.getByTestId('force-refresh-confirm-button');
-    // autoFocus is a React prop, not an HTML attribute
-    // We can verify it's the primary action button by checking it's a contained variant
-    expect(confirmButton).toHaveClass('MuiButton-contained');
+    await waitFor(() => {
+      const confirmButton = screen.getByTestId('force-refresh-confirm-button');
+      // autoFocus is a React prop, not an HTML attribute
+      // We can verify it's the primary action button by checking it's a contained variant
+      expect(confirmButton).toHaveClass('MuiButton-contained');
+    });
   });
 });
