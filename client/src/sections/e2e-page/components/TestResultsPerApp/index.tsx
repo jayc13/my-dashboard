@@ -11,7 +11,7 @@ import ProjectCard from './ProjectCard';
 import ContextMenu from './ContextMenu.tsx';
 
 export interface TestResultsPerAppProps {
-  data: DetailedE2EReportDetail[];
+  data?: DetailedE2EReportDetail[];
   isLoading?: boolean;
   refetchData: () => Promise<void>;
   showAllApps?: boolean;
@@ -19,13 +19,7 @@ export interface TestResultsPerAppProps {
 }
 
 const TestResultsPerApp = (props: TestResultsPerAppProps) => {
-  const {
-    data = [],
-    isLoading = false,
-    refetchData,
-    showAllApps = false,
-    isPending = false,
-  } = props;
+  const { data, isLoading = false, refetchData, showAllApps = false, isPending = false } = props;
 
   const { api } = useSDK();
   const { mutate: triggerManualRun } = useTriggerManualRun();
@@ -40,8 +34,8 @@ const TestResultsPerApp = (props: TestResultsPerAppProps) => {
   const contextMenuRef = useRef<HTMLDivElement | null>(null);
 
   // Filter apps based on showAllApps toggle
-  const filteredApps = showAllApps ? data : data.filter(app => app.failedRuns > 0);
-  const pageCount = Math.ceil(filteredApps.length / PAGE_SIZE);
+  const filteredApps = showAllApps || !data ? data : data.filter(app => app.failedRuns > 0);
+  const pageCount = filteredApps ? Math.ceil(filteredApps.length / PAGE_SIZE) : 0;
 
   // Reset page to valid range when filteredApps or showAllApps changes
   useEffect(() => {
@@ -51,7 +45,7 @@ const TestResultsPerApp = (props: TestResultsPerAppProps) => {
       }
       return Math.min(prevPage, pageCount);
     });
-  }, [filteredApps.length, showAllApps, pageCount]);
+  }, [filteredApps?.length, showAllApps, pageCount]);
 
   const fetchAppDetails = async (appId: number): Promise<AppDetailedE2EReportDetail | null> => {
     if (!api) {
@@ -174,7 +168,7 @@ const TestResultsPerApp = (props: TestResultsPerAppProps) => {
     };
   }, [contextMenu]);
 
-  if (isLoading || isPending) {
+  if (isLoading || isPending || !data) {
     return <LoadingState />;
   }
 
@@ -182,7 +176,7 @@ const TestResultsPerApp = (props: TestResultsPerAppProps) => {
     return <NoTestResults />;
   }
 
-  if (filteredApps.length === 0 && !isPending) {
+  if (filteredApps?.length === 0 && !isPending) {
     return <AllTestsPassing />;
   }
 
@@ -191,7 +185,9 @@ const TestResultsPerApp = (props: TestResultsPerAppProps) => {
     await refetchData();
   };
   // Sort data by successRate ascending before paginating
-  const sortedData = [...filteredApps].sort((a, b) => a.successRate - b.successRate);
+  const sortedData = filteredApps
+    ? [...filteredApps].sort((a, b) => a.successRate - b.successRate)
+    : [];
   const paginatedData = sortedData.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
   return (

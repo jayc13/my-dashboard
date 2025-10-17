@@ -4,7 +4,6 @@ import LoadingBackdrop from './components/LoadingBackdrop.tsx';
 import ForceRefreshConfirmationModal from './components/ForceRefreshConfirmationModal';
 import {
   Alert,
-  Card,
   CircularProgress,
   Grid,
   Stack,
@@ -14,7 +13,6 @@ import {
   ListItemIcon,
   ListItemText,
   Tooltip,
-  Typography,
   FormControlLabel,
   Switch,
 } from '@mui/material';
@@ -75,25 +73,6 @@ const E2EPage = (props: E2EPageProps) => {
     setConfirmModalOpen(false);
     await handleRefetch(true);
   };
-
-  if (error) {
-    return (
-      <Card style={{ padding: 24, marginTop: 16 }}>
-        <Alert severity="error">Error fetching information</Alert>
-      </Card>
-    );
-  }
-
-  if (loading && !data) {
-    return (
-      <Card style={{ padding: 24, marginTop: 16 }}>
-        <Stack direction="column" alignItems="center" spacing={2}>
-          <CircularProgress size={60} />
-          <Typography variant="h6">Loading...</Typography>
-        </Stack>
-      </Card>
-    );
-  }
 
   return (
     <>
@@ -181,18 +160,27 @@ const E2EPage = (props: E2EPageProps) => {
                 </Stack>
               </Stack>
             </Grid>
-            <E2EGeneralMetrics
-              data={data?.summary}
-              prevData={prevData?.summary}
-              isLoading={loading || isPending}
-            />
-            <TestResultsPerApp
-              data={data?.details || []}
-              isLoading={isInitialLoading}
-              refetchData={() => refetch()}
-              showAllApps={showAllApps}
-              isPending={isPending}
-            />
+            {error && (
+              <Alert severity="error" sx={{ mb: 2 }} data-testid="error-alert">
+                {error.message}
+              </Alert>
+            )}
+            {!error && (
+              <E2EGeneralMetrics
+                data={data?.summary}
+                prevData={prevData?.summary}
+                isLoading={isInitialLoading || isPending}
+              />
+            )}
+            {!error && (
+              <TestResultsPerApp
+                data={data?.details}
+                isLoading={isInitialLoading}
+                refetchData={() => refetch()}
+                showAllApps={showAllApps}
+                isPending={isPending}
+              />
+            )}
           </Stack>
         </Grid>
       </Grid>
