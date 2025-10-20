@@ -18,6 +18,7 @@ describe('CircleCIService', () => {
     jest.clearAllMocks();
     process.env.CIRCLE_CI_TOKEN = 'test-token';
     process.env.CIRCLE_CI_BASE_URL = 'https://circleci.com';
+    process.env.CIRCLE_CI_API_BASE_URL = 'https://circleci.com';
     process.env.CIRCLE_CI_PROJECT_PATH = 'test-org/test-repo';
   });
 
@@ -66,11 +67,11 @@ describe('CircleCIService', () => {
       );
     });
 
-    it('should throw error when CIRCLE_CI_BASE_URL is missing', async () => {
-      delete process.env.CIRCLE_CI_BASE_URL;
+    it('should throw error when CIRCLE_CI_API_BASE_URL is missing', async () => {
+      delete process.env.CIRCLE_CI_API_BASE_URL;
 
       await expect(CircleCIService.triggerE2ERuns('{}')).rejects.toThrow(
-        'CIRCLE_CI_BASE_URL environment variable is required',
+        'CIRCLE_CI_API_BASE_URL environment variable is required',
       );
     });
 
