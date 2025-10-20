@@ -15,10 +15,18 @@ echo "🔍 Running pre-commit checks..."
 cd "$(git rev-parse --show-toplevel)" || exit 1
 
 # =============================================================================
+# Load nvm and set Node.js version
+# =============================================================================
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+
+nvm use 22.20.0
+
+# =============================================================================
 # Install Dependencies
 # =============================================================================
 echo "📦 Installing dependencies to ensure everything is up to date..."
-pnpm install
+pnpm install --registry=https://registry.npmjs.org/
 
 # =============================================================================
 # Run Quality Checks Across All Workspaces

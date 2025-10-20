@@ -1,6 +1,20 @@
 #!/usr/bin/env sh
 export HNVM_PNPM=10.17.1
 
+# =============================================================================
+# Load nvm and set Node.js version
+# =============================================================================
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+
+nvm use 22.20.0
+
+# =============================================================================
+# Pre-push Hook
+# =============================================================================
+# This script runs before each push to ensure all tests pass.
+# =============================================================================
+
 echo "🧪 Running pre-push checks..."
 
 cd "$(git rev-parse --show-toplevel)" || exit
