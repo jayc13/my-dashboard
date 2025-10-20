@@ -24,7 +24,23 @@ const TestResultsPerApp = (props: TestResultsPerAppProps) => {
   const { api } = useSDK();
   const { mutate: triggerManualRun } = useTriggerManualRun();
   const { mutate: getAppLastStatus } = useGetAppLastStatus();
-  const [page, setPage] = useState(1);
+
+  // Filter apps based on showAllApps toggle
+  const filteredApps = showAllApps || !data ? data : data.filter(app => app.failedRuns > 0);
+  const pageCount = filteredApps ? Math.ceil(filteredApps.length / PAGE_SIZE) : 0;
+
+  // Track filter state to detect changes and auto-reset page
+  const filterKey = `${filteredApps?.length}-${showAllApps}`;
+  const [pageState, setPageState] = useState({ page: 1, filterKey });
+
+  // Reset page to 1 when filters change (during render, not in effect)
+  if (pageState.filterKey !== filterKey) {
+    setPageState({ page: 1, filterKey });
+  }
+
+  // Clamp page to valid range
+  const page = pageCount === 0 ? 1 : Math.min(pageState.page, pageCount);
+
   const [contextMenu, setContextMenu] = useState<{
     mouseX: number;
     mouseY: number;
@@ -32,20 +48,6 @@ const TestResultsPerApp = (props: TestResultsPerAppProps) => {
     loadingAppDetails: boolean;
   } | null>(null);
   const contextMenuRef = useRef<HTMLDivElement | null>(null);
-
-  // Filter apps based on showAllApps toggle
-  const filteredApps = showAllApps || !data ? data : data.filter(app => app.failedRuns > 0);
-  const pageCount = filteredApps ? Math.ceil(filteredApps.length / PAGE_SIZE) : 0;
-
-  // Reset page to valid range when filteredApps or showAllApps changes
-  useEffect(() => {
-    setPage(prevPage => {
-      if (pageCount === 0) {
-        return 1;
-      }
-      return Math.min(prevPage, pageCount);
-    });
-  }, [filteredApps?.length, showAllApps, pageCount]);
 
   const fetchAppDetails = async (appId: number): Promise<AppDetailedE2EReportDetail | null> => {
     if (!api) {
@@ -212,7 +214,7 @@ const TestResultsPerApp = (props: TestResultsPerAppProps) => {
           <Pagination
             count={pageCount}
             page={page}
-            onChange={(_, value) => setPage(value)}
+            onChange={(_, value) => setPageState({ page: value, filterKey })}
             color="primary"
             shape="rounded"
           />
