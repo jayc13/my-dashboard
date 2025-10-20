@@ -24,7 +24,7 @@
     "@eslint/js": "^9.36.0",
     "@my-dashboard/sdk": "file:../../packages/sdk",
     "@my-dashboard/types": "file:../../packages/types",
-    "@playwright/test": "^1.56.0",
+    "@playwright/test": "^1.56.1",
     "@types/luxon": "^3.7.1",
     "@types/node": "^24.5.2",
     "@typescript-eslint/eslint-plugin": "^8.44.1",
