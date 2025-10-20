@@ -36,7 +36,7 @@ export class CircleCIService {
      */
   static async triggerE2ERuns(requestBodyJson: string): Promise<CircleCIPipelineResponse> {
     const circleToken = process.env.CIRCLE_CI_TOKEN;
-    const baseUrl = process.env.CIRCLE_CI_BASE_URL;
+    const baseUrl = process.env.CIRCLE_CI_API_BASE_URL;
     const projectPath = process.env.CIRCLE_CI_PROJECT_PATH;
 
     if (!circleToken) {
@@ -44,7 +44,7 @@ export class CircleCIService {
     }
 
     if (!baseUrl) {
-      throw new Error('CIRCLE_CI_BASE_URL environment variable is required');
+      throw new Error('CIRCLE_CI_API_BASE_URL environment variable is required');
     }
 
     if (!projectPath) {
