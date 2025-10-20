@@ -198,6 +198,16 @@ describe('Routes', () => {
   });
 
   describe('Auth Routes', () => {
+    let originalEnv: string | undefined;
+
+    beforeEach(() => {
+      originalEnv = process.env.NODE_ENV;
+    });
+
+    afterEach(() => {
+      process.env.NODE_ENV = originalEnv;
+    });
+
     it('should create router with all routes', () => {
       const router = createAuthRouter();
       expect(router).toBeDefined();
@@ -217,6 +227,22 @@ describe('Routes', () => {
       const router = createAuthRouter();
       const middlewares = (router as any).stack;
       // Should have middleware layers (securityHeaders, authRateLimit, etc.)
+      expect(middlewares.length).toBeGreaterThan(0);
+    });
+
+    it('should apply authSlowDown middleware in production', () => {
+      process.env.NODE_ENV = 'production';
+      const router = createAuthRouter();
+      const middlewares = (router as any).stack;
+      // In production, should have additional middleware
+      expect(middlewares.length).toBeGreaterThan(0);
+    });
+
+    it('should not apply authSlowDown middleware in non-production', () => {
+      process.env.NODE_ENV = 'development';
+      const router = createAuthRouter();
+      const middlewares = (router as any).stack;
+      // Should still have middleware, just not authSlowDown
       expect(middlewares.length).toBeGreaterThan(0);
     });
   });

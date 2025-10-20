@@ -24,6 +24,9 @@ updates:
     rebase-strategy: "auto"
     target-branch: "main"
     ignore:
+      # Ignore patch version updates (only focus on minor and major)
+      - dependency-name: "*"
+        update-types: ["version-update:semver-patch"]
       # Ignore major version updates for React (manual review needed)
       - dependency-name: "react"
         update-types: ["version-update:semver-major"]
@@ -54,6 +57,9 @@ updates:
     rebase-strategy: "auto"
     target-branch: "main"
     ignore:
+      # Ignore patch version updates (only focus on minor and major)
+      - dependency-name: "*"
+        update-types: ["version-update:semver-patch"]
       # Ignore major version updates for Node.js types (manual review needed)
       - dependency-name: "@types/node"
         update-types: ["version-update:semver-major"]
@@ -81,6 +87,10 @@ updates:
       - "cron"
     rebase-strategy: "auto"
     target-branch: "main"
+    ignore:
+      # Ignore patch version updates (only focus on minor and major)
+      - dependency-name: "*"
+        update-types: ["version-update:semver-patch"]
 
   # Scripts dependencies
   - package-ecosystem: "npm"
@@ -105,6 +115,10 @@ updates:
       - "scripts"
     rebase-strategy: "auto"
     target-branch: "main"
+    ignore:
+      # Ignore patch version updates (only focus on minor and major)
+      - dependency-name: "*"
+        update-types: ["version-update:semver-patch"]
 
   # Mock Server dependencies
   - package-ecosystem: "npm"
@@ -129,6 +143,10 @@ updates:
       - "mock-server"
     rebase-strategy: "auto"
     target-branch: "main"
+    ignore:
+      # Ignore patch version updates (only focus on minor and major)
+      - dependency-name: "*"
+        update-types: ["version-update:semver-patch"]
 
   # E2E Tests dependencies
   - package-ecosystem: "npm"
@@ -153,6 +171,10 @@ updates:
       - "e2e-tests"
     rebase-strategy: "auto"
     target-branch: "main"
+    ignore:
+      # Ignore patch version updates (only focus on minor and major)
+      - dependency-name: "*"
+        update-types: ["version-update:semver-patch"]
 
   # Integration Tests dependencies
   - package-ecosystem: "npm"
@@ -177,6 +199,10 @@ updates:
       - "integration-tests"
     rebase-strategy: "auto"
     target-branch: "main"
+    ignore:
+      # Ignore patch version updates (only focus on minor and major)
+      - dependency-name: "*"
+        update-types: ["version-update:semver-patch"]
 
   # Types Package dependencies
   - package-ecosystem: "npm"
@@ -201,6 +227,10 @@ updates:
       - "types-package"
     rebase-strategy: "auto"
     target-branch: "main"
+    ignore:
+      # Ignore patch version updates (only focus on minor and major)
+      - dependency-name: "*"
+        update-types: ["version-update:semver-patch"]
 
   # SDK Package dependencies
   - package-ecosystem: "npm"
@@ -225,6 +255,10 @@ updates:
       - "sdk-package"
     rebase-strategy: "auto"
     target-branch: "main"
+    ignore:
+      # Ignore patch version updates (only focus on minor and major)
+      - dependency-name: "*"
+        update-types: ["version-update:semver-patch"]
 
   # Docs dependencies
   - package-ecosystem: "npm"
@@ -249,6 +283,10 @@ updates:
       - "docs"
     rebase-strategy: "auto"
     target-branch: "main"
+    ignore:
+      # Ignore patch version updates (only focus on minor and major)
+      - dependency-name: "*"
+        update-types: ["version-update:semver-patch"]
 
   # GitHub Actions dependencies
   - package-ecosystem: "github-actions"
@@ -271,3 +309,7 @@ updates:
       - "github-actions"
     rebase-strategy: "auto"
     target-branch: "main"
+    ignore:
+      # Ignore patch version updates (only focus on minor and major)
+      - dependency-name: "*"
+        update-types: ["version-update:semver-patch"]

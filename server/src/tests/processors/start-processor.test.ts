@@ -57,7 +57,7 @@ describe('Start Processor', () => {
       expect(E2EReportProcessor.getInstance).toHaveBeenCalled();
     });
 
-    it('should handle connection errors gracefully', async () => {
+    it('should handle Redis connection errors gracefully', async () => {
       const { testRedisConnection } = require('../../config/redis');
       testRedisConnection.mockResolvedValue(false);
 
@@ -65,6 +65,19 @@ describe('Start Processor', () => {
 
       // Should not throw, just log error
       expect(testRedisConnection).toHaveBeenCalled();
+    });
+
+    it('should handle MySQL connection errors gracefully', async () => {
+      const { testRedisConnection } = require('../../config/redis');
+      const { testMySQLConnection } = require('../../db/mysql');
+
+      testRedisConnection.mockResolvedValue(true);
+      testMySQLConnection.mockResolvedValue(false);
+
+      await startProcessor();
+
+      // Should not throw, just log error
+      expect(testMySQLConnection).toHaveBeenCalled();
     });
   });
 });

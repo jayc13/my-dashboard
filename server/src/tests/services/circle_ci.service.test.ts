@@ -1,18 +1,31 @@
 /**
  * CircleCI Service Tests
- * 
+ *
  * Tests for CircleCIService including:
  * - Triggering E2E runs
  * - Getting pipeline workflow status
  */
 
 import { CircleCIService } from '../../services/circle_ci.service';
+import { Logger } from '../../utils/logger';
 
 // Mock fetch
 global.fetch = jest.fn();
 
+// Mock Logger
+jest.mock('../../utils/logger', () => ({
+  Logger: {
+    info: jest.fn(),
+    debug: jest.fn(),
+    error: jest.fn(),
+  },
+}));
+
 describe('CircleCIService', () => {
   const mockFetch = global.fetch as jest.MockedFunction<typeof fetch>;
+  const mockLoggerInfo = Logger.info as jest.MockedFunction<typeof Logger.info>;
+  const mockLoggerDebug = Logger.debug as jest.MockedFunction<typeof Logger.debug>;
+  const mockLoggerError = Logger.error as jest.MockedFunction<typeof Logger.error>;
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -57,6 +70,11 @@ describe('CircleCIService', () => {
           body: requestBody,
         },
       );
+      expect(mockLoggerInfo).toHaveBeenCalledWith('Triggering Circle CI E2E pipeline');
+      expect(mockLoggerInfo).toHaveBeenCalledWith('Circle CI pipeline triggered successfully', {
+        pipelineId: 'pipeline-123',
+        pipelineNumber: 456,
+      });
     });
 
     it('should throw error when CIRCLE_CI_TOKEN is missing', async () => {
@@ -100,12 +118,21 @@ describe('CircleCIService', () => {
       await expect(CircleCIService.triggerE2ERuns('{}')).rejects.toThrow(
         'Circle CI API request failed: 400 Bad Request - Invalid parameters',
       );
+      expect(mockLoggerError).toHaveBeenCalledWith(
+        'Failed to trigger Circle CI E2E runs',
+        expect.objectContaining({ error: expect.any(Error) }),
+      );
     });
 
     it('should throw error when fetch throws', async () => {
-      mockFetch.mockRejectedValue(new Error('Network error'));
+      const networkError = new Error('Network error');
+      mockFetch.mockRejectedValue(networkError);
 
       await expect(CircleCIService.triggerE2ERuns('{}')).rejects.toThrow('Network error');
+      expect(mockLoggerError).toHaveBeenCalledWith(
+        'Failed to trigger Circle CI E2E runs',
+        expect.objectContaining({ error: networkError }),
+      );
     });
   });
 
@@ -143,6 +170,9 @@ describe('CircleCIService', () => {
           },
         },
       );
+      expect(mockLoggerDebug).toHaveBeenCalledWith('Getting Circle CI pipeline status', {
+        pipelineId: 'pipeline-123',
+      });
     });
 
     it('should throw error when CIRCLE_CI_TOKEN is missing', async () => {
@@ -153,11 +183,11 @@ describe('CircleCIService', () => {
       );
     });
 
-    it('should throw error when CIRCLE_CI_BASE_URL is missing', async () => {
-      delete process.env.CIRCLE_CI_BASE_URL;
+    it('should throw error when CIRCLE_CI_API_BASE_URL is missing', async () => {
+      delete process.env.CIRCLE_CI_API_BASE_URL;
 
       await expect(CircleCIService.getPipelineLatestWorkflow('pipeline-123')).rejects.toThrow(
-        'CIRCLE_CI_BASE_URL environment variable is required',
+        'CIRCLE_CI_API_BASE_URL environment variable is required',
       );
     });
 
@@ -179,6 +209,13 @@ describe('CircleCIService', () => {
       await expect(CircleCIService.getPipelineLatestWorkflow('pipeline-123')).rejects.toThrow(
         'No workflow named "integration_tests" found in the pipeline',
       );
+      expect(mockLoggerError).toHaveBeenCalledWith(
+        'Failed to get Circle CI pipeline status',
+        expect.objectContaining({
+          pipelineId: 'pipeline-123',
+          error: expect.any(Error),
+        }),
+      );
     });
 
     it('should throw error when API request fails', async () => {
@@ -191,6 +228,13 @@ describe('CircleCIService', () => {
 
       await expect(CircleCIService.getPipelineLatestWorkflow('pipeline-123')).rejects.toThrow(
         'Circle CI API request failed: 404 Not Found - Pipeline not found',
+      );
+      expect(mockLoggerError).toHaveBeenCalledWith(
+        'Failed to get Circle CI pipeline status',
+        expect.objectContaining({
+          pipelineId: 'pipeline-123',
+          error: expect.any(Error),
+        }),
       );
     });
 
