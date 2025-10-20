@@ -93,7 +93,7 @@ export class CircleCIService {
 
   static async getPipelineLatestWorkflow(pipelineId: string): Promise<CircleCIWorkflow> {
     const circleToken = process.env.CIRCLE_CI_TOKEN;
-    const baseUrl = process.env.CIRCLE_CI_BASE_URL;
+    const baseUrl = process.env.CIRCLE_CI_API_BASE_URL;
 
     if (!circleToken) {
       throw new Error('CIRCLE_CI_TOKEN environment variable is required');
@@ -104,7 +104,7 @@ export class CircleCIService {
     }
 
     if (!baseUrl) {
-      throw new Error('CIRCLE_CI_BASE_URL environment variable is required');
+      throw new Error('CIRCLE_CI_API_BASE_URL environment variable is required');
     }
 
     const apiUrl = `${baseUrl}/v2/pipeline/${pipelineId}/workflow`;
