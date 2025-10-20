@@ -156,6 +156,94 @@ describe('JiraService', () => {
         parent: undefined,
       });
     });
+
+    it('should format issue with undefined labels', () => {
+      const mockIssue = {
+        id: '1',
+        key: 'TEST-1',
+        fields: {
+          summary: 'Test issue',
+          status: { name: 'Open' },
+          created: '2025-10-01T10:00:00Z',
+          updated: '2025-10-08T10:00:00Z',
+          assignee: { displayName: 'John Doe' },
+          reporter: { displayName: 'Jane Smith' },
+          labels: undefined,
+          priority: { name: 'Medium' },
+          parent: null,
+        },
+      };
+
+      const result = service.formatJiraIssue(mockIssue as any);
+
+      expect(result.labels).toEqual([]);
+    });
+
+    it('should format issue with falsy assignee', () => {
+      const mockIssue = {
+        id: '1',
+        key: 'TEST-1',
+        fields: {
+          summary: 'Test issue',
+          status: { name: 'Open' },
+          created: '2025-10-01T10:00:00Z',
+          updated: '2025-10-08T10:00:00Z',
+          assignee: undefined,
+          reporter: { displayName: 'Jane Smith' },
+          labels: [],
+          priority: { name: 'Medium' },
+          parent: null,
+        },
+      };
+
+      const result = service.formatJiraIssue(mockIssue as any);
+
+      expect(result.assignee).toBe('Unassigned');
+    });
+
+    it('should format issue with falsy reporter', () => {
+      const mockIssue = {
+        id: '1',
+        key: 'TEST-1',
+        fields: {
+          summary: 'Test issue',
+          status: { name: 'Open' },
+          created: '2025-10-01T10:00:00Z',
+          updated: '2025-10-08T10:00:00Z',
+          assignee: { displayName: 'John Doe' },
+          reporter: undefined,
+          labels: [],
+          priority: { name: 'Medium' },
+          parent: null,
+        },
+      };
+
+      const result = service.formatJiraIssue(mockIssue as any);
+
+      expect(result.reporter).toBe('Unknown');
+    });
+
+    it('should format issue with falsy priority', () => {
+      const mockIssue = {
+        id: '1',
+        key: 'TEST-1',
+        fields: {
+          summary: 'Test issue',
+          status: { name: 'Open' },
+          created: '2025-10-01T10:00:00Z',
+          updated: '2025-10-08T10:00:00Z',
+          assignee: { displayName: 'John Doe' },
+          reporter: { displayName: 'Jane Smith' },
+          labels: [],
+          priority: undefined,
+          parent: null,
+        },
+      };
+
+      const result = service.formatJiraIssue(mockIssue as any);
+
+      expect(result.priority).toBe('None');
+    });
   });
 });
 
