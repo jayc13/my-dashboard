@@ -6,6 +6,7 @@ settings:
 
 overrides:
   '@faker-js/faker': ^9.3.0
+  fast-redact: ^3.5.0
   glob: ^11.0.0
   inflight: npm:@zkochan/inflight@^1.0.0
   json-schema-ref-parser: npm:@apidevtools/json-schema-ref-parser@^11.7.3
@@ -7741,7 +7742,7 @@ snapshots:
       exit-x: 0.2.2
       graceful-fs: 4.2.11
       jest-changed-files: 30.2.0
-      jest-config: 30.2.0(@types/node@24.9.0)(babel-plugin-macros@3.1.0)(ts-node@10.9.2(@types/node@24.6.0)(typescript@5.9.2))
+      jest-config: 30.2.0(@types/node@24.9.0)(babel-plugin-macros@3.1.0)(ts-node@10.9.2(@types/node@24.9.0)(typescript@5.9.2))
       jest-haste-map: 30.2.0
       jest-message-util: 30.2.0
       jest-regex-util: 30.0.1
@@ -11056,7 +11057,7 @@ snapshots:
       chalk: 4.1.2
       exit-x: 0.2.2
       import-local: 3.2.0
-      jest-config: 30.2.0(@types/node@24.9.0)(babel-plugin-macros@3.1.0)(ts-node@10.9.2(@types/node@24.6.0)(typescript@5.9.2))
+      jest-config: 30.2.0(@types/node@24.9.0)(babel-plugin-macros@3.1.0)(ts-node@10.9.2(@types/node@24.9.0)(typescript@5.9.2))
       jest-util: 30.2.0
       jest-validate: 30.2.0
       yargs: 17.7.2
