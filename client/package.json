@@ -28,7 +28,7 @@
     "@mui/x-data-grid": "^8.14.1",
     "@my-dashboard/sdk": "file:../packages/sdk",
     "@my-dashboard/types": "file:../packages/types",
-    "firebase": "^12.2.1",
+    "firebase": "^12.4.0",
     "luxon": "^3.7.2",
     "notistack": "^3.0.2",
     "react": "^19.2.0",
