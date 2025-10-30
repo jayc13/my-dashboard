@@ -6,7 +6,7 @@ const jiraService = new JiraService();
 
 export async function getManualQATasks(req: Request, res: Response, next: NextFunction) {
   try {
-    const jql = 'labels in ("manual_qa") AND "Status" NOT IN ("Done", "Ready to Release", "To Do") AND project = "Agent Client Tools" ORDER BY created DESC';
+    const jql = 'labels in ("manual_qa") AND "Status" IN ("QA - Gamma/Staging", "Code Review") AND project = "Agent Client Tools" ORDER BY created DESC';
 
     const result = await jiraService.fetchIssues(jql);
     return res.status(200).json({
