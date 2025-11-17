@@ -25,7 +25,7 @@
     "@emotion/styled": "^11.14.1",
     "@mui/icons-material": "^7.3.4",
     "@mui/material": "^7.3.4",
-    "@mui/x-data-grid": "^8.17.0",
+    "@mui/x-data-grid": "^8.18.0",
     "@my-dashboard/sdk": "file:../packages/sdk",
     "@my-dashboard/types": "file:../packages/types",
     "firebase": "^12.5.0",
