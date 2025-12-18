@@ -16,6 +16,7 @@ import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import RocketLaunchIcon from '@mui/icons-material/RocketLaunch';
 import CheckIcon from '@mui/icons-material/Check';
 import CloseIcon from '@mui/icons-material/Close';
+import EditIcon from '@mui/icons-material/Edit';
 import LastRunStatus from './LastRunStatus.tsx';
 import type { AppDetailedE2EReportDetail } from '@my-dashboard/types';
 
@@ -135,6 +136,16 @@ const ContextMenu = ({
                   Trigger E2E Runs
                 </MenuItem>
                 <Divider />
+                <MenuItem
+                  onClick={() => {
+                    if (result?.id) {
+                      window.location.href = `/apps?appId=${result.id}`;
+                    }
+                  }}
+                >
+                  <EditIcon sx={{ mr: 1, fontSize: 20 }} />
+                  Edit App
+                </MenuItem>
                 <MenuItem onClick={onCopyProjectName}>
                   <ContentCopyIcon sx={{ mr: 1, fontSize: 20 }} />
                   Copy Project Name
