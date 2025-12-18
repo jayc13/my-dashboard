@@ -19,6 +19,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import EditIcon from '@mui/icons-material/Edit';
 import LastRunStatus from './LastRunStatus.tsx';
 import type { AppDetailedE2EReportDetail } from '@my-dashboard/types';
+import { useNavigate } from 'react-router-dom';
 
 interface ContextMenuProps {
   mouseX: number;
@@ -41,6 +42,8 @@ const ContextMenu = ({
   onCopyProjectCode,
   onTriggerE2ERuns,
 }: ContextMenuProps) => {
+  const navigate = useNavigate();
+
   if (!result && !loadingAppDetails) {
     return null;
   }
@@ -139,7 +142,7 @@ const ContextMenu = ({
                 <MenuItem
                   onClick={() => {
                     if (result?.id) {
-                      window.location.href = `/apps?appId=${result.id}`;
+                      navigate(`/apps?appId=${result.id}`);
                     }
                   }}
                 >
