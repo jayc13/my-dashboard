@@ -33,7 +33,7 @@
     "eslint": "^9.36.0",
     "globals": "^16.4.0",
     "luxon": "^3.7.2",
-    "mysql2": "^3.15.2",
+    "mysql2": "^3.16.0",
     "typescript": "^5.9.2"
   },
   "engines": {
