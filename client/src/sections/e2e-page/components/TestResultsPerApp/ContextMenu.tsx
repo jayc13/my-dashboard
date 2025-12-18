@@ -16,8 +16,10 @@ import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import RocketLaunchIcon from '@mui/icons-material/RocketLaunch';
 import CheckIcon from '@mui/icons-material/Check';
 import CloseIcon from '@mui/icons-material/Close';
+import EditIcon from '@mui/icons-material/Edit';
 import LastRunStatus from './LastRunStatus.tsx';
 import type { AppDetailedE2EReportDetail } from '@my-dashboard/types';
+import { useNavigate } from 'react-router-dom';
 
 interface ContextMenuProps {
   mouseX: number;
@@ -40,6 +42,8 @@ const ContextMenu = ({
   onCopyProjectCode,
   onTriggerE2ERuns,
 }: ContextMenuProps) => {
+  const navigate = useNavigate();
+
   if (!result && !loadingAppDetails) {
     return null;
   }
@@ -135,6 +139,16 @@ const ContextMenu = ({
                   Trigger E2E Runs
                 </MenuItem>
                 <Divider />
+                <MenuItem
+                  onClick={() => {
+                    if (result?.id) {
+                      navigate(`/apps?appId=${result.id}`);
+                    }
+                  }}
+                >
+                  <EditIcon sx={{ mr: 1, fontSize: 20 }} />
+                  Edit App
+                </MenuItem>
                 <MenuItem onClick={onCopyProjectName}>
                   <ContentCopyIcon sx={{ mr: 1, fontSize: 20 }} />
                   Copy Project Name
