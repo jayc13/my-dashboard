@@ -15,7 +15,6 @@ updates:
       - "jayc13"
     commit-message:
       prefix: "deps"
-      include: "scope"
     pull-request-branch-name:
       separator: "/"
     labels:
@@ -48,7 +47,6 @@ updates:
       - "jayc13"
     commit-message:
       prefix: "deps"
-      include: "scope"
     pull-request-branch-name:
       separator: "/"
     labels:
@@ -79,7 +77,6 @@ updates:
       - "jayc13"
     commit-message:
       prefix: "deps"
-      include: "scope"
     pull-request-branch-name:
       separator: "/"
     labels:
@@ -107,7 +104,6 @@ updates:
       - "jayc13"
     commit-message:
       prefix: "deps"
-      include: "scope"
     pull-request-branch-name:
       separator: "/"
     labels:
@@ -135,7 +131,6 @@ updates:
       - "jayc13"
     commit-message:
       prefix: "deps"
-      include: "scope"
     pull-request-branch-name:
       separator: "/"
     labels:
@@ -163,7 +158,6 @@ updates:
       - "jayc13"
     commit-message:
       prefix: "deps"
-      include: "scope"
     pull-request-branch-name:
       separator: "/"
     labels:
@@ -191,7 +185,6 @@ updates:
       - "jayc13"
     commit-message:
       prefix: "deps"
-      include: "scope"
     pull-request-branch-name:
       separator: "/"
     labels:
@@ -219,7 +212,6 @@ updates:
       - "jayc13"
     commit-message:
       prefix: "deps"
-      include: "scope"
     pull-request-branch-name:
       separator: "/"
     labels:
@@ -247,7 +239,6 @@ updates:
       - "jayc13"
     commit-message:
       prefix: "deps"
-      include: "scope"
     pull-request-branch-name:
       separator: "/"
     labels:
@@ -275,7 +266,6 @@ updates:
       - "jayc13"
     commit-message:
       prefix: "deps"
-      include: "scope"
     pull-request-branch-name:
       separator: "/"
     labels:
