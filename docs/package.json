@@ -21,7 +21,7 @@
     "@mdx-js/react": "^3.0.0",
     "clsx": "^2.0.0",
     "install": "^0.13.0",
-    "npm": "^11.6.4",
+    "npm": "^11.7.0",
     "prism-react-renderer": "^2.3.0",
     "react": "^19.0.0",
     "react-dom": "^19.2.0"
