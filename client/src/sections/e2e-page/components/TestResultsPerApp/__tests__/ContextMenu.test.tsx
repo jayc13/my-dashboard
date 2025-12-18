@@ -9,6 +9,17 @@ vi.mock('../LastRunStatus.tsx', () => ({
   default: ({ status }: { status: string }) => <span data-testid="last-run-status">{status}</span>,
 }));
 
+// Test-scoped variable for navigate mock
+let testNavigateMock: any = undefined;
+
+vi.mock('react-router-dom', async () => {
+  const actual = await vi.importActual<any>('react-router-dom');
+  return {
+    ...actual,
+    useNavigate: () => (testNavigateMock ? testNavigateMock : () => {}),
+  };
+});
+
 describe('ContextMenu', () => {
   const mockOnOpenUrl = vi.fn();
   const mockOnCopyProjectName = vi.fn();
@@ -216,6 +227,30 @@ describe('ContextMenu', () => {
       await user.click(copyCodeButton);
 
       expect(mockOnCopyProjectCode).toHaveBeenCalled();
+    });
+
+    it('should render "Edit App" button', () => {
+      render(<ContextMenu {...defaultProps} result={mockResult} />);
+      expect(screen.getByText('Edit App')).toBeInTheDocument();
+    });
+
+    it('should navigate to the correct URL when clicking "Edit App"', async () => {
+      const user = userEvent.setup();
+      testNavigateMock = vi.fn();
+      render(<ContextMenu {...defaultProps} result={mockResult} />);
+      const editButton = screen.getByText('Edit App');
+      await user.click(editButton);
+      expect(testNavigateMock).toHaveBeenCalledWith('/apps?appId=1');
+    });
+
+    it('should not navigate if result.id is undefined', async () => {
+      const user = userEvent.setup();
+      testNavigateMock = vi.fn();
+      const resultWithoutId = { ...mockResult, id: undefined };
+      render(<ContextMenu {...defaultProps} result={resultWithoutId} />);
+      const editButton = screen.getByText('Edit App');
+      await user.click(editButton);
+      expect(testNavigateMock).not.toHaveBeenCalled();
     });
   });
 
