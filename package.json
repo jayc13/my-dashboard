@@ -20,5 +20,9 @@
       "json-schema-ref-parser": "npm:@apidevtools/json-schema-ref-parser@^11.7.3",
       "rimraf": "^6.0.1"
     }
+  },
+  "dependencies": {
+    "glob": "^11.1.0",
+    "node-forge": "^1.3.3"
   }
 }
