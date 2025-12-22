@@ -21,7 +21,7 @@
     "clean": "rm -rf test-results playwright-report"
   },
   "devDependencies": {
-    "@eslint/js": "^9.36.0",
+    "@eslint/js": "^9.39.2",
     "@my-dashboard/sdk": "file:../../packages/sdk",
     "@my-dashboard/types": "file:../../packages/types",
     "@playwright/test": "^1.57.0",
