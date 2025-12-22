@@ -23,7 +23,7 @@
     "uuid": "^13.0.0"
   },
   "devDependencies": {
-    "@eslint/js": "^9.36.0",
+    "@eslint/js": "^9.39.2",
     "@types/config": "^3.3.0",
     "@types/jest": "^30.0.0",
     "@types/luxon": "^3.7.1",
