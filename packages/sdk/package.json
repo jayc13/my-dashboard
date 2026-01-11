@@ -25,7 +25,7 @@
     "@my-dashboard/types": "file:../types"
   },
   "devDependencies": {
-    "@eslint/js": "^9.36.0",
+    "@eslint/js": "^9.39.2",
     "typescript-eslint": "^8.45.0",
     "@types/node": "^25.0.3",
     "@typescript-eslint/eslint-plugin": "^8.44.1",
