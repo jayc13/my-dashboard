@@ -44,7 +44,7 @@
     "@typescript-eslint/eslint-plugin": "^8.43.0",
     "@typescript-eslint/parser": "^8.50.0",
     "eslint": "^9.36.0",
-    "globals": "^16.4.0",
+    "globals": "^17.0.0",
     "jest": "^30.2.0",
     "ts-jest": "^29.4.5",
     "ts-node-dev": "^2.0.0",
