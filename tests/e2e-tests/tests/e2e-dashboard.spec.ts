@@ -114,10 +114,10 @@ test.describe('E2E Dashboard Test Suite', () => {
       await e2ePage.goto();
       await e2ePage.waitForDataLoad();
 
-      const cardCount = await e2ePage.getProjectCardCount();
-      
-      // Pagination appears when there are more than PAGE_SIZE (6) failed projects
-      if (cardCount >= 6) {
+      const totalFailedCount = await e2ePage.getTotalFailedProjectCount();
+
+      // Pagination appears when there are more than PAGE_SIZE (10) failed projects
+      if (totalFailedCount > 10) {
         const hasPagination = await e2ePage.isPaginationVisible();
         expect(hasPagination).toBe(true);
       }
