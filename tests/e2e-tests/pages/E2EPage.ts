@@ -60,6 +60,18 @@ export class E2EPage {
   }
 
   /**
+   * Expand all collapsed groups to make cards visible
+   */
+  private async expandAllGroups(): Promise<void> {
+    const expandButtons = this.page.locator('button[aria-label="Expand group"]');
+    const expandCount = await expandButtons.count();
+    for (let i = 0; i < expandCount; i++) {
+      await expandButtons.nth(i).click();
+      await this.page.waitForTimeout(100);
+    }
+  }
+
+  /**
    * Navigate to the E2E Dashboard page
    */
   async goto(): Promise<void> {
@@ -141,10 +153,44 @@ export class E2EPage {
   }
 
   /**
-   * Get the count of project cards displayed
+   * Get the count of failed project cards displayed on current page
+   * (pagination shows failed apps by default, one page at a time)
    */
   async getProjectCardCount(): Promise<number> {
-    return this.projectCards.count();
+    await this.expandAllGroups();
+    // Count cards in the "Failed" group on the current page
+    // This respects pagination - only shows PAGE_SIZE (10) cards per page
+    const failedGroup = this.page.locator('[data-testid="project-card-group"]').first();
+    const cardCount = await failedGroup.locator('[data-project-card]').count();
+    return cardCount;
+  }
+
+  /**
+   * Get total count of all failed projects (across all pages)
+   */
+  async getTotalFailedProjectCount(): Promise<number> {
+    // Parse pagination to determine total count
+    // If there are 2+ pages, multiply (pages - 1) * 10 + cards on last page
+    const hasPagination = await this.isPaginationVisible();
+
+    if (!hasPagination) {
+      // No pagination means all failed apps fit on one page
+      return this.getProjectCardCount();
+    }
+
+    const totalPages = await this.getTotalPages();
+    const cardCountOnFirstPage = await this.getProjectCardCount();
+
+    // Estimate: (pages - 1) * 10 + current page count, but this is approximate
+    // More reliable: go to last page and count
+    if (totalPages > 1) {
+      await this.goToPage(totalPages);
+      const cardCountOnLastPage = await this.getProjectCardCount();
+      await this.goToPage(1); // Go back to first page
+      return (totalPages - 1) * 10 + cardCountOnLastPage;
+    }
+
+    return cardCountOnFirstPage;
   }
 
   /**
@@ -155,9 +201,17 @@ export class E2EPage {
   }
 
   /**
-   * Check if a specific project card is visible
+   * Get the first visible project card (after expanding groups if needed)
+   */
+  getFirstProjectCard(): Locator {
+    return this.projectCards.first();
+  }
+
+  /**
+   * Check if a specific project card is visible (expands groups if needed)
    */
   async isProjectCardVisible(projectName: string): Promise<boolean> {
+    await this.expandAllGroups();
     return this.getProjectCard(projectName).isVisible();
   }
 
@@ -171,6 +225,8 @@ export class E2EPage {
     successRate: string;
     lastRunStatus: 'passed' | 'failed';
   }> {
+    await this.expandAllGroups();
+
     const card = this.getProjectCard(projectName);
     await expect(card).toBeVisible();
 
@@ -195,6 +251,8 @@ export class E2EPage {
    * Click refresh button on a specific project card
    */
   async refreshProjectCard(projectName: string): Promise<void> {
+    await this.expandAllGroups();
+
     const card = this.getProjectCard(projectName);
     const refreshButton = card.locator('button[title="Refresh last run status"]');
     await refreshButton.click();
@@ -204,6 +262,8 @@ export class E2EPage {
    * Right-click on a project card to open context menu
    */
   async openProjectContextMenu(projectName: string): Promise<void> {
+    await this.expandAllGroups();
+
     const card = this.getProjectCard(projectName);
     await card.click({ button: 'right' });
     await expect(this.contextMenu).toBeVisible();

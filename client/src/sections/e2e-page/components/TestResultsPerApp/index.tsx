@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Box, Grid, Pagination } from '@mui/material';
+import { Box, Pagination } from '@mui/material';
 import { enqueueSnackbar } from 'notistack';
 import type { AppDetailedE2EReportDetail, DetailedE2EReportDetail } from '@my-dashboard/types';
 import { useTriggerManualRun, useGetAppLastStatus } from '@/hooks/useE2ERun';
@@ -7,7 +7,7 @@ import { useSDK } from '@/contexts/useSDK';
 import { PAGE_SIZE } from './constants';
 import LoadingState from './LoadingState';
 import { AllTestsPassing, NoTestResults } from './EmptyStates';
-import ProjectCard from './ProjectCard';
+import ProjectCardGroup from './ProjectCardGroup';
 import ContextMenu from './ContextMenu.tsx';
 
 export interface TestResultsPerAppProps {
@@ -190,25 +190,36 @@ const TestResultsPerApp = (props: TestResultsPerAppProps) => {
   const sortedData = filteredApps
     ? [...filteredApps].sort((a, b) => a.successRate - b.successRate)
     : [];
-  const paginatedData = sortedData.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+
+  // Group by lastRunStatus
+  const failedApps = sortedData.filter(app => app.lastRunStatus === 'failed');
+  const passingApps = sortedData.filter(app => app.lastRunStatus === 'passed');
+
+  // Paginate each group separately
+  const paginatedFailed = failedApps.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+  const paginatedPassing = passingApps.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
   return (
     <Box sx={{ marginTop: 2 }}>
-      <Grid container spacing={1.5}>
-        {paginatedData.map((result, idx) => {
-          const globalIdx = (page - 1) * PAGE_SIZE + idx;
-          const previousValue = globalIdx > 0 ? sortedData[globalIdx - 1] : null;
-          return (
-            <ProjectCard
-              key={idx}
-              result={result}
-              previousValue={previousValue}
-              onUpdate={() => updateLastRunStatus(result.reportSummaryId, result.appId)}
-              onContextMenu={handleContextMenu}
-            />
-          );
-        })}
-      </Grid>
+      <ProjectCardGroup
+        title="Failed"
+        status="failing"
+        data={paginatedFailed}
+        sortedData={sortedData}
+        onUpdate={updateLastRunStatus}
+        onContextMenu={handleContextMenu}
+        backgroundColor="error.light"
+      />
+      <ProjectCardGroup
+        title="Passing"
+        status="passing"
+        data={paginatedPassing}
+        sortedData={sortedData}
+        onUpdate={updateLastRunStatus}
+        onContextMenu={handleContextMenu}
+        hiddenByDefault
+        backgroundColor="success.light"
+      />
       {pageCount > 1 && (
         <Box display="flex" justifyContent="center" mt={3}>
           <Pagination
