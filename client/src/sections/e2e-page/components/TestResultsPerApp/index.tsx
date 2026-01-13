@@ -203,7 +203,7 @@ const TestResultsPerApp = (props: TestResultsPerAppProps) => {
     <Box sx={{ marginTop: 2 }}>
       <ProjectCardGroup
         title="Failed"
-        status='failing'
+        status="failing"
         data={paginatedFailed}
         sortedData={sortedData}
         onUpdate={updateLastRunStatus}
@@ -212,7 +212,7 @@ const TestResultsPerApp = (props: TestResultsPerAppProps) => {
       />
       <ProjectCardGroup
         title="Passing"
-        status='passing'
+        status="passing"
         data={paginatedPassing}
         sortedData={sortedData}
         onUpdate={updateLastRunStatus}

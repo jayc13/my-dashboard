@@ -34,12 +34,12 @@ const ProjectCardGroup = ({
     return null;
   }
 
-  const handleToggleCollapse = () => setCollapsed((prev) => !prev);
+  const handleToggleCollapse = () => setCollapsed(prev => !prev);
   const groupBgColor = backgroundColor || theme.palette.background.paper;
 
   // Title background and text color based on status
-  const  titleTextColor = theme.palette.text.primary;
-  const  titleBgColor = status === 'failing' ? theme.palette.error.main : theme.palette.success.main;
+  const titleTextColor = theme.palette.text.primary;
+  const titleBgColor = status === 'failing' ? theme.palette.error.main : theme.palette.success.main;
 
   return (
     <Card sx={{ backgroundColor: groupBgColor, borderRadius: 2, p: 0, mb: 2 }}>
