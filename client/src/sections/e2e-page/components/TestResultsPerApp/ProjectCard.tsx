@@ -36,6 +36,7 @@ const ProjectCard = ({ result, onUpdate, onContextMenu }: ProjectCardProps) => {
         sx={{ width: '100%', borderRadius: 4 }}
         onContextMenu={handleContextMenuClick}
         data-project-card={result.app.name}
+        data-testid={`project-card-${result.appId}`}
       >
         <CardContent style={{ padding: 8 }}>
           <Grid container alignItems="center" justifyContent="space-between">
@@ -68,7 +69,6 @@ const ProjectCard = ({ result, onUpdate, onContextMenu }: ProjectCardProps) => {
                 <IconButton
                   size="small"
                   disabled={updating}
-                  loading={updating}
                   sx={{ width: 16, height: 16, ml: 1, fontSize: 16 }}
                   title="Refresh last run status"
                   onClick={async () => {

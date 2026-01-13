@@ -58,6 +58,26 @@ vi.mock('../ProjectCard', () => ({
   ),
 }));
 
+vi.mock('../ProjectCardGroup', () => ({
+  default: ({ data, onUpdate, onContextMenu }: any) => (
+    <div data-testid="project-card-group">
+      {data.map((result: any, idx: any) => {
+        return (
+          <div
+            key={result.appId || idx}
+            data-testid={`project-card-${result.appId}`}
+            data-project-card={result.app?.name}
+            onContextMenu={e => onContextMenu(e, result.app)}
+          >
+            <button onClick={() => onUpdate(result.reportSummaryId, result.appId)}>Update</button>
+            {result.app?.name}
+          </div>
+        );
+      })}
+    </div>
+  ),
+}));
+
 vi.mock('../ContextMenu.tsx', () => ({
   default: ({
     loadingAppDetails,
@@ -207,23 +227,50 @@ describe('TestResultsPerApp index', () => {
     const data = [
       createMockData({
         appId: 1,
+        id: 1,
         successRate: 0.9,
-        app: { id: 1, name: 'App 1', code: 'app-1', e2eRunsQuantity: 10, watching: true },
+        app: {
+          id: 1,
+          name: 'App 1',
+          code: 'app-1',
+          e2eRunsQuantity: 10,
+          watching: true,
+          pipelineUrl: 'https://example.com/pipeline',
+          e2eTriggerConfiguration: '{}',
+        },
       }),
       createMockData({
         appId: 2,
+        id: 2,
         successRate: 0.5,
-        app: { id: 2, name: 'App 2', code: 'app-2', e2eRunsQuantity: 20, watching: false },
+        app: {
+          id: 2,
+          name: 'App 2',
+          code: 'app-2',
+          e2eRunsQuantity: 20,
+          watching: false,
+          pipelineUrl: 'https://example.com/pipeline',
+          e2eTriggerConfiguration: '{}',
+        },
       }),
       createMockData({
         appId: 3,
+        id: 3,
         successRate: 0.7,
-        app: { id: 3, name: 'App 3', code: 'app-3', e2eRunsQuantity: 30, watching: true },
+        app: {
+          id: 3,
+          name: 'App 3',
+          code: 'app-3',
+          e2eRunsQuantity: 30,
+          watching: true,
+          pipelineUrl: 'https://example.com/pipeline',
+          e2eTriggerConfiguration: '{}',
+        },
       }),
     ];
     render(<TestResultsPerApp data={data} isLoading={false} refetchData={mockRefetchData} />);
 
-    const cards = screen.getAllByTestId(/project-card-/);
+    const cards = screen.getAllByTestId(/^project-card-\d+$/);
     // App 2 should be first (lowest success rate)
     expect(cards[0]).toHaveAttribute('data-testid', 'project-card-2');
   });
@@ -261,6 +308,8 @@ describe('TestResultsPerApp index', () => {
             code: `app-${i + 1}`,
             e2eRunsQuantity: 100 + i,
             watching: i % 2 === 0,
+            pipelineUrl: 'https://example.com/pipeline',
+            e2eTriggerConfiguration: '{}',
           },
         }),
       );
@@ -281,6 +330,8 @@ describe('TestResultsPerApp index', () => {
             code: `app-${i + 1}`,
             e2eRunsQuantity: 100 + i,
             watching: i % 2 === 0,
+            pipelineUrl: 'https://example.com/pipeline',
+            e2eTriggerConfiguration: '{}',
           },
         }),
       );
@@ -632,13 +683,31 @@ describe('TestResultsPerApp index', () => {
       const data = [
         createMockData({
           appId: 1,
+          id: 1,
           failedRuns: 5,
-          app: { id: 1, name: 'App 1', code: 'app-1', e2eRunsQuantity: 10, watching: true },
+          app: {
+            id: 1,
+            name: 'App 1',
+            code: 'app-1',
+            e2eRunsQuantity: 10,
+            watching: true,
+            pipelineUrl: 'https://example.com/pipeline',
+            e2eTriggerConfiguration: '{}',
+          },
         }),
         createMockData({
           appId: 2,
+          id: 2,
           failedRuns: 0,
-          app: { id: 2, name: 'App 2', code: 'app-2', e2eRunsQuantity: 20, watching: false },
+          app: {
+            id: 2,
+            name: 'App 2',
+            code: 'app-2',
+            e2eRunsQuantity: 20,
+            watching: false,
+            pipelineUrl: 'https://example.com/pipeline',
+            e2eTriggerConfiguration: '{}',
+          },
         }),
       ];
       render(<TestResultsPerApp data={data} isLoading={false} refetchData={mockRefetchData} />);
@@ -651,13 +720,31 @@ describe('TestResultsPerApp index', () => {
       const data = [
         createMockData({
           appId: 1,
+          id: 1,
           failedRuns: 5,
-          app: { id: 1, name: 'App 1', code: 'app-1', e2eRunsQuantity: 10, watching: true },
+          app: {
+            id: 1,
+            name: 'App 1',
+            code: 'app-1',
+            e2eRunsQuantity: 10,
+            watching: true,
+            pipelineUrl: 'https://example.com/pipeline',
+            e2eTriggerConfiguration: '{}',
+          },
         }),
         createMockData({
           appId: 2,
+          id: 2,
           failedRuns: 0,
-          app: { id: 2, name: 'App 2', code: 'app-2', e2eRunsQuantity: 20, watching: false },
+          app: {
+            id: 2,
+            name: 'App 2',
+            code: 'app-2',
+            e2eRunsQuantity: 20,
+            watching: false,
+            pipelineUrl: 'https://example.com/pipeline',
+            e2eTriggerConfiguration: '{}',
+          },
         }),
       ];
       render(
@@ -677,18 +764,45 @@ describe('TestResultsPerApp index', () => {
       const data = [
         createMockData({
           appId: 1,
+          id: 1,
           failedRuns: 5,
-          app: { id: 1, name: 'App 1', code: 'app-1', e2eRunsQuantity: 10, watching: true },
+          app: {
+            id: 1,
+            name: 'App 1',
+            code: 'app-1',
+            e2eRunsQuantity: 10,
+            watching: true,
+            pipelineUrl: 'https://example.com/pipeline',
+            e2eTriggerConfiguration: '{}',
+          },
         }),
         createMockData({
           appId: 2,
+          id: 2,
           failedRuns: 0,
-          app: { id: 2, name: 'App 2', code: 'app-2', e2eRunsQuantity: 20, watching: false },
+          app: {
+            id: 2,
+            name: 'App 2',
+            code: 'app-2',
+            e2eRunsQuantity: 20,
+            watching: false,
+            pipelineUrl: 'https://example.com/pipeline',
+            e2eTriggerConfiguration: '{}',
+          },
         }),
         createMockData({
           appId: 3,
+          id: 3,
           failedRuns: 3,
-          app: { id: 3, name: 'App 3', code: 'app-3', e2eRunsQuantity: 30, watching: true },
+          app: {
+            id: 3,
+            name: 'App 3',
+            code: 'app-3',
+            e2eRunsQuantity: 30,
+            watching: true,
+            pipelineUrl: 'https://example.com/pipeline',
+            e2eTriggerConfiguration: '{}',
+          },
         }),
       ];
       render(
@@ -711,7 +825,7 @@ describe('TestResultsPerApp index', () => {
         createMockData({
           appId: i + 1,
           id: i + 1,
-          failedRuns: i % 2 === 0 ? 0 : 5, // Half with failures, half without
+          failedRuns: i % 2 === 0 ? 0 : 5,
           successRate: 0.5 + i * 0.01,
           app: {
             id: i + 1,
@@ -719,6 +833,8 @@ describe('TestResultsPerApp index', () => {
             code: `app-${i + 1}`,
             e2eRunsQuantity: 100 + i,
             watching: i % 2 === 0,
+            pipelineUrl: 'https://example.com/pipeline',
+            e2eTriggerConfiguration: '{}',
           },
         }),
       );
@@ -731,7 +847,6 @@ describe('TestResultsPerApp index', () => {
         />,
       );
 
-      // Should show pagination since we have 13 items
       expect(screen.getByRole('navigation')).toBeInTheDocument();
     });
 
@@ -741,7 +856,7 @@ describe('TestResultsPerApp index', () => {
         createMockData({
           appId: i + 1,
           id: i + 1,
-          failedRuns: i < 5 ? 5 : 0, // Only first 5 have failures
+          failedRuns: i < 5 ? 5 : 0,
           successRate: 0.5 + i * 0.01,
           app: {
             id: i + 1,
@@ -749,6 +864,8 @@ describe('TestResultsPerApp index', () => {
             code: `app-${i + 1}`,
             e2eRunsQuantity: 100 + i,
             watching: i % 2 === 0,
+            pipelineUrl: 'https://example.com/pipeline',
+            e2eTriggerConfiguration: '{}',
           },
         }),
       );
@@ -761,7 +878,6 @@ describe('TestResultsPerApp index', () => {
         />,
       );
 
-      // Should not show pagination since only 5 items with failures
       expect(screen.queryByRole('navigation')).not.toBeInTheDocument();
     });
 
@@ -771,7 +887,7 @@ describe('TestResultsPerApp index', () => {
         createMockData({
           appId: i + 1,
           id: i + 1,
-          failedRuns: i < 7 ? 5 : 0, // First 7 have failures
+          failedRuns: i < 7 ? 5 : 0,
           successRate: 0.5 + i * 0.01,
           app: {
             id: i + 1,
@@ -779,6 +895,8 @@ describe('TestResultsPerApp index', () => {
             code: `app-${i + 1}`,
             e2eRunsQuantity: 100 + i,
             watching: i % 2 === 0,
+            pipelineUrl: 'https://example.com/pipeline',
+            e2eTriggerConfiguration: '{}',
           },
         }),
       );
@@ -792,20 +910,16 @@ describe('TestResultsPerApp index', () => {
         />,
       );
 
-      // With showAllApps=true, we have 13 items (2 pages)
       expect(screen.getByRole('navigation')).toBeInTheDocument();
 
-      // Navigate to page 2
       const pagination = screen.getByRole('navigation');
       const page2Button = within(pagination).getByRole('button', { name: 'Go to page 2' });
       fireEvent.click(page2Button);
 
       await waitFor(() => {
-        // Should show items from page 2
         expect(screen.getByTestId('project-card-13')).toBeInTheDocument();
       });
 
-      // Toggle showAllApps to false - now only 7 items with failures (1 page)
       rerender(
         <TestResultsPerApp
           data={data}
@@ -816,9 +930,7 @@ describe('TestResultsPerApp index', () => {
       );
 
       await waitFor(() => {
-        // Should show items from page 1 (not empty)
         expect(screen.getByTestId('project-card-1')).toBeInTheDocument();
-        // Should not show pagination since only 1 page
         expect(screen.queryByRole('navigation')).not.toBeInTheDocument();
       });
     });
@@ -837,6 +949,8 @@ describe('TestResultsPerApp index', () => {
             code: `app-${i + 1}`,
             e2eRunsQuantity: 100 + i,
             watching: true,
+            pipelineUrl: 'https://example.com/pipeline',
+            e2eTriggerConfiguration: '{}',
           },
         }),
       );
@@ -850,7 +964,6 @@ describe('TestResultsPerApp index', () => {
         />,
       );
 
-      // Navigate to page 2
       const pagination = screen.getByRole('navigation');
       const page2Button = within(pagination).getByRole('button', { name: 'Go to page 2' });
       fireEvent.click(page2Button);
@@ -872,6 +985,8 @@ describe('TestResultsPerApp index', () => {
             code: `app-${i + 1}`,
             e2eRunsQuantity: 100 + i,
             watching: true,
+            pipelineUrl: 'https://example.com/pipeline',
+            e2eTriggerConfiguration: '{}',
           },
         }),
       );
@@ -886,9 +1001,7 @@ describe('TestResultsPerApp index', () => {
       );
 
       await waitFor(() => {
-        // Should show items from page 1 (not empty)
         expect(screen.getByTestId('project-card-1')).toBeInTheDocument();
-        // Should not show pagination since only 1 page
         expect(screen.queryByRole('navigation')).not.toBeInTheDocument();
       });
     });
