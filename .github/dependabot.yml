@@ -4,7 +4,7 @@ updates:
   - package-ecosystem: "npm"
     directory: "/client"
     schedule:
-      interval: "weekly"
+      interval: "quarterly"
       day: "monday"
       time: "09:00"
     open-pull-requests-limit: 5
@@ -36,7 +36,7 @@ updates:
   - package-ecosystem: "npm"
     directory: "/server"
     schedule:
-      interval: "weekly"
+      interval: "quarterly"
       day: "monday"
       time: "09:00"
     open-pull-requests-limit: 5
@@ -66,7 +66,7 @@ updates:
   - package-ecosystem: "npm"
     directory: "/cron"
     schedule:
-      interval: "weekly"
+      interval: "quarterly"
       day: "monday"
       time: "09:00"
     open-pull-requests-limit: 3
@@ -93,7 +93,7 @@ updates:
   - package-ecosystem: "npm"
     directory: "/scripts"
     schedule:
-      interval: "weekly"
+      interval: "quarterly"
       day: "monday"
       time: "09:00"
     open-pull-requests-limit: 3
@@ -120,7 +120,7 @@ updates:
   - package-ecosystem: "npm"
     directory: "/mock-server"
     schedule:
-      interval: "weekly"
+      interval: "quarterly"
       day: "monday"
       time: "09:00"
     open-pull-requests-limit: 3
@@ -147,7 +147,7 @@ updates:
   - package-ecosystem: "npm"
     directory: "/tests/e2e-tests"
     schedule:
-      interval: "weekly"
+      interval: "quarterly"
       day: "monday"
       time: "09:00"
     open-pull-requests-limit: 3
@@ -174,7 +174,7 @@ updates:
   - package-ecosystem: "npm"
     directory: "/tests/integration-tests"
     schedule:
-      interval: "weekly"
+      interval: "quarterly"
       day: "monday"
       time: "09:00"
     open-pull-requests-limit: 3
@@ -201,7 +201,7 @@ updates:
   - package-ecosystem: "npm"
     directory: "/packages/types"
     schedule:
-      interval: "weekly"
+      interval: "quarterly"
       day: "monday"
       time: "09:00"
     open-pull-requests-limit: 3
@@ -228,7 +228,7 @@ updates:
   - package-ecosystem: "npm"
     directory: "/packages/sdk"
     schedule:
-      interval: "weekly"
+      interval: "quarterly"
       day: "monday"
       time: "09:00"
     open-pull-requests-limit: 3
@@ -255,7 +255,7 @@ updates:
   - package-ecosystem: "npm"
     directory: "/docs"
     schedule:
-      interval: "weekly"
+      interval: "quarterly"
       day: "monday"
       time: "09:00"
     open-pull-requests-limit: 3
@@ -282,7 +282,7 @@ updates:
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
-      interval: "weekly"
+      interval: "quarterly"
       day: "monday"
       time: "09:00"
     open-pull-requests-limit: 2
@@ -303,3 +303,4 @@ updates:
       # Ignore patch version updates (only focus on minor and major)
       - dependency-name: "*"
         update-types: ["version-update:semver-patch"]
+
