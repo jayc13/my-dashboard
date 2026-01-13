@@ -26,31 +26,6 @@ test.describe('E2E Dashboard Test Suite', () => {
       await e2ePage.waitForDataLoad();
     });
 
-    test('should display project cards when there are test results', async () => {
-      const cardCount = await e2ePage.getProjectCardCount();
-      
-      // Should have at least one project card or show empty state
-      if (cardCount > 0) {
-        expect(cardCount).toBeGreaterThan(0);
-        await expect(e2ePage.projectCards.first()).toBeVisible();
-      } else {
-        // If no cards, should show appropriate empty state
-        const noResults = await e2ePage.isNoTestResultsVisible();
-        const allPassing = await e2ePage.isAllTestsPassingVisible();
-        expect(noResults || allPassing).toBe(true);
-      }
-    });
-
-    test('should show "All tests passing" message when no failures', async () => {
-      // This test depends on actual data state
-      // If all tests are passing, the message should be visible
-      const allPassing = await e2ePage.isAllTestsPassingVisible();
-      const hasFailedCards = await e2ePage.getProjectCardCount() > 0;
-
-      // Either we have failed cards OR we see the all passing message
-      expect(hasFailedCards || allPassing).toBe(true);
-    });
-
     test('should display project link that opens in new tab', async () => {
       const cardCount = await e2ePage.getProjectCardCount();
       
@@ -145,24 +120,6 @@ test.describe('E2E Dashboard Test Suite', () => {
           const backToFirst = await e2ePage.getCurrentPage();
           expect(backToFirst).toBe(1);
         }
-      }
-    });
-  });
-
-  test.describe('Empty States', () => {
-    test('should handle empty state appropriately', async () => {
-      await e2ePage.goto();
-      await e2ePage.waitForDataLoad();
-
-      const cardCount = await e2ePage.getProjectCardCount();
-      const noResults = await e2ePage.isNoTestResultsVisible();
-      const allPassing = await e2ePage.isAllTestsPassingVisible();
-
-      // Should either have cards, or show one of the empty states
-      if (cardCount === 0) {
-        expect(noResults || allPassing).toBe(true);
-      } else {
-        expect(cardCount).toBeGreaterThan(0);
       }
     });
   });

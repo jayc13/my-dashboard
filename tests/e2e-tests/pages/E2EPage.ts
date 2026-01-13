@@ -201,6 +201,13 @@ export class E2EPage {
   }
 
   /**
+   * Get the first visible project card (after expanding groups if needed)
+   */
+  getFirstProjectCard(): Locator {
+    return this.projectCards.first();
+  }
+
+  /**
    * Check if a specific project card is visible (expands groups if needed)
    */
   async isProjectCardVisible(projectName: string): Promise<boolean> {
