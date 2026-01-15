@@ -256,4 +256,139 @@ describe('TodoItem', () => {
     const dueDate = screen.getByTestId('todo-due-date-1');
     expect(dueDate).toBeInTheDocument();
   });
+
+  it('getRelativeTime: overdue 1 day', () => {
+    const todo = { ...baseTodo, dueDate: DateTime.now().minus({ days: 1 }).toISO() };
+    render(
+      <TodoItem
+        todo={todo}
+        isToggling={false}
+        onToggle={mockOnToggle}
+        onEdit={mockOnEdit}
+        onDelete={mockOnDelete}
+      />,
+    );
+    // Expand to trigger description
+    fireEvent.click(screen.getByTestId('todo-title-1').parentElement!.parentElement!);
+    expect(screen.getByTestId('todo-description-1')).toBeInTheDocument();
+  });
+
+  it('getRelativeTime: overdue >1 day', () => {
+    const todo = { ...baseTodo, dueDate: DateTime.now().minus({ days: 3 }).toISO() };
+    render(
+      <TodoItem
+        todo={todo}
+        isToggling={false}
+        onToggle={mockOnToggle}
+        onEdit={mockOnEdit}
+        onDelete={mockOnDelete}
+      />,
+    );
+  });
+
+  it('getRelativeTime: Today', () => {
+    const todo = { ...baseTodo, dueDate: DateTime.now().toISO() };
+    render(
+      <TodoItem
+        todo={todo}
+        isToggling={false}
+        onToggle={mockOnToggle}
+        onEdit={mockOnEdit}
+        onDelete={mockOnDelete}
+      />,
+    );
+  });
+
+  it('getRelativeTime: Tomorrow', () => {
+    const todo = { ...baseTodo, dueDate: DateTime.now().plus({ days: 1 }).toISO() };
+    render(
+      <TodoItem
+        todo={todo}
+        isToggling={false}
+        onToggle={mockOnToggle}
+        onEdit={mockOnEdit}
+        onDelete={mockOnDelete}
+      />,
+    );
+  });
+
+  it('getRelativeTime: in 2 days', () => {
+    const todo = { ...baseTodo, dueDate: DateTime.now().plus({ days: 2 }).toISO() };
+    render(
+      <TodoItem
+        todo={todo}
+        isToggling={false}
+        onToggle={mockOnToggle}
+        onEdit={mockOnEdit}
+        onDelete={mockOnDelete}
+      />,
+    );
+  });
+
+  it('getRelativeTime: in 7 days', () => {
+    const todo = { ...baseTodo, dueDate: DateTime.now().plus({ days: 7 }).toISO() };
+    render(
+      <TodoItem
+        todo={todo}
+        isToggling={false}
+        onToggle={mockOnToggle}
+        onEdit={mockOnEdit}
+        onDelete={mockOnDelete}
+      />,
+    );
+  });
+
+  it('getRelativeTime: null (no dueDate)', () => {
+    render(
+      <TodoItem
+        todo={{ ...baseTodo, dueDate: '' }}
+        isToggling={false}
+        onToggle={mockOnToggle}
+        onEdit={mockOnEdit}
+        onDelete={mockOnDelete}
+      />,
+    );
+  });
+
+  it('getRelativeTime: null (diffDays > 7)', () => {
+    const todo = { ...baseTodo, dueDate: DateTime.now().plus({ days: 10 }).toISO() };
+    render(
+      <TodoItem
+        todo={todo}
+        isToggling={false}
+        onToggle={mockOnToggle}
+        onEdit={mockOnEdit}
+        onDelete={mockOnDelete}
+      />,
+    );
+  });
+
+  it('getLinkDomain: valid', () => {
+    const todo = { ...baseTodo, link: 'https://www.example.com' };
+    render(
+      <TodoItem
+        todo={todo}
+        isToggling={false}
+        onToggle={mockOnToggle}
+        onEdit={mockOnEdit}
+        onDelete={mockOnDelete}
+      />,
+    );
+    expect(screen.getByText('example.com')).toBeInTheDocument();
+  });
+
+  it('getLinkDomain: invalid', () => {
+    const todo = { ...baseTodo, link: 'not-a-url' };
+    render(
+      <TodoItem
+        todo={todo}
+        isToggling={false}
+        onToggle={mockOnToggle}
+        onEdit={mockOnEdit}
+        onDelete={mockOnDelete}
+      />,
+    );
+    // Should not throw and not render link chip
+    expect(screen.queryByTestId('todo-link-button-1')).not.toBeInTheDocument();
+  });
 });
