@@ -84,45 +84,6 @@ test.describe('E2E Dashboard Test Suite', () => {
     });
   });
 
-  test.describe('Pagination', () => {
-    test('should show pagination when there are many projects with failures', async () => {
-      await e2ePage.goto();
-      await e2ePage.waitForDataLoad();
-
-      const totalFailedCount = await e2ePage.getTotalFailedProjectCount();
-
-      // Pagination appears when there are more than PAGE_SIZE (10) failed projects
-      if (totalFailedCount > 10) {
-        const hasPagination = await e2ePage.isPaginationVisible();
-        expect(hasPagination).toBe(true);
-      }
-    });
-
-    test('should navigate between pages when pagination is present', async () => {
-      await e2ePage.goto();
-      await e2ePage.waitForDataLoad();
-
-      const hasPagination = await e2ePage.isPaginationVisible();
-      
-      if (hasPagination) {
-        const currentPage = await e2ePage.getCurrentPage();
-        expect(currentPage).toBe(1);
-
-        // Try to navigate to page 2 if it exists
-        const totalPages = await e2ePage.getTotalPages();
-        if (totalPages > 1) {
-          await e2ePage.goToPage(2);
-          const newPage = await e2ePage.getCurrentPage();
-          expect(newPage).toBe(2);
-
-          // Navigate back to page 1
-          await e2ePage.goToPage(1);
-          const backToFirst = await e2ePage.getCurrentPage();
-          expect(backToFirst).toBe(1);
-        }
-      }
-    });
-  });
 
   test.describe('Context Menu Functionality', () => {
     test.beforeEach(async () => {

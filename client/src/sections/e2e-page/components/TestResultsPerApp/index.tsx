@@ -1,10 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
-import { Box, Pagination } from '@mui/material';
+import { Box } from '@mui/material';
 import { enqueueSnackbar } from 'notistack';
 import type { AppDetailedE2EReportDetail, DetailedE2EReportDetail } from '@my-dashboard/types';
 import { useTriggerManualRun, useGetAppLastStatus } from '@/hooks/useE2ERun';
 import { useSDK } from '@/contexts/useSDK';
-import { PAGE_SIZE } from './constants';
 import LoadingState from './LoadingState';
 import { AllTestsPassing, NoTestResults } from './EmptyStates';
 import ProjectCardGroup from './ProjectCardGroup';
@@ -27,19 +26,6 @@ const TestResultsPerApp = (props: TestResultsPerAppProps) => {
 
   // Filter apps based on showAllApps toggle
   const filteredApps = showAllApps || !data ? data : data.filter(app => app.failedRuns > 0);
-  const pageCount = filteredApps ? Math.ceil(filteredApps.length / PAGE_SIZE) : 0;
-
-  // Track filter state to detect changes and auto-reset page
-  const filterKey = `${filteredApps?.length}-${showAllApps}`;
-  const [pageState, setPageState] = useState({ page: 1, filterKey });
-
-  // Reset page to 1 when filters change (during render, not in effect)
-  if (pageState.filterKey !== filterKey) {
-    setPageState({ page: 1, filterKey });
-  }
-
-  // Clamp page to valid range
-  const page = pageCount === 0 ? 1 : Math.min(pageState.page, pageCount);
 
   const [contextMenu, setContextMenu] = useState<{
     mouseX: number;
@@ -186,7 +172,7 @@ const TestResultsPerApp = (props: TestResultsPerAppProps) => {
     await getAppLastStatus({ summaryId, appId });
     await refetchData();
   };
-  // Sort data by successRate ascending before paginating
+  // Sort data by successRate ascending
   const sortedData = filteredApps
     ? [...filteredApps].sort((a, b) => a.successRate - b.successRate)
     : [];
@@ -195,16 +181,12 @@ const TestResultsPerApp = (props: TestResultsPerAppProps) => {
   const failedApps = sortedData.filter(app => app.lastRunStatus === 'failed');
   const passingApps = sortedData.filter(app => app.lastRunStatus === 'passed');
 
-  // Paginate each group separately
-  const paginatedFailed = failedApps.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
-  const paginatedPassing = passingApps.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
-
   return (
     <Box sx={{ marginTop: 2 }}>
       <ProjectCardGroup
         title="Failed"
         status="failing"
-        data={paginatedFailed}
+        data={failedApps}
         sortedData={sortedData}
         onUpdate={updateLastRunStatus}
         onContextMenu={handleContextMenu}
@@ -213,24 +195,13 @@ const TestResultsPerApp = (props: TestResultsPerAppProps) => {
       <ProjectCardGroup
         title="Passing"
         status="passing"
-        data={paginatedPassing}
+        data={passingApps}
         sortedData={sortedData}
         onUpdate={updateLastRunStatus}
         onContextMenu={handleContextMenu}
         hiddenByDefault
         backgroundColor="success.light"
       />
-      {pageCount > 1 && (
-        <Box display="flex" justifyContent="center" mt={3}>
-          <Pagination
-            count={pageCount}
-            page={page}
-            onChange={(_, value) => setPageState({ page: value, filterKey })}
-            color="primary"
-            shape="rounded"
-          />
-        </Box>
-      )}
       {contextMenu && (
         <div
           ref={contextMenuRef}

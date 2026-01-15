@@ -1,5 +1,5 @@
 import { render, screen, fireEvent } from '@testing-library/react';
-import { vi } from 'vitest';
+import { vi, describe, it, expect, beforeEach } from 'vitest';
 import { ThemeSwitcher } from '../ThemeSwitcher';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 
@@ -62,8 +62,40 @@ describe('ThemeSwitcher Component', () => {
     expect(button).toHaveAttribute('aria-label', 'Switch to dark mode');
   });
 
-  it('cycles through modes correctly when clicked', () => {
-    // Test dark -> light
+  it('renders with system mode icon and tooltip', () => {
+    mockUseColorScheme.mockReturnValue({
+      mode: 'system',
+      setMode: mockSetMode,
+    });
+
+    render(
+      <TestWrapper>
+        <ThemeSwitcher />
+      </TestWrapper>,
+    );
+
+    const button = screen.getByRole('button');
+    expect(button).toBeInTheDocument();
+    expect(button).toHaveAttribute('aria-label', 'Switch to dark mode');
+  });
+
+  it('renders with system mode icon when mode is undefined', () => {
+    mockUseColorScheme.mockReturnValue({
+      mode: undefined,
+      setMode: mockSetMode,
+    });
+
+    render(
+      <TestWrapper>
+        <ThemeSwitcher />
+      </TestWrapper>,
+    );
+
+    const button = screen.getByRole('button');
+    expect(button).toBeInTheDocument();
+  });
+
+  it('cycles from dark to light mode when clicked', () => {
     mockUseColorScheme.mockReturnValue({
       mode: 'dark',
       setMode: mockSetMode,
@@ -79,5 +111,59 @@ describe('ThemeSwitcher Component', () => {
     fireEvent.click(button);
 
     expect(mockSetMode).toHaveBeenCalledWith('light');
+  });
+
+  it('cycles from light to system mode when clicked', () => {
+    mockUseColorScheme.mockReturnValue({
+      mode: 'light',
+      setMode: mockSetMode,
+    });
+
+    render(
+      <TestWrapper>
+        <ThemeSwitcher />
+      </TestWrapper>,
+    );
+
+    const button = screen.getByRole('button');
+    fireEvent.click(button);
+
+    expect(mockSetMode).toHaveBeenCalledWith('system');
+  });
+
+  it('cycles from system to dark mode when clicked', () => {
+    mockUseColorScheme.mockReturnValue({
+      mode: 'system',
+      setMode: mockSetMode,
+    });
+
+    render(
+      <TestWrapper>
+        <ThemeSwitcher />
+      </TestWrapper>,
+    );
+
+    const button = screen.getByRole('button');
+    fireEvent.click(button);
+
+    expect(mockSetMode).toHaveBeenCalledWith('dark');
+  });
+
+  it('cycles from undefined mode to dark mode when clicked', () => {
+    mockUseColorScheme.mockReturnValue({
+      mode: undefined,
+      setMode: mockSetMode,
+    });
+
+    render(
+      <TestWrapper>
+        <ThemeSwitcher />
+      </TestWrapper>,
+    );
+
+    const button = screen.getByRole('button');
+    fireEvent.click(button);
+
+    expect(mockSetMode).toHaveBeenCalledWith('dark');
   });
 });

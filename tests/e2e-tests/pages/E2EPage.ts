@@ -26,7 +26,6 @@ export class E2EPage {
   readonly projectCards: Locator;
   readonly noTestResultsMessage: Locator;
   readonly allTestsPassingMessage: Locator;
-  readonly pagination: Locator;
 
   // Context Menu
   readonly contextMenu: Locator;
@@ -53,7 +52,6 @@ export class E2EPage {
     this.projectCards = page.locator('[data-project-card]');
     this.noTestResultsMessage = page.locator('text=No test results available');
     this.allTestsPassingMessage = page.locator('text=All apps are passing');
-    this.pagination = page.locator('[role="navigation"]').filter({ hasText: /^1/ });
 
     // Context Menu
     this.contextMenu = page.locator('[role="menu"]');
@@ -153,45 +151,16 @@ export class E2EPage {
   }
 
   /**
-   * Get the count of failed project cards displayed on current page
-   * (pagination shows failed apps by default, one page at a time)
+   * Get the count of failed project cards displayed
    */
   async getProjectCardCount(): Promise<number> {
     await this.expandAllGroups();
-    // Count cards in the "Failed" group on the current page
-    // This respects pagination - only shows PAGE_SIZE (10) cards per page
+    // Count cards in the "Failed" group
     const failedGroup = this.page.locator('[data-testid="project-card-group"]').first();
     const cardCount = await failedGroup.locator('[data-project-card]').count();
     return cardCount;
   }
 
-  /**
-   * Get total count of all failed projects (across all pages)
-   */
-  async getTotalFailedProjectCount(): Promise<number> {
-    // Parse pagination to determine total count
-    // If there are 2+ pages, multiply (pages - 1) * 10 + cards on last page
-    const hasPagination = await this.isPaginationVisible();
-
-    if (!hasPagination) {
-      // No pagination means all failed apps fit on one page
-      return this.getProjectCardCount();
-    }
-
-    const totalPages = await this.getTotalPages();
-    const cardCountOnFirstPage = await this.getProjectCardCount();
-
-    // Estimate: (pages - 1) * 10 + current page count, but this is approximate
-    // More reliable: go to last page and count
-    if (totalPages > 1) {
-      await this.goToPage(totalPages);
-      const cardCountOnLastPage = await this.getProjectCardCount();
-      await this.goToPage(1); // Go back to first page
-      return (totalPages - 1) * 10 + cardCountOnLastPage;
-    }
-
-    return cardCountOnFirstPage;
-  }
 
   /**
    * Get project card by name
@@ -283,44 +252,6 @@ export class E2EPage {
     return this.allTestsPassingMessage.isVisible();
   }
 
-  /**
-   * Check if pagination is visible
-   */
-  async isPaginationVisible(): Promise<boolean> {
-    try {
-      await this.pagination.waitFor({ state: 'visible', timeout: 2000 });
-      return true;
-    } catch {
-      return false;
-    }
-  }
-
-  /**
-   * Get current page number from pagination
-   */
-  async getCurrentPage(): Promise<number> {
-    const activeButton = this.pagination.locator('button[aria-current="true"]');
-    const pageText = await activeButton.textContent();
-    return parseInt(pageText || '1', 10);
-  }
-
-  /**
-   * Navigate to a specific page
-   */
-  async goToPage(pageNumber: number): Promise<void> {
-    const pageButton = this.pagination.locator(`button:has-text("${pageNumber}")`);
-    await pageButton.click();
-    await this.page.waitForTimeout(500); // Wait for page transition
-  }
-
-  /**
-   * Get total number of pages
-   */
-  async getTotalPages(): Promise<number> {
-    const buttons = this.pagination.locator('button[aria-label*="page"]');
-    const count = await buttons.count();
-    return count;
-  }
 
   /**
    * Click on project name link to open Cypress dashboard
