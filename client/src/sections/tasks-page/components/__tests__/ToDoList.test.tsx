@@ -4,20 +4,25 @@ import ToDoListWidget from '../ToDoList';
 import type { ToDoItem } from '@my-dashboard/types/todos';
 import { DateTime } from 'luxon';
 
-// Mock the hooks
-const mockUseTodos = vi.fn();
-const mockUseCreateTodo = vi.fn();
-const mockUseUpdateTodo = vi.fn();
-const mockUseDeleteTodo = vi.fn();
-const mockUseToggleTodo = vi.fn();
+// Mock the hooks (move factory inside vi.mock to avoid hoisting issues)
+vi.mock('@/hooks', () => {
+  return {
+    useTodos: vi.fn(),
+    useCreateTodo: vi.fn(),
+    useUpdateTodo: vi.fn(),
+    useDeleteTodo: vi.fn(),
+    useToggleTodo: vi.fn(),
+  };
+});
 
-vi.mock('@/hooks', () => ({
-  useTodos: () => mockUseTodos(),
-  useCreateTodo: () => mockUseCreateTodo(),
-  useUpdateTodo: () => mockUseUpdateTodo(),
-  useDeleteTodo: () => mockUseDeleteTodo(),
-  useToggleTodo: () => mockUseToggleTodo(),
-}));
+// Import the mocked functions after mocking
+import * as hooks from '@/hooks';
+
+const mockUseTodos = hooks.useTodos as any;
+const mockUseCreateTodo = hooks.useCreateTodo as any;
+const mockUseUpdateTodo = hooks.useUpdateTodo as any;
+const mockUseDeleteTodo = hooks.useDeleteTodo as any;
+const mockUseToggleTodo = hooks.useToggleTodo as any;
 
 // Mock child components
 vi.mock('../todo-components', () => ({
@@ -322,6 +327,24 @@ describe('ToDoListWidget', () => {
         expect(mockRefetch).toHaveBeenCalled();
       });
     });
+
+    it('handles error during toggle', async () => {
+      mockToggleMutate.mockRejectedValueOnce(new Error('Toggle failed'));
+
+      render(<ToDoListWidget />);
+
+      const toggleButton = screen.getByTestId('todo-checkbox-1');
+      fireEvent.click(toggleButton);
+
+      await waitFor(() => {
+        expect(mockToggleMutate).toHaveBeenCalled();
+      });
+
+      // Error should trigger refetch
+      await waitFor(() => {
+        expect(mockRefetch).toHaveBeenCalled();
+      });
+    });
   });
 
   describe('Edit Functionality', () => {
@@ -410,6 +433,46 @@ describe('ToDoListWidget', () => {
 
       expect(titleInput.value).toBe('New Title');
     });
+
+    it('handles error during creation', async () => {
+      mockCreateMutate.mockRejectedValueOnce(new Error('Create failed'));
+
+      render(<ToDoListWidget />);
+
+      const editButton = screen.getByTestId('todo-edit-button-1');
+      fireEvent.click(editButton);
+
+      const titleInput = screen.getByTestId('todo-form-title-input');
+      fireEvent.change(titleInput, { target: { name: 'title', value: 'New Title' } });
+
+      const form = screen.getByTestId('todo-form');
+      fireEvent.submit(form);
+
+      // Dialog should remain open on error
+      await waitFor(() => {
+        expect(screen.queryByTestId('todo-form-dialog')).toBeInTheDocument();
+      });
+    });
+
+    it('handles error during update', async () => {
+      mockUpdateMutate.mockRejectedValueOnce(new Error('Update failed'));
+
+      render(<ToDoListWidget />);
+
+      const editButton = screen.getByTestId('todo-edit-button-1');
+      fireEvent.click(editButton);
+
+      const titleInput = screen.getByTestId('todo-form-title-input');
+      fireEvent.change(titleInput, { target: { name: 'title', value: 'Updated' } });
+
+      const form = screen.getByTestId('todo-form');
+      fireEvent.submit(form);
+
+      // Dialog should remain open on error
+      await waitFor(() => {
+        expect(screen.queryByTestId('todo-form-dialog')).toBeInTheDocument();
+      });
+    });
   });
 
   describe('Delete Functionality', () => {
@@ -465,6 +528,24 @@ describe('ToDoListWidget', () => {
         expect(screen.queryByTestId('todo-delete-dialog')).not.toBeInTheDocument();
       });
     });
+
+    it('stores deleted todo for undo functionality', async () => {
+      render(<ToDoListWidget />);
+
+      const deleteButton = screen.getByTestId('todo-delete-button-1');
+      fireEvent.click(deleteButton);
+
+      const confirmButton = screen.getByTestId('todo-delete-confirm-button');
+      fireEvent.click(confirmButton);
+
+      await waitFor(() => {
+        expect(mockDeleteMutate).toHaveBeenCalledWith(1);
+      });
+
+      await waitFor(() => {
+        expect(mockRefetch).toHaveBeenCalled();
+      });
+    });
   });
 
   describe('Sorting Functionality', () => {
@@ -484,8 +565,8 @@ describe('ToDoListWidget', () => {
       render(<ToDoListWidget />);
 
       const items = screen.getAllByTestId(/^todo-item-/);
-      expect(items[0]).toHaveAttribute('data-testid', 'todo-item-2'); // Incomplete first
-      expect(items[1]).toHaveAttribute('data-testid', 'todo-item-1'); // Completed second
+      expect(items[0]).toHaveAttribute('data-testid', 'todo-item-2');
+      expect(items[1]).toHaveAttribute('data-testid', 'todo-item-1');
     });
 
     it('sorts incomplete todos without due date before those with due date', () => {
@@ -518,8 +599,8 @@ describe('ToDoListWidget', () => {
       render(<ToDoListWidget />);
 
       const items = screen.getAllByTestId(/^todo-item-/);
-      expect(items[0]).toHaveAttribute('data-testid', 'todo-item-2'); // No date first
-      expect(items[1]).toHaveAttribute('data-testid', 'todo-item-1'); // With date second
+      expect(items[0]).toHaveAttribute('data-testid', 'todo-item-2');
+      expect(items[1]).toHaveAttribute('data-testid', 'todo-item-1');
     });
 
     it('sorts incomplete todos by due date ascending', () => {
@@ -552,8 +633,278 @@ describe('ToDoListWidget', () => {
       render(<ToDoListWidget />);
 
       const items = screen.getAllByTestId(/^todo-item-/);
-      expect(items[0]).toHaveAttribute('data-testid', 'todo-item-2'); // Sooner first
-      expect(items[1]).toHaveAttribute('data-testid', 'todo-item-1'); // Later second
+      expect(items[0]).toHaveAttribute('data-testid', 'todo-item-2');
+      expect(items[1]).toHaveAttribute('data-testid', 'todo-item-1');
+    });
+
+    it('prioritizes overdue tasks over upcoming tasks', () => {
+      const overdueTodo: ToDoItem = {
+        id: 1,
+        title: 'Overdue',
+        description: '',
+        link: '',
+        dueDate: DateTime.now().minus({ days: 1 }).toISO(),
+        isCompleted: false,
+      };
+
+      const upcomingTodo: ToDoItem = {
+        id: 2,
+        title: 'Upcoming',
+        description: '',
+        link: '',
+        dueDate: DateTime.now().plus({ days: 1 }).toISO(),
+        isCompleted: false,
+      };
+
+      mockUseTodos.mockReturnValue({
+        data: [upcomingTodo, overdueTodo],
+        loading: false,
+        error: null,
+        refetch: mockRefetch,
+      });
+
+      render(<ToDoListWidget />);
+
+      const items = screen.getAllByTestId(/^todo-item-/);
+      expect(items[0]).toHaveAttribute('data-testid', 'todo-item-1');
+      expect(items[1]).toHaveAttribute('data-testid', 'todo-item-2');
+    });
+
+    it('sorts mixed todos correctly (no-due, overdue, upcoming)', () => {
+      const noDueTodo: ToDoItem = {
+        id: 1,
+        title: 'No Due',
+        description: '',
+        link: '',
+        dueDate: '',
+        isCompleted: false,
+      };
+
+      const overdueTodo: ToDoItem = {
+        id: 2,
+        title: 'Overdue',
+        description: '',
+        link: '',
+        dueDate: DateTime.now().minus({ days: 1 }).toISO(),
+        isCompleted: false,
+      };
+
+      const upcomingTodo: ToDoItem = {
+        id: 3,
+        title: 'Upcoming',
+        description: '',
+        link: '',
+        dueDate: DateTime.now().plus({ days: 1 }).toISO(),
+        isCompleted: false,
+      };
+
+      mockUseTodos.mockReturnValue({
+        data: [noDueTodo, upcomingTodo, overdueTodo],
+        loading: false,
+        error: null,
+        refetch: mockRefetch,
+      });
+
+      render(<ToDoListWidget />);
+
+      const items = screen.getAllByTestId(/^todo-item-/);
+      expect(items[0]).toHaveAttribute('data-testid', 'todo-item-1');
+      expect(items[1]).toHaveAttribute('data-testid', 'todo-item-2');
+      expect(items[2]).toHaveAttribute('data-testid', 'todo-item-3');
+    });
+  });
+
+  describe('Filter Functionality', () => {
+    it('filters overdue tasks', async () => {
+      const overdueTodo: ToDoItem = {
+        id: 1,
+        title: 'Overdue Task',
+        description: '',
+        link: '',
+        dueDate: DateTime.now().minus({ days: 1 }).toISO(),
+        isCompleted: false,
+      };
+
+      const upcomingTodo: ToDoItem = {
+        id: 2,
+        title: 'Upcoming Task',
+        description: '',
+        link: '',
+        dueDate: DateTime.now().plus({ days: 1 }).toISO(),
+        isCompleted: false,
+      };
+
+      const completedTodo: ToDoItem = {
+        id: 3,
+        title: 'Completed Task',
+        description: '',
+        link: '',
+        dueDate: DateTime.now().minus({ days: 1 }).toISO(),
+        isCompleted: true,
+      };
+
+      mockUseTodos.mockReturnValue({
+        data: [overdueTodo, upcomingTodo, completedTodo],
+        loading: false,
+        error: null,
+        refetch: mockRefetch,
+      });
+
+      render(<ToDoListWidget />);
+
+      const overdueBt = screen.getByTestId('filter-overdue');
+      fireEvent.click(overdueBt);
+
+      await waitFor(() => {
+        expect(screen.getByTestId('todo-item-1')).toBeInTheDocument();
+        expect(screen.queryByTestId('todo-item-2')).not.toBeInTheDocument();
+      });
+    });
+
+    it('filters tasks due today', async () => {
+      const todayTodo: ToDoItem = {
+        id: 1,
+        title: 'Today Task',
+        description: '',
+        link: '',
+        dueDate: DateTime.now().toISO(),
+        isCompleted: false,
+      };
+
+      const tomorrowTodo: ToDoItem = {
+        id: 2,
+        title: 'Tomorrow Task',
+        description: '',
+        link: '',
+        dueDate: DateTime.now().plus({ days: 1 }).toISO(),
+        isCompleted: false,
+      };
+
+      mockUseTodos.mockReturnValue({
+        data: [todayTodo, tomorrowTodo],
+        loading: false,
+        error: null,
+        refetch: mockRefetch,
+      });
+
+      render(<ToDoListWidget />);
+
+      const todayBtn = screen.getByTestId('filter-today');
+      fireEvent.click(todayBtn);
+
+      await waitFor(() => {
+        expect(screen.getByTestId('todo-item-1')).toBeInTheDocument();
+        expect(screen.queryByTestId('todo-item-2')).not.toBeInTheDocument();
+      });
+    });
+
+    it('filters tasks due soon (1-2 days)', async () => {
+      const dueSoonTodo: ToDoItem = {
+        id: 1,
+        title: 'Due Soon Task',
+        description: '',
+        link: '',
+        dueDate: DateTime.now().plus({ days: 1 }).toISO(),
+        isCompleted: false,
+      };
+
+      const farTodo: ToDoItem = {
+        id: 2,
+        title: 'Far Away Task',
+        description: '',
+        link: '',
+        dueDate: DateTime.now().plus({ days: 5 }).toISO(),
+        isCompleted: false,
+      };
+
+      mockUseTodos.mockReturnValue({
+        data: [dueSoonTodo, farTodo],
+        loading: false,
+        error: null,
+        refetch: mockRefetch,
+      });
+
+      render(<ToDoListWidget />);
+
+      const dueSoonBtn = screen.getByTestId('filter-due-soon');
+      fireEvent.click(dueSoonBtn);
+
+      await waitFor(() => {
+        expect(screen.getByTestId('todo-item-1')).toBeInTheDocument();
+        expect(screen.queryByTestId('todo-item-2')).not.toBeInTheDocument();
+      });
+    });
+
+    it('filters tasks with no due date in overdue filter', () => {
+      const noDueTodo: ToDoItem = {
+        id: 1,
+        title: 'No Due Task',
+        description: '',
+        link: '',
+        dueDate: '',
+        isCompleted: false,
+      };
+
+      const overdueTodo: ToDoItem = {
+        id: 2,
+        title: 'Overdue',
+        description: '',
+        link: '',
+        dueDate: DateTime.now().minus({ days: 1 }).toISO(),
+        isCompleted: false,
+      };
+
+      mockUseTodos.mockReturnValue({
+        data: [noDueTodo, overdueTodo],
+        loading: false,
+        error: null,
+        refetch: mockRefetch,
+      });
+
+      render(<ToDoListWidget />);
+
+      const overdueBt = screen.getByTestId('filter-overdue');
+      fireEvent.click(overdueBt);
+
+      expect(screen.getByTestId('todo-item-2')).toBeInTheDocument();
+      expect(screen.queryByTestId('todo-item-1')).not.toBeInTheDocument();
+    });
+  });
+
+  describe('Completed Tasks Section', () => {
+    it('toggles completed tasks visibility', async () => {
+      render(<ToDoListWidget />);
+
+      const toggleBtn = screen.getByTestId('completed-tasks-toggle');
+
+      fireEvent.click(toggleBtn);
+
+      await waitFor(() => {
+        const list = screen.getByTestId('completed-tasks-list');
+        expect(list).toBeVisible();
+      });
+
+      fireEvent.click(toggleBtn);
+
+      await waitFor(
+        () => {
+          const list = screen.getByTestId('completed-tasks-list');
+          expect(list).not.toBeVisible();
+        },
+        { timeout: 3000 },
+      );
+    });
+
+    it('displays completed tasks correctly when expanded', async () => {
+      render(<ToDoListWidget />);
+
+      const toggleBtn = screen.getByTestId('completed-tasks-toggle');
+      fireEvent.click(toggleBtn);
+
+      await waitFor(() => {
+        expect(screen.getByTestId('todo-item-2')).toBeInTheDocument();
+        expect(screen.getByTestId('todo-title-2')).toHaveTextContent('Todo 2');
+      });
     });
   });
 
@@ -601,7 +952,6 @@ describe('ToDoListWidget', () => {
       const editButton = screen.getByTestId('todo-edit-button-1');
       fireEvent.click(editButton);
 
-      // The date should be sliced to YYYY-MM-DD format
       expect(screen.getByTestId('todo-form-dialog')).toBeInTheDocument();
     });
   });
