@@ -178,8 +178,12 @@ const TestResultsPerApp = (props: TestResultsPerAppProps) => {
     : [];
 
   // Group by lastRunStatus
-const failedApps = sortedData.filter(app => (app.app?.lastRun?.status ?? app.lastRunStatus) === 'failed');
-const passingApps = sortedData.filter(app => ['passed', 'success'].includes(app.app?.lastRun?.status ?? app.lastRunStatus));
+  const failedApps = sortedData.filter(
+    app => (app.app?.lastRun?.status ?? app.lastRunStatus) === 'failed',
+  );
+  const passingApps = sortedData.filter(app =>
+    ['passed', 'success'].includes(app.app?.lastRun?.status ?? app.lastRunStatus),
+  );
 
   return (
     <Box sx={{ marginTop: 2 }}>
