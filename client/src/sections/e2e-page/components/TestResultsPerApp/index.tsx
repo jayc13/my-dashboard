@@ -177,12 +177,17 @@ const TestResultsPerApp = (props: TestResultsPerAppProps) => {
     ? [...filteredApps].sort((a, b) => a.successRate - b.successRate)
     : [];
 
-  // Group by lastRunStatus
-  const failedApps = sortedData.filter(
-    app => (app.app?.lastRun?.status ?? app.lastRunStatus) === 'failed',
-  );
+  // Helper to get effective status
+  const getEffectiveStatus = (app: DetailedE2EReportDetail): string => {
+    const status = app.app?.lastRun?.status;
+    return status === 'running' || status === 'pending'
+      ? app.lastRunStatus
+      : (status ?? app.lastRunStatus);
+  };
+
+  const failedApps = sortedData.filter(app => getEffectiveStatus(app) === 'failed');
   const passingApps = sortedData.filter(app =>
-    ['passed', 'success'].includes(app.app?.lastRun?.status ?? app.lastRunStatus),
+    ['passed', 'success'].includes(getEffectiveStatus(app)),
   );
 
   return (
