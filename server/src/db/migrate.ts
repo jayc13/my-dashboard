@@ -53,26 +53,24 @@ export async function runMigrations() {
   }
 }
 
-// Only run migrations if this file is executed directly
-if (require.main === module) {
-  runMigrations()
-    .then(() => {
-      Logger.info('All migrations have been applied successfully.');
-    })
-    .catch((error) => {
-      Logger.error('Migration failed:', { error });
-    })
-    .finally(async () => {
-      // Close database connection to allow process to exit
-      try {
-        await db.close();
-        Logger.info('Database connection closed.');
-        // eslint-disable-next-line no-process-exit
-        process.exit(0);
-      } catch (error) {
-        Logger.error('Error closing database connection:', { error });
-        // eslint-disable-next-line no-process-exit
-        process.exit(1);
-      }
-    });
-}
+// Run migrations immediately when this module is loaded as the main script
+runMigrations()
+  .then(() => {
+    Logger.info('All migrations have been applied successfully.');
+  })
+  .catch((error) => {
+    Logger.error('Migration failed:', { error });
+  })
+  .finally(async () => {
+    // Close database connection to allow process to exit
+    try {
+      await db.close();
+      Logger.info('Database connection closed.');
+      // eslint-disable-next-line no-process-exit
+      process.exit(0);
+    } catch (error) {
+      Logger.error('Error closing database connection:', { error });
+      // eslint-disable-next-line no-process-exit
+      process.exit(1);
+    }
+  });

@@ -1,11 +1,16 @@
 /**
  * Database Migration Tests
- * 
+ *
  * Tests for database migration functionality
  */
 
 import fs from 'fs';
 import path from 'path';
+
+// Mock process.exit to prevent test process from exiting
+jest.spyOn(process, 'exit').mockImplementation((code) => {
+  return undefined as never;
+});
 
 // Mock dependencies
 jest.mock('fs');
@@ -38,6 +43,11 @@ describe('Database Migrations', () => {
   });
 
   describe('runMigrations', () => {
+    beforeEach(() => {
+      jest.resetModules();
+      (process.exit as jest.Mock).mockClear();
+    });
+
     it('should create migrations table if not exists', async () => {
       (fs.readdirSync as jest.Mock).mockReturnValue([]);
       (db.all as jest.Mock).mockResolvedValue([]);
@@ -143,33 +153,44 @@ describe('Database Migrations', () => {
       (fs.readdirSync as jest.Mock).mockReturnValue([]);
       (db.all as jest.Mock).mockResolvedValue([]);
       (db.exec as jest.Mock).mockResolvedValue(undefined);
+      (db.close as jest.Mock).mockResolvedValue(undefined);
 
-      jest.isolateModules(() => {
-        const { runMigrations } = require('../../db/migrate');
-        runMigrations();
-      });
+      const { runMigrations } = require('../../db/migrate');
+      await runMigrations();
 
-      // Wait a bit for async operations
-      await new Promise(resolve => setTimeout(resolve, 10));
+      // Wait a bit for async operations in finally block
+      await new Promise(resolve => setTimeout(resolve, 50));
       expect(Logger.info).toHaveBeenCalledWith('Running MySQL migrations...');
+      expect(Logger.info).toHaveBeenCalledWith('All migrations have been applied successfully.');
     });
 
     it('should close database connection after migrations', async () => {
       (fs.readdirSync as jest.Mock).mockReturnValue([]);
       (db.all as jest.Mock).mockResolvedValue([]);
+      (db.exec as jest.Mock).mockResolvedValue(undefined);
       (db.close as jest.Mock).mockResolvedValue(undefined);
 
-      // The migrate.ts file runs migrations immediately, so we need to wait
-      // This test verifies the close is called in the finally block
-      expect(db.close).toBeDefined();
+      const { runMigrations } = require('../../db/migrate');
+      await runMigrations();
+
+      // Wait for finally block to complete
+      await new Promise(resolve => setTimeout(resolve, 50));
+      expect(db.close).toHaveBeenCalled();
     });
 
     it('should handle database close errors', async () => {
       const closeError = new Error('Close failed');
+      (fs.readdirSync as jest.Mock).mockReturnValue([]);
+      (db.all as jest.Mock).mockResolvedValue([]);
+      (db.exec as jest.Mock).mockResolvedValue(undefined);
       (db.close as jest.Mock).mockRejectedValue(closeError);
 
-      // The error should be logged but not thrown
-      expect(Logger.error).toBeDefined();
+      const { runMigrations } = require('../../db/migrate');
+      await runMigrations();
+
+      // Wait for finally block to complete
+      await new Promise(resolve => setTimeout(resolve, 50));
+      expect(Logger.error).toHaveBeenCalledWith('Error closing database connection:', { error: closeError });
     });
   });
 });
