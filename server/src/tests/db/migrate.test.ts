@@ -154,7 +154,6 @@ describe('Database Migrations', () => {
       (fs.readdirSync as jest.Mock).mockReturnValue([]);
       (db.all as jest.Mock).mockResolvedValue([]);
       (db.exec as jest.Mock).mockResolvedValue(undefined);
-      (db.close as jest.Mock).mockResolvedValue(undefined);
 
       jest.isolateModules(() => {
         const { runMigrations } = require('../../db/migrate');

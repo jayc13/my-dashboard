@@ -63,4 +63,7 @@ runMigrations()
   })
   .catch((error) => {
     Logger.error('Migration failed:', { error });
+  })
+  .finally(() => {
+    db.close();
   });
