@@ -13,11 +13,14 @@ export async function runMigrations() {
   Logger.info('Running MySQL migrations...');
 
   // Ensure migrations table exists
-  const createMigrationsTableSQL = `CREATE TABLE IF NOT EXISTS migrations (
-        id INT AUTO_INCREMENT PRIMARY KEY,
-        name VARCHAR(255) NOT NULL UNIQUE,
-        run_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`;
+  const createMigrationsTableSQL = `CREATE TABLE IF NOT EXISTS migrations
+                                    (
+                                        id     INT AUTO_INCREMENT PRIMARY KEY,
+                                        name   VARCHAR(255) NOT NULL UNIQUE,
+                                        run_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                                    ) ENGINE = InnoDB
+                                      DEFAULT CHARSET = utf8mb4
+                                      COLLATE = utf8mb4_unicode_ci`;
 
   await db.exec(createMigrationsTableSQL);
 
@@ -61,16 +64,16 @@ runMigrations()
   .catch((error) => {
     Logger.error('Migration failed:', { error });
   })
-  .finally(async () => {
-    // Close database connection to allow process to exit
-    try {
-      db.close().catch(() => {});
-      Logger.info('Database connection closed.');
-      // eslint-disable-next-line no-process-exit
-      process.exit(0);
-    } catch (error) {
-      Logger.error('Error closing database connection:', { error });
-      // eslint-disable-next-line no-process-exit
-      process.exit(1);
-    }
+  .finally(() => {
+    db.close()
+      .then(() => {
+        Logger.info('Database connection closed.');
+        // eslint-disable-next-line no-process-exit
+        process.exit(0);
+      })
+      .catch((error) => {
+        Logger.error('Error closing database connection:', { error });
+        // eslint-disable-next-line no-process-exit
+        process.exit(1);
+      });
   });
