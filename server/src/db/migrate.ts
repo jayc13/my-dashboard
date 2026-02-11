@@ -51,7 +51,6 @@ export async function runMigrations() {
       }
     }
   }
-  await db.close();
 }
 
 // Run migrations immediately when this module is loaded as the main script
@@ -65,7 +64,7 @@ runMigrations()
   .finally(async () => {
     // Close database connection to allow process to exit
     try {
-      await db.close();
+      db.close().catch(() => {});
       Logger.info('Database connection closed.');
       // eslint-disable-next-line no-process-exit
       process.exit(0);
