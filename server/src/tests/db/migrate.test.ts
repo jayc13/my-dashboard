@@ -130,14 +130,13 @@ describe('Database Migrations', () => {
       (fs.readdirSync as jest.Mock).mockReturnValue([failingMigration]);
       (db.all as jest.Mock).mockResolvedValue([]);
       (fs.readFileSync as jest.Mock).mockReturnValue('INVALID SQL;');
-      (db.exec as jest.Mock).mockRejectedValueOnce(error); // First call for migrations table
-      (db.exec as jest.Mock).mockRejectedValueOnce(error); // Second call for the failing migration
+      // Mock exec to succeed for migrations table, fail for the migration
+      (db.exec as jest.Mock)
+        .mockResolvedValueOnce(undefined) // Success for CREATE TABLE migrations
+        .mockRejectedValueOnce(error); // Fail for the migration SQL
 
-      // Need to isolate the runMigrations function
-      jest.isolateModules(() => {
-        const { runMigrations } = require('../../db/migrate');
-        expect(runMigrations()).rejects.toThrow('SQL syntax error');
-      });
+      const { runMigrations } = require('../../db/migrate');
+      await expect(runMigrations()).rejects.toThrow('SQL syntax error');
     });
 
     it('should log success message when all migrations complete', async () => {
