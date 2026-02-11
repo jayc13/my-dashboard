@@ -51,6 +51,7 @@ export async function runMigrations() {
       }
     }
   }
+  await db.close();
 }
 
 // Run migrations immediately when this module is loaded as the main script
