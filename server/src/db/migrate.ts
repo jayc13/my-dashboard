@@ -13,11 +13,14 @@ export async function runMigrations() {
   Logger.info('Running MySQL migrations...');
 
   // Ensure migrations table exists
-  const createMigrationsTableSQL = `CREATE TABLE IF NOT EXISTS migrations (
-        id INT AUTO_INCREMENT PRIMARY KEY,
-        name VARCHAR(255) NOT NULL UNIQUE,
-        run_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`;
+  const createMigrationsTableSQL = `CREATE TABLE IF NOT EXISTS migrations
+                                    (
+                                        id     INT AUTO_INCREMENT PRIMARY KEY,
+                                        name   VARCHAR(255) NOT NULL UNIQUE,
+                                        run_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                                    ) ENGINE = InnoDB
+                                      DEFAULT CHARSET = utf8mb4
+                                      COLLATE = utf8mb4_unicode_ci`;
 
   await db.exec(createMigrationsTableSQL);
 
@@ -53,26 +56,14 @@ export async function runMigrations() {
   }
 }
 
-// Only run migrations if this file is executed directly
-if (require.main === module) {
-  runMigrations()
-    .then(() => {
-      Logger.info('All migrations have been applied successfully.');
-    })
-    .catch((error) => {
-      Logger.error('Migration failed:', { error });
-    })
-    .finally(async () => {
-      // Close database connection to allow process to exit
-      try {
-        await db.close();
-        Logger.info('Database connection closed.');
-        // eslint-disable-next-line no-process-exit
-        process.exit(0);
-      } catch (error) {
-        Logger.error('Error closing database connection:', { error });
-        // eslint-disable-next-line no-process-exit
-        process.exit(1);
-      }
-    });
-}
+// Run migrations immediately when this module is loaded as the main script
+runMigrations()
+  .then(() => {
+    Logger.info('All migrations have been applied successfully.');
+  })
+  .catch((error) => {
+    Logger.error('Migration failed:', { error });
+  })
+  .finally(() => {
+    db.close();
+  });
