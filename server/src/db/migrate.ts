@@ -63,17 +63,4 @@ runMigrations()
   })
   .catch((error) => {
     Logger.error('Migration failed:', { error });
-  })
-  .finally(() => {
-    db.close()
-      .then(() => {
-        Logger.info('Database connection closed.');
-        // eslint-disable-next-line no-process-exit
-        process.exit(0);
-      })
-      .catch((error) => {
-        Logger.error('Error closing database connection:', { error });
-        // eslint-disable-next-line no-process-exit
-        process.exit(1);
-      });
   });
