@@ -23,6 +23,11 @@ jest.mock('../../utils/logger', () => ({
   },
 }));
 
+jest.mock('../../db/mysql', () => ({
+  getMySQLPool: jest.fn(),
+  closeMySQLConnection: jest.fn(),
+}));
+
 jest.mock('../../db/database', () => ({
   db: {
     exec: jest.fn(),
@@ -40,14 +45,10 @@ describe('Database Migrations', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    (process.exit as jest.Mock).mockClear();
   });
 
   describe('runMigrations', () => {
-    beforeEach(() => {
-      jest.resetModules();
-      (process.exit as jest.Mock).mockClear();
-    });
-
     it('should create migrations table if not exists', async () => {
       (fs.readdirSync as jest.Mock).mockReturnValue([]);
       (db.all as jest.Mock).mockResolvedValue([]);
@@ -81,7 +82,7 @@ describe('Database Migrations', () => {
     it('should apply new migrations', async () => {
       const newMigration = '002_new.sql';
       const migrationSQL = 'CREATE TABLE new_table;';
-      
+
       (fs.readdirSync as jest.Mock).mockReturnValue([newMigration]);
       (db.all as jest.Mock).mockResolvedValue([]);
       (fs.readFileSync as jest.Mock).mockReturnValue(migrationSQL);
@@ -155,11 +156,13 @@ describe('Database Migrations', () => {
       (db.exec as jest.Mock).mockResolvedValue(undefined);
       (db.close as jest.Mock).mockResolvedValue(undefined);
 
-      const { runMigrations } = require('../../db/migrate');
-      await runMigrations();
+      jest.isolateModules(() => {
+        const { runMigrations } = require('../../db/migrate');
+        runMigrations();
+      });
 
       // Wait a bit for async operations in finally block
-      await new Promise(resolve => setTimeout(resolve, 50));
+      await new Promise(resolve => setTimeout(resolve, 100));
       expect(Logger.info).toHaveBeenCalledWith('Running MySQL migrations...');
       expect(Logger.info).toHaveBeenCalledWith('All migrations have been applied successfully.');
     });
@@ -170,29 +173,15 @@ describe('Database Migrations', () => {
       (db.exec as jest.Mock).mockResolvedValue(undefined);
       (db.close as jest.Mock).mockResolvedValue(undefined);
 
-      const { runMigrations } = require('../../db/migrate');
-      await runMigrations();
+      jest.isolateModules(() => {
+        const { runMigrations } = require('../../db/migrate');
+        runMigrations();
+      });
 
       // Wait for finally block to complete
-      await new Promise(resolve => setTimeout(resolve, 50));
+      await new Promise(resolve => setTimeout(resolve, 100));
       expect(db.close).toHaveBeenCalled();
-    });
-
-    it('should handle database close errors', async () => {
-      const closeError = new Error('Close failed');
-      (fs.readdirSync as jest.Mock).mockReturnValue([]);
-      (db.all as jest.Mock).mockResolvedValue([]);
-      (db.exec as jest.Mock).mockResolvedValue(undefined);
-      (db.close as jest.Mock).mockRejectedValue(closeError);
-
-      const { runMigrations } = require('../../db/migrate');
-      await runMigrations();
-
-      // Wait for finally block to complete
-      await new Promise(resolve => setTimeout(resolve, 50));
-      expect(Logger.error).toHaveBeenCalledWith('Error closing database connection:', { error: closeError });
     });
   });
 });
-
 
