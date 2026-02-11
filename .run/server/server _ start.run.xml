@@ -1,9 +1,9 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="client &gt; test:coverage" type="js.build_tools.npm" folderName="Client">
-    <package-json value="$PROJECT_DIR$/client/package.json" />
+  <configuration default="false" name="server &gt; start" type="js.build_tools.npm" folderName="Server" nameIsGenerated="true">
+    <package-json value="$PROJECT_DIR$/server/package.json" />
     <command value="run" />
     <scripts>
-      <script value="test:coverage" />
+      <script value="start" />
     </scripts>
     <node-interpreter value="project" />
     <envs />

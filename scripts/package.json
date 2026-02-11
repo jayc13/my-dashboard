@@ -16,16 +16,16 @@
     "lint-fix": "eslint . --fix"
   },
   "dependencies": {
-    "dotenv": "^17.2.3"
+    "dotenv": "^17.2.4"
   },
   "devDependencies": {
-    "@commitlint/cli": "^20.3.1",
-    "@commitlint/config-conventional": "^20.3.1",
+    "@commitlint/cli": "^20.4.1",
+    "@commitlint/config-conventional": "^20.4.1",
     "@eslint/js": "^9.39.2",
     "@types/jest": "^30.0.0",
-    "commitlint": "^20.3.1",
+    "commitlint": "^20.4.1",
     "eslint": "^9.39.2",
-    "globals": "^17.0.0",
+    "globals": "^17.3.0",
     "husky": "^9.1.7",
     "jest": "^30.2.0"
   },

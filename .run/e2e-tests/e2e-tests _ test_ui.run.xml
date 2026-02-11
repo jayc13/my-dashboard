@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="e2e &gt; test:ui" type="js.build_tools.npm" folderName="E2E Tests">
+  <configuration default="false" name="e2e-tests &gt; test:ui" type="js.build_tools.npm" folderName="E2E Tests">
     <package-json value="$PROJECT_DIR$/tests/e2e-tests/package.json" />
     <command value="run" />
     <scripts>
@@ -7,6 +7,9 @@
     </scripts>
     <node-interpreter value="project" />
     <envs />
+    <EXTENSION ID="com.intellij.javascript.debugger.execution.StartBrowserRunConfigurationExtension">
+      <browser with-js-debugger="true" />
+    </EXTENSION>
     <method v="2" />
   </configuration>
 </component>
