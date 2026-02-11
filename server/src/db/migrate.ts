@@ -65,7 +65,11 @@ runMigrations()
     try {
       await db.close();
       Logger.info('Database connection closed.');
+      // eslint-disable-next-line no-process-exit
+      process.exit(0);
     } catch (error) {
       Logger.error('Error closing database connection:', { error });
+      // eslint-disable-next-line no-process-exit
+      process.exit(1);
     }
   });
