@@ -1,9 +1,9 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="client &gt; test:coverage" type="js.build_tools.npm" folderName="Client">
-    <package-json value="$PROJECT_DIR$/client/package.json" />
+  <configuration default="false" name="e2e-tests &gt; install-browsers" type="js.build_tools.npm" folderName="E2E Tests" nameIsGenerated="true">
+    <package-json value="$PROJECT_DIR$/tests/e2e-tests/package.json" />
     <command value="run" />
     <scripts>
-      <script value="test:coverage" />
+      <script value="install-browsers" />
     </scripts>
     <node-interpreter value="project" />
     <envs />
