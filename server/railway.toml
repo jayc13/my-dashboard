@@ -10,9 +10,9 @@ rootDirectory = ""
 [deploy]
 runtime = "V2"
 numReplicas = 1
-startCommand = "cd server && npm run migrate && npm start"
+startCommand = "cd server && npm start"
 healthcheckPath = "/health"
-preDeployCommand = [""]
+preDeployCommand = "cd server && npm run migrate"
 sleepApplication = false
 useLegacyStacker = false
 restartPolicyType = "ON_FAILURE"
