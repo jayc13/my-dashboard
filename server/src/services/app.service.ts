@@ -104,8 +104,8 @@ export class AppService {
         values.push(app.e2eTriggerConfiguration || null);
       }
       if (app.watching !== undefined) {
-        fields.push('watching = ?');
-        values.push(app.watching ? 1 : 0);
+        fields.push('watching is ?');
+        values.push(app.watching);
       }
 
       if (fields.length === 0) {
@@ -147,7 +147,7 @@ export class AppService {
 
   static async getWatching(): Promise<Application[]> {
     try {
-      const rows = await db.all('SELECT * FROM apps WHERE watching = 1 ORDER BY name ASC');
+      const rows = await db.all('SELECT * FROM apps WHERE watching is true ORDER BY name ASC');
       return rows.map(fromDatabaseRowToApplication);
     } catch (error) {
       Logger.error('Error fetching watching apps', { error });
