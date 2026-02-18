@@ -386,7 +386,7 @@ describe('AppService', () => {
       expect(result.watching).toBe(false);
       expect(mockDb.run).toHaveBeenCalledWith(
         'UPDATE apps SET watching = ? WHERE id = ?',
-        [0, 1],
+        [false, 1],
       );
     });
 
@@ -479,7 +479,7 @@ describe('AppService', () => {
 
       expect(result).toHaveLength(2);
       expect(result.every(app => app.watching)).toBe(true);
-      expect(mockDb.all).toHaveBeenCalledWith('SELECT * FROM apps WHERE watching = 1 ORDER BY name ASC');
+      expect(mockDb.all).toHaveBeenCalledWith('SELECT * FROM apps WHERE watching is true ORDER BY name ASC');
     });
 
     it('should throw error when database query fails', async () => {
