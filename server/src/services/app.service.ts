@@ -104,8 +104,8 @@ export class AppService {
         values.push(app.e2eTriggerConfiguration || null);
       }
       if (app.watching !== undefined) {
-        fields.push('watching is ?');
-        values.push(app.watching);
+        fields.push('watching = ?');
+        values.push(app.watching ? 1 : 0);
       }
 
       if (fields.length === 0) {

@@ -386,7 +386,7 @@ describe('AppService', () => {
       expect(result.watching).toBe(false);
       expect(mockDb.run).toHaveBeenCalledWith(
         'UPDATE apps SET watching = ? WHERE id = ?',
-        [false, 1],
+        [0, 1],
       );
     });
 
