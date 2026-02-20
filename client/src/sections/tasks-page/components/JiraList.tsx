@@ -1,7 +1,18 @@
-import { Alert, CircularProgress, Grid, Skeleton, Stack } from '@mui/material';
+import {
+  Alert,
+  CircularProgress,
+  Grid,
+  Skeleton,
+  Stack,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
+  Typography,
+} from '@mui/material';
 import JiraCard from '@/components/common/JiraCard';
 import { TooltipIconButton } from '@/components/common';
 import RefreshIcon from '@mui/icons-material/Refresh';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import type { JiraTicket } from '@/types/index';
 import { useState } from 'react';
 
@@ -109,6 +120,30 @@ const JiraList = (props: ManualTestingProps) => {
     );
   }
 
+  // Group tickets by status
+  const ticketsByStatus = data.reduce(
+    (acc, ticket) => {
+      const status = ticket.status;
+      if (!acc[status]) {
+        acc[status] = [];
+      }
+      acc[status].push(ticket);
+      return acc;
+    },
+    {} as Record<string, JiraTicket[]>,
+  );
+
+  // Sort statuses with "In Progress" first
+  const sortedStatuses = Object.keys(ticketsByStatus).sort((a, b) => {
+    if (a === 'In Progress') {
+      return -1;
+    }
+    if (b === 'In Progress') {
+      return 1;
+    }
+    return a.localeCompare(b);
+  });
+
   return (
     <div data-testid={`jira-list-${title.toLowerCase().replace(/\s+/g, '-')}`}>
       <JiraListHeader size={data.length} />
@@ -116,9 +151,26 @@ const JiraList = (props: ManualTestingProps) => {
         style={{ maxHeight: '800px', overflowY: 'auto' }}
         data-testid={`jira-list-container-${title.toLowerCase().replace(/\s+/g, '-')}`}
       >
-        <Stack direction="column" spacing={2}>
-          {data.map(ticket => (
-            <JiraCard ticket={ticket} key={ticket.key} />
+        <Stack direction="column" spacing={1}>
+          {sortedStatuses.map(status => (
+            <Accordion
+              key={status}
+              defaultExpanded={status === 'In Progress'}
+              data-testid={`jira-list-group-${status.toLowerCase().replace(/\s+/g, '-')}`}
+            >
+              <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+                  {status} ({ticketsByStatus[status].length})
+                </Typography>
+              </AccordionSummary>
+              <AccordionDetails>
+                <Stack direction="column" spacing={2} sx={{ width: '100%' }}>
+                  {ticketsByStatus[status].map(ticket => (
+                    <JiraCard ticket={ticket} key={ticket.key} />
+                  ))}
+                </Stack>
+              </AccordionDetails>
+            </Accordion>
           ))}
         </Stack>
       </div>
