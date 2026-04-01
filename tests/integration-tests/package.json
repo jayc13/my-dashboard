@@ -34,7 +34,7 @@
     "@typescript-eslint/parser": "^8.55.0",
     "eslint": "^9.39.2",
     "globals": "^17.3.0",
-    "jest-html-reporter": "^4.3.0",
+    "jest-html-reporter": "^4.4.0",
     "jest-junit": "^16.0.0"
   },
   "engines": {
