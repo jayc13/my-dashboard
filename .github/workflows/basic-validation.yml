@@ -89,7 +89,7 @@ jobs:
           ${{ github.workspace }}/scripts/ci/commit-validation.sh "${{ inputs.base-sha }}" "${{ inputs.head-sha }}"
 
       - name: Detect changes
-        uses: dorny/paths-filter@v3
+        uses: dorny/paths-filter@v4
         id: changes
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
