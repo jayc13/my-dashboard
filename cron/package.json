@@ -20,7 +20,7 @@
     "ioredis": "^5.9.2",
     "luxon": "^3.7.2",
     "node-cron": "^4.2.1",
-    "uuid": "^13.0.0"
+    "uuid": "^14.0.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.2",
